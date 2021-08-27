@@ -20,4 +20,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/martinkosch/open62541.jl",
+    devbranch = "main",
 )
