@@ -1,6 +1,8 @@
 module open62541
 
-using open62541_jll
+include("Libopen62541.jl")
+using .Libopen62541
+
 # Write your package code here.
 
 end
