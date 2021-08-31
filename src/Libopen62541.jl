@@ -33209,7 +33209,12 @@ const UA_REFERENCETYPESET_MAX = 128
 
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
 
-UA_TYPES_PTR = cglobal((:UA_TYPES, :libopen62541), UA_DataType)
+const UA_TYPES = Ref{Ptr{UA_DataType}}(0) # Initilize with C_NULL and initialize correct address at __init__
+
+function __init__()
+    global UA_TYPES
+    UA_TYPES[] = cglobal((:UA_TYPES, libopen62541), UA_DataType)
+end
 
 # exports
 const PREFIXES = ["UA_", "__UA_"]
