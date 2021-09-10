@@ -9,6 +9,14 @@ open62541_header = joinpath(include_dir, "open62541.h") |> normpath
 
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
+# Disable codegen for all inlined functions
+regex = r"UA_INLINE[\s]+(?:[\w\*]+[\s]*[\s\S]){0,3}((?:__)?UA_[\w]+)\("
+open(open62541_header, "r") do f
+    data = read(f, String)
+    inlined_funcs = vcat(getfield.(collect(eachmatch(regex, data)), :captures)...) # Extract inlined functions from header file
+    append!(options["general"]["printer_blacklist"], inlined_funcs)
+end
+
 # Add compiler flags
 args = get_default_args()
 push!(args, "-I$include_dir")
