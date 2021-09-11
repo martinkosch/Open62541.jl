@@ -10,6 +10,7 @@ open62541_jll = "de311183-6042-582f-9ed9-05a52085bec4"
 
 [compat]
 CEnum = "0.4"
+OffsetArrays = "1"
 julia = "1"
 
 [extras]
