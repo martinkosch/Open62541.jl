@@ -27509,6 +27509,7 @@ const UA_REFERENCETYPESET_MAX = 128
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
 
 include("generated_defs.jl")
+include("helper_functions.jl")
 include("types.jl")
 include("server.jl")
 include("client.jl")

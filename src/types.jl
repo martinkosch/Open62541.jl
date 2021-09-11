@@ -35,6 +35,61 @@ for type_name in type_names
     end
 end
 
+# UA_STRING(s::String)
+#     return UA_String(length(s), )
+#     # UA_String s; s.length = 0; s.data = NULL;
+#     # if(!chars)
+#     #     return s;
+#     # s.length = strlen(chars); s.data = (UA_Byte*)chars; return s;
+# end
+
+
+function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
+    identifier_tuple = anonymous_struct_tuple(UInt32(identifier), fieldtype(UA_NodeId, :identifier))
+    return UA_NodeId(nsIndex, UA_NODEIDTYPE_NUMERIC, identifier_tuple)
+end
+
+# function UA_NODEID_STRING(nsIndex::Integer, char::AbstractString)
+#     identifier_tuple = anonymous_struct_tuple(UA_STRING(char), fieldtype(UA_NodeId, :identifier))
+#     return UA_NodeId(nsIndex, UA_NODEIDTYPE_STRING, identifier_tuple)
+# end
+
+
+# static UA_INLINE UA_NodeId
+# UA_NODEID_STRING(UA_UInt16 nsIndex, char *chars) {
+#     UA_NodeId id; id.namespaceIndex = nsIndex;
+#     id.identifierType = UA_NODEIDTYPE_STRING;
+#     id.identifier.string = UA_STRING(chars); return id;
+# }
+
+# static UA_INLINE UA_NodeId
+# UA_NODEID_STRING_ALLOC(UA_UInt16 nsIndex, const char *chars) {
+#     UA_NodeId id; id.namespaceIndex = nsIndex;
+#     id.identifierType = UA_NODEIDTYPE_STRING;
+#     id.identifier.string = UA_STRING_ALLOC(chars); return id;
+# }
+
+# static UA_INLINE UA_NodeId
+# UA_NODEID_GUID(UA_UInt16 nsIndex, UA_Guid guid) {
+#     UA_NodeId id; id.namespaceIndex = nsIndex;
+#     id.identifierType = UA_NODEIDTYPE_GUID;
+#     id.identifier.guid = guid; return id;
+# }
+
+# static UA_INLINE UA_NodeId
+# UA_NODEID_BYTESTRING(UA_UInt16 nsIndex, char *chars) {
+#     UA_NodeId id; id.namespaceIndex = nsIndex;
+#     id.identifierType = UA_NODEIDTYPE_BYTESTRING;
+#     id.identifier.byteString = UA_BYTESTRING(chars); return id;
+# }
+
+# static UA_INLINE UA_NodeId
+# UA_NODEID_BYTESTRING_ALLOC(UA_UInt16 nsIndex, const char *chars) {
+#     UA_NodeId id; id.namespaceIndex = nsIndex;
+#     id.identifierType = UA_NODEIDTYPE_BYTESTRING;
+#     id.identifier.byteString = UA_BYTESTRING_ALLOC(chars); return id;
+# }
+
 UA_Variant_isEmpty(v::Ref{UA_Variant}) = unsafe_load(v).type == C_NULL
 
 function UA_Variant_isScalar(p::Ref{UA_Variant}) 

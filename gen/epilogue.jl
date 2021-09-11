@@ -1,4 +1,5 @@
 include("generated_defs.jl")
+include("helper_functions.jl")
 include("types.jl")
 include("server.jl")
 include("client.jl")
