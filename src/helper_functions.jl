@@ -1,11 +1,23 @@
-function anonymous_struct_tuple(data, type)
-    if isbitstype(typeof(data))
-        raw = reinterpret(UInt8, [data])
-    elseif isa(data, AbstractString)
-        raw = Vector{UInt8}(data)
-    else
-        error("Type $(typeof(data)) not supported.")
-    end
+function anonymous_struct_tuple(data::Integer, type)
+    raw = reinterpret(UInt8, [data])
+    padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
+    return type(Tuple(padded))
+end
+
+function anonymous_struct_tuple(data::UA_String, type)
+
+    raw_length = reinterpret(UInt8, [data.length])
+    raw_data = reinterpret(UInt8, [data.data])
+    raw = [raw_length; raw_data]
+    padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
+    return type(Tuple(padded))
+end
+
+function anonymous_struct_tuple(data::UA_Guid, type)
+    raw_data1 = reinterpret(UInt8, [data.data1])
+    raw_data2 = reinterpret(UInt8, [data.data2])
+    raw_data3 = reinterpret(UInt8, [data.data3])
+    raw = [raw_data1; raw_data2; raw_data3; data.data4...]
     padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
     return type(Tuple(padded))
 end

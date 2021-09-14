@@ -150,7 +150,10 @@ auto_mutability_with_new = false
 auto_mutability_blacklist = []
 
 # opposite to `auto_mutability_blacklist` and has a higher priority
-auto_mutability_whitelist = []
+auto_mutability_whitelist = [
+    "UA_NodeId", 
+    "UA_ExpandedNodeId", 
+]
 
 # if set to "raw", extract and dump raw c comment;
 # if set to "doxygen", parse and format doxygen comment.
@@ -194,7 +197,10 @@ use_ccall_macro = true
 wrap_variadic_function = false
 
 # generate getproperty/setproperty! methods for the types in the following list
-field_access_method_list = ["UA_NodeId"]
+field_access_method_list = [
+    "UA_NodeId", 
+    "UA_Variant"
+]
 
 # the generator will prefix the function argument names in the following list with a "_" to 
 # prevent the generated symbols from conflicting with the symbols defined and exported in Base.

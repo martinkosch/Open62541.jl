@@ -16,8 +16,8 @@ version = "0.4.1"
 
 [[Clang]]
 deps = ["CEnum", "Clang_jll", "Downloads", "Pkg", "TOML"]
-git-tree-sha1 = "251da8105f340c077a5113bf45f8ff535a4bb464"
-repo-rev = "317845b"
+git-tree-sha1 = "fcc9924c7df2ea965b098b6b12e211d18b5f2c0f"
+repo-rev = "master"
 repo-url = "https://github.com/JuliaInterop/Clang.jl.git"
 uuid = "40e3b903-d033-50b4-a0cc-940c62c95e31"
 version = "0.14.0"

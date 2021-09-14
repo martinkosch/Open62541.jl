@@ -6,6 +6,7 @@ export open62541_jll
 using CEnum
 
 using OffsetArrays
+using Dates
 
 const int64_t = Int64
 const uint64_t = UInt64
@@ -316,6 +317,20 @@ struct UA_Variant
     arrayDimensionsSize::Csize_t
     arrayDimensions::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_Variant}, f::Symbol)
+    f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
+    f === :storageType && return Ptr{UA_VariantStorageType}(x + 8)
+    f === :arrayLength && return Ptr{Csize_t}(x + 16)
+    f === :data && return Ptr{Ptr{Cvoid}}(x + 24)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 32)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Variant}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
 .. \\_datetime:
@@ -27510,6 +27525,16 @@ const UA_REFERENCETYPESET_MAX = 128
 
 include("generated_defs.jl")
 include("helper_functions.jl")
+
+const UA_STRING_NULL = UA_String(0, C_NULL)
+const UA_GUID_NULL = UA_Guid(0, 0, 0, Tuple(zeros(UA_Byte, 8)))
+const UA_NODEID_NULL = UA_NodeId(
+    0, 
+    UA_NodeIdType(0), 
+    anonymous_struct_tuple(UInt32(0), fieldtype(UA_NodeId, :identifier))
+)
+const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL, 0)
+
 include("types.jl")
 include("server.jl")
 include("client.jl")
