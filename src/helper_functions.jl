@@ -1,3 +1,9 @@
+function anonymous_struct_tuple(data::Ptr{T}, type) where T
+    vec = Vector{UInt8}(undef, sizeof(type))
+    GC.@preserve vec unsafe_copyto!(pointer(vec), reinterpret(Ptr{UInt8}, data), sizeof(T))
+    return type(Tuple(vec))
+end
+
 function anonymous_struct_tuple(data::Integer, type)
     raw = reinterpret(UInt8, [data])
     padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
@@ -5,7 +11,6 @@ function anonymous_struct_tuple(data::Integer, type)
 end
 
 function anonymous_struct_tuple(data::UA_String, type)
-
     raw_length = reinterpret(UInt8, [data.length])
     raw_data = reinterpret(UInt8, [data.data])
     raw = [raw_length; raw_data]

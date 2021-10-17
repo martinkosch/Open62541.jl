@@ -40,7 +40,7 @@ for (i, type_name) in enumerate(type_names)
     @eval begin
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i-1)]
         
-        if !(type_names[$(i)] in types_ambiguous_blacklist)
+        if !(type_names[$(i)] in types_ambiguous_denylist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i-1)]
 
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
@@ -109,7 +109,15 @@ UA_StatusCode_name_print(sc::Integer) = return unsafe_string(UA_StatusCode_name(
 
 ## String
 
-# String `s` must be kept valid using GC.@preserve as long as the return value is used
+# String `s` is copied to newly allocated memory that needs to be freed. Returns a pointer to a new `UA_String`.
+function UA_String_set_alloc(data::AbstractString, ua_str::Ptr{UA_String})
+    s = UA_String_fromChars(data)
+    ua_str.data = s.data
+    ua_str.length = s.length
+    return ua_str
+end
+
+# String `s` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_STRING_ALLOC with a subsequent call to UA_String_delete.
 function UA_STRING_unsafe(s::AbstractString)
     GC.@preserve s begin
         isempty(s) && return UA_String(0, C_NULL)
@@ -117,12 +125,15 @@ function UA_STRING_unsafe(s::AbstractString)
     end
 end
 
-# String `s` is copied to newly allocated memory that needs to be freed
+# String `s` is copied to newly allocated memory. The result's field `data` needs to be freed. Returns a `UA_String` struct.
 UA_STRING_ALLOC(s::AbstractString) = UA_String_fromChars(s)
+
+UA_String_delete(s::UA_String) = UA_Byte_delete(s.data)
 
 Base.unsafe_string(s::UA_String) = unsafe_string(s.data, s.length)
 Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
 Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
+
 
 ## DateTime
 
@@ -150,18 +161,12 @@ end
 
 ## NodeId 
 
-function UA_NODEID_unsafe(s::AbstractString)
-    id = Ref{UA_NodeId}()
-    GC.@preserve s UA_NodeId_parse(id, UA_STRING_unsafe(s))
-    return id[]
-end
-
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     identifier_tuple = anonymous_struct_tuple(UInt32(identifier), fieldtype(UA_NodeId, :identifier))
     return UA_NodeId(nsIndex, UA_NODEIDTYPE_NUMERIC, identifier_tuple)
 end
 
-# String `s` must be kept valid using GC.@preserve as long as the return value is used
+# String `s` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_NODEID_STRING_ALLOC with a subsequent call to UA_NodeId_delete.
 function UA_NODEID_STRING_unsafe(nsIndex::Integer, s::AbstractString)
     GC.@preserve s identifier_tuple = anonymous_struct_tuple(UA_STRING_unsafe(s), fieldtype(UA_NodeId, :identifier))
     return UA_NodeId(nsIndex, UA_NODEIDTYPE_STRING, identifier_tuple)
@@ -178,41 +183,62 @@ function UA_NODEID_GUID(nsIndex::Integer, guid::UA_Guid)
     return UA_NodeId(nsIndex, UA_NODEIDTYPE_GUID, identifier_tuple)
 end
 
+function UA_NodeId_delete(n::UA_NodeId)
+    if n.identifier == UA_NODEIDTYPE_STRING
+        UA_String_delete(n.identifier.string)
+    end
+    return nothing
+end
+
 UA_NodeId_equal(n1::Ref{UA_NodeId}, n2::Ref{UA_NodeId}) = UA_NodeId_order(n1, n2) == UA_ORDER_EQ
 
 
 ## ExpandedNodeId
 
-function UA_EXPANDEDNODEID(s::AbstractString)
-    id = Ref{UA_ExpandedNodeId}()
-    GC.@preserve s UA_ExpandedNodeId_parse(id, UA_STRING_unsafe(s))
-    return id[]
-end
-
-function UA_EXPANDEDNODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
+# String `ns_uri` is copied to newly allocated memory that needs to be freed. 
+function UA_EXPANDEDNODEID_NUMERIC_ALLOC(
+    nsIndex::Integer, 
+    identifier::Integer, 
+    ns_uri::AbstractString, 
+    server_ind::Integer,
+)
     nodeid = UA_NODEID_NUMERIC(nsIndex, identifier)
-    return UA_ExpandedNodeId(nodeid, UA_STRING_NULL, 0)
+    ua_ns_uri = UA_STRING_ALLOC(ns_uri)
+    return UA_ExpandedNodeId(nodeid, ua_ns_uri, server_ind)
 end
 
-# String `s` must be kept valid using GC.@preserve as long as the return value is used
-function UA_EXPANDEDNODEID_STRING_unsafe(nsIndex::Integer, s::AbstractString)
-    GC.@preserve s nodeid = UA_NODEID_STRING_unsafe(nsIndex, s)
-    return UA_ExpandedNodeId(nodeid, UA_STRING_NULL, 0)
-end
-
-# String `s` is copied to newly allocated memory that needs to be freed
-function UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex::Integer, s::AbstractString)
+# Strings `s` and `ns_uri` are copied to newly allocated memory that needs to be freed. 
+function UA_EXPANDEDNODEID_STRING_ALLOC(
+    nsIndex::Integer, 
+    s::AbstractString, 
+    ns_uri::AbstractString, 
+    server_ind::Integer, 
+)
     nodeid = UA_NODEID_STRING_ALLOC(nsIndex, s)
-    return UA_ExpandedNodeId(nodeid, UA_STRING_NULL, 0)
+    ua_ns_uri = UA_STRING_ALLOC(ns_uri)
+    return UA_ExpandedNodeId(nodeid, ua_ns_uri, server_ind)
 end
 
-function UA_EXPANDEDNODEID_GUID(nsIndex::Integer, guid::UA_Guid)
+# String `ns_uri` is copied to newly allocated memory that needs to be freed. 
+function UA_EXPANDEDNODEID_GUID_ALLOC(
+    nsIndex::Integer, 
+    guid::UA_Guid, 
+    ns_uri::AbstractString, 
+    server_ind::Integer, 
+)
     nodeid = UA_NODEID_GUID(nsIndex, guid)
-    return UA_ExpandedNodeId(nodeid, UA_STRING_NULL, 0)
+    ua_ns_uri = UA_STRING_ALLOC(ns_uri)
+    return UA_ExpandedNodeId(nodeid, ua_ns_uri, server_ind)
 end
 
 function UA_ExpandedNodeId_equal(n1::Ref{UA_ExpandedNodeId}, n2::Ref{UA_ExpandedNodeId}) 
     return UA_ExpandedNodeId_order(n1, n2) == UA_ORDER_EQ
+end
+
+function UA_ExpandedNodeId_delete(n::UA_ExpandedNodeId) 
+    UA_NodeId_delete(n.nodeId)
+    UA_String_delete(n.namespaceUri)
+    return nothing
 end
 
 
@@ -221,20 +247,22 @@ end
 UA_QualifiedName_isNull(q::UA_QualifiedName) = (q.namespaceIndex == 0 && q.name.length == 0)
 UA_QualifiedName_isNull(q::Ref{UA_QualifiedName}) = UA_QualifiedName_isNull(q[])
 
-# String `s` must be kept valid using GC.@preserve as long as the return value is used
+# String `s` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_QUALIFIEDNAME_ALLOC with a subsequent call to UA_QualifiedName_delete.
 function UA_QUALIFIEDNAME(nsIndex::Integer, s::AbstractString)
     GC.@preserve s return UA_QualifiedName(nsIndex,  UA_STRING_unsafe(s))
 end
 
-# String `s` is copied to newly allocated memory that needs to be freed
+# String `s` is copied to newly allocated memory that needs to be freed. 
 function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::AbstractString)
     return UA_QualifiedName(nsIndex, UA_String_fromChars(s))
 end
 
+UA_QualifiedName_delete(q::UA_QualifiedName) = UA_String_delete(q.name)
+
 
 ## LocalizedText
 
-# Strings `locale` and `text` must be kept valid using GC.@preserve as long as the return value is used
+# Strings `locale` and `text` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_QUALIFIEDNAME_ALLOC with a subsequent call to UA_LocalizedText_delete.
 function UA_LOCALIZEDTEXT_unsafe(locale::AbstractString, text::AbstractString)
     GC.@preserve locale text begin
         return UA_LocalizedText(UA_STRING_unsafe(locale), UA_STRING_unsafe(text))
@@ -245,6 +273,8 @@ end
 function UA_LOCALIZEDTEXT_ALLOC(locale::AbstractString, text::AbstractString)
     return UA_LocalizedText(UA_STRING_ALLOC(locale), UA_STRING_ALLOC(text))
 end
+
+UA_LocalizedText_delete(l::UA_LocalizedText) = UA_String_delete(l.text)
 
 ## NumericRange
 

@@ -39,9 +39,9 @@ prologue_file_path = "./prologue.jl"
 # this is often used for applying custom patches.
 epilogue_file_path = "./epilogue.jl"
 
-# node with an id in the `printer_blacklist` will be ignored in the printing passes. 
+# node with an id in the `printer_denylist` will be ignored in the printing passes. 
 # this is very useful for custom editing. 
-printer_blacklist = [
+printer_denylist = [
     "UA_access",
     "UA_ERRNO", 
     "UA_INTERRUPTED", 
@@ -146,11 +146,11 @@ auto_mutability_with_new = false
 # when calling this function via `ccall`, passing a `Vector{mutable_type}(undef, n)` to the first
 # argument will trigger a crash, the reason is mutable structs are not stored inline within a `Vector`,
 # one should use `Ref{NTuple{n,mutable_type}}()` instead.
-# this is not convenient and that's where the `auto_mutability_blacklist` comes in.
-auto_mutability_blacklist = []
+# this is not convenient and that's where the `auto_mutability_denylist` comes in.
+auto_mutability_denylist = []
 
-# opposite to `auto_mutability_blacklist` and has a higher priority
-auto_mutability_whitelist = [
+# opposite to `auto_mutability_denylist` and has a higher priority
+auto_mutability_allowlist = [
     "UA_NodeId", 
     "UA_ExpandedNodeId", 
 ]
@@ -198,9 +198,9 @@ wrap_variadic_function = false
 
 # generate getproperty/setproperty! methods for the types in the following list
 field_access_method_list = [
-    "UA_NodeId", 
-    "UA_Variant"
-]
+    "userIdentityToken", 
+    "UA_ClientConfig", 
+    "UA_Boolean", "UA_SByte", "UA_Byte", "UA_Int16", "UA_UInt16", "UA_Int32", "UA_UInt32", "UA_Int64", "UA_UInt64", "UA_Float", "UA_Double", "UA_String", "UA_DateTime", "UA_Guid", "UA_ByteString", "UA_XmlElement", "UA_NodeId", "UA_ExpandedNodeId", "UA_StatusCode", "UA_QualifiedName", "UA_LocalizedText", "UA_ExtensionObject", "UA_DataValue", "UA_Variant", "UA_DiagnosticInfo", "UA_ViewAttributes", "UA_XVType", "UA_ElementOperand", "UA_VariableAttributes", "UA_EnumValueType", "UA_EventFieldList", "UA_MonitoredItemCreateResult", "UA_EUInformation", "UA_ServerDiagnosticsSummaryDataType", "UA_ContentFilterElementResult", "UA_LiteralOperand", "UA_MessageSecurityMode", "UA_UtcTime", "UA_UserIdentityToken", "UA_X509IdentityToken", "UA_MonitoredItemNotification", "UA_StructureType", "UA_ResponseHeader", "UA_SignatureData", "UA_ModifySubscriptionResponse", "UA_NodeAttributes", "UA_ActivateSessionResponse", "UA_EnumField", "UA_VariableTypeAttributes", "UA_CallMethodResult", "UA_MonitoringMode", "UA_SetMonitoringModeResponse", "UA_BrowseResultMask", "UA_RequestHeader", "UA_MonitoredItemModifyResult", "UA_CloseSecureChannelRequest", "UA_NotificationMessage", "UA_CreateSubscriptionResponse", "UA_EnumDefinition", "UA_AxisScaleEnumeration", "UA_BrowseDirection", "UA_CallMethodRequest", "UA_ReadResponse", "UA_TimestampsToReturn", "UA_NodeClass", "UA_ObjectTypeAttributes", "UA_SecurityTokenRequestType", "UA_CloseSessionResponse", "UA_SetPublishingModeRequest", "UA_IssuedIdentityToken", "UA_DeleteMonitoredItemsResponse", "UA_ApplicationType", "UA_BrowseNextRequest", "UA_ModifySubscriptionRequest", "UA_BrowseDescription", "UA_SignedSoftwareCertificate", "UA_BrowsePathTarget", "UA_WriteResponse", "UA_AddNodesResult", "UA_AddReferencesItem", "UA_DeleteReferencesResponse", "UA_RelativePathElement", "UA_SubscriptionAcknowledgement", "UA_TransferResult", "UA_CreateMonitoredItemsResponse", "UA_DeleteReferencesItem", "UA_WriteValue", "UA_DataTypeAttributes", "UA_TransferSubscriptionsResponse", "UA_AddReferencesResponse", "UA_DeadbandType", "UA_DataChangeTrigger", "UA_BuildInfo", "UA_FilterOperand", "UA_MonitoringParameters", "UA_DoubleComplexNumberType", "UA_DeleteNodesItem", "UA_ReadValueId", "UA_CallRequest", "UA_RelativePath", "UA_DeleteNodesRequest", "UA_MonitoredItemModifyRequest", "UA_UserTokenType", "UA_AggregateConfiguration", "UA_LocaleId", "UA_UnregisterNodesResponse", "UA_ContentFilterResult", "UA_UserTokenPolicy", "UA_DeleteMonitoredItemsRequest", "UA_SetMonitoringModeRequest", "UA_Duration", "UA_ReferenceTypeAttributes", "UA_GetEndpointsRequest", "UA_CloseSecureChannelResponse", "UA_ViewDescription", "UA_SetPublishingModeResponse", "UA_StatusChangeNotification", "UA_StructureField", "UA_NodeAttributesMask", "UA_EventFilterResult", "UA_MonitoredItemCreateRequest", "UA_ComplexNumberType", "UA_Range", "UA_DataChangeNotification", "UA_Argument", "UA_TransferSubscriptionsRequest", "UA_ChannelSecurityToken", "UA_ServerState", "UA_EventNotificationList", "UA_AnonymousIdentityToken", "UA_FilterOperator", "UA_AggregateFilter", "UA_RepublishResponse", "UA_DeleteSubscriptionsResponse", "UA_RegisterNodesRequest", "UA_StructureDefinition", "UA_MethodAttributes", "UA_UserNameIdentityToken", "UA_UnregisterNodesRequest", "UA_OpenSecureChannelResponse", "UA_SetTriggeringResponse", "UA_SimpleAttributeOperand", "UA_RepublishRequest", "UA_RegisterNodesResponse", "UA_ModifyMonitoredItemsResponse", "UA_DeleteSubscriptionsRequest", "UA_RedundancySupport", "UA_BrowsePath", "UA_ObjectAttributes", "UA_PublishRequest", "UA_FindServersRequest", "UA_ReferenceDescription", "UA_CreateSubscriptionRequest", "UA_CallResponse", "UA_DeleteNodesResponse", "UA_ModifyMonitoredItemsRequest", "UA_ServiceFault", "UA_PublishResponse", "UA_CreateMonitoredItemsRequest", "UA_OpenSecureChannelRequest", "UA_CloseSessionRequest", "UA_SetTriggeringRequest", "UA_BrowseResult", "UA_AddReferencesRequest", "UA_AddNodesItem", "UA_ServerStatusDataType", "UA_BrowseNextResponse", "UA_AxisInformation", "UA_ApplicationDescription", "UA_ReadRequest", "UA_ActivateSessionRequest", "UA_BrowsePathResult", "UA_AddNodesRequest", "UA_BrowseRequest", "UA_WriteRequest", "UA_AddNodesResponse", "UA_AttributeOperand", "UA_DataChangeFilter", "UA_EndpointDescription", "UA_DeleteReferencesRequest", "UA_TranslateBrowsePathsToNodeIdsRequest", "UA_FindServersResponse", "UA_CreateSessionRequest", "UA_ContentFilterElement", "UA_TranslateBrowsePathsToNodeIdsResponse", "UA_BrowseResponse", "UA_CreateSessionResponse", "UA_ContentFilter", "UA_GetEndpointsResponse", "UA_EventFilter"]
 
 # the generator will prefix the function argument names in the following list with a "_" to 
 # prevent the generated symbols from conflicting with the symbols defined and exported in Base.
@@ -213,7 +213,7 @@ function_argument_conflict_symbols = []
 macro_mode = "basic"
 
 # function-like macros in the following list will always be translated.
-functionlike_macro_whitelist = []
+functionlike_macro_allowlist = []
 
 # if true, the generator prints the following message as comments.
 # "# Skipping MacroDefinition: ..."

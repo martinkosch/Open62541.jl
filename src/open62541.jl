@@ -19,10 +19,6 @@ const UA_TRUE = true
 
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
 
-const UINT_PTR = Culonglong
-
-const SOCKET = UINT_PTR
-
 """
 Byte ^^^^ An integer value between 0 and 255. 
 """
@@ -37,6 +33,16 @@ struct UA_String
     length::Csize_t
     data::Ptr{UA_Byte}
 end
+function Base.getproperty(x::Ptr{UA_String}, f::Symbol)
+    f === :length && return Ptr{Csize_t}(x + 0)
+    f === :data && return Ptr{Ptr{UA_Byte}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_String}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_String_fromChars(src)
     @ccall libopen62541.UA_String_fromChars(src::Cstring)::UA_String
@@ -61,11 +67,11 @@ NodeId ^^^^^^ An identifier for a node in the address space of an OPC UA Server.
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_376
+struct __JL_Ctag_293
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_376}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_293}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -73,26 +79,26 @@ function Base.getproperty(x::Ptr{__JL_Ctag_376}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_376, f::Symbol)
-    r = Ref{__JL_Ctag_376}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_376}, r)
+function Base.getproperty(x::__JL_Ctag_293, f::Symbol)
+    r = Ref{__JL_Ctag_293}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_293}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_376}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_293}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 struct UA_NodeId
     namespaceIndex::UA_UInt16
     identifierType::UA_NodeIdType
-    identifier::__JL_Ctag_376
+    identifier::__JL_Ctag_293
 end
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_376}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_293}(x + 8)
     return getfield(x, f)
 end
 
@@ -237,31 +243,31 @@ const UA_Int32 = Int32
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_371
+struct __JL_Ctag_294
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_371}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_372}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_294}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_295}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_373}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_296}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_371, f::Symbol)
-    r = Ref{__JL_Ctag_371}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_371}, r)
+function Base.getproperty(x::__JL_Ctag_294, f::Symbol)
+    r = Ref{__JL_Ctag_294}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_294}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_371}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_294}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 struct UA_ValueBackend
     backendType::UA_ValueBackendType
-    backend::__JL_Ctag_371
+    backend::__JL_Ctag_294
 end
 
 """
@@ -369,6 +375,26 @@ struct UA_DataValue
     hasSourcePicoseconds::UA_Boolean
     hasServerPicoseconds::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_DataValue}, f::Symbol)
+    f === :value && return Ptr{UA_Variant}(x + 0)
+    f === :sourceTimestamp && return Ptr{UA_DateTime}(x + 48)
+    f === :serverTimestamp && return Ptr{UA_DateTime}(x + 56)
+    f === :sourcePicoseconds && return Ptr{UA_UInt16}(x + 64)
+    f === :serverPicoseconds && return Ptr{UA_UInt16}(x + 66)
+    f === :status && return Ptr{UA_StatusCode}(x + 68)
+    f === :hasValue && return (Ptr{UA_Boolean}(x + 72), 0, 1)
+    f === :hasStatus && return (Ptr{UA_Boolean}(x + 72), 1, 1)
+    f === :hasSourceTimestamp && return (Ptr{UA_Boolean}(x + 72), 2, 1)
+    f === :hasServerTimestamp && return (Ptr{UA_Boolean}(x + 72), 3, 1)
+    f === :hasSourcePicoseconds && return (Ptr{UA_Boolean}(x + 72), 4, 1)
+    f === :hasServerPicoseconds && return (Ptr{UA_Boolean}(x + 72), 5, 1)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataValue}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 struct UA_ValueCallback
     onRead::Ptr{Cvoid}
@@ -605,6 +631,18 @@ struct UA_Guid
     data3::UA_UInt16
     data4::NTuple{8, UA_Byte}
 end
+function Base.getproperty(x::Ptr{UA_Guid}, f::Symbol)
+    f === :data1 && return Ptr{UA_UInt32}(x + 0)
+    f === :data2 && return Ptr{UA_UInt16}(x + 4)
+    f === :data3 && return Ptr{UA_UInt16}(x + 6)
+    f === :data4 && return Ptr{NTuple{8, UA_Byte}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Guid}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_Guid_equal(g1, g2)
     @ccall libopen62541.UA_Guid_equal(g1::Ptr{UA_Guid}, g2::Ptr{UA_Guid})::UA_Boolean
@@ -670,6 +708,17 @@ struct UA_ExpandedNodeId
     namespaceUri::UA_String
     serverIndex::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ExpandedNodeId}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :namespaceUri && return Ptr{UA_String}(x + 24)
+    f === :serverIndex && return Ptr{UA_UInt32}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ExpandedNodeId}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_ExpandedNodeId_print(id, output)
     @ccall libopen62541.UA_ExpandedNodeId_print(id::Ptr{UA_ExpandedNodeId}, output::Ptr{UA_String})::UA_StatusCode
@@ -702,6 +751,16 @@ struct UA_QualifiedName
     namespaceIndex::UA_UInt16
     name::UA_String
 end
+function Base.getproperty(x::Ptr{UA_QualifiedName}, f::Symbol)
+    f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
+    f === :name && return Ptr{UA_String}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_QualifiedName}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_QualifiedName_hash(q)
     @ccall libopen62541.UA_QualifiedName_hash(q::Ptr{UA_QualifiedName})::UA_UInt32
@@ -720,6 +779,16 @@ struct UA_LocalizedText
     locale::UA_String
     text::UA_String
 end
+function Base.getproperty(x::Ptr{UA_LocalizedText}, f::Symbol)
+    f === :locale && return Ptr{UA_String}(x + 0)
+    f === :text && return Ptr{UA_String}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_LocalizedText}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_StatusCode_isBad(code)
     @ccall libopen62541.UA_StatusCode_isBad(code::UA_StatusCode)::UA_Boolean
@@ -793,31 +862,41 @@ ExtensionObjects may contain scalars of any data type. Even those that are unkno
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_368
+struct __JL_Ctag_286
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_368}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_369}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_370}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_286}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_287}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_288}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_368, f::Symbol)
-    r = Ref{__JL_Ctag_368}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_368}, r)
+function Base.getproperty(x::__JL_Ctag_286, f::Symbol)
+    r = Ref{__JL_Ctag_286}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_286}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_368}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_286}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 struct UA_ExtensionObject
     encoding::UA_ExtensionObjectEncoding
-    content::__JL_Ctag_368
+    content::__JL_Ctag_286
 end
+function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
+    f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
+    f === :content && return Ptr{__JL_Ctag_286}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ExtensionObject}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_ExtensionObject_setValue(eo, p, type)
     @ccall libopen62541.UA_ExtensionObject_setValue(eo::Ptr{UA_ExtensionObject}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::Cvoid
@@ -1013,6 +1092,21 @@ struct UA_ViewAttributes
     containsNoLoops::UA_Boolean
     eventNotifier::UA_Byte
 end
+function Base.getproperty(x::Ptr{UA_ViewAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :containsNoLoops && return Ptr{UA_Boolean}(x + 80)
+    f === :eventNotifier && return Ptr{UA_Byte}(x + 81)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ViewAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_XVType
@@ -1023,6 +1117,16 @@ struct UA_XVType
     x::UA_Double
     value::UA_Float
 end
+function Base.getproperty(x::Ptr{UA_XVType}, f::Symbol)
+    f === :x && return Ptr{UA_Double}(x + 0)
+    f === :value && return Ptr{UA_Float}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_XVType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ElementOperand
@@ -1032,6 +1136,15 @@ ElementOperand ^^^^^^^^^^^^^^
 struct UA_ElementOperand
     index::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ElementOperand}, f::Symbol)
+    f === :index && return Ptr{UA_UInt32}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ElementOperand}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_VariableAttributes
@@ -1054,6 +1167,28 @@ struct UA_VariableAttributes
     minimumSamplingInterval::UA_Double
     historizing::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_VariableAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :value && return Ptr{UA_Variant}(x + 80)
+    f === :dataType && return Ptr{UA_NodeId}(x + 128)
+    f === :valueRank && return Ptr{UA_Int32}(x + 152)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 160)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 168)
+    f === :accessLevel && return Ptr{UA_Byte}(x + 176)
+    f === :userAccessLevel && return Ptr{UA_Byte}(x + 177)
+    f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 184)
+    f === :historizing && return Ptr{UA_Boolean}(x + 192)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_VariableAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EnumValueType
@@ -1065,6 +1200,17 @@ struct UA_EnumValueType
     displayName::UA_LocalizedText
     description::UA_LocalizedText
 end
+function Base.getproperty(x::Ptr{UA_EnumValueType}, f::Symbol)
+    f === :value && return Ptr{UA_Int64}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EnumValueType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EventFieldList
@@ -1076,6 +1222,17 @@ struct UA_EventFieldList
     eventFieldsSize::Csize_t
     eventFields::Ptr{UA_Variant}
 end
+function Base.getproperty(x::Ptr{UA_EventFieldList}, f::Symbol)
+    f === :clientHandle && return Ptr{UA_UInt32}(x + 0)
+    f === :eventFieldsSize && return Ptr{Csize_t}(x + 8)
+    f === :eventFields && return Ptr{Ptr{UA_Variant}}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EventFieldList}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoredItemCreateResult
@@ -1089,6 +1246,19 @@ struct UA_MonitoredItemCreateResult
     revisedQueueSize::UA_UInt32
     filterResult::UA_ExtensionObject
 end
+function Base.getproperty(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :monitoredItemId && return Ptr{UA_UInt32}(x + 4)
+    f === :revisedSamplingInterval && return Ptr{UA_Double}(x + 8)
+    f === :revisedQueueSize && return Ptr{UA_UInt32}(x + 16)
+    f === :filterResult && return Ptr{UA_ExtensionObject}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EUInformation
@@ -1101,6 +1271,18 @@ struct UA_EUInformation
     displayName::UA_LocalizedText
     description::UA_LocalizedText
 end
+function Base.getproperty(x::Ptr{UA_EUInformation}, f::Symbol)
+    f === :namespaceUri && return Ptr{UA_String}(x + 0)
+    f === :unitId && return Ptr{UA_Int32}(x + 16)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 24)
+    f === :description && return Ptr{UA_LocalizedText}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EUInformation}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ServerDiagnosticsSummaryDataType
@@ -1121,6 +1303,26 @@ struct UA_ServerDiagnosticsSummaryDataType
     securityRejectedRequestsCount::UA_UInt32
     rejectedRequestsCount::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ServerDiagnosticsSummaryDataType}, f::Symbol)
+    f === :serverViewCount && return Ptr{UA_UInt32}(x + 0)
+    f === :currentSessionCount && return Ptr{UA_UInt32}(x + 4)
+    f === :cumulatedSessionCount && return Ptr{UA_UInt32}(x + 8)
+    f === :securityRejectedSessionCount && return Ptr{UA_UInt32}(x + 12)
+    f === :rejectedSessionCount && return Ptr{UA_UInt32}(x + 16)
+    f === :sessionTimeoutCount && return Ptr{UA_UInt32}(x + 20)
+    f === :sessionAbortCount && return Ptr{UA_UInt32}(x + 24)
+    f === :currentSubscriptionCount && return Ptr{UA_UInt32}(x + 28)
+    f === :cumulatedSubscriptionCount && return Ptr{UA_UInt32}(x + 32)
+    f === :publishingIntervalCount && return Ptr{UA_UInt32}(x + 36)
+    f === :securityRejectedRequestsCount && return Ptr{UA_UInt32}(x + 40)
+    f === :rejectedRequestsCount && return Ptr{UA_UInt32}(x + 44)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ServerDiagnosticsSummaryDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ContentFilterElementResult
@@ -1134,6 +1336,19 @@ struct UA_ContentFilterElementResult
     operandDiagnosticInfosSize::Csize_t
     operandDiagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_ContentFilterElementResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :operandStatusCodesSize && return Ptr{Csize_t}(x + 8)
+    f === :operandStatusCodes && return Ptr{Ptr{UA_StatusCode}}(x + 16)
+    f === :operandDiagnosticInfosSize && return Ptr{Csize_t}(x + 24)
+    f === :operandDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ContentFilterElementResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_LiteralOperand
@@ -1143,6 +1358,15 @@ LiteralOperand ^^^^^^^^^^^^^^
 struct UA_LiteralOperand
     value::UA_Variant
 end
+function Base.getproperty(x::Ptr{UA_LiteralOperand}, f::Symbol)
+    f === :value && return Ptr{UA_Variant}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_LiteralOperand}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MessageSecurityMode
@@ -1174,6 +1398,15 @@ UserIdentityToken ^^^^^^^^^^^^^^^^^ A base type for a user identity token.
 struct UA_UserIdentityToken
     policyId::UA_String
 end
+function Base.getproperty(x::Ptr{UA_UserIdentityToken}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UserIdentityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_X509IdentityToken
@@ -1184,6 +1417,16 @@ struct UA_X509IdentityToken
     policyId::UA_String
     certificateData::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_X509IdentityToken}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    f === :certificateData && return Ptr{UA_ByteString}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_X509IdentityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoredItemNotification
@@ -1194,6 +1437,16 @@ struct UA_MonitoredItemNotification
     clientHandle::UA_UInt32
     value::UA_DataValue
 end
+function Base.getproperty(x::Ptr{UA_MonitoredItemNotification}, f::Symbol)
+    f === :clientHandle && return Ptr{UA_UInt32}(x + 0)
+    f === :value && return Ptr{UA_DataValue}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoredItemNotification}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_StructureType
@@ -1225,6 +1478,21 @@ struct UA_ResponseHeader
     stringTable::Ptr{UA_String}
     additionalHeader::UA_ExtensionObject
 end
+function Base.getproperty(x::Ptr{UA_ResponseHeader}, f::Symbol)
+    f === :timestamp && return Ptr{UA_DateTime}(x + 0)
+    f === :requestHandle && return Ptr{UA_UInt32}(x + 8)
+    f === :serviceResult && return Ptr{UA_StatusCode}(x + 12)
+    f === :serviceDiagnostics && return Ptr{UA_DiagnosticInfo}(x + 16)
+    f === :stringTableSize && return Ptr{Csize_t}(x + 72)
+    f === :stringTable && return Ptr{Ptr{UA_String}}(x + 80)
+    f === :additionalHeader && return Ptr{UA_ExtensionObject}(x + 88)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ResponseHeader}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SignatureData
@@ -1235,6 +1503,16 @@ struct UA_SignatureData
     algorithm::UA_String
     signature::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_SignatureData}, f::Symbol)
+    f === :algorithm && return Ptr{UA_String}(x + 0)
+    f === :signature && return Ptr{UA_ByteString}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SignatureData}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ModifySubscriptionResponse
@@ -1247,6 +1525,18 @@ struct UA_ModifySubscriptionResponse
     revisedLifetimeCount::UA_UInt32
     revisedMaxKeepAliveCount::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ModifySubscriptionResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :revisedPublishingInterval && return Ptr{UA_Double}(x + 136)
+    f === :revisedLifetimeCount && return Ptr{UA_UInt32}(x + 144)
+    f === :revisedMaxKeepAliveCount && return Ptr{UA_UInt32}(x + 148)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ModifySubscriptionResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_NodeAttributes
@@ -1260,6 +1550,19 @@ struct UA_NodeAttributes
     writeMask::UA_UInt32
     userWriteMask::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_NodeAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_NodeAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ActivateSessionResponse
@@ -1274,6 +1577,20 @@ struct UA_ActivateSessionResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_ActivateSessionResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :serverNonce && return Ptr{UA_ByteString}(x + 136)
+    f === :resultsSize && return Ptr{Csize_t}(x + 152)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 160)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 168)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 176)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ActivateSessionResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EnumField
@@ -1286,6 +1603,18 @@ struct UA_EnumField
     description::UA_LocalizedText
     name::UA_String
 end
+function Base.getproperty(x::Ptr{UA_EnumField}, f::Symbol)
+    f === :value && return Ptr{UA_Int64}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :name && return Ptr{UA_String}(x + 72)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EnumField}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_VariableTypeAttributes
@@ -1305,6 +1634,25 @@ struct UA_VariableTypeAttributes
     arrayDimensions::Ptr{UA_UInt32}
     isAbstract::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_VariableTypeAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :value && return Ptr{UA_Variant}(x + 80)
+    f === :dataType && return Ptr{UA_NodeId}(x + 128)
+    f === :valueRank && return Ptr{UA_Int32}(x + 152)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 160)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 168)
+    f === :isAbstract && return Ptr{UA_Boolean}(x + 176)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_VariableTypeAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CallMethodResult
@@ -1320,6 +1668,21 @@ struct UA_CallMethodResult
     outputArgumentsSize::Csize_t
     outputArguments::Ptr{UA_Variant}
 end
+function Base.getproperty(x::Ptr{UA_CallMethodResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :inputArgumentResultsSize && return Ptr{Csize_t}(x + 8)
+    f === :inputArgumentResults && return Ptr{Ptr{UA_StatusCode}}(x + 16)
+    f === :inputArgumentDiagnosticInfosSize && return Ptr{Csize_t}(x + 24)
+    f === :inputArgumentDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 32)
+    f === :outputArgumentsSize && return Ptr{Csize_t}(x + 40)
+    f === :outputArguments && return Ptr{Ptr{UA_Variant}}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CallMethodResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoringMode
@@ -1349,6 +1712,19 @@ struct UA_SetMonitoringModeResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseResultMask
@@ -1387,6 +1763,21 @@ struct UA_RequestHeader
     timeoutHint::UA_UInt32
     additionalHeader::UA_ExtensionObject
 end
+function Base.getproperty(x::Ptr{UA_RequestHeader}, f::Symbol)
+    f === :authenticationToken && return Ptr{UA_NodeId}(x + 0)
+    f === :timestamp && return Ptr{UA_DateTime}(x + 24)
+    f === :requestHandle && return Ptr{UA_UInt32}(x + 32)
+    f === :returnDiagnostics && return Ptr{UA_UInt32}(x + 36)
+    f === :auditEntryId && return Ptr{UA_String}(x + 40)
+    f === :timeoutHint && return Ptr{UA_UInt32}(x + 56)
+    f === :additionalHeader && return Ptr{UA_ExtensionObject}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RequestHeader}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoredItemModifyResult
@@ -1399,6 +1790,18 @@ struct UA_MonitoredItemModifyResult
     revisedQueueSize::UA_UInt32
     filterResult::UA_ExtensionObject
 end
+function Base.getproperty(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :revisedSamplingInterval && return Ptr{UA_Double}(x + 8)
+    f === :revisedQueueSize && return Ptr{UA_UInt32}(x + 16)
+    f === :filterResult && return Ptr{UA_ExtensionObject}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CloseSecureChannelRequest
@@ -1408,6 +1811,15 @@ CloseSecureChannelRequest ^^^^^^^^^^^^^^^^^^^^^^^^^ Closes a secure channel.
 struct UA_CloseSecureChannelRequest
     requestHeader::UA_RequestHeader
 end
+function Base.getproperty(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_NotificationMessage
@@ -1420,6 +1832,18 @@ struct UA_NotificationMessage
     notificationDataSize::Csize_t
     notificationData::Ptr{UA_ExtensionObject}
 end
+function Base.getproperty(x::Ptr{UA_NotificationMessage}, f::Symbol)
+    f === :sequenceNumber && return Ptr{UA_UInt32}(x + 0)
+    f === :publishTime && return Ptr{UA_DateTime}(x + 8)
+    f === :notificationDataSize && return Ptr{Csize_t}(x + 16)
+    f === :notificationData && return Ptr{Ptr{UA_ExtensionObject}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_NotificationMessage}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateSubscriptionResponse
@@ -1433,6 +1857,19 @@ struct UA_CreateSubscriptionResponse
     revisedLifetimeCount::UA_UInt32
     revisedMaxKeepAliveCount::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_CreateSubscriptionResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 136)
+    f === :revisedPublishingInterval && return Ptr{UA_Double}(x + 144)
+    f === :revisedLifetimeCount && return Ptr{UA_UInt32}(x + 152)
+    f === :revisedMaxKeepAliveCount && return Ptr{UA_UInt32}(x + 156)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateSubscriptionResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EnumDefinition
@@ -1443,6 +1880,16 @@ struct UA_EnumDefinition
     fieldsSize::Csize_t
     fields::Ptr{UA_EnumField}
 end
+function Base.getproperty(x::Ptr{UA_EnumDefinition}, f::Symbol)
+    f === :fieldsSize && return Ptr{Csize_t}(x + 0)
+    f === :fields && return Ptr{Ptr{UA_EnumField}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AxisScaleEnumeration
@@ -1488,6 +1935,18 @@ struct UA_CallMethodRequest
     inputArgumentsSize::Csize_t
     inputArguments::Ptr{UA_Variant}
 end
+function Base.getproperty(x::Ptr{UA_CallMethodRequest}, f::Symbol)
+    f === :objectId && return Ptr{UA_NodeId}(x + 0)
+    f === :methodId && return Ptr{UA_NodeId}(x + 24)
+    f === :inputArgumentsSize && return Ptr{Csize_t}(x + 48)
+    f === :inputArguments && return Ptr{Ptr{UA_Variant}}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CallMethodRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ReadResponse
@@ -1501,6 +1960,19 @@ struct UA_ReadResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_ReadResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_DataValue}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TimestampsToReturn
@@ -1555,6 +2027,20 @@ struct UA_ObjectTypeAttributes
     userWriteMask::UA_UInt32
     isAbstract::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_ObjectTypeAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :isAbstract && return Ptr{UA_Boolean}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ObjectTypeAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SecurityTokenRequestType
@@ -1579,6 +2065,15 @@ CloseSessionResponse ^^^^^^^^^^^^^^^^^^^^ Closes a session with the server.
 struct UA_CloseSessionResponse
     responseHeader::UA_ResponseHeader
 end
+function Base.getproperty(x::Ptr{UA_CloseSessionResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CloseSessionResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SetPublishingModeRequest
@@ -1591,6 +2086,18 @@ struct UA_SetPublishingModeRequest
     subscriptionIdsSize::Csize_t
     subscriptionIds::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :publishingEnabled && return Ptr{UA_Boolean}(x + 112)
+    f === :subscriptionIdsSize && return Ptr{Csize_t}(x + 120)
+    f === :subscriptionIds && return Ptr{Ptr{UA_UInt32}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_IssuedIdentityToken
@@ -1602,6 +2109,17 @@ struct UA_IssuedIdentityToken
     tokenData::UA_ByteString
     encryptionAlgorithm::UA_String
 end
+function Base.getproperty(x::Ptr{UA_IssuedIdentityToken}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    f === :tokenData && return Ptr{UA_ByteString}(x + 16)
+    f === :encryptionAlgorithm && return Ptr{UA_String}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_IssuedIdentityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteMonitoredItemsResponse
@@ -1615,6 +2133,19 @@ struct UA_DeleteMonitoredItemsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_DeleteMonitoredItemsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ApplicationType
@@ -1644,6 +2175,18 @@ struct UA_BrowseNextRequest
     continuationPointsSize::Csize_t
     continuationPoints::Ptr{UA_ByteString}
 end
+function Base.getproperty(x::Ptr{UA_BrowseNextRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :releaseContinuationPoints && return Ptr{UA_Boolean}(x + 112)
+    f === :continuationPointsSize && return Ptr{Csize_t}(x + 120)
+    f === :continuationPoints && return Ptr{Ptr{UA_ByteString}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseNextRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ModifySubscriptionRequest
@@ -1659,6 +2202,21 @@ struct UA_ModifySubscriptionRequest
     maxNotificationsPerPublish::UA_UInt32
     priority::UA_Byte
 end
+function Base.getproperty(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :requestedPublishingInterval && return Ptr{UA_Double}(x + 120)
+    f === :requestedLifetimeCount && return Ptr{UA_UInt32}(x + 128)
+    f === :requestedMaxKeepAliveCount && return Ptr{UA_UInt32}(x + 132)
+    f === :maxNotificationsPerPublish && return Ptr{UA_UInt32}(x + 136)
+    f === :priority && return Ptr{UA_Byte}(x + 140)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseDescription
@@ -1673,6 +2231,20 @@ struct UA_BrowseDescription
     nodeClassMask::UA_UInt32
     resultMask::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_BrowseDescription}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :browseDirection && return Ptr{UA_BrowseDirection}(x + 24)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 32)
+    f === :includeSubtypes && return Ptr{UA_Boolean}(x + 56)
+    f === :nodeClassMask && return Ptr{UA_UInt32}(x + 60)
+    f === :resultMask && return Ptr{UA_UInt32}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SignedSoftwareCertificate
@@ -1683,6 +2255,16 @@ struct UA_SignedSoftwareCertificate
     certificateData::UA_ByteString
     signature::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_SignedSoftwareCertificate}, f::Symbol)
+    f === :certificateData && return Ptr{UA_ByteString}(x + 0)
+    f === :signature && return Ptr{UA_ByteString}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SignedSoftwareCertificate}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowsePathTarget
@@ -1693,6 +2275,16 @@ struct UA_BrowsePathTarget
     targetId::UA_ExpandedNodeId
     remainingPathIndex::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_BrowsePathTarget}, f::Symbol)
+    f === :targetId && return Ptr{UA_ExpandedNodeId}(x + 0)
+    f === :remainingPathIndex && return Ptr{UA_UInt32}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowsePathTarget}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_WriteResponse
@@ -1706,6 +2298,19 @@ struct UA_WriteResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_WriteResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_WriteResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddNodesResult
@@ -1716,6 +2321,16 @@ struct UA_AddNodesResult
     statusCode::UA_StatusCode
     addedNodeId::UA_NodeId
 end
+function Base.getproperty(x::Ptr{UA_AddNodesResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :addedNodeId && return Ptr{UA_NodeId}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddNodesResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddReferencesItem
@@ -1730,6 +2345,20 @@ struct UA_AddReferencesItem
     targetNodeId::UA_ExpandedNodeId
     targetNodeClass::UA_NodeClass
 end
+function Base.getproperty(x::Ptr{UA_AddReferencesItem}, f::Symbol)
+    f === :sourceNodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 24)
+    f === :isForward && return Ptr{UA_Boolean}(x + 48)
+    f === :targetServerUri && return Ptr{UA_String}(x + 56)
+    f === :targetNodeId && return Ptr{UA_ExpandedNodeId}(x + 72)
+    f === :targetNodeClass && return Ptr{UA_NodeClass}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddReferencesItem}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteReferencesResponse
@@ -1743,6 +2372,19 @@ struct UA_DeleteReferencesResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_DeleteReferencesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteReferencesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RelativePathElement
@@ -1755,6 +2397,18 @@ struct UA_RelativePathElement
     includeSubtypes::UA_Boolean
     targetName::UA_QualifiedName
 end
+function Base.getproperty(x::Ptr{UA_RelativePathElement}, f::Symbol)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 0)
+    f === :isInverse && return Ptr{UA_Boolean}(x + 24)
+    f === :includeSubtypes && return Ptr{UA_Boolean}(x + 25)
+    f === :targetName && return Ptr{UA_QualifiedName}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RelativePathElement}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SubscriptionAcknowledgement
@@ -1765,6 +2419,16 @@ struct UA_SubscriptionAcknowledgement
     subscriptionId::UA_UInt32
     sequenceNumber::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_SubscriptionAcknowledgement}, f::Symbol)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 0)
+    f === :sequenceNumber && return Ptr{UA_UInt32}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SubscriptionAcknowledgement}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TransferResult
@@ -1776,6 +2440,17 @@ struct UA_TransferResult
     availableSequenceNumbersSize::Csize_t
     availableSequenceNumbers::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_TransferResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :availableSequenceNumbersSize && return Ptr{Csize_t}(x + 8)
+    f === :availableSequenceNumbers && return Ptr{Ptr{UA_UInt32}}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TransferResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateMonitoredItemsResponse
@@ -1789,6 +2464,19 @@ struct UA_CreateMonitoredItemsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_CreateMonitoredItemsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_MonitoredItemCreateResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteReferencesItem
@@ -1802,6 +2490,19 @@ struct UA_DeleteReferencesItem
     targetNodeId::UA_ExpandedNodeId
     deleteBidirectional::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_DeleteReferencesItem}, f::Symbol)
+    f === :sourceNodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 24)
+    f === :isForward && return Ptr{UA_Boolean}(x + 48)
+    f === :targetNodeId && return Ptr{UA_ExpandedNodeId}(x + 56)
+    f === :deleteBidirectional && return Ptr{UA_Boolean}(x + 104)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteReferencesItem}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_WriteValue
@@ -1814,6 +2515,18 @@ struct UA_WriteValue
     indexRange::UA_String
     value::UA_DataValue
 end
+function Base.getproperty(x::Ptr{UA_WriteValue}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 24)
+    f === :indexRange && return Ptr{UA_String}(x + 32)
+    f === :value && return Ptr{UA_DataValue}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_WriteValue}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DataTypeAttributes
@@ -1828,6 +2541,20 @@ struct UA_DataTypeAttributes
     userWriteMask::UA_UInt32
     isAbstract::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_DataTypeAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :isAbstract && return Ptr{UA_Boolean}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataTypeAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TransferSubscriptionsResponse
@@ -1841,6 +2568,19 @@ struct UA_TransferSubscriptionsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_TransferSubscriptionsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_TransferResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddReferencesResponse
@@ -1854,6 +2594,19 @@ struct UA_AddReferencesResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_AddReferencesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddReferencesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeadbandType
@@ -1900,6 +2653,20 @@ struct UA_BuildInfo
     buildNumber::UA_String
     buildDate::UA_DateTime
 end
+function Base.getproperty(x::Ptr{UA_BuildInfo}, f::Symbol)
+    f === :productUri && return Ptr{UA_String}(x + 0)
+    f === :manufacturerName && return Ptr{UA_String}(x + 16)
+    f === :productName && return Ptr{UA_String}(x + 32)
+    f === :softwareVersion && return Ptr{UA_String}(x + 48)
+    f === :buildNumber && return Ptr{UA_String}(x + 64)
+    f === :buildDate && return Ptr{UA_DateTime}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BuildInfo}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
 FilterOperand ^^^^^^^^^^^^^
@@ -1918,6 +2685,19 @@ struct UA_MonitoringParameters
     queueSize::UA_UInt32
     discardOldest::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_MonitoringParameters}, f::Symbol)
+    f === :clientHandle && return Ptr{UA_UInt32}(x + 0)
+    f === :samplingInterval && return Ptr{UA_Double}(x + 8)
+    f === :filter && return Ptr{UA_ExtensionObject}(x + 16)
+    f === :queueSize && return Ptr{UA_UInt32}(x + 64)
+    f === :discardOldest && return Ptr{UA_Boolean}(x + 68)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoringParameters}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DoubleComplexNumberType
@@ -1928,6 +2708,16 @@ struct UA_DoubleComplexNumberType
     real::UA_Double
     imaginary::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_DoubleComplexNumberType}, f::Symbol)
+    f === :real && return Ptr{UA_Double}(x + 0)
+    f === :imaginary && return Ptr{UA_Double}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DoubleComplexNumberType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteNodesItem
@@ -1938,6 +2728,16 @@ struct UA_DeleteNodesItem
     nodeId::UA_NodeId
     deleteTargetReferences::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_DeleteNodesItem}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :deleteTargetReferences && return Ptr{UA_Boolean}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteNodesItem}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ReadValueId
@@ -1950,6 +2750,18 @@ struct UA_ReadValueId
     indexRange::UA_String
     dataEncoding::UA_QualifiedName
 end
+function Base.getproperty(x::Ptr{UA_ReadValueId}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 24)
+    f === :indexRange && return Ptr{UA_String}(x + 32)
+    f === :dataEncoding && return Ptr{UA_QualifiedName}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadValueId}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CallRequest
@@ -1961,6 +2773,17 @@ struct UA_CallRequest
     methodsToCallSize::Csize_t
     methodsToCall::Ptr{UA_CallMethodRequest}
 end
+function Base.getproperty(x::Ptr{UA_CallRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :methodsToCallSize && return Ptr{Csize_t}(x + 112)
+    f === :methodsToCall && return Ptr{Ptr{UA_CallMethodRequest}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CallRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RelativePath
@@ -1971,6 +2794,16 @@ struct UA_RelativePath
     elementsSize::Csize_t
     elements::Ptr{UA_RelativePathElement}
 end
+function Base.getproperty(x::Ptr{UA_RelativePath}, f::Symbol)
+    f === :elementsSize && return Ptr{Csize_t}(x + 0)
+    f === :elements && return Ptr{Ptr{UA_RelativePathElement}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RelativePath}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteNodesRequest
@@ -1982,6 +2815,17 @@ struct UA_DeleteNodesRequest
     nodesToDeleteSize::Csize_t
     nodesToDelete::Ptr{UA_DeleteNodesItem}
 end
+function Base.getproperty(x::Ptr{UA_DeleteNodesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :nodesToDeleteSize && return Ptr{Csize_t}(x + 112)
+    f === :nodesToDelete && return Ptr{Ptr{UA_DeleteNodesItem}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteNodesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoredItemModifyRequest
@@ -1992,6 +2836,16 @@ struct UA_MonitoredItemModifyRequest
     monitoredItemId::UA_UInt32
     requestedParameters::UA_MonitoringParameters
 end
+function Base.getproperty(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol)
+    f === :monitoredItemId && return Ptr{UA_UInt32}(x + 0)
+    f === :requestedParameters && return Ptr{UA_MonitoringParameters}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_UserTokenType
@@ -2022,6 +2876,19 @@ struct UA_AggregateConfiguration
     percentDataGood::UA_Byte
     useSlopedExtrapolation::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_AggregateConfiguration}, f::Symbol)
+    f === :useServerCapabilitiesDefaults && return Ptr{UA_Boolean}(x + 0)
+    f === :treatUncertainAsBad && return Ptr{UA_Boolean}(x + 1)
+    f === :percentDataBad && return Ptr{UA_Byte}(x + 2)
+    f === :percentDataGood && return Ptr{UA_Byte}(x + 3)
+    f === :useSlopedExtrapolation && return Ptr{UA_Boolean}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AggregateConfiguration}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
 LocaleId ^^^^^^^^ An identifier for a user locale. 
@@ -2036,6 +2903,15 @@ UnregisterNodesResponse ^^^^^^^^^^^^^^^^^^^^^^^ Unregisters one or more previous
 struct UA_UnregisterNodesResponse
     responseHeader::UA_ResponseHeader
 end
+function Base.getproperty(x::Ptr{UA_UnregisterNodesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UnregisterNodesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ContentFilterResult
@@ -2048,6 +2924,18 @@ struct UA_ContentFilterResult
     elementDiagnosticInfosSize::Csize_t
     elementDiagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_ContentFilterResult}, f::Symbol)
+    f === :elementResultsSize && return Ptr{Csize_t}(x + 0)
+    f === :elementResults && return Ptr{Ptr{UA_ContentFilterElementResult}}(x + 8)
+    f === :elementDiagnosticInfosSize && return Ptr{Csize_t}(x + 16)
+    f === :elementDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ContentFilterResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_UserTokenPolicy
@@ -2061,6 +2949,19 @@ struct UA_UserTokenPolicy
     issuerEndpointUrl::UA_String
     securityPolicyUri::UA_String
 end
+function Base.getproperty(x::Ptr{UA_UserTokenPolicy}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    f === :tokenType && return Ptr{UA_UserTokenType}(x + 16)
+    f === :issuedTokenType && return Ptr{UA_String}(x + 24)
+    f === :issuerEndpointUrl && return Ptr{UA_String}(x + 40)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UserTokenPolicy}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteMonitoredItemsRequest
@@ -2073,6 +2974,18 @@ struct UA_DeleteMonitoredItemsRequest
     monitoredItemIdsSize::Csize_t
     monitoredItemIds::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :monitoredItemIdsSize && return Ptr{Csize_t}(x + 120)
+    f === :monitoredItemIds && return Ptr{Ptr{UA_UInt32}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SetMonitoringModeRequest
@@ -2086,6 +2999,19 @@ struct UA_SetMonitoringModeRequest
     monitoredItemIdsSize::Csize_t
     monitoredItemIds::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :monitoringMode && return Ptr{UA_MonitoringMode}(x + 116)
+    f === :monitoredItemIdsSize && return Ptr{Csize_t}(x + 120)
+    f === :monitoredItemIds && return Ptr{Ptr{UA_UInt32}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
 Duration ^^^^^^^^ A period of time measured in milliseconds. 
@@ -2107,6 +3033,22 @@ struct UA_ReferenceTypeAttributes
     symmetric::UA_Boolean
     inverseName::UA_LocalizedText
 end
+function Base.getproperty(x::Ptr{UA_ReferenceTypeAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :isAbstract && return Ptr{UA_Boolean}(x + 80)
+    f === :symmetric && return Ptr{UA_Boolean}(x + 81)
+    f === :inverseName && return Ptr{UA_LocalizedText}(x + 88)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReferenceTypeAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_GetEndpointsRequest
@@ -2121,6 +3063,20 @@ struct UA_GetEndpointsRequest
     profileUrisSize::Csize_t
     profileUris::Ptr{UA_String}
 end
+function Base.getproperty(x::Ptr{UA_GetEndpointsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :endpointUrl && return Ptr{UA_String}(x + 112)
+    f === :localeIdsSize && return Ptr{Csize_t}(x + 128)
+    f === :localeIds && return Ptr{Ptr{UA_String}}(x + 136)
+    f === :profileUrisSize && return Ptr{Csize_t}(x + 144)
+    f === :profileUris && return Ptr{Ptr{UA_String}}(x + 152)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_GetEndpointsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CloseSecureChannelResponse
@@ -2130,6 +3086,15 @@ CloseSecureChannelResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^ Closes a secure channel.
 struct UA_CloseSecureChannelResponse
     responseHeader::UA_ResponseHeader
 end
+function Base.getproperty(x::Ptr{UA_CloseSecureChannelResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CloseSecureChannelResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ViewDescription
@@ -2141,6 +3106,17 @@ struct UA_ViewDescription
     timestamp::UA_DateTime
     viewVersion::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ViewDescription}, f::Symbol)
+    f === :viewId && return Ptr{UA_NodeId}(x + 0)
+    f === :timestamp && return Ptr{UA_DateTime}(x + 24)
+    f === :viewVersion && return Ptr{UA_UInt32}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ViewDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SetPublishingModeResponse
@@ -2154,6 +3130,19 @@ struct UA_SetPublishingModeResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_SetPublishingModeResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetPublishingModeResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_StatusChangeNotification
@@ -2164,6 +3153,16 @@ struct UA_StatusChangeNotification
     status::UA_StatusCode
     diagnosticInfo::UA_DiagnosticInfo
 end
+function Base.getproperty(x::Ptr{UA_StatusChangeNotification}, f::Symbol)
+    f === :status && return Ptr{UA_StatusCode}(x + 0)
+    f === :diagnosticInfo && return Ptr{UA_DiagnosticInfo}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StatusChangeNotification}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_StructureField
@@ -2180,6 +3179,22 @@ struct UA_StructureField
     maxStringLength::UA_UInt32
     isOptional::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_StructureField}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :description && return Ptr{UA_LocalizedText}(x + 16)
+    f === :dataType && return Ptr{UA_NodeId}(x + 48)
+    f === :valueRank && return Ptr{UA_Int32}(x + 72)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 80)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 88)
+    f === :maxStringLength && return Ptr{UA_UInt32}(x + 96)
+    f === :isOptional && return Ptr{UA_Boolean}(x + 100)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_NodeAttributesMask
@@ -2241,6 +3256,19 @@ struct UA_EventFilterResult
     selectClauseDiagnosticInfos::Ptr{UA_DiagnosticInfo}
     whereClauseResult::UA_ContentFilterResult
 end
+function Base.getproperty(x::Ptr{UA_EventFilterResult}, f::Symbol)
+    f === :selectClauseResultsSize && return Ptr{Csize_t}(x + 0)
+    f === :selectClauseResults && return Ptr{Ptr{UA_StatusCode}}(x + 8)
+    f === :selectClauseDiagnosticInfosSize && return Ptr{Csize_t}(x + 16)
+    f === :selectClauseDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 24)
+    f === :whereClauseResult && return Ptr{UA_ContentFilterResult}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EventFilterResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MonitoredItemCreateRequest
@@ -2252,6 +3280,17 @@ struct UA_MonitoredItemCreateRequest
     monitoringMode::UA_MonitoringMode
     requestedParameters::UA_MonitoringParameters
 end
+function Base.getproperty(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol)
+    f === :itemToMonitor && return Ptr{UA_ReadValueId}(x + 0)
+    f === :monitoringMode && return Ptr{UA_MonitoringMode}(x + 72)
+    f === :requestedParameters && return Ptr{UA_MonitoringParameters}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ComplexNumberType
@@ -2262,6 +3301,16 @@ struct UA_ComplexNumberType
     real::UA_Float
     imaginary::UA_Float
 end
+function Base.getproperty(x::Ptr{UA_ComplexNumberType}, f::Symbol)
+    f === :real && return Ptr{UA_Float}(x + 0)
+    f === :imaginary && return Ptr{UA_Float}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ComplexNumberType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_Range
@@ -2272,6 +3321,16 @@ struct UA_Range
     low::UA_Double
     high::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_Range}, f::Symbol)
+    f === :low && return Ptr{UA_Double}(x + 0)
+    f === :high && return Ptr{UA_Double}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Range}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DataChangeNotification
@@ -2284,6 +3343,18 @@ struct UA_DataChangeNotification
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_DataChangeNotification}, f::Symbol)
+    f === :monitoredItemsSize && return Ptr{Csize_t}(x + 0)
+    f === :monitoredItems && return Ptr{Ptr{UA_MonitoredItemNotification}}(x + 8)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 16)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataChangeNotification}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_Argument
@@ -2298,6 +3369,20 @@ struct UA_Argument
     arrayDimensions::Ptr{UA_UInt32}
     description::UA_LocalizedText
 end
+function Base.getproperty(x::Ptr{UA_Argument}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :dataType && return Ptr{UA_NodeId}(x + 16)
+    f === :valueRank && return Ptr{UA_Int32}(x + 40)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 48)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 56)
+    f === :description && return Ptr{UA_LocalizedText}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Argument}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TransferSubscriptionsRequest
@@ -2310,6 +3395,18 @@ struct UA_TransferSubscriptionsRequest
     subscriptionIds::Ptr{UA_UInt32}
     sendInitialValues::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionIdsSize && return Ptr{Csize_t}(x + 112)
+    f === :subscriptionIds && return Ptr{Ptr{UA_UInt32}}(x + 120)
+    f === :sendInitialValues && return Ptr{UA_Boolean}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ChannelSecurityToken
@@ -2322,6 +3419,18 @@ struct UA_ChannelSecurityToken
     createdAt::UA_DateTime
     revisedLifetime::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ChannelSecurityToken}, f::Symbol)
+    f === :channelId && return Ptr{UA_UInt32}(x + 0)
+    f === :tokenId && return Ptr{UA_UInt32}(x + 4)
+    f === :createdAt && return Ptr{UA_DateTime}(x + 8)
+    f === :revisedLifetime && return Ptr{UA_UInt32}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ChannelSecurityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ServerState
@@ -2353,6 +3462,16 @@ struct UA_EventNotificationList
     eventsSize::Csize_t
     events::Ptr{UA_EventFieldList}
 end
+function Base.getproperty(x::Ptr{UA_EventNotificationList}, f::Symbol)
+    f === :eventsSize && return Ptr{Csize_t}(x + 0)
+    f === :events && return Ptr{Ptr{UA_EventFieldList}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EventNotificationList}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AnonymousIdentityToken
@@ -2362,6 +3481,15 @@ AnonymousIdentityToken ^^^^^^^^^^^^^^^^^^^^^^ A token representing an anonymous 
 struct UA_AnonymousIdentityToken
     policyId::UA_String
 end
+function Base.getproperty(x::Ptr{UA_AnonymousIdentityToken}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AnonymousIdentityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_FilterOperator
@@ -2405,6 +3533,18 @@ struct UA_AggregateFilter
     processingInterval::UA_Double
     aggregateConfiguration::UA_AggregateConfiguration
 end
+function Base.getproperty(x::Ptr{UA_AggregateFilter}, f::Symbol)
+    f === :startTime && return Ptr{UA_DateTime}(x + 0)
+    f === :aggregateType && return Ptr{UA_NodeId}(x + 8)
+    f === :processingInterval && return Ptr{UA_Double}(x + 32)
+    f === :aggregateConfiguration && return Ptr{UA_AggregateConfiguration}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AggregateFilter}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RepublishResponse
@@ -2415,6 +3555,16 @@ struct UA_RepublishResponse
     responseHeader::UA_ResponseHeader
     notificationMessage::UA_NotificationMessage
 end
+function Base.getproperty(x::Ptr{UA_RepublishResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :notificationMessage && return Ptr{UA_NotificationMessage}(x + 136)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RepublishResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteSubscriptionsResponse
@@ -2428,6 +3578,19 @@ struct UA_DeleteSubscriptionsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_DeleteSubscriptionsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RegisterNodesRequest
@@ -2439,6 +3602,17 @@ struct UA_RegisterNodesRequest
     nodesToRegisterSize::Csize_t
     nodesToRegister::Ptr{UA_NodeId}
 end
+function Base.getproperty(x::Ptr{UA_RegisterNodesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :nodesToRegisterSize && return Ptr{Csize_t}(x + 112)
+    f === :nodesToRegister && return Ptr{Ptr{UA_NodeId}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RegisterNodesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_StructureDefinition
@@ -2452,6 +3626,19 @@ struct UA_StructureDefinition
     fieldsSize::Csize_t
     fields::Ptr{UA_StructureField}
 end
+function Base.getproperty(x::Ptr{UA_StructureDefinition}, f::Symbol)
+    f === :defaultEncodingId && return Ptr{UA_NodeId}(x + 0)
+    f === :baseDataType && return Ptr{UA_NodeId}(x + 24)
+    f === :structureType && return Ptr{UA_StructureType}(x + 48)
+    f === :fieldsSize && return Ptr{Csize_t}(x + 56)
+    f === :fields && return Ptr{Ptr{UA_StructureField}}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_MethodAttributes
@@ -2467,6 +3654,21 @@ struct UA_MethodAttributes
     executable::UA_Boolean
     userExecutable::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_MethodAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :executable && return Ptr{UA_Boolean}(x + 80)
+    f === :userExecutable && return Ptr{UA_Boolean}(x + 81)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MethodAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_UserNameIdentityToken
@@ -2479,6 +3681,18 @@ struct UA_UserNameIdentityToken
     password::UA_ByteString
     encryptionAlgorithm::UA_String
 end
+function Base.getproperty(x::Ptr{UA_UserNameIdentityToken}, f::Symbol)
+    f === :policyId && return Ptr{UA_String}(x + 0)
+    f === :userName && return Ptr{UA_String}(x + 16)
+    f === :password && return Ptr{UA_ByteString}(x + 32)
+    f === :encryptionAlgorithm && return Ptr{UA_String}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UserNameIdentityToken}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_UnregisterNodesRequest
@@ -2490,6 +3704,17 @@ struct UA_UnregisterNodesRequest
     nodesToUnregisterSize::Csize_t
     nodesToUnregister::Ptr{UA_NodeId}
 end
+function Base.getproperty(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :nodesToUnregisterSize && return Ptr{Csize_t}(x + 112)
+    f === :nodesToUnregister && return Ptr{Ptr{UA_NodeId}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_OpenSecureChannelResponse
@@ -2502,6 +3727,18 @@ struct UA_OpenSecureChannelResponse
     securityToken::UA_ChannelSecurityToken
     serverNonce::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :serverProtocolVersion && return Ptr{UA_UInt32}(x + 136)
+    f === :securityToken && return Ptr{UA_ChannelSecurityToken}(x + 144)
+    f === :serverNonce && return Ptr{UA_ByteString}(x + 168)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SetTriggeringResponse
@@ -2519,6 +3756,23 @@ struct UA_SetTriggeringResponse
     removeDiagnosticInfosSize::Csize_t
     removeDiagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_SetTriggeringResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :addResultsSize && return Ptr{Csize_t}(x + 136)
+    f === :addResults && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :addDiagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :addDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    f === :removeResultsSize && return Ptr{Csize_t}(x + 168)
+    f === :removeResults && return Ptr{Ptr{UA_StatusCode}}(x + 176)
+    f === :removeDiagnosticInfosSize && return Ptr{Csize_t}(x + 184)
+    f === :removeDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 192)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetTriggeringResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SimpleAttributeOperand
@@ -2532,6 +3786,19 @@ struct UA_SimpleAttributeOperand
     attributeId::UA_UInt32
     indexRange::UA_String
 end
+function Base.getproperty(x::Ptr{UA_SimpleAttributeOperand}, f::Symbol)
+    f === :typeDefinitionId && return Ptr{UA_NodeId}(x + 0)
+    f === :browsePathSize && return Ptr{Csize_t}(x + 24)
+    f === :browsePath && return Ptr{Ptr{UA_QualifiedName}}(x + 32)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 40)
+    f === :indexRange && return Ptr{UA_String}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SimpleAttributeOperand}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RepublishRequest
@@ -2543,6 +3810,17 @@ struct UA_RepublishRequest
     subscriptionId::UA_UInt32
     retransmitSequenceNumber::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_RepublishRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :retransmitSequenceNumber && return Ptr{UA_UInt32}(x + 116)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RepublishRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RegisterNodesResponse
@@ -2554,6 +3832,17 @@ struct UA_RegisterNodesResponse
     registeredNodeIdsSize::Csize_t
     registeredNodeIds::Ptr{UA_NodeId}
 end
+function Base.getproperty(x::Ptr{UA_RegisterNodesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :registeredNodeIdsSize && return Ptr{Csize_t}(x + 136)
+    f === :registeredNodeIds && return Ptr{Ptr{UA_NodeId}}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RegisterNodesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ModifyMonitoredItemsResponse
@@ -2567,6 +3856,19 @@ struct UA_ModifyMonitoredItemsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_ModifyMonitoredItemsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_MonitoredItemModifyResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteSubscriptionsRequest
@@ -2578,6 +3880,17 @@ struct UA_DeleteSubscriptionsRequest
     subscriptionIdsSize::Csize_t
     subscriptionIds::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionIdsSize && return Ptr{Csize_t}(x + 112)
+    f === :subscriptionIds && return Ptr{Ptr{UA_UInt32}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_RedundancySupport
@@ -2607,6 +3920,16 @@ struct UA_BrowsePath
     startingNode::UA_NodeId
     relativePath::UA_RelativePath
 end
+function Base.getproperty(x::Ptr{UA_BrowsePath}, f::Symbol)
+    f === :startingNode && return Ptr{UA_NodeId}(x + 0)
+    f === :relativePath && return Ptr{UA_RelativePath}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowsePath}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ObjectAttributes
@@ -2621,6 +3944,20 @@ struct UA_ObjectAttributes
     userWriteMask::UA_UInt32
     eventNotifier::UA_Byte
 end
+function Base.getproperty(x::Ptr{UA_ObjectAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :eventNotifier && return Ptr{UA_Byte}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ObjectAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_PublishRequest
@@ -2632,6 +3969,17 @@ struct UA_PublishRequest
     subscriptionAcknowledgementsSize::Csize_t
     subscriptionAcknowledgements::Ptr{UA_SubscriptionAcknowledgement}
 end
+function Base.getproperty(x::Ptr{UA_PublishRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionAcknowledgementsSize && return Ptr{Csize_t}(x + 112)
+    f === :subscriptionAcknowledgements && return Ptr{Ptr{UA_SubscriptionAcknowledgement}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_FindServersRequest
@@ -2646,6 +3994,20 @@ struct UA_FindServersRequest
     serverUrisSize::Csize_t
     serverUris::Ptr{UA_String}
 end
+function Base.getproperty(x::Ptr{UA_FindServersRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :endpointUrl && return Ptr{UA_String}(x + 112)
+    f === :localeIdsSize && return Ptr{Csize_t}(x + 128)
+    f === :localeIds && return Ptr{Ptr{UA_String}}(x + 136)
+    f === :serverUrisSize && return Ptr{Csize_t}(x + 144)
+    f === :serverUris && return Ptr{Ptr{UA_String}}(x + 152)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_FindServersRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ReferenceDescription
@@ -2661,6 +4023,21 @@ struct UA_ReferenceDescription
     nodeClass::UA_NodeClass
     typeDefinition::UA_ExpandedNodeId
 end
+function Base.getproperty(x::Ptr{UA_ReferenceDescription}, f::Symbol)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 0)
+    f === :isForward && return Ptr{UA_Boolean}(x + 24)
+    f === :nodeId && return Ptr{UA_ExpandedNodeId}(x + 32)
+    f === :browseName && return Ptr{UA_QualifiedName}(x + 80)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 104)
+    f === :nodeClass && return Ptr{UA_NodeClass}(x + 136)
+    f === :typeDefinition && return Ptr{UA_ExpandedNodeId}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReferenceDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateSubscriptionRequest
@@ -2676,6 +4053,21 @@ struct UA_CreateSubscriptionRequest
     publishingEnabled::UA_Boolean
     priority::UA_Byte
 end
+function Base.getproperty(x::Ptr{UA_CreateSubscriptionRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :requestedPublishingInterval && return Ptr{UA_Double}(x + 112)
+    f === :requestedLifetimeCount && return Ptr{UA_UInt32}(x + 120)
+    f === :requestedMaxKeepAliveCount && return Ptr{UA_UInt32}(x + 124)
+    f === :maxNotificationsPerPublish && return Ptr{UA_UInt32}(x + 128)
+    f === :publishingEnabled && return Ptr{UA_Boolean}(x + 132)
+    f === :priority && return Ptr{UA_Byte}(x + 133)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateSubscriptionRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CallResponse
@@ -2689,6 +4081,19 @@ struct UA_CallResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_CallResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_CallMethodResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CallResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteNodesResponse
@@ -2702,6 +4107,19 @@ struct UA_DeleteNodesResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_DeleteNodesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteNodesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ModifyMonitoredItemsRequest
@@ -2715,6 +4133,19 @@ struct UA_ModifyMonitoredItemsRequest
     itemsToModifySize::Csize_t
     itemsToModify::Ptr{UA_MonitoredItemModifyRequest}
 end
+function Base.getproperty(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :timestampsToReturn && return Ptr{UA_TimestampsToReturn}(x + 116)
+    f === :itemsToModifySize && return Ptr{Csize_t}(x + 120)
+    f === :itemsToModify && return Ptr{Ptr{UA_MonitoredItemModifyRequest}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ServiceFault
@@ -2724,6 +4155,15 @@ ServiceFault ^^^^^^^^^^^^ The response returned by all services when there is a 
 struct UA_ServiceFault
     responseHeader::UA_ResponseHeader
 end
+function Base.getproperty(x::Ptr{UA_ServiceFault}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ServiceFault}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_PublishResponse
@@ -2742,6 +4182,24 @@ struct UA_PublishResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_PublishResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 136)
+    f === :availableSequenceNumbersSize && return Ptr{Csize_t}(x + 144)
+    f === :availableSequenceNumbers && return Ptr{Ptr{UA_UInt32}}(x + 152)
+    f === :moreNotifications && return Ptr{UA_Boolean}(x + 160)
+    f === :notificationMessage && return Ptr{UA_NotificationMessage}(x + 168)
+    f === :resultsSize && return Ptr{Csize_t}(x + 200)
+    f === :results && return Ptr{Ptr{UA_StatusCode}}(x + 208)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 216)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 224)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateMonitoredItemsRequest
@@ -2755,6 +4213,19 @@ struct UA_CreateMonitoredItemsRequest
     itemsToCreateSize::Csize_t
     itemsToCreate::Ptr{UA_MonitoredItemCreateRequest}
 end
+function Base.getproperty(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :timestampsToReturn && return Ptr{UA_TimestampsToReturn}(x + 116)
+    f === :itemsToCreateSize && return Ptr{Csize_t}(x + 120)
+    f === :itemsToCreate && return Ptr{Ptr{UA_MonitoredItemCreateRequest}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_OpenSecureChannelRequest
@@ -2769,6 +4240,20 @@ struct UA_OpenSecureChannelRequest
     clientNonce::UA_ByteString
     requestedLifetime::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :clientProtocolVersion && return Ptr{UA_UInt32}(x + 112)
+    f === :requestType && return Ptr{UA_SecurityTokenRequestType}(x + 116)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 120)
+    f === :clientNonce && return Ptr{UA_ByteString}(x + 128)
+    f === :requestedLifetime && return Ptr{UA_UInt32}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CloseSessionRequest
@@ -2779,6 +4264,16 @@ struct UA_CloseSessionRequest
     requestHeader::UA_RequestHeader
     deleteSubscriptions::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_CloseSessionRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :deleteSubscriptions && return Ptr{UA_Boolean}(x + 112)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CloseSessionRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_SetTriggeringRequest
@@ -2794,6 +4289,21 @@ struct UA_SetTriggeringRequest
     linksToRemoveSize::Csize_t
     linksToRemove::Ptr{UA_UInt32}
 end
+function Base.getproperty(x::Ptr{UA_SetTriggeringRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :subscriptionId && return Ptr{UA_UInt32}(x + 112)
+    f === :triggeringItemId && return Ptr{UA_UInt32}(x + 116)
+    f === :linksToAddSize && return Ptr{Csize_t}(x + 120)
+    f === :linksToAdd && return Ptr{Ptr{UA_UInt32}}(x + 128)
+    f === :linksToRemoveSize && return Ptr{Csize_t}(x + 136)
+    f === :linksToRemove && return Ptr{Ptr{UA_UInt32}}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SetTriggeringRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseResult
@@ -2806,6 +4316,18 @@ struct UA_BrowseResult
     referencesSize::Csize_t
     references::Ptr{UA_ReferenceDescription}
 end
+function Base.getproperty(x::Ptr{UA_BrowseResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :continuationPoint && return Ptr{UA_ByteString}(x + 8)
+    f === :referencesSize && return Ptr{Csize_t}(x + 24)
+    f === :references && return Ptr{Ptr{UA_ReferenceDescription}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddReferencesRequest
@@ -2817,6 +4339,17 @@ struct UA_AddReferencesRequest
     referencesToAddSize::Csize_t
     referencesToAdd::Ptr{UA_AddReferencesItem}
 end
+function Base.getproperty(x::Ptr{UA_AddReferencesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :referencesToAddSize && return Ptr{Csize_t}(x + 112)
+    f === :referencesToAdd && return Ptr{Ptr{UA_AddReferencesItem}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddReferencesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddNodesItem
@@ -2832,6 +4365,21 @@ struct UA_AddNodesItem
     nodeAttributes::UA_ExtensionObject
     typeDefinition::UA_ExpandedNodeId
 end
+function Base.getproperty(x::Ptr{UA_AddNodesItem}, f::Symbol)
+    f === :parentNodeId && return Ptr{UA_ExpandedNodeId}(x + 0)
+    f === :referenceTypeId && return Ptr{UA_NodeId}(x + 48)
+    f === :requestedNewNodeId && return Ptr{UA_ExpandedNodeId}(x + 72)
+    f === :browseName && return Ptr{UA_QualifiedName}(x + 120)
+    f === :nodeClass && return Ptr{UA_NodeClass}(x + 144)
+    f === :nodeAttributes && return Ptr{UA_ExtensionObject}(x + 152)
+    f === :typeDefinition && return Ptr{UA_ExpandedNodeId}(x + 200)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddNodesItem}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ServerStatusDataType
@@ -2846,6 +4394,20 @@ struct UA_ServerStatusDataType
     secondsTillShutdown::UA_UInt32
     shutdownReason::UA_LocalizedText
 end
+function Base.getproperty(x::Ptr{UA_ServerStatusDataType}, f::Symbol)
+    f === :startTime && return Ptr{UA_DateTime}(x + 0)
+    f === :currentTime && return Ptr{UA_DateTime}(x + 8)
+    f === :state && return Ptr{UA_ServerState}(x + 16)
+    f === :buildInfo && return Ptr{UA_BuildInfo}(x + 24)
+    f === :secondsTillShutdown && return Ptr{UA_UInt32}(x + 112)
+    f === :shutdownReason && return Ptr{UA_LocalizedText}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ServerStatusDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseNextResponse
@@ -2859,6 +4421,19 @@ struct UA_BrowseNextResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_BrowseNextResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_BrowseResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseNextResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AxisInformation
@@ -2873,6 +4448,20 @@ struct UA_AxisInformation
     axisStepsSize::Csize_t
     axisSteps::Ptr{UA_Double}
 end
+function Base.getproperty(x::Ptr{UA_AxisInformation}, f::Symbol)
+    f === :engineeringUnits && return Ptr{UA_EUInformation}(x + 0)
+    f === :eURange && return Ptr{UA_Range}(x + 88)
+    f === :title && return Ptr{UA_LocalizedText}(x + 104)
+    f === :axisScaleType && return Ptr{UA_AxisScaleEnumeration}(x + 136)
+    f === :axisStepsSize && return Ptr{Csize_t}(x + 144)
+    f === :axisSteps && return Ptr{Ptr{UA_Double}}(x + 152)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AxisInformation}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ApplicationDescription
@@ -2889,6 +4478,22 @@ struct UA_ApplicationDescription
     discoveryUrlsSize::Csize_t
     discoveryUrls::Ptr{UA_String}
 end
+function Base.getproperty(x::Ptr{UA_ApplicationDescription}, f::Symbol)
+    f === :applicationUri && return Ptr{UA_String}(x + 0)
+    f === :productUri && return Ptr{UA_String}(x + 16)
+    f === :applicationName && return Ptr{UA_LocalizedText}(x + 32)
+    f === :applicationType && return Ptr{UA_ApplicationType}(x + 64)
+    f === :gatewayServerUri && return Ptr{UA_String}(x + 72)
+    f === :discoveryProfileUri && return Ptr{UA_String}(x + 88)
+    f === :discoveryUrlsSize && return Ptr{Csize_t}(x + 104)
+    f === :discoveryUrls && return Ptr{Ptr{UA_String}}(x + 112)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ApplicationDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ReadRequest
@@ -2902,6 +4507,19 @@ struct UA_ReadRequest
     nodesToReadSize::Csize_t
     nodesToRead::Ptr{UA_ReadValueId}
 end
+function Base.getproperty(x::Ptr{UA_ReadRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :maxAge && return Ptr{UA_Double}(x + 112)
+    f === :timestampsToReturn && return Ptr{UA_TimestampsToReturn}(x + 120)
+    f === :nodesToReadSize && return Ptr{Csize_t}(x + 128)
+    f === :nodesToRead && return Ptr{Ptr{UA_ReadValueId}}(x + 136)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ActivateSessionRequest
@@ -2918,6 +4536,22 @@ struct UA_ActivateSessionRequest
     userIdentityToken::UA_ExtensionObject
     userTokenSignature::UA_SignatureData
 end
+function Base.getproperty(x::Ptr{UA_ActivateSessionRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :clientSignature && return Ptr{UA_SignatureData}(x + 112)
+    f === :clientSoftwareCertificatesSize && return Ptr{Csize_t}(x + 144)
+    f === :clientSoftwareCertificates && return Ptr{Ptr{UA_SignedSoftwareCertificate}}(x + 152)
+    f === :localeIdsSize && return Ptr{Csize_t}(x + 160)
+    f === :localeIds && return Ptr{Ptr{UA_String}}(x + 168)
+    f === :userIdentityToken && return Ptr{UA_ExtensionObject}(x + 176)
+    f === :userTokenSignature && return Ptr{UA_SignatureData}(x + 224)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ActivateSessionRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowsePathResult
@@ -2929,6 +4563,17 @@ struct UA_BrowsePathResult
     targetsSize::Csize_t
     targets::Ptr{UA_BrowsePathTarget}
 end
+function Base.getproperty(x::Ptr{UA_BrowsePathResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :targetsSize && return Ptr{Csize_t}(x + 8)
+    f === :targets && return Ptr{Ptr{UA_BrowsePathTarget}}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowsePathResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddNodesRequest
@@ -2940,6 +4585,17 @@ struct UA_AddNodesRequest
     nodesToAddSize::Csize_t
     nodesToAdd::Ptr{UA_AddNodesItem}
 end
+function Base.getproperty(x::Ptr{UA_AddNodesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :nodesToAddSize && return Ptr{Csize_t}(x + 112)
+    f === :nodesToAdd && return Ptr{Ptr{UA_AddNodesItem}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddNodesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseRequest
@@ -2953,6 +4609,19 @@ struct UA_BrowseRequest
     nodesToBrowseSize::Csize_t
     nodesToBrowse::Ptr{UA_BrowseDescription}
 end
+function Base.getproperty(x::Ptr{UA_BrowseRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :view && return Ptr{UA_ViewDescription}(x + 112)
+    f === :requestedMaxReferencesPerNode && return Ptr{UA_UInt32}(x + 152)
+    f === :nodesToBrowseSize && return Ptr{Csize_t}(x + 160)
+    f === :nodesToBrowse && return Ptr{Ptr{UA_BrowseDescription}}(x + 168)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_WriteRequest
@@ -2964,6 +4633,17 @@ struct UA_WriteRequest
     nodesToWriteSize::Csize_t
     nodesToWrite::Ptr{UA_WriteValue}
 end
+function Base.getproperty(x::Ptr{UA_WriteRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :nodesToWriteSize && return Ptr{Csize_t}(x + 112)
+    f === :nodesToWrite && return Ptr{Ptr{UA_WriteValue}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_WriteRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AddNodesResponse
@@ -2977,6 +4657,19 @@ struct UA_AddNodesResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_AddNodesResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_AddNodesResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AddNodesResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_AttributeOperand
@@ -2990,6 +4683,19 @@ struct UA_AttributeOperand
     attributeId::UA_UInt32
     indexRange::UA_String
 end
+function Base.getproperty(x::Ptr{UA_AttributeOperand}, f::Symbol)
+    f === :nodeId && return Ptr{UA_NodeId}(x + 0)
+    f === :alias && return Ptr{UA_String}(x + 24)
+    f === :browsePath && return Ptr{UA_RelativePath}(x + 40)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 56)
+    f === :indexRange && return Ptr{UA_String}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AttributeOperand}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DataChangeFilter
@@ -3001,6 +4707,17 @@ struct UA_DataChangeFilter
     deadbandType::UA_UInt32
     deadbandValue::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_DataChangeFilter}, f::Symbol)
+    f === :trigger && return Ptr{UA_DataChangeTrigger}(x + 0)
+    f === :deadbandType && return Ptr{UA_UInt32}(x + 4)
+    f === :deadbandValue && return Ptr{UA_Double}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataChangeFilter}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EndpointDescription
@@ -3018,6 +4735,23 @@ struct UA_EndpointDescription
     transportProfileUri::UA_String
     securityLevel::UA_Byte
 end
+function Base.getproperty(x::Ptr{UA_EndpointDescription}, f::Symbol)
+    f === :endpointUrl && return Ptr{UA_String}(x + 0)
+    f === :server && return Ptr{UA_ApplicationDescription}(x + 16)
+    f === :serverCertificate && return Ptr{UA_ByteString}(x + 136)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 152)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 160)
+    f === :userIdentityTokensSize && return Ptr{Csize_t}(x + 176)
+    f === :userIdentityTokens && return Ptr{Ptr{UA_UserTokenPolicy}}(x + 184)
+    f === :transportProfileUri && return Ptr{UA_String}(x + 192)
+    f === :securityLevel && return Ptr{UA_Byte}(x + 208)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EndpointDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_DeleteReferencesRequest
@@ -3029,6 +4763,17 @@ struct UA_DeleteReferencesRequest
     referencesToDeleteSize::Csize_t
     referencesToDelete::Ptr{UA_DeleteReferencesItem}
 end
+function Base.getproperty(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :referencesToDeleteSize && return Ptr{Csize_t}(x + 112)
+    f === :referencesToDelete && return Ptr{Ptr{UA_DeleteReferencesItem}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TranslateBrowsePathsToNodeIdsRequest
@@ -3040,6 +4785,17 @@ struct UA_TranslateBrowsePathsToNodeIdsRequest
     browsePathsSize::Csize_t
     browsePaths::Ptr{UA_BrowsePath}
 end
+function Base.getproperty(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :browsePathsSize && return Ptr{Csize_t}(x + 112)
+    f === :browsePaths && return Ptr{Ptr{UA_BrowsePath}}(x + 120)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_FindServersResponse
@@ -3051,6 +4807,17 @@ struct UA_FindServersResponse
     serversSize::Csize_t
     servers::Ptr{UA_ApplicationDescription}
 end
+function Base.getproperty(x::Ptr{UA_FindServersResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :serversSize && return Ptr{Csize_t}(x + 136)
+    f === :servers && return Ptr{Ptr{UA_ApplicationDescription}}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_FindServersResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateSessionRequest
@@ -3068,6 +4835,23 @@ struct UA_CreateSessionRequest
     requestedSessionTimeout::UA_Double
     maxResponseMessageSize::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_CreateSessionRequest}, f::Symbol)
+    f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
+    f === :clientDescription && return Ptr{UA_ApplicationDescription}(x + 112)
+    f === :serverUri && return Ptr{UA_String}(x + 232)
+    f === :endpointUrl && return Ptr{UA_String}(x + 248)
+    f === :sessionName && return Ptr{UA_String}(x + 264)
+    f === :clientNonce && return Ptr{UA_ByteString}(x + 280)
+    f === :clientCertificate && return Ptr{UA_ByteString}(x + 296)
+    f === :requestedSessionTimeout && return Ptr{UA_Double}(x + 312)
+    f === :maxResponseMessageSize && return Ptr{UA_UInt32}(x + 320)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateSessionRequest}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ContentFilterElement
@@ -3079,6 +4863,17 @@ struct UA_ContentFilterElement
     filterOperandsSize::Csize_t
     filterOperands::Ptr{UA_ExtensionObject}
 end
+function Base.getproperty(x::Ptr{UA_ContentFilterElement}, f::Symbol)
+    f === :filterOperator && return Ptr{UA_FilterOperator}(x + 0)
+    f === :filterOperandsSize && return Ptr{Csize_t}(x + 8)
+    f === :filterOperands && return Ptr{Ptr{UA_ExtensionObject}}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ContentFilterElement}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_TranslateBrowsePathsToNodeIdsResponse
@@ -3092,6 +4887,19 @@ struct UA_TranslateBrowsePathsToNodeIdsResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_BrowsePathResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_BrowseResponse
@@ -3105,6 +4913,19 @@ struct UA_BrowseResponse
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_BrowseResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :resultsSize && return Ptr{Csize_t}(x + 136)
+    f === :results && return Ptr{Ptr{UA_BrowseResult}}(x + 144)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 152)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 160)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrowseResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_CreateSessionResponse
@@ -3125,6 +4946,26 @@ struct UA_CreateSessionResponse
     serverSignature::UA_SignatureData
     maxRequestMessageSize::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_CreateSessionResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :sessionId && return Ptr{UA_NodeId}(x + 136)
+    f === :authenticationToken && return Ptr{UA_NodeId}(x + 160)
+    f === :revisedSessionTimeout && return Ptr{UA_Double}(x + 184)
+    f === :serverNonce && return Ptr{UA_ByteString}(x + 192)
+    f === :serverCertificate && return Ptr{UA_ByteString}(x + 208)
+    f === :serverEndpointsSize && return Ptr{Csize_t}(x + 224)
+    f === :serverEndpoints && return Ptr{Ptr{UA_EndpointDescription}}(x + 232)
+    f === :serverSoftwareCertificatesSize && return Ptr{Csize_t}(x + 240)
+    f === :serverSoftwareCertificates && return Ptr{Ptr{UA_SignedSoftwareCertificate}}(x + 248)
+    f === :serverSignature && return Ptr{UA_SignatureData}(x + 256)
+    f === :maxRequestMessageSize && return Ptr{UA_UInt32}(x + 288)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CreateSessionResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_ContentFilter
@@ -3135,6 +4976,16 @@ struct UA_ContentFilter
     elementsSize::Csize_t
     elements::Ptr{UA_ContentFilterElement}
 end
+function Base.getproperty(x::Ptr{UA_ContentFilter}, f::Symbol)
+    f === :elementsSize && return Ptr{Csize_t}(x + 0)
+    f === :elements && return Ptr{Ptr{UA_ContentFilterElement}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ContentFilter}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_GetEndpointsResponse
@@ -3146,6 +4997,17 @@ struct UA_GetEndpointsResponse
     endpointsSize::Csize_t
     endpoints::Ptr{UA_EndpointDescription}
 end
+function Base.getproperty(x::Ptr{UA_GetEndpointsResponse}, f::Symbol)
+    f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
+    f === :endpointsSize && return Ptr{Csize_t}(x + 136)
+    f === :endpoints && return Ptr{Ptr{UA_EndpointDescription}}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_GetEndpointsResponse}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 """
     UA_EventFilter
@@ -3157,6 +5019,17 @@ struct UA_EventFilter
     selectClauses::Ptr{UA_SimpleAttributeOperand}
     whereClause::UA_ContentFilter
 end
+function Base.getproperty(x::Ptr{UA_EventFilter}, f::Symbol)
+    f === :selectClausesSize && return Ptr{Csize_t}(x + 0)
+    f === :selectClauses && return Ptr{Ptr{UA_SimpleAttributeOperand}}(x + 8)
+    f === :whereClause && return Ptr{UA_ContentFilter}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EventFilter}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 struct UA_Logger
     log::Ptr{Cvoid}
@@ -3504,7 +5377,7 @@ mutable struct UA_SecureChannel end
 struct UA_Connection
     state::UA_ConnectionState
     channel::Ptr{UA_SecureChannel}
-    sockfd::SOCKET
+    sockfd::Cint
     openingDate::UA_DateTime
     handle::Ptr{Cvoid}
     getSendBuffer::Ptr{Cvoid}
@@ -3668,24 +5541,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_374
+struct __JL_Ctag_291
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_374}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_375}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_291}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_292}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_374, f::Symbol)
-    r = Ref{__JL_Ctag_374}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_374}, r)
+function Base.getproperty(x::__JL_Ctag_291, f::Symbol)
+    r = Ref{__JL_Ctag_291}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_291}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_374}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_291}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -3697,31 +5570,31 @@ struct UA_VariableNode
     arrayDimensions::Ptr{UA_UInt32}
     valueBackend::UA_ValueBackend
     valueSource::UA_ValueSource
-    value::__JL_Ctag_374
+    value::__JL_Ctag_291
     accessLevel::UA_Byte
     minimumSamplingInterval::UA_Double
     historizing::UA_Boolean
     isDynamic::UA_Boolean
 end
 
-struct __JL_Ctag_366
+struct __JL_Ctag_289
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_366}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_367}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_289}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_290}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_366, f::Symbol)
-    r = Ref{__JL_Ctag_366}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_366}, r)
+function Base.getproperty(x::__JL_Ctag_289, f::Symbol)
+    r = Ref{__JL_Ctag_289}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_289}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_366}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_289}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -3742,7 +5615,7 @@ struct UA_VariableTypeNode
     arrayDimensions::Ptr{UA_UInt32}
     valueBackend::UA_ValueBackend
     valueSource::UA_ValueSource
-    value::__JL_Ctag_366
+    value::__JL_Ctag_289
     isAbstract::UA_Boolean
     lifecycle::UA_NodeTypeLifecycle
 end
@@ -4369,6 +6242,37 @@ struct UA_ClientConfig
     outStandingPublishRequests::UA_UInt16
     subscriptionInactivityCallback::Ptr{Cvoid}
 end
+function Base.getproperty(x::Ptr{UA_ClientConfig}, f::Symbol)
+    f === :clientContext && return Ptr{Ptr{Cvoid}}(x + 0)
+    f === :logger && return Ptr{UA_Logger}(x + 8)
+    f === :timeout && return Ptr{UA_UInt32}(x + 32)
+    f === :clientDescription && return Ptr{UA_ApplicationDescription}(x + 40)
+    f === :userIdentityToken && return Ptr{UA_ExtensionObject}(x + 160)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 208)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 216)
+    f === :endpoint && return Ptr{UA_EndpointDescription}(x + 232)
+    f === :userTokenPolicy && return Ptr{UA_UserTokenPolicy}(x + 448)
+    f === :secureChannelLifeTime && return Ptr{UA_UInt32}(x + 520)
+    f === :requestedSessionTimeout && return Ptr{UA_UInt32}(x + 524)
+    f === :localConnectionConfig && return Ptr{UA_ConnectionConfig}(x + 528)
+    f === :connectivityCheckInterval && return Ptr{UA_UInt32}(x + 556)
+    f === :customDataTypes && return Ptr{Ptr{UA_DataTypeArray}}(x + 560)
+    f === :securityPoliciesSize && return Ptr{Csize_t}(x + 568)
+    f === :securityPolicies && return Ptr{Ptr{UA_SecurityPolicy}}(x + 576)
+    f === :certificateVerification && return Ptr{UA_CertificateVerification}(x + 584)
+    f === :initConnectionFunc && return Ptr{UA_ConnectClientConnection}(x + 616)
+    f === :pollConnectionFunc && return Ptr{Ptr{Cvoid}}(x + 624)
+    f === :stateCallback && return Ptr{Ptr{Cvoid}}(x + 632)
+    f === :inactivityCallback && return Ptr{Ptr{Cvoid}}(x + 640)
+    f === :outStandingPublishRequests && return Ptr{UA_UInt16}(x + 648)
+    f === :subscriptionInactivityCallback && return Ptr{Ptr{Cvoid}}(x + 656)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ClientConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 
 function UA_Client_newWithConfig(config)
     @ccall libopen62541.UA_Client_newWithConfig(config::Ptr{UA_ClientConfig})::Ptr{UA_Client}
@@ -4887,6 +6791,14 @@ function UA_SecurityPolicy_None(policy, localCertificate, logger)
     @ccall libopen62541.UA_SecurityPolicy_None(policy::Ptr{UA_SecurityPolicy}, localCertificate::UA_ByteString, logger::Ptr{UA_Logger})::UA_StatusCode
 end
 
+function UA_Log_Syslog_withLevel(minlevel)
+    @ccall libopen62541.UA_Log_Syslog_withLevel(minlevel::UA_LogLevel)::UA_Logger
+end
+
+function UA_Log_Syslog()
+    @ccall libopen62541.UA_Log_Syslog()::UA_Logger
+end
+
 function UA_ServerNetworkLayerTCP(config, port, maxConnections)
     @ccall libopen62541.UA_ServerNetworkLayerTCP(config::UA_ConnectionConfig, port::UA_UInt16, maxConnections::UA_UInt16)::UA_ServerNetworkLayer
 end
@@ -4900,11 +6812,11 @@ function UA_ClientConnectionTCP_poll(connection, timeout, logger)
 end
 
 function UA_socket_set_blocking(sockfd)
-    @ccall libopen62541.UA_socket_set_blocking(sockfd::SOCKET)::Cuint
+    @ccall libopen62541.UA_socket_set_blocking(sockfd::Cint)::Cuint
 end
 
 function UA_socket_set_nonblocking(sockfd)
-    @ccall libopen62541.UA_socket_set_nonblocking(sockfd::SOCKET)::Cuint
+    @ccall libopen62541.UA_socket_set_nonblocking(sockfd::Cint)::Cuint
 end
 
 function UA_initialize_architecture_network()
@@ -4915,134 +6827,134 @@ function UA_deinitialize_architecture_network()
     @ccall libopen62541.UA_deinitialize_architecture_network()::Cvoid
 end
 
-struct __JL_Ctag_367
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_367}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_367, f::Symbol)
-    r = Ref{__JL_Ctag_367}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_367}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_367}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-
-struct __JL_Ctag_369
+struct __JL_Ctag_287
     typeId::UA_NodeId
     body::UA_ByteString
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_369}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_287}, f::Symbol)
     f === :typeId && return Ptr{UA_NodeId}(x + 0)
     f === :body && return Ptr{UA_ByteString}(x + 24)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_369, f::Symbol)
-    r = Ref{__JL_Ctag_369}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_369}, r)
+function Base.getproperty(x::__JL_Ctag_287, f::Symbol)
+    r = Ref{__JL_Ctag_287}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_287}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_369}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_287}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 
-struct __JL_Ctag_370
+struct __JL_Ctag_288
     type::Ptr{UA_DataType}
     data::Ptr{Cvoid}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_370}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_288}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_370, f::Symbol)
-    r = Ref{__JL_Ctag_370}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_370}, r)
+function Base.getproperty(x::__JL_Ctag_288, f::Symbol)
+    r = Ref{__JL_Ctag_288}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_288}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_370}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_288}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 
-struct __JL_Ctag_372
+struct __JL_Ctag_290
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_372}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_290}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_372, f::Symbol)
-    r = Ref{__JL_Ctag_372}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_372}, r)
+function Base.getproperty(x::__JL_Ctag_290, f::Symbol)
+    r = Ref{__JL_Ctag_290}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_290}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_372}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_290}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 
-struct __JL_Ctag_373
+struct __JL_Ctag_292
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_292}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_292, f::Symbol)
+    r = Ref{__JL_Ctag_292}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_292}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_292}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+
+struct __JL_Ctag_295
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_295}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_295, f::Symbol)
+    r = Ref{__JL_Ctag_295}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_295}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_295}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+
+struct __JL_Ctag_296
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_373}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_296}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_373, f::Symbol)
-    r = Ref{__JL_Ctag_373}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_373}, r)
+function Base.getproperty(x::__JL_Ctag_296, f::Symbol)
+    r = Ref{__JL_Ctag_296}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_296}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_373}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-
-struct __JL_Ctag_375
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_375}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_375, f::Symbol)
-    r = Ref{__JL_Ctag_375}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_375}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_375}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_296}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5063,17 +6975,13 @@ const UA_MULTITHREADING = 100
 
 const UA_VALGRIND_INTERACTIVE_INTERVAL = 1000
 
-const WINVER = 0x0600
-
-const _WIN32_WINDOWS = 0x0600
-
-const _WIN32_WINNT = 0x0600
+const _XOPEN_SOURCE = 600
 
 const OPTVAL_TYPE = Cint
 
 const UA_IPV6 = 1
 
-# Skipping MacroDefinition: UA_EXPORT __attribute__ ( ( dllimport ) )
+# Skipping MacroDefinition: UA_EXPORT __attribute__ ( ( visibility ( "default" ) ) )
 
 # Skipping MacroDefinition: UA_INLINE inline
 
