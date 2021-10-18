@@ -26,18 +26,42 @@ function write_generated_defs(generated_defs_dir::String, open62541_header::Stri
     const inlined_funcs = $(extract_inlined_funcs(open62541_header))
     """
 
-    data_UA_Client_read__attribute = """
+    data_UA_Client = """
 
     # UA_Client_ functions data
-    const attributes_UA_Client_Service = $(extract_header_data(r"\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", open62541_header))
+    const attributes_UA_Client_Service = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", open62541_header))
     
-    const attributes_UA_Client_read = $(extract_header_data(r"\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", open62541_header))
+    const attributes_UA_Client_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", open62541_header))
+    
+    const attributes_UA_Client_write = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", open62541_header))
+    
+    const attributes_UA_Client_read_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute_async)\([\s\S]+?\)[\s\S]+?{[\s\S]+?__UA_Client_readAttribute_async\s*\([\s\S]+?&UA_TYPES\[([\S]+?)\]", open62541_header))
+    
+    const attributes_UA_Client_write_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute_async)\s*\(UA_Client\s*\*client,\s*const\s*UA_NodeId\s*nodeId,\s*const\s*(\S*)", open62541_header))
     """
+
+    data_UA_Server = """
+
+        # UA_Server_ functions data
+        const attributes_UA_Server_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Server_read(\w*))\s*\(UA_Server\s*\*server,\s*const\s*UA_NodeId\s*nodeId,\s*(\S*)", open62541_header))
+        
+        const attributes_UA_Server_write = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}(UA_Server_write(\w*))\s*\(UA_Server\s*\*server,\s*const\s*UA_NodeId\s*nodeId,\s*const (\S*)", open62541_header))
+        """
+
+        # const attributes_UA_Client_read = $(extract_header_data(r"[;}^][\s\S]{0,50}UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", open62541_header))
+        
+        # const attributes_UA_Client_write = $(extract_header_data(r"[;}^][\s\S]{0,50}UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", open62541_header))
+        
+        # const attributes_UA_Client_read_async = $(extract_header_data(r"[;}^][\s\S]{0,50}UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute_async)\([\s\S]+?\)[\s\S]+?{[\s\S]+?__UA_Client_readAttribute_async\s*\([\s\S]+?&UA_TYPES\[([\S]+?)\]", open62541_header))
+        
+        # const attributes_UA_Client_write_async = $(extract_header_data(r"[;}^][\s\S]{0,50}UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute_async)\s*\(UA_Client\s*\*client,\s*const\s*UA_NodeId\s*nodeId,\s*const\s*(\S*)", open62541_header))
+
 
     open(generated_defs_dir, "w") do f
         write(f, type_s)
         write(f, inlined_funcs)
-        write(f, data_UA_Client_read__attribute)
+        write(f, data_UA_Client)
+        write(f, data_UA_Server)
     end
 end
 

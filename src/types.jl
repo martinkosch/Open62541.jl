@@ -21,7 +21,7 @@ function UA_Array_new(v::AbstractVector{T}, type_ptr::Ptr{UA_DataType}) where T
     return arr_ptr
 end
 
-function UA_print(p::Ref, type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T))
+function UA_print(p::Ref{T}, type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where T
     buf = UA_String_new()
     UA_print(p, type_ptr, buf)
     s = unsafe_string(buf)
@@ -322,7 +322,7 @@ function Base.unsafe_wrap(v::UA_Variant)
     type = juliadatatype(v.type)
     UA_Variant_isScalar(v) && return unsafe_load(reinterpret(Ptr{type}, v.data))
 
-    values = unsafe_wrap(Vector, reinterpret(Ptr{type}, v.data), 1)
+    values = unsafe_wrap(Vector{type}, reinterpret(Ptr{type}, v.data), 1)
     values_row_major = reshape(values, size(v))
     return permutedims(values_row_major, reverse(1:length(size(v)))) # To column major format
 end

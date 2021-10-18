@@ -23,23 +23,22 @@ for att in attributes_UA_Client_Service
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
 
     @eval begin 
-        try
+        if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
             function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
                 response = Ref{$(resp_type)}()
-                __UA_Client_Service(
+                retval = __UA_Client_Service(
                     client, 
                     request, 
                     UA_TYPES_PTRS[$(req_type_ptr)],
                     response, 
                     UA_TYPES_PTRS[$(resp_type_ptr)]
                 )
-                if retval == UA_STATUSCODE_GOOD
+                if isnothing(retval) || retval == UA_STATUSCODE_GOOD
                     return response[]
                 else
                     error("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
                 end
             end
-        catch # Skip functions that may be not defined, e.g. historizing functions
         end
     end
 end
@@ -66,6 +65,89 @@ for att in attributes_UA_Client_read
 
         function $(fun_name)(client::Ptr{UA_Client}, nodeId::UA_NodeId) 
             return $(fun_name)(client, Ref(nodeId))
+        end
+    end
+end
+
+## Write attribute functions
+for att in attributes_UA_Client_write
+    fun_name = Symbol(att[1])
+    attr_name = Symbol(att[2])
+    attr_type = Symbol(att[3])
+    attr_type_ptr = Symbol("UA_TYPES_", uppercase(String(attr_type)[4:end]))
+    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
+
+    @eval begin 
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::Ref{UA_NodeId}, new_attr::$(attr_type))
+            data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
+            retval = __UA_Client_writeAttribute(client, nodeId, $(ua_attr_name), new_attr, data_type_ptr)
+            if retval == UA_STATUSCODE_GOOD
+                return retval
+            else
+                error("Writing attribute ´$(attr_name)´ on UA_Client failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
+            end
+        end
+
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::UA_NodeId, new_attr::$(attr_type)) 
+            return $(fun_name)(client, Ref(nodeId), new_attr)
+        end
+    end
+end
+
+## Read attribute async functions
+for att in attributes_UA_Client_read_async
+    fun_name = Symbol(att[1])
+    attr_name = Symbol(att[2])
+    ret_type = Symbol(att[3])
+    ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
+    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
+
+    @eval begin 
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::Ref{UA_NodeId}, callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer)
+            data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
+            retval = __UA_Client_readAttribute_async(
+                client, 
+                nodeId, 
+                $(ua_attr_name), 
+                data_type_ptr, 
+                reinterpret(UA_ClientAsyncServiceCallback, callback), 
+                userdata, 
+                reqId
+            )
+            if retval == UA_STATUSCODE_GOOD
+                return retval
+            else
+                error("Reading attribute ´$(attr_name)´ asynchronously from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
+            end
+        end
+
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::UA_NodeId, callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer) 
+            return $(fun_name)(client, Ref(nodeId), callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer)
+        end
+    end
+end
+
+# ## Write attribute async functions
+for att in attributes_UA_Client_write_async
+    fun_name = Symbol(att[1])
+    attr_name = Symbol(att[2])
+    attr_type = Symbol(att[3])
+    attr_type_ptr = Symbol("UA_TYPES_", uppercase(String(attr_type)[4:end]))
+    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
+
+    @eval begin 
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::Ref{UA_NodeId}, out::$(attr_type), callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer)
+            data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
+            retval = __UA_Client_writeAttribute_async(client, nodeId, $(ua_attr_name), out, data_type_ptr, callback, userdata, reqId)
+            if retval == UA_STATUSCODE_GOOD
+                return retval
+            else
+                error("Writing attribute ´$(attr_name)´ asynchronously on UA_Client failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
+            end
+        end
+
+        function $(fun_name)(client::Ptr{UA_Client}, nodeId::UA_NodeId, out::$(attr_type), callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer) 
+            return $(fun_name)(client, Ref(nodeId), out, callback::Ptr{Nothing}, userdata::Ptr{Nothing}, reqId::Integer)
         end
     end
 end
