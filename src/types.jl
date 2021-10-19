@@ -14,6 +14,47 @@ function UA_init(p::Ref{T}) where T
     return nothing
 end
 
+function Base.unsafe_wrap(s::Ptr{T}, field::Symbol) where T
+    size_fieldname = Symbol(field, :Size)
+    ptr = unsafe_load(getproperty(s,field))
+    datasize = unsafe_load(getproperty(s, size_fieldname))
+    return unsafe_wrap(Array, ptr, (datasize,))
+end
+
+struct UA_Array{T<:Ptr} <: AbstractArray{T, 1}
+    ptr::T
+    length::Int64
+end
+
+## UA_Array
+# Julia wrapper for C array types
+function UA_Array(s::T, field::Symbol) where T
+    size_fieldname = Symbol(field, :Size)
+    ptr = getfield(s,field)
+    datasize = getfield(s, size_fieldname)
+    return UA_Array(ptr, Int64(datasize))
+end
+
+Base.size(a::UA_Array) = (a.length,)
+Base.length(a::UA_Array) = a.length
+Base.IndexStyle(::Type{<:UA_Array}) = IndexLinear()
+function Base.getindex(a::UA_Array{Ptr{T}}, i::Int) where T
+    1 <= i <= a.length || throw(BoundsError(a, i))
+    return a.ptr + (i-1) * sizeof(T)
+end
+Base.firstindex(a::UA_Array) = 1
+Base.lastindex(a::UA_Array) = a.length
+Base.setindex!(a::UA_Array, v, i::Int) = (a[i] = v)
+Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
+Base.pointer(a::UA_Array) = a[begin]
+Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where T = a[begin]
+
+function UA_Array_init(p::UA_Array)
+    for i in p
+        UA_init(i)
+    end
+end
+
 function UA_Array_new(v::AbstractVector{T}, type_ptr::Ptr{UA_DataType}) where T
     v_typed = convert(Vector{juliadatatype(type_ptr)}, v) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
@@ -72,7 +113,8 @@ for (i, type_name) in enumerate(type_names)
         function $(Symbol(type_name, "_Array_new"))(length::Integer)
             length <= 0 && error("Length of new array must be larger than zero.")
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
-            return convert(Ptr{$(type_name)}, UA_Array_new(length, data_type_ptr))
+            arr_ptr = convert(Ptr{$(type_name)}, UA_Array_new(length, data_type_ptr))
+            return UA_Array(arr_ptr, length)
         end
 
         function $(Symbol(type_name, "_Array_new"))(v::AbstractVector)
@@ -80,9 +122,13 @@ for (i, type_name) in enumerate(type_names)
             v_typed = convert(Vector{$(type_name)}, v)
             arr_ptr = convert(Ptr{$(type_name)}, UA_Array_new(length(v), data_type_ptr))
             GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
-            return arr_ptr
+            return UA_Array(arr_ptr, length(v))
         end
         
+        function $(Symbol(type_name, "_Array_init"))(p::UA_Array{Ptr{$(type_name)}})
+            UA_Array_init(p)
+        end
+
         function $(Symbol(type_name, "_Array_copy"))(
             src::Ptr{$(type_name)}, 
             dst::Ptr{$(type_name)}, 
@@ -97,6 +143,11 @@ for (i, type_name) in enumerate(type_names)
             length < 0 && error("Length of deleted array must be larger than zero.")
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_Array_delete(p, length, data_type_ptr)
+        end
+
+        function $(Symbol(type_name, "_Array_delete"))(p::UA_Array{Ptr{$(type_name)}})
+            data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
+            UA_Array_delete(p, p.length, data_type_ptr)
         end
     end
 end
@@ -133,7 +184,6 @@ UA_String_delete(s::UA_String) = UA_Byte_delete(s.data)
 Base.unsafe_string(s::UA_String) = unsafe_string(s.data, s.length)
 Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
 Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
-
 
 ## DateTime
 
@@ -287,12 +337,13 @@ end
 
 ## Variant
 
-function Base.size(v::UA_Variant)
+function unsafe_size(v::UA_Variant)
     UA_Variant_isScalar(v) && return ()
-    return Tuple([Int(unsafe_load(v.arrayDimensions, d+1)) for d = 0:v.arrayDimensionsSize])
+    v.arrayDimensionsSize == 0 && return (Int(v.arrayLength),)
+    return Tuple([Int(unsafe_load(v.arrayDimensions, d+1)) for d = 0:unsafe_load(v.arrayDimensionsSize)])
 end
 
-Base.size(p::Ref{UA_Variant}) = size(unsafe_load(p))
+unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
@@ -322,9 +373,9 @@ function Base.unsafe_wrap(v::UA_Variant)
     type = juliadatatype(v.type)
     UA_Variant_isScalar(v) && return unsafe_load(reinterpret(Ptr{type}, v.data))
 
-    values = unsafe_wrap(Vector{type}, reinterpret(Ptr{type}, v.data), 1)
-    values_row_major = reshape(values, size(v))
-    return permutedims(values_row_major, reverse(1:length(size(v)))) # To column major format
+    values = unsafe_wrap(Array, reinterpret(Ptr{type}, v.data), unsafe_size(v))
+    values_row_major = reshape(values, unsafe_size(v))
+    return permutedims(values_row_major, reverse(1:length(unsafe_size(v)))) # To column major format
 end
 
 Base.unsafe_wrap(p::Ref{UA_Variant}) = unsafe_wrap(unsafe_load(p))
