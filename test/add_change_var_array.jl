@@ -56,11 +56,12 @@ for type in types
         @test retval == UA_STATUSCODE_GOOD           
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-        @test all(isapprox.(input, output_client))
+        #disconnect client
         UA_Client_disconnect(client)
-
         #shut down the server
         running[] = false
+        #test
+        @test all(isapprox.(input, output_client))
         sleep(3)
     end
 end
