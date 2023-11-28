@@ -61,6 +61,7 @@ for type in types
 
         #shut down the server
         running[] = false
+        sleep(3)
     end
 end
 
