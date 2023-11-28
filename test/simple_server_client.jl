@@ -30,6 +30,8 @@ if retval == UA_STATUSCODE_GOOD
     raw_version = UA_Client_readValueAttribute(client, nodeid)
     open62541_version_server = unsafe_string(unsafe_wrap(raw_version))
     UA_Client_disconnect(client)
+else
+    open62541_version_server = "fail"
 end
 
 # #software version according to julia constants
