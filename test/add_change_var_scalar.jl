@@ -56,6 +56,7 @@ for type in types
     running[] = false
     #test
     @test all(isapprox.(input, output_client))    
+    sleep(3)
 end
 
 #TODO: add some tests about variable changing; also catch errors etc.
