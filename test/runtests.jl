@@ -16,5 +16,5 @@ end
 end
 
 @safetestset "Add, read, change array variables" begin
-    #include("add_change_var_array.jl")
+    include("add_change_var_array.jl")
 end
