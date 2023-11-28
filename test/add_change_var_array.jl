@@ -20,7 +20,7 @@ for type in types
             C_NULL,
             0,
             0)
-        
+
         #add variable node containing an array to the server
         accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
         input = rand(type, array_size...)

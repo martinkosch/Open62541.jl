@@ -30,7 +30,8 @@ for type in types
     browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
     nodecontext = C_NULL
     outnewnodeid = C_NULL
-    retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid, parentreferencenodeid,
+    retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
+        parentreferencenodeid,
         browsename, typedefinition, attr, nodecontext, outnewnodeid)
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD

@@ -23,6 +23,3 @@ running[] = false
 
 #do they agree?
 test = contains(open62541_version_server, open62541_version_julia)
-
-
-
