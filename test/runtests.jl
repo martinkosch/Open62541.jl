@@ -12,7 +12,7 @@ using Base.Threads
 end
 
 @safetestset "Add, read, change scalar variables" begin
-    #include("add_change_var_scalar.jl")
+    include("add_change_var_scalar.jl")
 end
 
 @safetestset "Add, read, change array variables" begin
