@@ -1,4 +1,4 @@
-function anonymous_struct_tuple(data::Ptr{T}, type) where T
+function anonymous_struct_tuple(data::Ptr{T}, type) where {T}
     vec = Vector{UInt8}(undef, sizeof(type))
     GC.@preserve vec unsafe_copyto!(pointer(vec), reinterpret(Ptr{UInt8}, data), sizeof(T))
     return type(Tuple(vec))

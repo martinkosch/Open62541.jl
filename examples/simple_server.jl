@@ -1,6 +1,11 @@
-using open62541
+using open62541, Base.Threads
 
-running = Ref{Bool}(true)
+running = Atomic{Bool}(true)
 server = UA_Server_new()
-UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server), 4840, C_NULL, 0, 0)
-retval = UA_Server_run(server, running)
+UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
+    4842,
+    C_NULL,
+    0,
+    0)
+
+t = @spawn UA_Server_run(server, running)
