@@ -4,11 +4,8 @@ using SafeTestsets
     include("aqua.jl")
 end
 
-using Base.Threads
-@show Threads.nthreads()
-
 @safetestset "Simple Server/Client" begin
-    #include("simple_server_client.jl")
+    include("simple_server_client.jl")
 end
 
 @safetestset "Add, read, change scalar variables" begin

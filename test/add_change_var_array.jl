@@ -62,7 +62,7 @@ for type in types
         running[] = false
         #test
         @test all(isapprox.(input, output_client))
-        sleep(3)
+        sleep(5)
     end
 end
 
