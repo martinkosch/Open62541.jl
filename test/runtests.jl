@@ -4,17 +4,14 @@ using SafeTestsets
     include("aqua.jl")
 end
 
-using Base.Threads
-@show Threads.nthreads()
-
 @safetestset "Simple Server/Client" begin
-    #include("simple_server_client.jl")
+    #include("simple_server_client.jl") #XXX: works locally, but not on CI
 end
 
 @safetestset "Add, read, change scalar variables" begin
-    #include("add_change_var_scalar.jl")
+    include("add_change_var_scalar.jl")
 end
 
 @safetestset "Add, read, change array variables" begin
-    #include("add_change_var_array.jl")
+    include("add_change_var_array.jl")
 end
