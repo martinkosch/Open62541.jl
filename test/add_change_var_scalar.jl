@@ -39,25 +39,26 @@ for type in types
     output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
     @test isapprox(input, output_server)
 
-    #XXX: Works locally, but not on CI
-    # #start up server
-    # running = Atomic{Bool}(true)
-    # t = @spawn UA_Server_run(server, running)
+    #start up server
+    running = Atomic{Bool}(true)
+    t = @spawn UA_Server_run(server, running)
 
-    # #define and connect client to server
-    # client = UA_Client_new()
-    # UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-    # retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-    # #check whether connection successful
-    # @test retval == UA_STATUSCODE_GOOD           
-    # #read with client from server
-    # output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-    # #disconnect client
-    # UA_Client_disconnect(client)
-    # #shut down the server
-    # running[] = false
-    # #test
-    # @test all(isapprox.(input, output_client))    
+    #define and connect client to server
+    client = UA_Client_new()
+    UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+    retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+    #check whether connection successful
+    @test retval == UA_STATUSCODE_GOOD           
+    #read with client from server
+    output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+    #disconnect client
+    UA_Client_disconnect(client)
+    #shut down the server
+    running[] = false
+    #wait for task to finish
+    wait(t)
+    #test
+    @test all(isapprox.(input, output_client)) 
 end
 
 #TODO: add some tests about variable changing; also catch errors etc.

@@ -1,5 +1,6 @@
 using OffsetArrays
 using Dates
+using EnumX
 
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)

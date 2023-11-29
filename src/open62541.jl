@@ -3,6 +3,7 @@ module open62541
 using CEnum
 using Dates
 using OffsetArrays
+using EnumX
 using open62541_jll
 export open62541_jll
 #import Base: unsafe_wrap, length, size
@@ -20018,6 +20019,60 @@ const UA_REFERENCETYPEINDEX_HASINTERFACE = 17
 const UA_REFERENCETYPESET_MAX = 128
 
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
+
+#Mappings of valid (readable/writable) attributes for different node types:
+@enumx UA_VARIABLENODE_ATTRIBUTES begin
+    NodeId 
+    NodeClass 
+    BrowseName 
+    DisplayName 
+    Description 
+    WriteMask 
+    AccessLevel 
+    MinimumSamplingInterval 
+    Historizing 
+    DataType 
+    ValueRank 
+    ArrayDimensionsSize                                     
+    ArrayDimensions                                           
+    Value
+end
+
+@enumx UA_VARIABLETYPENODE_ATTRIBUTES begin
+    NodeId 
+    NodeClass 
+    BrowseName 
+    DisplayName 
+    Description 
+    WriteMask 
+    AccessLevel 
+    MinimumSamplingInterval 
+    Historizing 
+    DataType 
+    ValueRank 
+    ArrayDimensionsSize                                     
+    ArrayDimensions                                           
+    Value
+    IsAbstract
+end
+
+#further node types to look at:
+# UA_NODECLASS_UNSPECIFIED = 0
+#     UA_NODECLASS_OBJECT = 1
+#     UA_NODECLASS_METHOD = 4
+#     UA_NODECLASS_OBJECTTYPE = 8
+#     UA_NODECLASS_REFERENCETYPE = 32
+#     UA_NODECLASS_DATATYPE = 64
+#     UA_NODECLASS_VIEW = 128
+
+# struct UA_NodeHead {
+#     UA_NodeId nodeId;
+#     UA_NodeClass nodeClass;
+#     UA_QualifiedName browseName;
+#     UA_LocalizedText displayName;
+#     UA_LocalizedText description;
+#     UA_UInt32 writeMask;
+# };
 
 include("generated_defs.jl")
 include("helper_functions.jl")

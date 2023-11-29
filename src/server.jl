@@ -25,15 +25,15 @@ function _generic_variable_attributes(displayname,
     attr_default = cglobal((:UA_VariableAttributes_default, libopen62541),
         UA_VariableAttributes)
     attr = UA_VariableAttributes_new()
-    retval = UA_VariableAttributes_copy(attr_default, attr)
-    if retval == UA_STATUSCODE_GOOD
+    statuscode = UA_VariableAttributes_copy(attr_default, attr)
+    if statuscode == UA_STATUSCODE_GOOD
         attr.displayName = UA_LOCALIZEDTEXT_ALLOC(localization, displayname)
         attr.description = UA_LOCALIZEDTEXT_ALLOC(localization, description)
         attr.accessLevel = accesslevel
         attr.dataType = unsafe_load(UA_TYPES_PTRS[juliatype2uaindicator(type)].typeId)
         return attr
     else
-        err = AttributeCopyError(retval)
+        err = AttributeCopyError(statuscode)
         throw(err)
     end
 end
@@ -105,14 +105,14 @@ for att in attributes_UA_Server_read
     @eval begin
         function $(fun_name)(server::Ptr{UA_Server}, nodeId::Ref{UA_NodeId})
             out = Ref{$(ret_type)}()
-            retval = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
-            if retval == UA_STATUSCODE_GOOD
+            statuscode = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
+            if statuscode == UA_STATUSCODE_GOOD
                 return out[]
             else
                 action = "Reading"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end
@@ -142,12 +142,12 @@ for att in attributes_UA_Server_write
                 data_type_ptr,
                 new_val)
             if statuscode == UA_STATUSCODE_GOOD
-                return retval
+                return statuscode
             else
                 action = "Writing"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end

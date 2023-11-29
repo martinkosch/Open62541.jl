@@ -22,7 +22,7 @@ UA_ClientConfig_setDefault(UA_Client_getConfig(client))
 retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
 @test retval == UA_STATUSCODE_GOOD
 
-#nodeid containins software version running on server
+#nodeid containing software version running on server
 nodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)
 
 #read

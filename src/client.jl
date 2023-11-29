@@ -28,15 +28,15 @@ for att in attributes_UA_Client_Service
         if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
             function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
                 response = Ref{$(resp_type)}()
-                retval = __UA_Client_Service(client,
+                statuscode = __UA_Client_Service(client,
                     request,
                     UA_TYPES_PTRS[$(req_type_ptr)],
                     response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
-                if isnothing(retval) || retval == UA_STATUSCODE_GOOD
+                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD
                     return response[]
                 else
-                    throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(retval))\"."))
+                    throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
                 end
             end
         end
@@ -55,18 +55,18 @@ for att in attributes_UA_Client_read
         function $(fun_name)(client::Ptr{UA_Client}, nodeId::Ref{UA_NodeId})
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
             out = Ref{$(ret_type)}()
-            retval = __UA_Client_readAttribute(client,
+            statuscode = __UA_Client_readAttribute(client,
                 nodeId,
                 $(ua_attr_name),
                 out,
                 data_type_ptr)
-            if retval == UA_STATUSCODE_GOOD
+            if statuscode == UA_STATUSCODE_GOOD
                 return out[]
             else
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end
@@ -88,27 +88,27 @@ for att in attributes_UA_Client_write
     @eval begin
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::Ref{UA_NodeId},
-                new_attr::$(attr_type))
+                new_attr)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
-            retval = __UA_Client_writeAttribute(client,
+            statuscode = __UA_Client_writeAttribute(client,
                 nodeId,
                 $(ua_attr_name),
                 new_attr,
                 data_type_ptr)
-            if retval == UA_STATUSCODE_GOOD
-                return retval
+            if statuscode == UA_STATUSCODE_GOOD
+                return statuscode
             else
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end
 
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::UA_NodeId,
-                new_attr::$(attr_type))
+                new_attr)
             return $(fun_name)(client, Ref(nodeId), new_attr)
         end
     end
@@ -129,20 +129,20 @@ for att in attributes_UA_Client_read_async
                 userdata::Ptr{Nothing},
                 reqId::Integer)
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
-            retval = __UA_Client_readAttribute_async(client,
+            statuscode = __UA_Client_readAttribute_async(client,
                 nodeId,
                 $(ua_attr_name),
                 data_type_ptr,
                 reinterpret(UA_ClientAsyncServiceCallback, callback),
                 userdata,
                 reqId)
-            if retval == UA_STATUSCODE_GOOD
-                return retval
+            if statuscode == UA_STATUSCODE_GOOD
+                return statuscode
             else
                 action = "Reading"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end
@@ -177,7 +177,7 @@ for att in attributes_UA_Client_write_async
                 userdata::Ptr{Nothing},
                 reqId::Integer)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
-            retval = __UA_Client_writeAttribute_async(client,
+            statuscode = __UA_Client_writeAttribute_async(client,
                 nodeId,
                 $(ua_attr_name),
                 out,
@@ -185,13 +185,13 @@ for att in attributes_UA_Client_write_async
                 callback,
                 userdata,
                 reqId)
-            if retval == UA_STATUSCODE_GOOD
-                return retval
+            if statuscode == UA_STATUSCODE_GOOD
+                return statuscode
             else
                 action = "Writing"
                 side = "Client"
                 mode = "asynchronously"
-                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
+                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
                 throw(err)
             end
         end
