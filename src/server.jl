@@ -14,7 +14,6 @@ function UA_VALUERANK(N::Integer)
     N == 1 && return UA_VALUERANK_ONE_DIMENSION
     N == 2 && return UA_VALUERANK_TWO_DIMENSIONS
     N == 3 && return UA_VALUERANK_THREE_DIMENSIONS
-    (N > 3 || N < 1) && throw(DomainError(N, "´UA_VALUERANK´ must either be 1, 2, or 3."))
     return N
 end
 
