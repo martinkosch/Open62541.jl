@@ -52,12 +52,19 @@ for type in types
     # @test retval == UA_STATUSCODE_GOOD           
     # #read with client from server
     # output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+    # @test all(isapprox.(input, output_client)) 
+    # # Write new data 
+    # new_input = rand(type)
+    # retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+    # # Read new data
+    # output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+    # # Check whether writing was successfull
+    # @test all(isapprox.(new_input, output_client_new))
+    # @test retval == UA_STATUSCODE_GOOD   
     # #disconnect client
     # UA_Client_disconnect(client)
     # #shut down the server
     # running[] = false
-    # #test
-    # @test all(isapprox.(input, output_client))    
 end
 
 #TODO: add some tests about variable changing; also catch errors etc.

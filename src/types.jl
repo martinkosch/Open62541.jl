@@ -8,14 +8,14 @@ function juliadatatype(p::Ptr{UA_DataType})
 end
 
 # Initialize default attribute definitions with C_NULL and initialize correct address during __init__ (extern variables are missed by Clang.jl)
-const UA_VariableAttributes_default = Ref{Ptr{UA_VariableAttributes}}(0)
-const UA_VariableTypeAttributes_default = Ref{Ptr{UA_VariableTypeAttributes}}(0)
-const UA_MethodAttributes_default = Ref{Ptr{UA_MethodAttributes}}(0)
-const UA_ObjectAttributes_default = Ref{Ptr{UA_ObjectAttributes}}(0)
-const UA_ObjectTypeAttributes_default = Ref{Ptr{UA_ObjectTypeAttributes}}(0)
-const UA_ReferenceTypeAttributes_default = Ref{Ptr{UA_ReferenceTypeAttributes}}(0)
-const UA_DataTypeAttributes_default = Ref{Ptr{UA_DataTypeAttributes}}(0)
-const UA_ViewAttributes_default = Ref{Ptr{UA_ViewAttributes}}(0)
+const UA_VariableAttributes_default = Ref{UA_VariableAttributes}()
+const UA_VariableTypeAttributes_default = Ref{UA_VariableTypeAttributes}()
+const UA_MethodAttributes_default = Ref{UA_MethodAttributes}()
+const UA_ObjectAttributes_default = Ref{UA_ObjectAttributes}()
+const UA_ObjectTypeAttributes_default = Ref{UA_ObjectTypeAttributes}()
+const UA_ReferenceTypeAttributes_default = Ref{UA_ReferenceTypeAttributes}()
+const UA_DataTypeAttributes_default = Ref{UA_DataTypeAttributes}()
+const UA_ViewAttributes_default = Ref{UA_ViewAttributes}()
 
 function UA_init(p::Ref{T}) where {T}
     @ccall memset(p::Ptr{Cvoid}, 0::Cint, (sizeof(T))::Csize_t)::Ptr{Cvoid}
@@ -99,7 +99,7 @@ for (i, type_name) in enumerate(type_names)
 
         $(Symbol(type_name, "_init"))(p::Ptr{$(type_name)}) = UA_init(p)
 
-        function $(Symbol(type_name, "_copy"))(src::Ptr{$(type_name)},
+        function $(Symbol(type_name, "_copy"))(src::Ref{$(type_name)},
                 dst::Ptr{$(type_name)})
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return UA_copy(src, dst, data_type_ptr)
@@ -151,17 +151,17 @@ for (i, type_name) in enumerate(type_names)
             UA_Array_init(p)
         end
 
-        function $(Symbol(type_name, "_Array_copy"))(src::Ptr{$(type_name)},
+        function $(Symbol(type_name, "_Array_copy"))(src::Ref{$(type_name)},
                 dst::Ptr{$(type_name)},
                 length::Integer)
-            length < 0 && error("Length of copied array must be larger than zero.")
+            length < 0 && error("Length of copied array cannot be negative.")
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return UA_Array_copy(src, length, Ref(dst), data_type_ptr)
         end
 
         function $(Symbol(type_name, "_Array_delete"))(p::Ptr{$(type_name)},
                 length::Integer)
-            length < 0 && error("Length of deleted array must be larger than zero.")
+            length < 0 && error("Length of deleted array cannot be negative.")
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_Array_delete(p, length, data_type_ptr)
         end
@@ -373,7 +373,7 @@ function UA_Variant_new_copy(value::T,
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
-    var.arrayLength = length(value)
+    var.arrayLength = 0
     var.arrayDimensionsSize = length(size(value))
     value_ptr = convert(Ptr{T}, UA_new(type_ptr))
     unsafe_store!(value_ptr, value)

@@ -24,7 +24,7 @@ function _generic_variable_attributes(displayname::AbstractString,
         type::DataType,
         localization::AbstractString = "en-US")
     attr = UA_VariableAttributes_new()
-    retval = UA_VariableAttributes_copy(UA_VariableAttributes_default[], attr)
+    retval = UA_VariableAttributes_copy(UA_VariableAttributes_default, attr)
     if retval == UA_STATUSCODE_GOOD
         attr.displayName = UA_LOCALIZEDTEXT_ALLOC(localization, displayname)
         attr.description = UA_LOCALIZEDTEXT_ALLOC(localization, description)
@@ -81,6 +81,7 @@ function UA_generate_variable_attributes(input::Ref{T},
     attr = _generic_variable_attributes(displayname, description, accesslevel, T)
     attr.valueRank = valuerank
     UA_Variant_setScalar(attr.value, input, type_ptr)
+    @show unsafe_load(attr.value) # TODO: Why is this line needed to really set the scalar value? If the line is removed, the tests fail. 
     return attr
 end
 
