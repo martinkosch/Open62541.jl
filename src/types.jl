@@ -7,22 +7,22 @@ function juliadatatype(p::Ptr{UA_DataType})
     return UA_TYPES_MAP[ind + 1]
 end
 
+# Initialize default attribute definitions with C_NULL and initialize correct address during __init__ (extern variables are missed by Clang.jl)
+const UA_VariableAttributes_default = Ref{Ptr{UA_VariableAttributes}}(0)
+const UA_VariableTypeAttributes_default = Ref{Ptr{UA_VariableTypeAttributes}}(0)
+const UA_MethodAttributes_default = Ref{Ptr{UA_MethodAttributes}}(0)
+const UA_ObjectAttributes_default = Ref{Ptr{UA_ObjectAttributes}}(0)
+const UA_ObjectTypeAttributes_default = Ref{Ptr{UA_ObjectTypeAttributes}}(0)
+const UA_ReferenceTypeAttributes_default = Ref{Ptr{UA_ReferenceTypeAttributes}}(0)
+const UA_DataTypeAttributes_default = Ref{Ptr{UA_DataTypeAttributes}}(0)
+const UA_ViewAttributes_default = Ref{Ptr{UA_ViewAttributes}}(0)
+
 function UA_init(p::Ref{T}) where {T}
     @ccall memset(p::Ptr{Cvoid}, 0::Cint, (sizeof(T))::Csize_t)::Ptr{Cvoid}
     return nothing
 end
 
-#TODO: Commented due to type piracy (as detected by Aqua)? - but seems not to break anything 
-#that is tested right now. Where is the method used?
-# function Base.unsafe_wrap(s::Ptr{T}, field::Symbol) where {T} 
-#     @show "test"
-#     size_fieldname = Symbol(field, :Size)
-#     ptr = unsafe_load(getproperty(s, field))
-#     datasize = unsafe_load(getproperty(s, size_fieldname))
-#     return unsafe_wrap(Array, ptr, (datasize,))
-# end
-
-## UA_Array
+# ## UA_Array
 # Julia wrapper for C array types
 struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     ptr::T
@@ -56,8 +56,9 @@ function UA_Array_init(p::UA_Array)
     end
 end
 
-function UA_Array_new(v::AbstractVector{T}, type_ptr::Ptr{UA_DataType}) where {T}
-    v_typed = convert(Vector{juliadatatype(type_ptr)}, v) # Implicit check if T can be converted to type_ptr
+function UA_Array_new(v::AbstractArray{T}, 
+    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
+    v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
     return arr_ptr
@@ -115,7 +116,8 @@ for (i, type_name) in enumerate(type_names)
         end
 
         function $(Symbol(type_name, "_Array_new"))(length::Integer)
-            length <= 0 && error("Length of new array must be larger than zero.")
+            # TODO: Allow empty arrays with corresponsing UA_EMPTY_ARRAY_SENTINEL indicator
+            length <= 0 && throw(DomainError(length, "Length of new array must be larger than zero.")) 
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             arr_ptr = convert(Ptr{$(type_name)}, UA_Array_new(length, data_type_ptr))
             return UA_Array(arr_ptr, length)
@@ -354,27 +356,30 @@ unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
 
-function UA_Variant_new_copy(value::T, type_ptr::Ptr{UA_DataType}) where {T}
+function UA_Variant_new_copy(value::AbstractArray{T, N}, 
+    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(eltype(T))) where {T, N}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
     var.arrayLength = length(value)
     var.arrayDimensionsSize = length(size(value))
-
-    if isempty(size(value)) # Scalar value
-        var.arrayDimensions = C_NULL
-        value_ptr = convert(Ptr{T}, UA_new(type_ptr))
-        unsafe_store!(value_ptr, value)
-    else # Array value
-        value_row_major = permutedims(value, reverse(1:length(size(value)))) #TODO: safe for nD array?
-        var.data = UA_Array_new(value, type_ptr)
-        var.arrayDimensions = UA_UInt32_Array_new([size(value_row_major)...])
-    end
+    var.data = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr)
+    var.arrayDimensions = UA_UInt32_Array_new(reverse(size(value)))
     return var
 end
 
-function UA_Variant_new_copy(value::T) where {T}
-    UA_Variant_new_copy(value, ua_data_type_ptr_default(eltype(T)))
+function UA_Variant_new_copy(value::T, 
+    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(eltype(T))) where {T <: Union{AbstractFloat, Integer}}
+    var = UA_Variant_new()
+    var.type = type_ptr
+    var.storageType = UA_VARIANT_DATA
+    var.arrayLength = length(value)
+    var.arrayDimensionsSize = length(size(value))
+    value_ptr = convert(Ptr{T}, UA_new(type_ptr))
+    unsafe_store!(value_ptr, value)
+    var.data = value_ptr
+    var.arrayDimensions = C_NULL
+    return var
 end
 
 function UA_Variant_new_copy(value, type_sym::Symbol)
@@ -387,7 +392,7 @@ function Base.unsafe_wrap(v::UA_Variant)
     UA_Variant_isScalar(v) && return GC.@preserve data unsafe_load(data)
     values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
     values_row_major = reshape(values, unsafe_size(v))
-    return permutedims(values_row_major, reverse(1:(v.arrayDimensionsSize))) # To column major format; TODO: can make allocation free using PermutedDimsArray?
+    return permutedims(values_row_major, reverse(1:(v.arrayDimensionsSize))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
 end
 
 Base.unsafe_wrap(p::Ref{UA_Variant}) = unsafe_wrap(unsafe_load(p))

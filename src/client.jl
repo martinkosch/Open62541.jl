@@ -88,12 +88,12 @@ for att in attributes_UA_Client_write
     @eval begin
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::Ref{UA_NodeId},
-                new_attr::$(attr_type))
+                new_attr::Ptr{$(attr_type)})
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             retval = __UA_Client_writeAttribute(client,
                 nodeId,
                 $(ua_attr_name),
-                new_attr,
+                convert(Ptr{Nothing}, new_attr),
                 data_type_ptr)
             if retval == UA_STATUSCODE_GOOD
                 return retval
@@ -108,7 +108,7 @@ for att in attributes_UA_Client_write
 
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::UA_NodeId,
-                new_attr::$(attr_type))
+                new_attr::Ptr{$(attr_type)})
             return $(fun_name)(client, Ref(nodeId), new_attr)
         end
     end
@@ -172,7 +172,7 @@ for att in attributes_UA_Client_write_async
     @eval begin
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::Ref{UA_NodeId},
-                out::$(attr_type),
+                out::Ptr{$(attr_type)},
                 callback::Ptr{Nothing},
                 userdata::Ptr{Nothing},
                 reqId::Integer)
@@ -198,7 +198,7 @@ for att in attributes_UA_Client_write_async
 
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::UA_NodeId,
-                out::$(attr_type),
+                out::Ptr{$(attr_type)},
                 callback::Ptr{Nothing},
                 userdata::Ptr{Nothing},
                 reqId::Integer)

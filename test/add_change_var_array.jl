@@ -50,19 +50,26 @@ for type in types
         # t = @spawn UA_Server_run(server, running)
 
         # #define and connect client to server
-        # client = UA_Client_new()
-        # UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-        # retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-        # #check whether connection successful
-        # @test retval == UA_STATUSCODE_GOOD           
-        # #read with client from server
-        # output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-        # #disconnect client
+        client = UA_Client_new()
+        UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        # Check whether connection successful
+        @test retval == UA_STATUSCODE_GOOD           
+        # Read with client from server
+        output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        @test all(isapprox.(input, output_client))
+        # Write new data 
+        new_input = rand(type, array_size...)
+        retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+        # Read new data
+        output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        # Check whether writing was successfull
+        @test all(isapprox.(new_input, output_client_new))
+        @test retval == UA_STATUSCODE_GOOD   
+        # Disconnect client
         # UA_Client_disconnect(client)
         # #shut down the server
         # running[] = false
-        # #test
-        # @test all(isapprox.(input, output_client))
     end
 end
 
