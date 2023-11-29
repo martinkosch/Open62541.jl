@@ -376,7 +376,7 @@ function UA_Variant_new_copy(value::T,
     var.arrayLength = 0
     var.arrayDimensionsSize = length(size(value))
     value_ptr = convert(Ptr{T}, UA_new(type_ptr))
-    unsafe_store!(value_ptr, value)
+    unsafe_store!(value_ptr, value) # TODO: Can this be done cleaner?
     var.data = value_ptr
     var.arrayDimensions = C_NULL
     return var
