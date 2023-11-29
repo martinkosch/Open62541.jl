@@ -66,7 +66,7 @@ for type in types
         # # Check whether writing was successfull
         # @test all(isapprox.(new_input, output_client_new))
         # @test retval == UA_STATUSCODE_GOOD   
-        # Disconnect client
+        # # Disconnect client
         # UA_Client_disconnect(client)
         # #shut down the server
         # running[] = false

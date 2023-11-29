@@ -103,7 +103,7 @@ for att in attributes_UA_Server_read
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(server::Ptr{UA_Server}, nodeId::Ref{UA_NodeId})
+        function $(fun_name)(server::Ref{UA_Server}, nodeId::Ref{UA_NodeId})
             out = Ref{$(ret_type)}()
             retval = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
             if retval == UA_STATUSCODE_GOOD
@@ -117,7 +117,7 @@ for att in attributes_UA_Server_read
             end
         end
 
-        function $(fun_name)(server::Ptr{UA_Server}, nodeId::UA_NodeId)
+        function $(fun_name)(server::Ref{UA_Server}, nodeId::UA_NodeId)
             return $(fun_name)(server, Ref(nodeId))
         end
     end
@@ -132,7 +132,7 @@ for att in attributes_UA_Server_write
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(server::Ptr{UA_Server},
+        function $(fun_name)(server::Ref{UA_Server},
                 nodeId::Ref{UA_NodeId},
                 new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
@@ -152,7 +152,7 @@ for att in attributes_UA_Server_write
             end
         end
 
-        function $(fun_name)(server::Ptr{UA_Server},
+        function $(fun_name)(server::Ref{UA_Server},
                 nodeId::UA_NodeId,
                 new_val)
             return $(fun_name)(server, Ref(nodeId), new_val)
