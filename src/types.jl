@@ -368,18 +368,21 @@ function UA_Variant_new_copy(value::AbstractArray{T, N},
     return var
 end
 
-function UA_Variant_new_copy(value::T, 
+function UA_Variant_new_copy(value::Ref{T}, 
     type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(eltype(T))) where {T <: Union{AbstractFloat, Integer}}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
     var.arrayLength = 0
     var.arrayDimensionsSize = length(size(value))
-    value_ptr = convert(Ptr{T}, UA_new(type_ptr))
-    unsafe_store!(value_ptr, value) # TODO: Can this be done cleaner?
-    var.data = value_ptr
+    UA_Variant_setScalarCopy(var, value, type_ptr)
     var.arrayDimensions = C_NULL
     return var
+end
+
+function UA_Variant_new_copy(value::T, 
+    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(eltype(T))) where {T <: Union{AbstractFloat, Integer}}
+    return UA_Variant_new_copy(Ref(value), type_ptr)
 end
 
 function UA_Variant_new_copy(value, type_sym::Symbol)
