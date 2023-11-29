@@ -66,7 +66,7 @@ for att in attributes_UA_Client_read
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, attr_name, retval)
+                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
                 throw(err)
             end
         end
@@ -101,7 +101,7 @@ for att in attributes_UA_Client_write
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, attr_name, retval)
+                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
                 throw(err)
             end
         end
@@ -142,7 +142,7 @@ for att in attributes_UA_Client_read_async
                 action = "Reading"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, attr_name, retval)
+                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
                 throw(err)
             end
         end
@@ -191,7 +191,7 @@ for att in attributes_UA_Client_write_async
                 action = "Writing"
                 side = "Client"
                 mode = "asynchronously"
-                err = AttributeReadWriteError(action, mode, side, attr_name, retval)
+                err = AttributeReadWriteError(action, mode, side, $(string(attr_name)), retval)
                 throw(err)
             end
         end
