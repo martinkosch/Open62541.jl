@@ -79,8 +79,7 @@ function UA_generate_variable_attributes(input::Ref{T},
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
     attr = _generic_variable_attributes(displayname, description, accesslevel, T)
     attr.valueRank = valuerank
-    UA_Variant_setScalar(attr.value, input, type_ptr)
-    @show unsafe_load(attr.value) # TODO: Why is this line needed to really set the scalar value? If the line is removed, the tests fail. 
+    UA_Variant_setScalarCopy(attr.value, input, type_ptr)
     return attr
 end
 
