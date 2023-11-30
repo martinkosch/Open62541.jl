@@ -46,6 +46,9 @@ for type in types
     #define and connect client to server
     client = UA_Client_new()
     UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+    while !istaskstarted(t)
+        sleep(1.0)
+    end
     retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
     #check whether connection successful
     @test retval == UA_STATUSCODE_GOOD           
