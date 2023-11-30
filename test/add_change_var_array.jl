@@ -2,19 +2,18 @@
 #different types can be created on a server, read, changed and read again (using the server commands and client commands)
 #we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
 #set to float64.)
-
 using open62541
 using Test
 using Base.Threads
 
 # What types we are testing for: 
-types = [Int16, Int32, Int64, Float32, Float64, Bool]
+#types = [Int16, Int32, Int64, Float32, Float64, Bool]
+types = [Int64, Float64, Bool, Float32, Int32, Int16]
 array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
-type = Float64
-array_size = (3,4,5)
 for type in types
     for array_size in array_sizes
+        @show type, array_size
         #generate a UA_Server with standard config
         server = UA_Server_new()
         retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
@@ -45,28 +44,31 @@ for type in types
         #test whether the correct array is within the server (read from server)
         output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
         @test all(isapprox.(input, output_server))
-
         #start up the server
         running = Atomic{Bool}(true)
         t = @spawn UA_Server_run(server, running)
-        #define and connect client to server
+        #specify client and connect to server
         client = UA_Client_new()
         UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+        while !istaskstarted(t)
+            sleep(1.0)
+        end
+        sleep(1.0)
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-        #check whether connection successful
-        @test retval == UA_STATUSCODE_GOOD           
+        @test retval == UA_STATUSCODE_GOOD       
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
         # Write new data 
         new_input = rand(type, array_size)
+        @show "just before write"
         retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
         @test retval == UA_STATUSCODE_GOOD   
-        # Read new data
+        # # Read new data
         output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         # Check whether writing was successfull
         @test all(isapprox.(new_input, output_client_new))
-        #disconnect client
+        # #disconnect client
         UA_Client_disconnect(client)
         #shut down the server
         running[] = false
@@ -76,4 +78,3 @@ for type in types
         UA_Client_delete(client)
     end
 end
-

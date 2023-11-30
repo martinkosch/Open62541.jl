@@ -19,6 +19,10 @@ t = @spawn UA_Server_run(server, running)
 #specify client and connect to server
 client = UA_Client_new()
 UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+while !istaskstarted(t)
+    sleep(1.0)
+end
+sleep(1.0)
 retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
 @test retval == UA_STATUSCODE_GOOD
 
@@ -40,6 +44,8 @@ open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_O
 # #shut down server
 running[] = false
 wait(t)
+UA_Client_delete(client)
+UA_Server_delete(server)
 
 # #do they agree?
 @test contains(open62541_version_server, open62541_version_julia)

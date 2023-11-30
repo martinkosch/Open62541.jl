@@ -43,12 +43,16 @@ for type in types
     running = Atomic{Bool}(true)
     t = @spawn UA_Server_run(server, running)
 
-    #define and connect client to server
+    #specify client and connect to server
     client = UA_Client_new()
     UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+    while !istaskstarted(t)
+        sleep(1.0)
+    end
+    sleep(1.0)
     retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-    #check whether connection successful
-    @test retval == UA_STATUSCODE_GOOD           
+    @test retval == UA_STATUSCODE_GOOD
+    
     #read with client from server
     output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
     @test all(isapprox.(input, output_client)) 

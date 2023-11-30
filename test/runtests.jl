@@ -17,7 +17,7 @@ end
 end
 
 @safetestset "Simple Server/Client" begin
-    include("simple_server_client.jl") #XXX: works locally, but not on CI
+    include("simple_server_client.jl")
 end
 
 @safetestset "Add, read, change scalar variables" begin
