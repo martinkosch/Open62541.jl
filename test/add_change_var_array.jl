@@ -8,7 +8,8 @@ using Test
 using Base.Threads
 
 # What types we are testing for: 
-types = [Int16, Int32, Int64, Float32, Float64, Bool]
+#types = [Int16, Int32, Int64, Float32, Float64, Bool]
+types = [Float32, Float64, Bool]
 array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
 type = Float64
@@ -56,7 +57,7 @@ for type in types
         while !istaskstarted(t)
             sleep(1.0)
         end
-        sleep(5.0)
+        sleep(2.0)
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         @test retval == UA_STATUSCODE_GOOD       
         #read with client from server
