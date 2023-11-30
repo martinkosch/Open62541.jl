@@ -23,13 +23,8 @@ function _generic_variable_attributes(displayname::AbstractString,
         type::DataType,
         localization::AbstractString = "en-US")
     attr = UA_VariableAttributes_new()
-<<<<<<< HEAD
-    statuscode = UA_VariableAttributes_copy(attr_default, attr)
-    if statuscode == UA_STATUSCODE_GOOD
-=======
     retval = UA_VariableAttributes_copy(UA_VariableAttributes_default, attr)
     if retval == UA_STATUSCODE_GOOD
->>>>>>> ae0460ef3dc84a735828fb08657b03b4c0742706
         attr.displayName = UA_LOCALIZEDTEXT_ALLOC(localization, displayname)
         attr.description = UA_LOCALIZEDTEXT_ALLOC(localization, description)
         attr.accessLevel = accesslevel
