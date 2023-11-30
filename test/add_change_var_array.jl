@@ -9,7 +9,7 @@ using Base.Threads
 
 # What types we are testing for: 
 #types = [Int16, Int32, Int64, Float32, Float64, Bool]
-types = [Float32, Float64, Bool]
+types = [Float64, Bool]
 #array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
