@@ -90,11 +90,13 @@ for att in attributes_UA_Client_write
                 nodeId::Ref{UA_NodeId},
                 new_attr)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
+            GC.@preserve new_attr begin
             statuscode = __UA_Client_writeAttribute(client,
                 nodeId,
                 $(ua_attr_name),
                 new_attr,
                 data_type_ptr)
+            end
             if statuscode == UA_STATUSCODE_GOOD
                 return statuscode
             else
