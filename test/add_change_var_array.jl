@@ -52,17 +52,12 @@ for type in types
         #specify client and connect to server
         client = UA_Client_new()
         UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-        maxattempts = 20
-        attempt = 1
-        retval = UA_STATUSCODE_BAD
-        while attempt <= maxattempts && retval != UA_STATUSCODE_GOOD
-            retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-            attempt = attempt + 1
-            sleep(0.1)
+        while !istaskstarted(t)
+            sleep(1.0)
         end
-        if retval != UA_STATUSCODE_GOOD
-            error("Connection failed $maxattempts time; exiting.")
-        end
+        sleep(3.0)
+        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        @test retval == UA_STATUSCODE_GOOD       
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
