@@ -15,6 +15,7 @@ type = Float64
 array_size = (3,4,5)
 for type in types
     for array_size in array_sizes
+        @show type, array_size
         #generate a UA_Server with standard config
         server = UA_Server_new()
         retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
