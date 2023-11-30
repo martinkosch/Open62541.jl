@@ -62,10 +62,10 @@ for type in types
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
-        # # Write new data 
-        # new_input = rand(type, array_size)
-        # retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
-        # @test retval == UA_STATUSCODE_GOOD   
+        # Write new data 
+        new_input = rand(type, array_size)
+        retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+        @test retval == UA_STATUSCODE_GOOD   
         # # Read new data
         # output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         # # Check whether writing was successfull
