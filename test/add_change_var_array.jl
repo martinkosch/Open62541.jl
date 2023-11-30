@@ -11,19 +11,21 @@ using Base.Threads
 types = [Int16, Int32, Int64, Float32, Float64, Bool]
 array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
+type = Float64
+array_size = (3,4,5)
 for type in types
     for array_size in array_sizes
         #generate a UA_Server with standard config
         server = UA_Server_new()
-        UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
+        retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
             4842,
             C_NULL,
             0,
             0)
-
+        @test retval == UA_STATUSCODE_GOOD 
         #add variable node containing an array to the server
         accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
-        input = rand(type, array_size...)
+        input = rand(type, array_size)
         attr = UA_generate_variable_attributes(input,
             "array variable",
             "this is an array variable",
@@ -44,13 +46,9 @@ for type in types
         output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
         @test all(isapprox.(input, output_server))
 
-        #XXX: works locally, but not on CI
         #start up the server
         running = Atomic{Bool}(true)
         t = @spawn UA_Server_run(server, running)
-        while !istaskrunning(t)
-            sleep(1.0)
-        end
         #define and connect client to server
         client = UA_Client_new()
         UA_ClientConfig_setDefault(UA_Client_getConfig(client))
@@ -60,12 +58,22 @@ for type in types
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
+        # Write new data 
+        new_input = rand(type, array_size)
+        retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+        @test retval == UA_STATUSCODE_GOOD   
+        # Read new data
+        output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        # Check whether writing was successfull
+        @test all(isapprox.(new_input, output_client_new))
         #disconnect client
         UA_Client_disconnect(client)
         #shut down the server
         running[] = false
         #wait for task to finish
         wait(t)
+        UA_Server_delete(server)
+        UA_Client_delete(client)
     end
 end
 

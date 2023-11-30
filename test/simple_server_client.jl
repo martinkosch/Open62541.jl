@@ -39,6 +39,7 @@ open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_O
 
 # #shut down server
 running[] = false
+wait(t)
 
 # #do they agree?
 @test contains(open62541_version_server, open62541_version_julia)

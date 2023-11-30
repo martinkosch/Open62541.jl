@@ -11,11 +11,12 @@ types = [Int16, Int32, Int64, Float32, Float64, Bool]
 
 for type in types
     server = UA_Server_new()
-    UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
+    retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
         4842,
         C_NULL,
         0,
         0)
+    @test retval == UA_STATUSCODE_GOOD   
     accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
     input = rand(type)
     attr = UA_generate_variable_attributes(input,
@@ -60,9 +61,11 @@ for type in types
     # Check whether writing was successfull
     @test all(isapprox.(new_input, output_client_new))
     #disconnect client
-    UA_Client_disconnect(client)
+    retval = UA_Client_disconnect(client)
+    @test retval == UA_STATUSCODE_GOOD           
     #shut down the server
     running[] = false
-    #wait for task to finish
-    wait(t)    
+    wait(t)
+    UA_Server_delete(server)
+    UA_Client_delete(client)
 end

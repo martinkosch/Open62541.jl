@@ -88,7 +88,7 @@ for att in attributes_UA_Client_write
     @eval begin
         function $(fun_name)(client::Ref{UA_Client},
                 nodeId::Ref{UA_NodeId},
-                new_attr::Ref{$(attr_type)}) 
+                new_attr)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             statuscode = __UA_Client_writeAttribute(client,
                 nodeId,
@@ -108,7 +108,7 @@ for att in attributes_UA_Client_write
 
         function $(fun_name)(client::Ref{UA_Client},
                 nodeId::UA_NodeId,
-                new_attr::Ref{$(attr_type)}) 
+                new_attr) 
             return $(fun_name)(client, Ref(nodeId), new_attr)
         end
     end
