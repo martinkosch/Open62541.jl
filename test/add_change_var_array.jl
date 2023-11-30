@@ -10,7 +10,7 @@ using Base.Threads
 #types = [Int16, Int32, Int64, Float32, Float64, Bool]
 types = [Int64, Float64, Bool]
 #array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
-array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
+array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6), (3, 4, 5, 6,7))
 
 for type in types
     for array_size in array_sizes
