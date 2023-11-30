@@ -9,7 +9,7 @@ using Base.Threads
 
 # What types we are testing for: 
 #types = [Int16, Int32, Int64, Float32, Float64, Bool]
-types = [Int16, Int32, Int64]
+types = [Bool, Float64, Int64, Int32]
 #array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
@@ -64,6 +64,7 @@ for type in types
         @test all(isapprox.(input, output_client))
         # Write new data 
         new_input = rand(type, array_size)
+        @show "just before write"
         retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
         @test retval == UA_STATUSCODE_GOOD   
         # # Read new data
