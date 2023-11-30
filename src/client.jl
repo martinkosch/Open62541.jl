@@ -1,215 +1,80 @@
-UA_Client_getContext(client::UA_Client) = UA_Client_getConfig(client).clientContext
+# Purpose: This testset checks whether variable nodes containing arrays (1, 2, 3, 4 dimensions) of
+#different types can be created on a server, read, changed and read again (using the server commands and client commands)
+#we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
+#set to float64.)
+using open62541
+using Test
+using Base.Threads
 
-function UA_Client_connectUsername(client::Ptr{UA_Client},
-        endpointUrl::AbstractString,
-        username::AbstractString,
-        password::AbstractString)
-    identityToken = UA_UserNameIdentityToken_new()
-    identityToken == CNULL && return UA_STATUSCODE_BADOUTOFMEMORY
-    identityToken.userName = UA_STRING_ALLOC(username)
-    identityToken.password = UA_STRING_ALLOC(password)
-    cc = UA_Client_getConfig(client)
-    UA_ExtensionObject_clear(cc.userIdentityToken)
-    cc.userIdentityToken.encoding = UA_EXTENSIONOBJECT_DECODED
-    cc.userIdentityToken.content.decoded.type = UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN]
-    cc.userIdentityToken.content.decoded.data = identityToken
-    return UA_Client_connect(client, endpointUrl)
-end
+# What types we are testing for: 
+#types = [Int16, Int32, Int64, Float32, Float64, Bool]
+types = [Int64, Float64, Bool]
+#array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
+array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
-## UA_Client_Service functions
-for att in attributes_UA_Client_Service
-    fun_name = Symbol(att[1])
-    req_type = Symbol("UA_", uppercasefirst(att[2]), "Request")
-    resp_type = Symbol("UA_", uppercasefirst(att[2]), "Response")
-    req_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "REQUEST")
-    resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
-
-    @eval begin
-        if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
-            function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
-                response = Ref{$(resp_type)}()
-                statuscode = __UA_Client_Service(client,
-                    request,
-                    UA_TYPES_PTRS[$(req_type_ptr)],
-                    response,
-                    UA_TYPES_PTRS[$(resp_type_ptr)])
-                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD
-                    return response[]
-                else
-                    throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
-                end
-            end
+for type in types
+    for array_size in array_sizes
+        @show type, array_size
+        #generate a UA_Server with standard config
+        server = UA_Server_new()
+        retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
+            4842,
+            C_NULL,
+            0,
+            0)
+        @test retval == UA_STATUSCODE_GOOD 
+        #add variable node containing an array to the server
+        accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+        input = rand(type, array_size)
+        attr = UA_generate_variable_attributes(input,
+            "array variable",
+            "this is an array variable",
+            accesslevel)
+        varnodeid = UA_NODEID_STRING_ALLOC(1, "array variable")
+        parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+        parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
+        typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+        browsename = UA_QUALIFIEDNAME_ALLOC(1, "array variable")
+        nodecontext = C_NULL
+        outnewnodeid = C_NULL
+        retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
+            parentreferencenodeid,
+            browsename, typedefinition, attr, nodecontext, outnewnodeid)
+        #test whether adding node to the server worked
+        @test retval == UA_STATUSCODE_GOOD
+        #test whether the correct array is within the server (read from server)
+        output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
+        @test all(isapprox.(input, output_server))
+        #start up the server
+        running = Atomic{Bool}(true)
+        t = @spawn UA_Server_run(server, running)
+        #specify client and connect to server
+        client = UA_Client_new()
+        UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+        while !istaskstarted(t)
+            sleep(1.0)
         end
-    end
-end
-
-## Read attribute functions
-for att in attributes_UA_Client_read
-    fun_name = Symbol(att[1])
-    attr_name = Symbol(att[2])
-    ret_type = Symbol(att[3])
-    ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
-    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-
-    @eval begin
-        function $(fun_name)(client::Ptr{UA_Client}, nodeId::Ref{UA_NodeId})
-            data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
-            out = Ref{$(ret_type)}()
-            statuscode = __UA_Client_readAttribute(client,
-                nodeId,
-                $(ua_attr_name),
-                out,
-                data_type_ptr)
-            if statuscode == UA_STATUSCODE_GOOD
-                return out[]
-            else
-                action = "Writing"
-                side = "Client"
-                mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
-                throw(err)
-            end
-        end
-
-        function $(fun_name)(client::Ptr{UA_Client}, nodeId::UA_NodeId)
-            return $(fun_name)(client, Ref(nodeId))
-        end
-    end
-end
-
-## Write attribute functions
-for att in attributes_UA_Client_write
-    fun_name = Symbol(att[1])
-    attr_name = Symbol(att[2])
-    attr_type = Symbol(att[3])
-    attr_type_ptr = Symbol("UA_TYPES_", uppercase(String(attr_type)[4:end]))
-    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-
-    @eval begin
-        function $(fun_name)(client::Ref{UA_Client},
-                nodeId::Ref{UA_NodeId},
-                new_attr)
-            data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
-            GC.@preserve new_attr begin
-            statuscode = __UA_Client_writeAttribute(client,
-                nodeId,
-                $(ua_attr_name),
-                new_attr,
-                data_type_ptr)
-            end
-            if statuscode == UA_STATUSCODE_GOOD
-                return statuscode
-            else
-                action = "Writing"
-                side = "Client"
-                mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
-                throw(err)
-            end
-        end
-
-        function $(fun_name)(client::Ref{UA_Client},
-                nodeId::UA_NodeId,
-                new_attr) 
-            return $(fun_name)(client, Ref(nodeId), new_attr)
-        end
-    end
-end
-
-## Read attribute async functions
-for att in attributes_UA_Client_read_async
-    fun_name = Symbol(att[1])
-    attr_name = Symbol(att[2])
-    ret_type = Symbol(att[3])
-    ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
-    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-
-    @eval begin
-        function $(fun_name)(client::Ptr{UA_Client},
-                nodeId::Ref{UA_NodeId},
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-            data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
-            statuscode = __UA_Client_readAttribute_async(client,
-                nodeId,
-                $(ua_attr_name),
-                data_type_ptr,
-                reinterpret(UA_ClientAsyncServiceCallback, callback),
-                userdata,
-                reqId)
-            if statuscode == UA_STATUSCODE_GOOD
-                return statuscode
-            else
-                action = "Reading"
-                side = "Client"
-                mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
-                throw(err)
-            end
-        end
-
-        function $(fun_name)(client::Ptr{UA_Client},
-                nodeId::UA_NodeId,
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-            return $(fun_name)(client,
-                Ref(nodeId),
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-        end
-    end
-end
-
-# ## Write attribute async functions
-for att in attributes_UA_Client_write_async
-    fun_name = Symbol(att[1])
-    attr_name = Symbol(att[2])
-    attr_type = Symbol(att[3])
-    attr_type_ptr = Symbol("UA_TYPES_", uppercase(String(attr_type)[4:end]))
-    ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-
-    @eval begin
-        function $(fun_name)(client::Ptr{UA_Client},
-                nodeId::Ref{UA_NodeId},
-                out::Ptr{$(attr_type)}, 
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-            data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
-            statuscode = __UA_Client_writeAttribute_async(client,
-                nodeId,
-                $(ua_attr_name),
-                out,
-                data_type_ptr,
-                callback,
-                userdata,
-                reqId)
-            if statuscode == UA_STATUSCODE_GOOD
-                return statuscode
-            else
-                action = "Writing"
-                side = "Client"
-                mode = "asynchronously"
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
-                throw(err)
-            end
-        end
-
-        function $(fun_name)(client::Ptr{UA_Client},
-                nodeId::UA_NodeId,
-                out::Ptr{$(attr_type)}, 
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-            return $(fun_name)(client,
-                Ref(nodeId),
-                out,
-                callback::Ptr{Nothing},
-                userdata::Ptr{Nothing},
-                reqId::Integer)
-        end
+        sleep(1.0)
+        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        @test retval == UA_STATUSCODE_GOOD       
+        #read with client from server
+        output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        @test all(isapprox.(input, output_client))
+        # Write new data 
+        new_input = rand(type, array_size)
+        retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+        @test retval == UA_STATUSCODE_GOOD   
+        # # Read new data
+        output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        # Check whether writing was successfull
+        @test all(isapprox.(new_input, output_client_new))
+        # #disconnect client
+        UA_Client_disconnect(client)
+        #shut down the server
+        running[] = false
+        #wait for task to finish
+        wait(t)
+        UA_Server_delete(server)
+        UA_Client_delete(client)
     end
 end
