@@ -10,27 +10,30 @@ function UA_ServerConfig_setDefault(config::Ref{UA_ServerConfig})
 end
 
 # attribute generation functions
-function UA_VALUERANK(N)
+function UA_VALUERANK(N::Integer)
     N == 1 && return UA_VALUERANK_ONE_DIMENSION
     N == 2 && return UA_VALUERANK_TWO_DIMENSIONS
     N == 3 && return UA_VALUERANK_THREE_DIMENSIONS
     return N
 end
 
-function _generic_variable_attributes(displayname,
-        description,
-        accesslevel,
-        type,
-        localization = "en-US")
-    attr_default = cglobal((:UA_VariableAttributes_default, libopen62541),
-        UA_VariableAttributes)
+function _generic_variable_attributes(displayname::AbstractString,
+        description::AbstractString,
+        accesslevel::Integer,
+        type::DataType,
+        localization::AbstractString = "en-US")
     attr = UA_VariableAttributes_new()
+<<<<<<< HEAD
     statuscode = UA_VariableAttributes_copy(attr_default, attr)
     if statuscode == UA_STATUSCODE_GOOD
+=======
+    retval = UA_VariableAttributes_copy(UA_VariableAttributes_default, attr)
+    if retval == UA_STATUSCODE_GOOD
+>>>>>>> ae0460ef3dc84a735828fb08657b03b4c0742706
         attr.displayName = UA_LOCALIZEDTEXT_ALLOC(localization, displayname)
         attr.description = UA_LOCALIZEDTEXT_ALLOC(localization, description)
         attr.accessLevel = accesslevel
-        attr.dataType = unsafe_load(UA_TYPES_PTRS[juliatype2uaindicator(type)].typeId)
+        attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
         return attr
     else
         err = AttributeCopyError(statuscode)
@@ -39,48 +42,50 @@ function _generic_variable_attributes(displayname,
 end
 
 function UA_generate_variable_attributes(input::AbstractArray{T, N},
-        displayname,
-        description,
-        accesslevel,
-        valuerank = UA_VALUERANK(N)) where {T, N}
+        displayname::AbstractString,
+        description::AbstractString,
+        accesslevel::Integer,
+        valuerank::Integer = UA_VALUERANK(N),
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T, N}
     attr = _generic_variable_attributes(displayname, description, accesslevel, T)
     attr.valueRank = valuerank
     arraydims = UA_UInt32_Array_new(reverse(size(input))) #implicit conversion to uint32
     attr.arrayDimensions = arraydims
     attr.arrayDimensionsSize = length(arraydims)
-    #permutedims here to store julia array in native C format within server; the eval is of 
-    #course very ugly, but seems typestable due to specialization
-    UA_Array = eval(Symbol("UA_", juliatype2uaword(T), "_Array_new"))(vec(permutedims(input,
-        reverse(1:N))))
+    ua_arr = UA_Array_new(vec(permutedims(input, reverse(1:N))), type_ptr) # Allocate new UA_Array from input with C style indexing
     UA_Variant_setArray(attr.value,
-        UA_Array.ptr,
+        ua_arr,
         length(input),
-        UA_TYPES_PTRS[juliatype2uaindicator(T)])
+        ua_data_type_ptr_default(T))
     attr.value.arrayDimensions = arraydims
     attr.value.arrayDimensionsSize = length(arraydims)
     return attr
 end
 
 function UA_generate_variable_attributes(input::T,
-        displayname,
-        description,
-        accesslevel,
-        valuerank = UA_VALUERANK_SCALAR) where {T <: Union{AbstractFloat, Integer}}
+        displayname::AbstractString,
+        description::AbstractString,
+        accesslevel::Integer,
+        valuerank::Integer = UA_VALUERANK_SCALAR,
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
     UA_generate_variable_attributes(Ref(input),
         displayname,
         description,
         accesslevel,
-        valuerank)
+        valuerank,
+        type_ptr)
 end
 
 function UA_generate_variable_attributes(input::Ref{T},
-        displayname,
-        description,
-        accesslevel,
-        valuerank = UA_VALUERANK_SCALAR) where {T <: Union{AbstractFloat, Integer}}
+        displayname::AbstractString,
+        description::AbstractString,
+        accesslevel::Integer,
+        valuerank::Integer = UA_VALUERANK_SCALAR,
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
     attr = _generic_variable_attributes(displayname, description, accesslevel, T)
     attr.valueRank = valuerank
-    UA_Variant_setScalar(attr.value, input, UA_TYPES_PTRS[juliatype2uaindicator(T)])
+    UA_Variant_setScalar(attr.value, input, type_ptr)
+    @show unsafe_load(attr.value) # TODO: Why is this line needed to really set the scalar value? If the line is removed, the tests fail. 
     return attr
 end
 
@@ -103,7 +108,7 @@ for att in attributes_UA_Server_read
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(server::Ptr{UA_Server}, nodeId::Ref{UA_NodeId})
+        function $(fun_name)(server::Ref{UA_Server}, nodeId::Ref{UA_NodeId})
             out = Ref{$(ret_type)}()
             statuscode = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
             if statuscode == UA_STATUSCODE_GOOD
@@ -117,7 +122,7 @@ for att in attributes_UA_Server_read
             end
         end
 
-        function $(fun_name)(server::Ptr{UA_Server}, nodeId::UA_NodeId)
+        function $(fun_name)(server::Ref{UA_Server}, nodeId::UA_NodeId)
             return $(fun_name)(server, Ref(nodeId))
         end
     end
@@ -132,7 +137,7 @@ for att in attributes_UA_Server_write
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(server::Ptr{UA_Server},
+        function $(fun_name)(server::Ref{UA_Server},
                 nodeId::Ref{UA_NodeId},
                 new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
@@ -152,7 +157,7 @@ for att in attributes_UA_Server_write
             end
         end
 
-        function $(fun_name)(server::Ptr{UA_Server},
+        function $(fun_name)(server::Ref{UA_Server},
                 nodeId::UA_NodeId,
                 new_val)
             return $(fun_name)(server, Ref(nodeId), new_val)

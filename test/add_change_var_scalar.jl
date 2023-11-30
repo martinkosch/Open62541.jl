@@ -1,7 +1,6 @@
-## TODO ADJUST WORDING
-# Purpose: This testset checks whether variable nodes containing arrays (1, 2, 3 dimensions) of
+# Purpose: This testset checks whether variable nodes containing a scalar of
 #different types can be created on a server, read, changed and read again (using the server commands and client commands)
-#we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
+#TODO: we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
 #set to float64.)
 
 using open62541
@@ -51,14 +50,19 @@ for type in types
     @test retval == UA_STATUSCODE_GOOD           
     #read with client from server
     output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+    @test all(isapprox.(input, output_client)) 
+    # Write new data 
+    new_input = rand(type)
+    retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
+    @test retval == UA_STATUSCODE_GOOD   
+    # Read new data
+    output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+    # Check whether writing was successfull
+    @test all(isapprox.(new_input, output_client_new))
     #disconnect client
     UA_Client_disconnect(client)
     #shut down the server
     running[] = false
     #wait for task to finish
-    wait(t)
-    #test
-    @test all(isapprox.(input, output_client)) 
+    wait(t)    
 end
-
-#TODO: add some tests about variable changing; also catch errors etc.
