@@ -8,6 +8,10 @@ end
     include("exceptions.jl")
 end
 
+@safetestset "Basic data handling" begin
+    include("data_handling.jl")
+end
+
 @safetestset "Server Read Functions" begin
     include("server_read.jl")
 end

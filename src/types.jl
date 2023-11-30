@@ -49,6 +49,7 @@ Base.setindex!(a::UA_Array, v, i::Int) = (a[i] = v)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
+Base.unsafe_convert(::Type{Ptr{S}}, a::UA_Array) where {S} = Base.unsafe_convert(Ptr{S}, a[begin])
 
 function UA_Array_init(p::UA_Array)
     for i in p
@@ -61,7 +62,15 @@ function UA_Array_new(v::AbstractArray{T},
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
-    return arr_ptr
+    return UA_Array(arr_ptr, length(v))
+end
+
+# Initialize empty array
+function UA_Array_new(length::Integer, juliatype::DataType)
+    type_ptr = ua_data_type_ptr_default(juliatype)
+    ptr_arr = UA_Array_new(length, type_ptr)
+    arr_ptr = convert(Ptr{juliatype}, ptr_arr)
+    return UA_Array(arr_ptr, length)
 end
 
 function UA_print(p::Ref{T},
@@ -84,7 +93,21 @@ for (i, type_name) in enumerate(type_names)
     val_type = Val{type_name}
 
     @eval begin
+
+        # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
+        
+        if !(type_names[$(i)] in types_ambiguous_ignorelist)
+            function juliatype2uasymbol(::Type{$julia_type})
+                return type_names[$(i)]
+            end
+            function juliatype2uaword(::Type{$julia_type})
+                return uppercasefirst(String(type_names[$(i)])[4:end])
+            end
+            function juliatype2uaindicator(::Type{$julia_type})
+                $(type_ind_name)
+            end
+        end
 
         if !(type_names[$(i)] in types_ambiguous_ignorelist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
@@ -92,6 +115,7 @@ for (i, type_name) in enumerate(type_names)
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
         end
 
+        # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
         function $(Symbol(type_name, "_new"))()
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return convert(Ptr{$(type_name)}, UA_new(data_type_ptr))
@@ -103,6 +127,11 @@ for (i, type_name) in enumerate(type_names)
                 dst::Ptr{$(type_name)})
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return UA_copy(src, dst, data_type_ptr)
+        end
+
+        function $(Symbol(type_name, "_copy"))(src::$(type_name),
+                dst::Ptr{$(type_name)})
+            return $(Symbol(type_name, "_copy"))(Ref(src), dst)
         end
 
         function $(Symbol(type_name, "_clear"))(p::Ptr{$(type_name)})
@@ -121,18 +150,6 @@ for (i, type_name) in enumerate(type_names)
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             arr_ptr = convert(Ptr{$(type_name)}, UA_Array_new(length, data_type_ptr))
             return UA_Array(arr_ptr, length)
-        end
-
-        if !(type_names[$(i)] in types_ambiguous_ignorelist)
-            function juliatype2uasymbol(::Type{$julia_type})
-                return type_names[$(i)]
-            end
-            function juliatype2uaword(::Type{$julia_type})
-                return uppercasefirst(String(type_names[$(i)])[4:end])
-            end
-            function juliatype2uaindicator(::Type{$julia_type})
-                $(type_ind_name)
-            end
         end
 
         function $(Symbol(type_name, "_Array_new"))(v::Tuple)
@@ -203,6 +220,10 @@ UA_String_delete(s::UA_String) = UA_Byte_delete(s.data)
 Base.unsafe_string(s::UA_String) = unsafe_string(s.data, s.length)
 Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
 Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
+
+UA_String_equal(s1::UA_String, s2::Ref{UA_String}) = UA_String_equal(Ref(s1), s2)
+UA_String_equal(s1::Ref{UA_String}, s2::UA_String) = UA_String_equal(s1, Ref(s2))
+UA_String_equal(s1::UA_String, s2::UA_String) = UA_String_equal(Ref(s1), Ref(s2))
 
 ## DateTime
 function UA_DateTime_toUnixTime(date::UA_DateTime)
