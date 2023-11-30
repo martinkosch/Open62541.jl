@@ -22,7 +22,7 @@ UA_ClientConfig_setDefault(UA_Client_getConfig(client))
 while !istaskstarted(t)
     sleep(1.0)
 end
-sleep(5.0)
+sleep(1.0)
 retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
 @test retval == UA_STATUSCODE_GOOD
 

@@ -49,7 +49,7 @@ for type in types
     while !istaskstarted(t)
         sleep(1.0)
     end
-    sleep(2.0)
+    sleep(1.0)
     retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
     @test retval == UA_STATUSCODE_GOOD
     

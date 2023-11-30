@@ -9,11 +9,9 @@ using Base.Threads
 
 # What types we are testing for: 
 types = [Int16, Int32, Int64, Float32, Float64, Bool]
-array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
+#array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 array_sizes = (11, (2, 5))
 
-type = Float64
-array_size = (3,4,5)
 for type in types
     for array_size in array_sizes
         @show type, array_size
@@ -57,7 +55,7 @@ for type in types
         while !istaskstarted(t)
             sleep(1.0)
         end
-        sleep(2.0)
+        sleep(1.0)
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         @test retval == UA_STATUSCODE_GOOD       
         #read with client from server
@@ -68,9 +66,9 @@ for type in types
         retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
         @test retval == UA_STATUSCODE_GOOD   
         # # Read new data
-        # output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-        # # Check whether writing was successfull
-        # @test all(isapprox.(new_input, output_client_new))
+        output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
+        # Check whether writing was successfull
+        @test all(isapprox.(new_input, output_client_new))
         # #disconnect client
         UA_Client_disconnect(client)
         #shut down the server
