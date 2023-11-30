@@ -64,7 +64,8 @@ for type in types
         @test all(isapprox.(input, output_client))
         # Write new data 
         new_input = rand(type, array_size)
-        new_variant = UA_Variant_new_copy(new_input)
+        #new_variant = UA_Variant_new_copy(new_input)
+        new_variant = UA_Client_readValueAttribute(client, varnodeid)
         @show "just before write"
         retval = UA_Client_writeValueAttribute(client, varnodeid, new_variant)
         @test retval == UA_STATUSCODE_GOOD   
