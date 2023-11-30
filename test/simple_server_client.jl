@@ -19,8 +19,17 @@ t = @spawn UA_Server_run(server, running)
 #specify client and connect to server
 client = UA_Client_new()
 UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-@test retval == UA_STATUSCODE_GOOD
+maxattempts = 20
+attempt = 1
+retval = UA_STATUSCODE_BAD
+while attempt <= maxattempts && retval != UA_STATUSCODE_GOOD
+    retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+    attempt = attempt + 1
+    sleep(0.1)
+end
+if retval != UA_STATUSCODE_GOOD
+    error("Connection failed $maxattempts time; exiting.")
+end
 
 #nodeid containing software version running on server
 nodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)

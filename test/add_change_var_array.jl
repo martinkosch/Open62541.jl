@@ -49,17 +49,20 @@ for type in types
         #start up the server
         running = Atomic{Bool}(true)
         t = @spawn UA_Server_run(server, running)
-        #define and connect client to server
+        #specify client and connect to server
         client = UA_Client_new()
         UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-        while !istaskstarted(t)
-            println("test")
-            sleep(1.0)
+        maxattempts = 20
+        attempt = 1
+        retval = UA_STATUSCODE_BAD
+        while attempt <= maxattempts && retval != UA_STATUSCODE_GOOD
+            retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+            attempt = attempt + 1
+            sleep(0.1)
         end
-        sleep(3.0)
-        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-        #check whether connection successful
-        @test retval == UA_STATUSCODE_GOOD           
+        if retval != UA_STATUSCODE_GOOD
+            error("Connection failed $maxattempts time; exiting.")
+        end
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
