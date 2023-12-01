@@ -64,7 +64,8 @@ function UA_Array_new(v::AbstractArray{T},
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
-    return UA_Array(arr_ptr, length(v))
+    # return UA_Array(arr_ptr, length(v)) # TODO: Why does `add_change_var_array.jl` freeze if this line is used? 
+    return arr_ptr
 end
 
 # Initialize empty array
