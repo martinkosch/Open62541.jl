@@ -98,7 +98,7 @@ end
 UA_Client_disconnect(client)
 UA_Client_delete(client)
 
-# Ungracefully kill server process
+@show "Ungracefully kill server process..."
 Distributed.interrupt(Distributed.workers()[end])
 Distributed.rmprocs(Distributed.workers()[end]; waitfor=0) 
 
