@@ -1,7 +1,7 @@
 # Purpose: This testset checks whether variable nodes containing a scalar of
-#different types can be created on a server, read, changed and read again (using the server commands and client commands)
-#TODO: we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
-#set to float64.)
+# different types can be created on a server, read, changed and read again (using the server commands and client commands)
+# We also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
+# set to float64.)
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
@@ -50,6 +50,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     end
 
     # Start up the server
+    Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
     @show "Starting up the server..."
     UA_Server_run(server, Ref(true))
 end
@@ -92,6 +93,15 @@ for (type_ind, type) in enumerate(types)
 
     output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
     @test all(isapprox.(new_input, output_client_new))
+end
+
+# Test wrong data type write errors 
+for type_ind in eachindex(types)
+    new_input = rand(types[mod(type_ind, length(types)) + 1]) # Select wrong data type
+    varnodeid = UA_NODEID_STRING_ALLOC(1, varnode_ids[type_ind])
+    @test_throws open62541.AttributeReadWriteError UA_Client_writeValueAttribute(client,
+        varnodeid,
+        UA_Variant_new_copy(new_input))
 end
 
 # Disconnect client
