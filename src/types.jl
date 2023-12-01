@@ -49,7 +49,8 @@ Base.setindex!(a::UA_Array, v, i::Int) = (a[i] = v)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
-Base.convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a)
+Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{T}}) = Base.unsafe_convert(Ptr{Nothing}, a)
+Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{Nothing}}) = a[begin] # Avoid method ambigutiy
 Base.unsafe_convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a[begin])
 
 function UA_Array_init(p::UA_Array)
