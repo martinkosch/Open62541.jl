@@ -49,9 +49,9 @@ Base.setindex!(a::UA_Array, v, i::Int) = (a[i] = v)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
-# Base.convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a)
-# Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{Nothing}}) = a[begin] # Avoid method ambigutiy
-# Base.unsafe_convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a[begin])
+Base.convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a)
+Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{Nothing}}) = a[begin] # Avoid method ambigutiy
+Base.unsafe_convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a[begin])
 
 function UA_Array_init(p::UA_Array)
     for i in p
@@ -64,8 +64,7 @@ function UA_Array_new(v::AbstractArray{T},
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
-    # return UA_Array(arr_ptr, length(v)) # TODO: Why does `add_change_var_array.jl` freeze if this line is used? 
-    return arr_ptr
+    return UA_Array(arr_ptr, length(v)) 
 end
 
 # Initialize empty array

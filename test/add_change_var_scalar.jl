@@ -2,14 +2,20 @@
 #different types can be created on a server, read, changed and read again (using the server commands and client commands)
 #TODO: we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
 #set to float64.)
+using Distributed
+Distributed.addprocs(1) # Add a single worker process to run the server
 
-using open62541
-using Test
-using Base.Threads
+Distributed.@everywhere begin
+    using open62541
+    using Test
 
-types = [Int16, Int32, Int64, Float32, Float64, Bool]
+    types = [Int16, Int32, Int64, Float32, Float64, Bool]
+    input_data = [rand(type) for type in types]
+    varnode_ids = ["$(Symbol(type)) scalar variable" for type in types]
+end
 
-for type in types
+# Create nodes with random default values on new server running at a worker process
+Distributed.@spawnat Distributed.workers()[end] begin 
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
         4842,
@@ -17,61 +23,82 @@ for type in types
         0,
         0)
     @test retval == UA_STATUSCODE_GOOD
-    accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
-    input = rand(type)
-    attr = UA_generate_variable_attributes(input,
-        "scalar variable",
-        "this is a scalar variable",
-        accesslevel)
-    varnodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
-    parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
-    parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
-    typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-    browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
-    nodecontext = C_NULL
-    outnewnodeid = C_NULL
-    retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
-        parentreferencenodeid,
-        browsename, typedefinition, attr, nodecontext, outnewnodeid)
-    #test whether adding node to the server worked    
-    @test retval == UA_STATUSCODE_GOOD
-    #test whether the correct array is within the server (read from server)
-    output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
-    @test isapprox(input, output_server)
 
-    #start up server
-    running = Atomic{Bool}(true)
-    t = @spawn UA_Server_run(server, running)
-
-    #specify client and connect to server
-    client = UA_Client_new()
-    UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-    while !istaskstarted(t)
-        sleep(1.0)
+    # Add variable node containing a scalar to the server
+    for (type_ind, type) in enumerate(types)
+        accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+        input = input_data[type_ind]
+        attr = UA_generate_variable_attributes(input,
+            varnode_ids[type_ind],
+            "this is a $(Symbol(type)) scalar variable",
+            accesslevel)
+        varnodeid = UA_NODEID_STRING_ALLOC(1, varnode_ids[type_ind])
+        parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+        parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
+        typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+        browsename = UA_QUALIFIEDNAME_ALLOC(1, varnode_ids[type_ind])
+        nodecontext = C_NULL
+        outnewnodeid = C_NULL
+        retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
+            parentreferencenodeid,
+            browsename, typedefinition, attr, nodecontext, outnewnodeid)
+        # Test whether adding node to the server worked    
+        @test retval == UA_STATUSCODE_GOOD
+        # Test whether the correct array is within the server (read from server)
+        output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
+        @test isapprox(input, output_server)
     end
-    sleep(1.0)
-    retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-    @test retval == UA_STATUSCODE_GOOD
 
-    #read with client from server
+    # Start up the server
+    @show "Starting up the server..."
+    UA_Server_run(server, Ref(true))
+end
+
+# Specify client and connect to server after server startup
+client = UA_Client_new()
+UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+max_duration = 30.0 # Maximum waiting time for server startup 
+sleep_time = 2.0 # Sleep time in seconds between each connection trial
+let trial
+    trial = 0
+    while trial < max_duration/sleep_time
+        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        if retval == UA_STATUSCODE_GOOD
+            @show "Connection established."
+            break
+        end
+        sleep(sleep_time)
+        trial = trial + 1
+    end
+    @test trial < max_duration/sleep_time # Check if maximum number of trials has been exceeded
+end
+
+# Read with client from server
+for (type_ind, type) in enumerate(types)
+    input = input_data[type_ind]
+    varnodeid = UA_NODEID_STRING_ALLOC(1, varnode_ids[type_ind])
     output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
     @test all(isapprox.(input, output_client))
-    # Write new data 
+end
+
+# Write new data 
+for (type_ind, type) in enumerate(types)
     new_input = rand(type)
+    varnodeid = UA_NODEID_STRING_ALLOC(1, varnode_ids[type_ind])
     retval = UA_Client_writeValueAttribute(client,
         varnodeid,
         UA_Variant_new_copy(new_input))
     @test retval == UA_STATUSCODE_GOOD
-    # Read new data
+
     output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-    # Check whether writing was successfull
     @test all(isapprox.(new_input, output_client_new))
-    #disconnect client
-    retval = UA_Client_disconnect(client)
-    @test retval == UA_STATUSCODE_GOOD
-    #shut down the server
-    running[] = false
-    wait(t)
-    UA_Server_delete(server)
-    UA_Client_delete(client)
 end
+
+# Disconnect client
+UA_Client_disconnect(client)
+UA_Client_delete(client)
+
+# Ungracefully kill server process
+Distributed.interrupt(Distributed.workers()[end])
+Distributed.rmprocs(Distributed.workers()[end]; waitfor=0) 
+
