@@ -16,7 +16,7 @@ for type in types
         C_NULL,
         0,
         0)
-    @test retval == UA_STATUSCODE_GOOD   
+    @test retval == UA_STATUSCODE_GOOD
     accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
     input = rand(type)
     attr = UA_generate_variable_attributes(input,
@@ -52,21 +52,23 @@ for type in types
     sleep(1.0)
     retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
     @test retval == UA_STATUSCODE_GOOD
-    
+
     #read with client from server
     output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
-    @test all(isapprox.(input, output_client)) 
+    @test all(isapprox.(input, output_client))
     # Write new data 
     new_input = rand(type)
-    retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
-    @test retval == UA_STATUSCODE_GOOD   
+    retval = UA_Client_writeValueAttribute(client,
+        varnodeid,
+        UA_Variant_new_copy(new_input))
+    @test retval == UA_STATUSCODE_GOOD
     # Read new data
     output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
     # Check whether writing was successfull
     @test all(isapprox.(new_input, output_client_new))
     #disconnect client
     retval = UA_Client_disconnect(client)
-    @test retval == UA_STATUSCODE_GOOD           
+    @test retval == UA_STATUSCODE_GOOD
     #shut down the server
     running[] = false
     wait(t)

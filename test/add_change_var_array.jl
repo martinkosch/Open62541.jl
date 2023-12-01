@@ -1,6 +1,6 @@
 # Purpose: This testset checks whether variable nodes containing arrays (1, 2, 3, 4 dimensions) of
 #different types can be created on a server, read, changed and read again (using the server commands and client commands)
-#we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
+#TODO: we also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
 #set to float64.)
 using open62541
 using Test
@@ -21,7 +21,7 @@ for type in types
             C_NULL,
             0,
             0)
-        @test retval == UA_STATUSCODE_GOOD 
+        @test retval == UA_STATUSCODE_GOOD
         #add variable node containing an array to the server
         accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
         input = rand(type, array_size)
@@ -55,15 +55,16 @@ for type in types
         end
         sleep(1.0)
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
-        @test retval == UA_STATUSCODE_GOOD       
+        @test retval == UA_STATUSCODE_GOOD
         #read with client from server
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
         # Write new data 
         new_input = rand(type, array_size)
-        @show "just before write"
-        retval = UA_Client_writeValueAttribute(client, varnodeid, UA_Variant_new_copy(new_input))
-        @test retval == UA_STATUSCODE_GOOD   
+        retval = UA_Client_writeValueAttribute(client,
+            varnodeid,
+            UA_Variant_new_copy(new_input))
+        @test retval == UA_STATUSCODE_GOOD
         # # Read new data
         output_client_new = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         # Check whether writing was successfull

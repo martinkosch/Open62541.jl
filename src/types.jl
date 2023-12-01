@@ -56,8 +56,8 @@ function UA_Array_init(p::UA_Array)
     end
 end
 
-function UA_Array_new(v::AbstractArray{T}, 
-    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
+function UA_Array_new(v::AbstractArray{T},
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
@@ -117,7 +117,8 @@ for (i, type_name) in enumerate(type_names)
 
         function $(Symbol(type_name, "_Array_new"))(length::Integer)
             # TODO: Allow empty arrays with corresponsing UA_EMPTY_ARRAY_SENTINEL indicator
-            length <= 0 && throw(DomainError(length, "Length of new array must be larger than zero.")) 
+            length <= 0 &&
+                throw(DomainError(length, "Length of new array must be larger than zero."))
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             arr_ptr = convert(Ptr{$(type_name)}, UA_Array_new(length, data_type_ptr))
             return UA_Array(arr_ptr, length)
@@ -356,8 +357,8 @@ unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
 
-function UA_Variant_new_copy(value::AbstractArray{T, N}, 
-    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T, N}
+function UA_Variant_new_copy(value::AbstractArray{T, N},
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T, N}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
@@ -368,8 +369,8 @@ function UA_Variant_new_copy(value::AbstractArray{T, N},
     return var
 end
 
-function UA_Variant_new_copy(value::Ref{T}, 
-    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
+function UA_Variant_new_copy(value::Ref{T},
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
@@ -380,8 +381,8 @@ function UA_Variant_new_copy(value::Ref{T},
     return var
 end
 
-function UA_Variant_new_copy(value::T, 
-    type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
+function UA_Variant_new_copy(value::T,
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
     return UA_Variant_new_copy(Ref(value), type_ptr)
 end
 

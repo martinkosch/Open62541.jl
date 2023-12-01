@@ -66,7 +66,11 @@ for att in attributes_UA_Client_read
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
@@ -101,14 +105,18 @@ for att in attributes_UA_Client_write
                 action = "Writing"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
 
         function $(fun_name)(client::Ref{UA_Client},
                 nodeId::UA_NodeId,
-                new_attr) 
+                new_attr)
             return $(fun_name)(client, Ref(nodeId), new_attr)
         end
     end
@@ -142,7 +150,11 @@ for att in attributes_UA_Client_read_async
                 action = "Reading"
                 side = "Client"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
@@ -172,7 +184,7 @@ for att in attributes_UA_Client_write_async
     @eval begin
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::Ref{UA_NodeId},
-                out::Ptr{$(attr_type)}, 
+                out::Ptr{$(attr_type)},
                 callback::Ptr{Nothing},
                 userdata::Ptr{Nothing},
                 reqId::Integer)
@@ -191,14 +203,18 @@ for att in attributes_UA_Client_write_async
                 action = "Writing"
                 side = "Client"
                 mode = "asynchronously"
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
 
         function $(fun_name)(client::Ptr{UA_Client},
                 nodeId::UA_NodeId,
-                out::Ptr{$(attr_type)}, 
+                out::Ptr{$(attr_type)},
                 callback::Ptr{Nothing},
                 userdata::Ptr{Nothing},
                 reqId::Integer)

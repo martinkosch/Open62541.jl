@@ -1,35 +1,35 @@
 #Mappings of valid (readable/writable) attributes for different node types:
 @enumx UA_VARIABLENODE_ATTRIBUTES begin
-    NodeId 
-    NodeClass 
-    BrowseName 
-    DisplayName 
-    Description 
-    WriteMask 
-    AccessLevel 
-    MinimumSamplingInterval 
-    Historizing 
-    DataType 
-    ValueRank 
-    ArrayDimensionsSize                                     
-    ArrayDimensions                                           
+    NodeId
+    NodeClass
+    BrowseName
+    DisplayName
+    Description
+    WriteMask
+    AccessLevel
+    MinimumSamplingInterval
+    Historizing
+    DataType
+    ValueRank
+    ArrayDimensionsSize
+    ArrayDimensions
     Value
 end
 
 @enumx UA_VARIABLETYPENODE_ATTRIBUTES begin
-    NodeId 
-    NodeClass 
-    BrowseName 
-    DisplayName 
-    Description 
-    WriteMask 
-    AccessLevel 
-    MinimumSamplingInterval 
-    Historizing 
-    DataType 
-    ValueRank 
-    ArrayDimensionsSize                                     
-    ArrayDimensions                                           
+    NodeId
+    NodeClass
+    BrowseName
+    DisplayName
+    Description
+    WriteMask
+    AccessLevel
+    MinimumSamplingInterval
+    Historizing
+    DataType
+    ValueRank
+    ArrayDimensionsSize
+    ArrayDimensions
     Value
     IsAbstract
 end

@@ -111,7 +111,11 @@ for att in attributes_UA_Server_read
                 action = "Reading"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
@@ -146,7 +150,11 @@ for att in attributes_UA_Server_write
                 action = "Writing"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, $(String(attr_name)), statuscode)
+                err = AttributeReadWriteError(action,
+                    mode,
+                    side,
+                    $(String(attr_name)),
+                    statuscode)
                 throw(err)
             end
         end
