@@ -45,7 +45,7 @@ function Base.getindex(a::UA_Array{Ptr{T}}, i::Int) where {T}
 end
 Base.firstindex(a::UA_Array) = 1
 Base.lastindex(a::UA_Array) = a.length
-Base.setindex!(a::UA_Array, v, i::Int) = (a[i] = v)
+Base.setindex!(a::UA_Array, v, i::Int) = unsafe_store!(a.ptr, v, i)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
@@ -285,6 +285,18 @@ end
 
 function UA_NodeId_equal(n1::Ref{UA_NodeId}, n2::Ref{UA_NodeId})
     UA_NodeId_order(n1, n2) == UA_ORDER_EQ
+end
+
+function UA_NodeId_equal(n1::Ref{UA_NodeId}, n2::UA_NodeId)
+    UA_NodeId_order(n1, Ref(n2)) == UA_ORDER_EQ
+end
+
+function UA_NodeId_equal(n1::UA_NodeId, n2::Ref{UA_NodeId})
+    UA_NodeId_order(Ref(n1), n2) == UA_ORDER_EQ
+end
+
+function UA_NodeId_equal(n1::UA_NodeId, n2::UA_NodeId)
+    UA_NodeId_order(Ref(n1), Ref(n2)) == UA_ORDER_EQ
 end
 
 ## ExpandedNodeId
