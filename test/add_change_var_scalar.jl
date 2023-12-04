@@ -15,7 +15,7 @@ Distributed.@everywhere begin
 end
 
 # Create nodes with random default values on new server running at a worker process
-Distributed.@spawnat Distributed.workers()[end] begin 
+Distributed.@spawnat Distributed.workers()[end] begin
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
         4842,
@@ -43,10 +43,10 @@ Distributed.@spawnat Distributed.workers()[end] begin
             parentreferencenodeid,
             browsename, typedefinition, attr, nodecontext, outnewnodeid)
         # Test whether adding node to the server worked    
-        @test retval == UA_STATUSCODE_GOOD
+        @test retval == UA_STATUSCODE_GOOD #TODO: are these tests actually running? (don't show up in test total)
         # Test whether the correct array is within the server (read from server)
         output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
-        @test isapprox(input, output_server)
+        @test isapprox(input, output_server) #TODO: are these tests actually running? (don't show up in test total)
     end
 
     # Start up the server
@@ -62,7 +62,7 @@ max_duration = 30.0 # Maximum waiting time for server startup
 sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
-    while trial < max_duration/sleep_time
+    while trial < max_duration / sleep_time
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         if retval == UA_STATUSCODE_GOOD
             @show "Connection established."
@@ -71,7 +71,7 @@ let trial
         sleep(sleep_time)
         trial = trial + 1
     end
-    @test trial < max_duration/sleep_time # Check if maximum number of trials has been exceeded
+    @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
 # Read with client from server
@@ -110,5 +110,4 @@ UA_Client_delete(client)
 
 @show "Ungracefully kill server process..."
 Distributed.interrupt(Distributed.workers()[end])
-Distributed.rmprocs(Distributed.workers()[end]; waitfor=0) 
-
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)

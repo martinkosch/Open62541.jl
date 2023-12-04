@@ -38,19 +38,15 @@ retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
-#TODO: not working as intended yet
 for att in open62541.attributes_UA_Server_write
-    fun_name = Symbol(att[1])
-    @show fun_name
+    fun_write = Symbol(att[1])
+    fun_read = Symbol(replace(att[1], "write" => "read"))
     attr_name = Symbol(att[2])
-    new_val_name = Symbol(att[3],"_new")
-    new_value_ptr = eval(new_val_name)()
-    if attr_name != :BrowseName
+    if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
         if isdefined(UA_VARIABLENODE_ATTRIBUTES, attr_name)
-            statuscode = eval(fun_name)(server, varnodeid, new_value_ptr)
+            read_value = eval(fun_read)(server, varnodeid) #read
+            statuscode = eval(fun_write)(server, varnodeid, read_value) #write read value back...
             @test statuscode == UA_STATUSCODE_GOOD
-        else
-            #@test_throws open62541.AttributeReadWriteError eval(fun_name)(server, varnodeid)
         end
     end
 end

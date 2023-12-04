@@ -26,3 +26,8 @@ function anonymous_struct_tuple(data::UA_Guid, type)
     padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
     return type(Tuple(padded))
 end
+
+#function that wraps a non-ref argument into a ref of appropriate type.
+#used in client.jl and server.jl
+wrap_ref(x::Ref) = x #no-op fall back
+wrap_ref(x) = Ref(x)

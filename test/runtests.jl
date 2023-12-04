@@ -17,6 +17,13 @@ end
     include("server_read.jl")
 end
 
+@safetestset "Server Write Functions" begin
+    include("server_write.jl")
+end
+
+#Testsets below here use Distributed; normal testsets required
+# !!! Leakage of variables must be assessed manually. !!!
+#see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
 @testset "Simple Server/Client" begin
     include("simple_server_client.jl")
 end

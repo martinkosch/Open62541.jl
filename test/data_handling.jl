@@ -14,8 +14,8 @@ s1 = UA_STRING_ALLOC("test2") # Copies the content to the heap
 s2 = UA_String_new()
 UA_String_copy(s1, s2);
 @test UA_String_equal(s1, s2)
-UA_String_delete(s1) 
-UA_String_delete(s2) 
+UA_String_delete(s1)
+UA_String_delete(s2)
 
 # Structured Type
 rr = UA_ReadRequest_new()
@@ -42,7 +42,7 @@ id1 = UA_NODEID_NUMERIC(ns, i)
 # @test id1.identifier == i # TODO: Not working due to type union, find workaround
 @test id1.identifierType == UA_NODEIDTYPE_NUMERIC
 
-id2 = UA_NODEID_STRING_ALLOC(1, "testid") 
+id2 = UA_NODEID_STRING_ALLOC(1, "testid")
 @test !UA_NodeId_equal(id1, id2)
 UA_NodeId_delete(id2)
 
@@ -76,5 +76,5 @@ new_dims[1] = 3
 new_dims[2] = 3
 v3.arrayDimensions = new_dims
 v3.arrayDimensionsSize = 2
-@test all(isapprox.(permutedims(reshape(d, (3,3))), unsafe_wrap(v3)))
+@test all(isapprox.(permutedims(reshape(d, (3, 3))), unsafe_wrap(v3)))
 UA_Variant_clear(v3)

@@ -120,8 +120,8 @@ for att in attributes_UA_Server_read
             end
         end
 
-        function $(fun_name)(server::Ref{UA_Server}, nodeId::UA_NodeId)
-            return $(fun_name)(server, Ref(nodeId))
+        function $(fun_name)(server, nodeId)
+            return $(fun_name)(wrap_ref(server), wrap_ref(nodeId))
         end
     end
 end
@@ -137,7 +137,7 @@ for att in attributes_UA_Server_write
     @eval begin
         function $(fun_name)(server::Ref{UA_Server},
                 nodeId::Ref{UA_NodeId},
-                new_val)
+                new_val::Ref{$attr_type})
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             statuscode = __UA_Server_write(server,
                 nodeId,
@@ -158,11 +158,11 @@ for att in attributes_UA_Server_write
                 throw(err)
             end
         end
-
-        function $(fun_name)(server::Ref{UA_Server},
-                nodeId::UA_NodeId,
-                new_val)
-            return $(fun_name)(server, Ref(nodeId), new_val)
+        #function fallback that wraps any non-ref arguments into refs:
+        function $(fun_name)(server, nodeId, new_val) 
+        return ($fun_name)(wrap_ref(server),
+            wrap_ref(nodeId),
+            wrap_ref(new_val))
         end
     end
 end

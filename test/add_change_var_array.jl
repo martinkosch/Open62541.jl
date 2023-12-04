@@ -14,12 +14,14 @@ Distributed.@everywhere begin
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
     # Generate random default node values and ids
-    input_data = [rand(type, array_size) for type in types, array_size in array_sizes]
-    varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable" for type in types, array_size in array_sizes]
+    input_data = Tuple(Tuple(rand(type, array_size) for array_size in array_sizes)
+                       for type in types)
+    varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable"
+                   for type in types, array_size in array_sizes]
 end
 
 # Create nodes with random default values on new server running at a worker process
-Distributed.@spawnat Distributed.workers()[end] begin 
+Distributed.@spawnat Distributed.workers()[end] begin
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
         4842,
@@ -32,7 +34,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     for (type_ind, type) in enumerate(types)
         for (array_size_ind, array_size) in enumerate(array_sizes)
             # Generate a UA_Server with standard config
-            input = input_data[type_ind, array_size_ind]
+            input = input_data[type_ind][array_size_ind]
             accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
             attr = UA_generate_variable_attributes(input,
                 varnode_ids[type_ind, array_size_ind],
@@ -69,7 +71,7 @@ max_duration = 30.0 # Maximum waiting time for server startup
 sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
-    while trial < max_duration/sleep_time
+    while trial < max_duration / sleep_time
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         if retval == UA_STATUSCODE_GOOD
             @show "Connection established."
@@ -78,13 +80,13 @@ let trial
         sleep(sleep_time)
         trial = trial + 1
     end
-    @test trial < max_duration/sleep_time # Check if maximum number of trials has been exceeded
+    @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
 # Read with client from server
 for (type_ind, type) in enumerate(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
-        input = input_data[type_ind, array_size_ind]
+        input = input_data[type_ind][array_size_ind]
         varnodeid = UA_NODEID_STRING_ALLOC(1, varnode_ids[type_ind, array_size_ind])
         output_client = unsafe_wrap(UA_Client_readValueAttribute(client, varnodeid))
         @test all(isapprox.(input, output_client))
@@ -123,5 +125,4 @@ UA_Client_delete(client)
 
 @show "Ungracefully kill server process..."
 Distributed.interrupt(Distributed.workers()[end])
-Distributed.rmprocs(Distributed.workers()[end]; waitfor=0) 
-
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
