@@ -23,7 +23,6 @@ jobs:
           - Core
         version:
           - '1'
-          - 'nightly'
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
