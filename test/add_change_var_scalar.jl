@@ -10,7 +10,7 @@ Distributed.@everywhere begin
     using Test
 
     types = [Int16, Int32, Int64, Float32, Float64, Bool]
-    input_data = [rand(type) for type in types]
+    input_data = Tuple(rand(type) for type in types)
     varnode_ids = ["$(Symbol(type)) scalar variable" for type in types]
 end
 
