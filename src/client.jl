@@ -77,7 +77,7 @@ for att in attributes_UA_Client_read
             end
         end
         #function fallback that wraps any non-ref arguments into refs:
-        $(fun_name)(client, nodeId) = ($fun_name)(wrap_ref(client), wrap_ref(nodeId))
+        $(fun_name)(client, nodeId) = $(fun_name)(wrap_ref(client), wrap_ref(nodeId))
     end
 end
 

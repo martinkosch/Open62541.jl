@@ -7,7 +7,6 @@
 
 using open62541
 using Test
-using Base.Threads
 
 #configure server
 server = UA_Server_new()
@@ -40,7 +39,9 @@ for att in open62541.attributes_UA_Server_read
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])
     attr_type = Symbol(att[3])
-    if isdefined(UA_VARIABLENODE_ATTRIBUTES, attr_name)
+    @show attr_name
+    if in(Symbol(lowercasefirst(att[2])), fieldnames(UA_VariableAttributes)) ||
+       in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
         @test isa(eval(fun_name)(server, varnodeid), eval(attr_type))
     else
         @test_throws open62541.AttributeReadWriteError eval(fun_name)(server, varnodeid)

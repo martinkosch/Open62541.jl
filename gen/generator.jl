@@ -22,18 +22,16 @@ function write_generated_defs(generated_defs_dir::String,
     const julia_types = $julia_types
 
     # Vector of types that are ambiguously defined via typedef and are not to be used as default type
-    types_ambiguous_denylist = [:UA_Duration, :UA_ByteString, :UA_XmlElement, :UA_LocaleId, :UA_DateTime, :UA_UtcTime, :UA_StatusCode]
+    types_ambiguous_ignorelist = [:UA_Duration, :UA_ByteString, :UA_XmlElement, :UA_LocaleId, :UA_DateTime, :UA_UtcTime, :UA_StatusCode]
 
     """
 
     inlined_funcs = """
-
     # Vector of all inlined function names listed in the amalgamated open62541 header file
     const inlined_funcs = $(extract_inlined_funcs(open62541_header))
     """
 
     data_UA_Client = """
-
     # UA_Client_ functions data
     const attributes_UA_Client_Service = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", open62541_header))
     const attributes_UA_Client_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", open62541_header))
@@ -41,13 +39,18 @@ function write_generated_defs(generated_defs_dir::String,
     const attributes_UA_Client_read_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute_async)\([\s\S]+?\)[\s\S]+?{[\s\S]+?__UA_Client_readAttribute_async\s*\([\s\S]+?&UA_TYPES\[([\S]+?)\]", open62541_header))
     const attributes_UA_Client_write_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute_async)\s*\(UA_Client\s*\*client,\s*const\s*UA_NodeId\s*nodeId,\s*const\s*(\S*)", open62541_header))
     """
+    #Get rid of unnecessary type unions
+    data_UA_Client = replace(data_UA_Client,
+        "Vector{Union{Nothing, SubString{String}}}" => "Vector{String}")
 
     data_UA_Server = """
-
         # UA_Server_ functions data
         const attributes_UA_Server_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Server_read(\w*))\s*\(UA_Server\s*\*server,\s*const\s*UA_NodeId\s*nodeId,\s*(\S*)", open62541_header))
         const attributes_UA_Server_write = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}(UA_Server_write(\w*))\s*\(UA_Server\s*\*server,\s*const\s*UA_NodeId\s*nodeId,\s*const (\S*)", open62541_header))
         """
+    #Get rid of unnecessary type unions
+    data_UA_Server = replace(data_UA_Server,
+        "Vector{Union{Nothing, SubString{String}}}" => "Vector{String}")
 
     open(generated_defs_dir, "w") do f
         write(f, type_string)
@@ -79,7 +82,7 @@ end
 # Load options from generator.toml
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
-# Extract all inlined functions and move them to codegen denylist; leads to out of memory
+# Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
 # error on low memory machines. Implemented Post-Clang.jl removal using Regexp, which is lower
 # memory requirement
 append!(options["general"]["output_ignorelist"], extract_inlined_funcs(open62541_header))

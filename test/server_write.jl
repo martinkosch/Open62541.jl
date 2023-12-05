@@ -43,7 +43,8 @@ for att in open62541.attributes_UA_Server_write
     fun_read = Symbol(replace(att[1], "write" => "read"))
     attr_name = Symbol(att[2])
     if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
-        if isdefined(UA_VARIABLENODE_ATTRIBUTES, attr_name)
+        if in(Symbol(lowercasefirst(att[2])), fieldnames(UA_VariableAttributes)) ||
+           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             read_value = eval(fun_read)(server, varnodeid) #read
             statuscode = eval(fun_write)(server, varnodeid, read_value) #write read value back...
             @test statuscode == UA_STATUSCODE_GOOD

@@ -46,8 +46,18 @@ raw_version = UA_Client_readValueAttribute(client, nodeid)
 open62541_version_server = unsafe_string(unsafe_wrap(raw_version))
 
 # Do version numbers agree?
-open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_OPEN62541_VER_PATCH" # Software version according to julia constants
-@test contains(open62541_version_server, open62541_version_julia)
+vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
+if VERSION < v"1.9"
+    pkgdir_old(m::Core.Module) = abspath(Base.pathof(Base.moduleroot(m)), "..", "..")
+    pkgproject_old(m::Core.Module) = Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))
+    pkgversion_old(m::Core.Module) = pkgproject_old(m).version
+    open62541_version_julia = pkgversion_old(open52541_jll)
+else
+    open62541_version_julia = vn2string(pkgversion(open62541_jll))
+end
+@show open62541_version_julia, open62541_version_server
+#open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_OPEN62541_VER_PATCH" # Software version according to julia constants
+@test open62541_version_server == open62541_version_julia
 
 # Disconnect client
 UA_Client_disconnect(client)

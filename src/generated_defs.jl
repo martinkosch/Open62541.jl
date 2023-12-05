@@ -1768,12 +1768,8 @@ const inlined_funcs = [
     "UA_ServerConfig_setMinimal",
     "UA_ServerConfig_setDefault",
 ]
-
 # UA_Client_ functions data
-const attributes_UA_Client_Service = Vector{Union{Nothing, SubString{String}}}[[
-        "UA_Client_Service_read",
-        "read",
-    ],
+const attributes_UA_Client_Service = Vector{String}[["UA_Client_Service_read", "read"],
     ["UA_Client_Service_write", "write"],
     ["UA_Client_Service_historyRead", "historyRead"],
     ["UA_Client_Service_historyUpdate", "historyUpdate"],
@@ -1789,7 +1785,7 @@ const attributes_UA_Client_Service = Vector{Union{Nothing, SubString{String}}}[[
     ["UA_Client_Service_unregisterNodes", "unregisterNodes"],
     ["UA_Client_Service_queryFirst", "queryFirst"],
     ["UA_Client_Service_queryNext", "queryNext"]]
-const attributes_UA_Client_read = Vector{Union{Nothing, SubString{String}}}[[
+const attributes_UA_Client_read = Vector{String}[[
         "UA_Client_readNodeIdAttribute",
         "NodeId",
         "UA_NodeId",
@@ -1818,7 +1814,7 @@ const attributes_UA_Client_read = Vector{Union{Nothing, SubString{String}}}[[
     ["UA_Client_readHistorizingAttribute", "Historizing", "UA_Boolean"],
     ["UA_Client_readExecutableAttribute", "Executable", "UA_Boolean"],
     ["UA_Client_readUserExecutableAttribute", "UserExecutable", "UA_Boolean"]]
-const attributes_UA_Client_write = Vector{Union{Nothing, SubString{String}}}[[
+const attributes_UA_Client_write = Vector{String}[[
         "UA_Client_writeNodeIdAttribute",
         "NodeId",
         "UA_NodeId",
@@ -1848,7 +1844,7 @@ const attributes_UA_Client_write = Vector{Union{Nothing, SubString{String}}}[[
     ["UA_Client_writeExecutableAttribute", "Executable", "UA_Boolean"],
     ["UA_Client_writeUserExecutableAttribute", "UserExecutable", "UA_Boolean"]]
 const attributes_UA_Client_read_async = Any[]
-const attributes_UA_Client_write_async = Vector{Union{Nothing, SubString{String}}}[[
+const attributes_UA_Client_write_async = Vector{String}[[
         "UA_Client_writeValueAttribute_async",
         "Value",
         "UA_Variant",
@@ -1872,9 +1868,8 @@ const attributes_UA_Client_write_async = Vector{Union{Nothing, SubString{String}
     ["UA_Client_writeHistorizingAttribute_async", "Historizing", "UA_Boolean"],
     ["UA_Client_writeExecutableAttribute_async", "Executable", "UA_Boolean"],
     ["UA_Client_writeUserExecutableAttribute_async", "UserExecutable", "UA_Boolean"]]
-
 # UA_Server_ functions data
-const attributes_UA_Server_read = Vector{Union{Nothing, SubString{String}}}[[
+const attributes_UA_Server_read = Vector{String}[[
         "UA_Server_readNodeId",
         "NodeId",
         "UA_NodeId",
@@ -1897,7 +1892,7 @@ const attributes_UA_Server_read = Vector{Union{Nothing, SubString{String}}}[[
     ["UA_Server_readMinimumSamplingInterval", "MinimumSamplingInterval", "UA_Double"],
     ["UA_Server_readHistorizing", "Historizing", "UA_Boolean"],
     ["UA_Server_readExecutable", "Executable", "UA_Boolean"]]
-const attributes_UA_Server_write = Vector{Union{Nothing, SubString{String}}}[[
+const attributes_UA_Server_write = Vector{String}[[
         "UA_Server_writeBrowseName",
         "BrowseName",
         "UA_QualifiedName",

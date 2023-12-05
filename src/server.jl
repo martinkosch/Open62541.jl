@@ -159,10 +159,10 @@ for att in attributes_UA_Server_write
             end
         end
         #function fallback that wraps any non-ref arguments into refs:
-        function $(fun_name)(server, nodeId, new_val) 
-        return ($fun_name)(wrap_ref(server),
-            wrap_ref(nodeId),
-            wrap_ref(new_val))
+        function $(fun_name)(server, nodeId, new_val)
+            return ($fun_name)(wrap_ref(server),
+                wrap_ref(nodeId),
+                wrap_ref(new_val))
         end
     end
 end

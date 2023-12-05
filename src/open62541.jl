@@ -1,13 +1,12 @@
 module open62541
 
-using CEnum
-using Dates
-using OffsetArrays
-using EnumX
 using open62541_jll
 export open62541_jll
-#import Base: unsafe_wrap, length, size
 
+using CEnum
+
+using OffsetArrays
+using Dates
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)
 const UA_UINT64_MAX = typemax(UInt64)
@@ -15,6 +14,7 @@ const UA_UINT64_MIN = typemin(UInt64)
 const UA_FALSE = false
 const UA_TRUE = true
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
+
 const WORD = Cushort
 const DWORD = Culong
 const UINT_PTR = Culonglong
@@ -172,6 +172,75 @@ end
 UInt32 ^^^^^^ An integer value between 0 and 4 294 967 295.
 """
 const UA_UInt32 = UInt32
+
+"""
+    UA_DataTypeMember
+
+.. \\_generic-types:
+
+Generic Type Handling ---------------------
+
+All information about a (builtin/structured) data type is stored in a `[`UA_DataType`](@ref)`. The array ``UA_TYPES`` contains the description of all standard-defined types. This type description is used for the following generic operations that work on all types:
+
+- ``void T\\_init(T *ptr)``: Initialize the data type. This is synonymous with zeroing out the memory, i.e. ``memset(ptr, 0, sizeof(T))``. - ``T* T\\_new()``: Allocate and return the memory for the data type. The value is already initialized. - ``[`UA_StatusCode`](@ref) T\\_copy(const T *src, T *dst)``: Copy the content of the data type. Returns `[`UA_STATUSCODE_GOOD`](@ref)` or `[`UA_STATUSCODE_BADOUTOFMEMORY`](@ref)`. - ``void T\\_clear(T *ptr)``: Delete the dynamically allocated content of the data type and perform a ``T_init`` to reset the type. - ``void T\\_delete(T *ptr)``: Delete the content of the data type and the memory for the data type itself.
+
+Specializations, such as ``[`UA_Int32_new`](@ref)()`` are derived from the generic type operations as static inline functions.
+"""
+struct UA_DataTypeMember
+    data::NTuple{24, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_DataTypeMember}, f::Symbol)
+    f === :memberName && return Ptr{Cstring}(x + 0)
+    f === :memberType && return Ptr{Ptr{UA_DataType}}(x + 8)
+    f === :padding && return (Ptr{UA_Byte}(x + 16), 0, 6)
+    f === :isArray && return (Ptr{UA_Byte}(x + 16), 6, 1)
+    f === :isOptional && return (Ptr{UA_Byte}(x + 16), 7, 1)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_DataTypeMember, f::Symbol)
+    r = Ref{UA_DataTypeMember}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_DataTypeMember}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{UA_DataTypeMember}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
 
 """
     UA_DataType
@@ -411,7 +480,6 @@ struct UA_Variant
     arrayDimensionsSize::Csize_t
     arrayDimensions::Ptr{UA_UInt32}
 end
-
 function Base.getproperty(x::Ptr{UA_Variant}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :storageType && return Ptr{UA_VariantStorageType}(x + 8)
@@ -1130,75 +1198,6 @@ function Base.getproperty(x::UA_DiagnosticInfo, f::Symbol)
 end
 
 function Base.setproperty!(x::Ptr{UA_DiagnosticInfo}, f::Symbol, v)
-    fptr = getproperty(x, f)
-    if fptr isa Ptr
-        unsafe_store!(getproperty(x, f), v)
-    else
-        (baseptr, offset, width) = fptr
-        baseptr32 = convert(Ptr{UInt32}, baseptr)
-        u64 = unsafe_load(baseptr32)
-        straddle = offset + width > 32
-        if straddle
-            u64 |= unsafe_load(baseptr32 + 4) << 32
-        end
-        mask = 1 << width - 1
-        u64 &= ~(mask << offset)
-        u64 |= (unsigned(v) & mask) << offset
-        unsafe_store!(baseptr32, u64 & typemax(UInt32))
-        if straddle
-            unsafe_store!(baseptr32 + 4, u64 >> 32)
-        end
-    end
-end
-
-"""
-    UA_DataTypeMember
-
-.. \\_generic-types:
-
-Generic Type Handling ---------------------
-
-All information about a (builtin/structured) data type is stored in a `[`UA_DataType`](@ref)`. The array ``UA_TYPES`` contains the description of all standard-defined types. This type description is used for the following generic operations that work on all types:
-
-- ``void T\\_init(T *ptr)``: Initialize the data type. This is synonymous with zeroing out the memory, i.e. ``memset(ptr, 0, sizeof(T))``. - ``T* T\\_new()``: Allocate and return the memory for the data type. The value is already initialized. - ``[`UA_StatusCode`](@ref) T\\_copy(const T *src, T *dst)``: Copy the content of the data type. Returns `[`UA_STATUSCODE_GOOD`](@ref)` or `[`UA_STATUSCODE_BADOUTOFMEMORY`](@ref)`. - ``void T\\_clear(T *ptr)``: Delete the dynamically allocated content of the data type and perform a ``T_init`` to reset the type. - ``void T\\_delete(T *ptr)``: Delete the content of the data type and the memory for the data type itself.
-
-Specializations, such as ``[`UA_Int32_new`](@ref)()`` are derived from the generic type operations as static inline functions.
-"""
-struct UA_DataTypeMember
-    data::NTuple{24, UInt8}
-end
-
-function Base.getproperty(x::Ptr{UA_DataTypeMember}, f::Symbol)
-    f === :memberName && return Ptr{Cstring}(x + 0)
-    f === :memberType && return Ptr{Ptr{UA_DataType}}(x + 8)
-    f === :padding && return (Ptr{UA_Byte}(x + 16), 0, 6)
-    f === :isArray && return (Ptr{UA_Byte}(x + 16), 6, 1)
-    f === :isOptional && return (Ptr{UA_Byte}(x + 16), 7, 1)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::UA_DataTypeMember, f::Symbol)
-    r = Ref{UA_DataTypeMember}(x)
-    ptr = Base.unsafe_convert(Ptr{UA_DataTypeMember}, r)
-    fptr = getproperty(ptr, f)
-    begin
-        if fptr isa Ptr
-            return GC.@preserve(r, unsafe_load(fptr))
-        else
-            (baseptr, offset, width) = fptr
-            ty = eltype(baseptr)
-            baseptr32 = convert(Ptr{UInt32}, baseptr)
-            u64 = GC.@preserve(r, unsafe_load(baseptr32))
-            if offset + width > 32
-                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
-            end
-            u64 = u64 >> offset & (1 << width - 1)
-            return u64 % ty
-        end
-    end
-end
-
-function Base.setproperty!(x::Ptr{UA_DataTypeMember}, f::Symbol, v)
     fptr = getproperty(x, f)
     if fptr isa Ptr
         unsafe_store!(getproperty(x, f), v)
@@ -8014,6 +8013,9 @@ struct UA_UsernamePasswordLogin
     password::UA_String
 end
 
+# typedef UA_StatusCode ( * UA_UsernamePasswordLoginCallback ) ( const UA_String * userName , const UA_ByteString * password , size_t usernamePasswordLoginSize , const UA_UsernamePasswordLogin * usernamePasswordLogin , void * * sessionContext , void * loginContext )
+const UA_UsernamePasswordLoginCallback = Ptr{Cvoid}
+
 function UA_AccessControl_default(config,
         allowAnonymous,
         verifyX509,
@@ -8026,6 +8028,26 @@ function UA_AccessControl_default(config,
         userTokenPolicyUri::Ptr{UA_ByteString},
         usernamePasswordLoginSize::Csize_t,
         usernamePasswordLogin::Ptr{UA_UsernamePasswordLogin})::UA_StatusCode
+end
+
+function UA_AccessControl_defaultWithLoginCallback(config,
+        allowAnonymous,
+        verifyX509,
+        userTokenPolicyUri,
+        usernamePasswordLoginSize,
+        usernamePasswordLogin,
+        loginCallback,
+        loginContext)
+    @ccall libopen62541.UA_AccessControl_defaultWithLoginCallback(config::Ptr{
+            UA_ServerConfig,
+        },
+        allowAnonymous::UA_Boolean,
+        verifyX509::Ptr{UA_CertificateVerification},
+        userTokenPolicyUri::Ptr{UA_ByteString},
+        usernamePasswordLoginSize::Csize_t,
+        usernamePasswordLogin::Ptr{UA_UsernamePasswordLogin},
+        loginCallback::UA_UsernamePasswordLoginCallback,
+        loginContext::Ptr{Cvoid})::UA_StatusCode
 end
 
 """
@@ -8315,12 +8337,13 @@ end
 function Base.setproperty!(x::Ptr{__JL_Ctag_382}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
+
 const UA_OPEN62541_VER_MAJOR = 1
 const UA_OPEN62541_VER_MINOR = 3
-const UA_OPEN62541_VER_PATCH = 7
+const UA_OPEN62541_VER_PATCH = 9
 const UA_OPEN62541_VER_LABEL = ""
-const UA_OPEN62541_VER_COMMIT = "v1.3.7"
-const UA_OPEN62541_VERSION = "v1.3.7"
+const UA_OPEN62541_VER_COMMIT = "v1.3.9"
+const UA_OPEN62541_VERSION = "v1.3.9"
 const UA_LOGLEVEL = 300
 const UA_MULTITHREADING = 100
 const UA_VALGRIND_INTERACTIVE_INTERVAL = 1000
@@ -20019,60 +20042,6 @@ const UA_REFERENCETYPEINDEX_HASINTERFACE = 17
 const UA_REFERENCETYPESET_MAX = 128
 
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
-
-#Mappings of valid (readable/writable) attributes for different node types:
-@enumx UA_VARIABLENODE_ATTRIBUTES begin
-    NodeId
-    NodeClass
-    BrowseName
-    DisplayName
-    Description
-    WriteMask
-    AccessLevel
-    MinimumSamplingInterval
-    Historizing
-    DataType
-    ValueRank
-    ArrayDimensionsSize
-    ArrayDimensions
-    Value
-end #TODO: not entirely complete here. Should mirror the fields in the respective struct?
-
-@enumx UA_VARIABLETYPENODE_ATTRIBUTES begin
-    NodeId
-    NodeClass
-    BrowseName
-    DisplayName
-    Description
-    WriteMask
-    AccessLevel
-    MinimumSamplingInterval
-    Historizing
-    DataType
-    ValueRank
-    ArrayDimensionsSize
-    ArrayDimensions
-    Value
-    IsAbstract
-end
-
-#further node types to look at:
-# UA_NODECLASS_UNSPECIFIED = 0
-#     UA_NODECLASS_OBJECT = 1
-#     UA_NODECLASS_METHOD = 4
-#     UA_NODECLASS_OBJECTTYPE = 8
-#     UA_NODECLASS_REFERENCETYPE = 32
-#     UA_NODECLASS_DATATYPE = 64
-#     UA_NODECLASS_VIEW = 128
-
-# struct UA_NodeHead {
-#     UA_NodeId nodeId;
-#     UA_NodeClass nodeClass;
-#     UA_QualifiedName browseName;
-#     UA_LocalizedText displayName;
-#     UA_LocalizedText description;
-#     UA_UInt32 writeMask;
-# };
 
 include("generated_defs.jl")
 include("helper_functions.jl")
