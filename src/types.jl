@@ -433,6 +433,7 @@ function Base.unsafe_wrap(v::UA_Variant)
     UA_Variant_isScalar(v) && return GC.@preserve data unsafe_load(data)
     values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
     values_row_major = reshape(values, unsafe_size(v))
+    @show v
     return permutedims(values_row_major, reverse(1:(v.arrayDimensionsSize))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
 end
 
