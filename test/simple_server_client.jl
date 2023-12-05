@@ -4,6 +4,7 @@ Distributed.addprocs(1) # Add a single worker process to run the server
 Distributed.@everywhere begin
     using open62541
     using Test
+    using Pkg
 end
 
 # Create a new server running at a worker process
