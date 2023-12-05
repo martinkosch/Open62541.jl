@@ -76,5 +76,7 @@ new_dims[1] = 3
 new_dims[2] = 3
 v3.arrayDimensions = new_dims
 v3.arrayDimensionsSize = 2
+@show permutedims(reshape(d, (3, 3)), reverse(1:2))
+@show unsafe_wrap(v3)
 @test all(isapprox.(permutedims(reshape(d, (3, 3)), reverse(1:2)), unsafe_wrap(v3)))
 UA_Variant_clear(v3)
