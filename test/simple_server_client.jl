@@ -30,7 +30,7 @@ let trial
     while trial < max_duration / sleep_time
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         if retval == UA_STATUSCODE_GOOD
-            @show "Connection established."
+            println("Connection established.")
             break
         end
         sleep(sleep_time)
@@ -63,6 +63,6 @@ open62541_version_julia = vn2string(open62541_version_julia)
 UA_Client_disconnect(client)
 UA_Client_delete(client)
 
-@show "Ungracefully kill server process..."
+println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
-Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
+Distributed.rmprocs(Distributed.workers()[end])
