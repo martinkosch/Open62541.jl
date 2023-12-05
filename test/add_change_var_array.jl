@@ -125,7 +125,5 @@ UA_Client_delete(client)
 
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
-t = Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
-println("Waiting for processes to get shut down...")
-wait(t)
-println("Shutting down successful!")
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
+
