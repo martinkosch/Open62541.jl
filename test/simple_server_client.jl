@@ -54,8 +54,9 @@ if VERSION < v"1.9"
     pkgversion_old(m::Core.Module) = pkgproject_old(m).version
     open62541_version_julia = pkgversion_old(open62541_jll)
 else
-    open62541_version_julia = vn2string(pkgversion(open62541_jll))
+    open62541_version_julia = pkgversion(open62541_jll)
 end
+open62541_version_julia = vn2string(open62541_version_julia)
 @show open62541_version_julia, open62541_version_server
 #open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_OPEN62541_VER_PATCH" # Software version according to julia constants
 @test open62541_version_server == open62541_version_julia
