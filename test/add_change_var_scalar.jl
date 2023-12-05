@@ -51,7 +51,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
-    @show "Starting up the server..."
+    println("Starting up the server...")
     UA_Server_run(server, Ref(true))
 end
 
@@ -65,7 +65,7 @@ let trial
     while trial < max_duration / sleep_time
         retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
         if retval == UA_STATUSCODE_GOOD
-            @show "Connection established."
+            println("Connection established.")
             break
         end
         sleep(sleep_time)
@@ -108,6 +108,6 @@ end
 UA_Client_disconnect(client)
 UA_Client_delete(client)
 
-@show "Ungracefully kill server process..."
+println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
 Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
