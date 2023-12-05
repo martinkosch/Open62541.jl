@@ -5,6 +5,7 @@ export open62541_jll
 
 using CEnum
 
+using Dates
 using OffsetArrays
 
 const UA_INT64_MAX = typemax(Int64)
