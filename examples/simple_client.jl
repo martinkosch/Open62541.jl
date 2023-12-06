@@ -1,16 +1,25 @@
 using open62541
-using Dates
-using Printf
 
+#start up server from simple_server.jl
+include(joinpath(@__DIR__, "examples/simple_server.jl"))
+
+#specify client and connect to server
 client = UA_Client_new()
 UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-retval = UA_Client_connect(client, "opc.tcp://127.0.0.1:4840")
+retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
 
-nodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME)
+#nodeid containins software version running on server
+nodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)
 
-value = UA_Client_readValueAttribute(client, nodeid)
-UA_Variant_hasScalarType(value, UA_TYPES_PTRS[UA_TYPES_DATETIME])
-raw_date = unsafe_wrap(value)
+#read
+raw_version = UA_Client_readValueAttribute(client, nodeid)
+open62541_version_server = unsafe_string(unsafe_wrap(raw_version))
 
-dts = UA_DateTime_toStruct(raw_date)
-Printf.@printf("date is: %u-%u-%u %u:%u:%u.%03u\n", dts.day, dts.month, dts.year, dts.hour, dts.min, dts.sec, dts.milliSec)
+#software version according to julia constants
+open62541_version_julia = "$UA_OPEN62541_VER_MAJOR.$UA_OPEN62541_VER_MINOR.$UA_OPEN62541_VER_PATCH"
+
+#shut down server
+running[] = false
+
+#do they agree?
+test = contains(open62541_version_server, open62541_version_julia)

@@ -1,4 +1,4 @@
-function anonymous_struct_tuple(data::Ptr{T}, type) where T
+function anonymous_struct_tuple(data::Ptr{T}, type) where {T}
     vec = Vector{UInt8}(undef, sizeof(type))
     GC.@preserve vec unsafe_copyto!(pointer(vec), reinterpret(Ptr{UInt8}, data), sizeof(T))
     return type(Tuple(vec))
@@ -26,3 +26,8 @@ function anonymous_struct_tuple(data::UA_Guid, type)
     padded = [raw; Vector{UInt8}(undef, sizeof(type) - length(raw))]
     return type(Tuple(padded))
 end
+
+#function that wraps a non-ref argument into a ref of appropriate type.
+#used in client.jl and server.jl
+wrap_ref(x::Ref) = x #no-op fall back
+wrap_ref(x) = Ref(x)
