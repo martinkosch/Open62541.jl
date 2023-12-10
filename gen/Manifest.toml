@@ -6,9 +6,9 @@ project_hash = "73d5d99d722bcd38b90f1625942379b0b93ac594"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "02f731463748db57cc2ebfbd9fbc9ce8280d3433"
+git-tree-sha1 = "cde29ddf7e5726c9fb511f340244ea3481267608"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "3.7.1"
+version = "3.7.2"
 
     [deps.Adapt.extensions]
     AdaptStaticArraysExt = "StaticArrays"
@@ -45,9 +45,9 @@ version = "0.17.7"
 
 [[deps.Clang_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "TOML", "Zlib_jll", "libLLVM_jll"]
-git-tree-sha1 = "a22896df06f2706e97001fb45af338c4fa677a03"
+git-tree-sha1 = "de2204d98741f57e7ddb9a6a738db74ba8a608cb"
 uuid = "0ee61d77-7f21-5576-8119-9fcc46b10100"
-version = "15.0.7+9"
+version = "15.0.7+10"
 
 [[deps.CommonMark]]
 deps = ["Crayons", "JSON", "PrecompileTools", "URIs"]
@@ -290,9 +290,9 @@ version = "1.52.0+1"
 
 [[deps.open62541_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "f4a6597c9682c9d57815b4d4fa5c51c848478523"
+git-tree-sha1 = "27700a5dda3e8b22cc12f9b36fcb3d52997be10c"
 uuid = "de311183-6042-582f-9ed9-05a52085bec4"
-version = "1.3.9+0"
+version = "1.3.9+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]

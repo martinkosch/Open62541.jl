@@ -50,7 +50,9 @@ open62541_version_server = unsafe_string(unsafe_wrap(raw_version))
 vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
 if VERSION < v"1.9"
     pkgdir_old(m::Core.Module) = abspath(Base.pathof(Base.moduleroot(m)), "..", "..")
-    pkgproject_old(m::Core.Module) = Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))
+    function pkgproject_old(m::Core.Module)
+        Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))
+    end
     pkgversion_old(m::Core.Module) = pkgproject_old(m).version
     open62541_version_julia = pkgversion_old(open62541_jll)
 else

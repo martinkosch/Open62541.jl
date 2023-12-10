@@ -115,7 +115,7 @@ r = Regex("struct UA_NodeId\n.*\nend")
 data = replace(data, r => "struct UA_NodeId
 namespaceIndex::UA_UInt16
 identifierType::UA_NodeIdType
-identifier::__JL_Ctag_380
+identifier::__JL_Ctag_402
 end
 ")
 

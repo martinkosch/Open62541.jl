@@ -7,7 +7,6 @@ using CEnum
 
 using Dates
 using OffsetArrays
-
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)
 const UA_UINT64_MAX = typemax(UInt64)
@@ -122,11 +121,11 @@ NodeId ^^^^^^ An identifier for a node in the address space of an OPC UA Server.
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_380
+struct __JL_Ctag_402
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_380}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_402}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -134,27 +133,27 @@ function Base.getproperty(x::Ptr{__JL_Ctag_380}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_380, f::Symbol)
-    r = Ref{__JL_Ctag_380}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_380}, r)
+function Base.getproperty(x::__JL_Ctag_402, f::Symbol)
+    r = Ref{__JL_Ctag_402}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_402}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_380}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_402}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
 struct UA_NodeId
     namespaceIndex::UA_UInt16
     identifierType::UA_NodeIdType
-    identifier::__JL_Ctag_380
+    identifier::__JL_Ctag_402
 end
 
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_380}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_402}(x + 8)
     return getfield(x, f)
 end
 
@@ -385,25 +384,25 @@ const UA_Int32 = Int32
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_377
+struct __JL_Ctag_403
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_377}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_378}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_403}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_404}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_379}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_405}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_377, f::Symbol)
-    r = Ref{__JL_Ctag_377}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_377}, r)
+function Base.getproperty(x::__JL_Ctag_403, f::Symbol)
+    r = Ref{__JL_Ctag_403}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_403}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_377}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_403}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -413,7 +412,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
-    f === :backend && return Ptr{__JL_Ctag_377}(x + 8)
+    f === :backend && return Ptr{__JL_Ctag_403}(x + 8)
     return getfield(x, f)
 end
 
@@ -1084,24 +1083,24 @@ ExtensionObjects may contain scalars of any data type. Even those that are unkno
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_370
+struct __JL_Ctag_395
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_370}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_371}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_372}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_395}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_396}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_397}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_370, f::Symbol)
-    r = Ref{__JL_Ctag_370}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_370}, r)
+function Base.getproperty(x::__JL_Ctag_395, f::Symbol)
+    r = Ref{__JL_Ctag_395}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_395}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_370}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_395}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -1111,7 +1110,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
-    f === :content && return Ptr{__JL_Ctag_370}(x + 8)
+    f === :content && return Ptr{__JL_Ctag_395}(x + 8)
     return getfield(x, f)
 end
 
@@ -3714,6 +3713,90 @@ function Base.setproperty!(x::Ptr{UA_ReadResponse}, f::Symbol, v)
 end
 
 """
+    UA_HistoryReadValueId
+
+HistoryReadValueId ^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryReadValueId
+    nodeId::UA_NodeId
+    indexRange::UA_String
+    dataEncoding::UA_QualifiedName
+    continuationPoint::UA_ByteString
+end
+
+"""
+    UA_HistoryReadResult
+
+HistoryReadResult ^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryReadResult
+    statusCode::UA_StatusCode
+    continuationPoint::UA_ByteString
+    historyData::UA_ExtensionObject
+end
+
+"""
+    UA_ReadRawModifiedDetails
+
+ReadRawModifiedDetails ^^^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_ReadRawModifiedDetails
+    isReadModified::UA_Boolean
+    startTime::UA_DateTime
+    endTime::UA_DateTime
+    numValuesPerNode::UA_UInt32
+    returnBounds::UA_Boolean
+end
+
+"""
+    UA_ReadAtTimeDetails
+
+ReadAtTimeDetails ^^^^^^^^^^^^^^^^^
+"""
+struct UA_ReadAtTimeDetails
+    reqTimesSize::Csize_t
+    reqTimes::Ptr{UA_DateTime}
+    useSimpleBounds::UA_Boolean
+end
+
+"""
+    UA_HistoryData
+
+HistoryData ^^^^^^^^^^^
+"""
+struct UA_HistoryData
+    dataValuesSize::Csize_t
+    dataValues::Ptr{UA_DataValue}
+end
+
+"""
+    UA_HistoryReadRequest
+
+HistoryReadRequest ^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryReadRequest
+    requestHeader::UA_RequestHeader
+    historyReadDetails::UA_ExtensionObject
+    timestampsToReturn::UA_TimestampsToReturn
+    releaseContinuationPoints::UA_Boolean
+    nodesToReadSize::Csize_t
+    nodesToRead::Ptr{UA_HistoryReadValueId}
+end
+
+"""
+    UA_HistoryReadResponse
+
+HistoryReadResponse ^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryReadResponse
+    responseHeader::UA_ResponseHeader
+    resultsSize::Csize_t
+    results::Ptr{UA_HistoryReadResult}
+    diagnosticInfosSize::Csize_t
+    diagnosticInfos::Ptr{UA_DiagnosticInfo}
+end
+
+"""
     UA_WriteValue
 
 WriteValue ^^^^^^^^^^
@@ -3780,6 +3863,101 @@ end
 
 function Base.setproperty!(x::Ptr{UA_WriteResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+    UA_HistoryUpdateType
+
+HistoryUpdateType ^^^^^^^^^^^^^^^^^
+"""
+@cenum UA_HistoryUpdateType::UInt32 begin
+    UA_HISTORYUPDATETYPE_INSERT = 1
+    UA_HISTORYUPDATETYPE_REPLACE = 2
+    UA_HISTORYUPDATETYPE_UPDATE = 3
+    UA_HISTORYUPDATETYPE_DELETE = 4
+    __UA_HISTORYUPDATETYPE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_12
+    static_assertion_failed_enum_must_be_32bit::Cint
+end
+
+"""
+    UA_PerformUpdateType
+
+PerformUpdateType ^^^^^^^^^^^^^^^^^
+"""
+@cenum UA_PerformUpdateType::UInt32 begin
+    UA_PERFORMUPDATETYPE_INSERT = 1
+    UA_PERFORMUPDATETYPE_REPLACE = 2
+    UA_PERFORMUPDATETYPE_UPDATE = 3
+    UA_PERFORMUPDATETYPE_REMOVE = 4
+    __UA_PERFORMUPDATETYPE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_13
+    static_assertion_failed_enum_must_be_32bit::Cint
+end
+
+"""
+    UA_UpdateDataDetails
+
+UpdateDataDetails ^^^^^^^^^^^^^^^^^
+"""
+struct UA_UpdateDataDetails
+    nodeId::UA_NodeId
+    performInsertReplace::UA_PerformUpdateType
+    updateValuesSize::Csize_t
+    updateValues::Ptr{UA_DataValue}
+end
+
+"""
+    UA_DeleteRawModifiedDetails
+
+DeleteRawModifiedDetails ^^^^^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_DeleteRawModifiedDetails
+    nodeId::UA_NodeId
+    isDeleteModified::UA_Boolean
+    startTime::UA_DateTime
+    endTime::UA_DateTime
+end
+
+"""
+    UA_HistoryUpdateResult
+
+HistoryUpdateResult ^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryUpdateResult
+    statusCode::UA_StatusCode
+    operationResultsSize::Csize_t
+    operationResults::Ptr{UA_StatusCode}
+    diagnosticInfosSize::Csize_t
+    diagnosticInfos::Ptr{UA_DiagnosticInfo}
+end
+
+"""
+    UA_HistoryUpdateRequest
+
+HistoryUpdateRequest ^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryUpdateRequest
+    requestHeader::UA_RequestHeader
+    historyUpdateDetailsSize::Csize_t
+    historyUpdateDetails::Ptr{UA_ExtensionObject}
+end
+
+"""
+    UA_HistoryUpdateResponse
+
+HistoryUpdateResponse ^^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryUpdateResponse
+    responseHeader::UA_ResponseHeader
+    resultsSize::Csize_t
+    results::Ptr{UA_HistoryUpdateResult}
+    diagnosticInfosSize::Csize_t
+    diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
 
 """
@@ -3892,7 +4070,7 @@ MonitoringMode ^^^^^^^^^^^^^^
     __UA_MONITORINGMODE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_12
+struct static_assertion_failed_14
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -3908,7 +4086,7 @@ DataChangeTrigger ^^^^^^^^^^^^^^^^^
     __UA_DATACHANGETRIGGER_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_13
+struct static_assertion_failed_15
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -3924,7 +4102,7 @@ DeadbandType ^^^^^^^^^^^^
     __UA_DEADBANDTYPE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_14
+struct static_assertion_failed_16
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -4634,6 +4812,16 @@ function Base.setproperty!(x::Ptr{UA_EventFieldList}, f::Symbol, v)
 end
 
 """
+    UA_HistoryEventFieldList
+
+HistoryEventFieldList ^^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryEventFieldList
+    eventFieldsSize::Csize_t
+    eventFields::Ptr{UA_Variant}
+end
+
+"""
     UA_StatusChangeNotification
 
 StatusChangeNotification ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4925,7 +5113,7 @@ RedundancySupport ^^^^^^^^^^^^^^^^^
     __UA_REDUNDANCYSUPPORT_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_15
+struct static_assertion_failed_17
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -4946,7 +5134,7 @@ ServerState ^^^^^^^^^^^
     __UA_SERVERSTATE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_16
+struct static_assertion_failed_18
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -5070,7 +5258,7 @@ AxisScaleEnumeration ^^^^^^^^^^^^^^^^^^^^
     __UA_AXISSCALEENUMERATION_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_17
+struct static_assertion_failed_19
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
@@ -5175,6 +5363,65 @@ end
 
 function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+    UA_ReadEventDetails
+
+ReadEventDetails ^^^^^^^^^^^^^^^^
+"""
+struct UA_ReadEventDetails
+    numValuesPerNode::UA_UInt32
+    startTime::UA_DateTime
+    endTime::UA_DateTime
+    filter::UA_EventFilter
+end
+
+"""
+    UA_ReadProcessedDetails
+
+ReadProcessedDetails ^^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_ReadProcessedDetails
+    startTime::UA_DateTime
+    endTime::UA_DateTime
+    processingInterval::UA_Double
+    aggregateTypeSize::Csize_t
+    aggregateType::Ptr{UA_NodeId}
+    aggregateConfiguration::UA_AggregateConfiguration
+end
+
+"""
+    UA_ModificationInfo
+
+ModificationInfo ^^^^^^^^^^^^^^^^
+"""
+struct UA_ModificationInfo
+    modificationTime::UA_DateTime
+    updateType::UA_HistoryUpdateType
+    userName::UA_String
+end
+
+"""
+    UA_HistoryModifiedData
+
+HistoryModifiedData ^^^^^^^^^^^^^^^^^^^
+"""
+struct UA_HistoryModifiedData
+    dataValuesSize::Csize_t
+    dataValues::Ptr{UA_DataValue}
+    modificationInfosSize::Csize_t
+    modificationInfos::Ptr{UA_ModificationInfo}
+end
+
+"""
+    UA_HistoryEvent
+
+HistoryEvent ^^^^^^^^^^^^
+"""
+struct UA_HistoryEvent
+    eventsSize::Csize_t
+    events::Ptr{UA_HistoryEventFieldList}
 end
 
 """
@@ -5365,6 +5612,8 @@ struct UA_AccessControl
     allowDeleteReference::Ptr{Cvoid}
     allowBrowseNode::Ptr{Cvoid}
     allowTransferSubscription::Ptr{Cvoid}
+    allowHistoryUpdateUpdateData::Ptr{Cvoid}
+    allowHistoryUpdateDeleteRawModified::Ptr{Cvoid}
 end
 
 struct UA_Nodestore
@@ -5433,6 +5682,20 @@ end
 struct UA_UInt32Range
     min::UA_UInt32
     max::UA_UInt32
+end
+
+struct UA_HistoryDatabase
+    context::Ptr{Cvoid}
+    clear::Ptr{Cvoid}
+    setValue::Ptr{Cvoid}
+    setEvent::Ptr{Cvoid}
+    readRaw::Ptr{Cvoid}
+    readModified::Ptr{Cvoid}
+    readEvent::Ptr{Cvoid}
+    readProcessed::Ptr{Cvoid}
+    readAtTime::Ptr{Cvoid}
+    updateData::Ptr{Cvoid}
+    deleteRawModified::Ptr{Cvoid}
 end
 
 """
@@ -5519,6 +5782,21 @@ struct UA_ServerConfig
     queueSizeLimits::UA_UInt32Range
     maxPublishReqPerSession::UA_UInt32
     monitoredItemRegisterCallback::Ptr{Cvoid}
+    historyDatabase::UA_HistoryDatabase
+    accessHistoryDataCapability::UA_Boolean
+    maxReturnDataValues::UA_UInt32
+    accessHistoryEventsCapability::UA_Boolean
+    maxReturnEventValues::UA_UInt32
+    insertDataCapability::UA_Boolean
+    insertEventCapability::UA_Boolean
+    insertAnnotationsCapability::UA_Boolean
+    replaceDataCapability::UA_Boolean
+    replaceEventCapability::UA_Boolean
+    updateDataCapability::UA_Boolean
+    updateEventCapability::UA_Boolean
+    deleteRawCapability::UA_Boolean
+    deleteEventCapability::UA_Boolean
+    deleteAtTimeDataCapability::UA_Boolean
 end
 
 # typedef void ( * UA_ServerCallback ) ( UA_Server * server , void * data )
@@ -5775,24 +6053,24 @@ struct UA_ReferenceTypeSet
     bits::NTuple{4, UA_UInt32}
 end
 
-struct __JL_Ctag_381
+struct __JL_Ctag_406
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_381}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_406}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
-    f === :tree && return Ptr{__JL_Ctag_382}(x + 0)
+    f === :tree && return Ptr{__JL_Ctag_407}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_381, f::Symbol)
-    r = Ref{__JL_Ctag_381}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_381}, r)
+function Base.getproperty(x::__JL_Ctag_406, f::Symbol)
+    r = Ref{__JL_Ctag_406}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_406}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_381}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_406}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5801,7 +6079,7 @@ struct UA_NodeReferenceKind
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
-    f === :targets && return Ptr{__JL_Ctag_381}(x + 0)
+    f === :targets && return Ptr{__JL_Ctag_406}(x + 0)
     f === :targetsSize && return Ptr{Csize_t}(x + 16)
     f === :hasRefTree && return Ptr{UA_Boolean}(x + 24)
     f === :referenceTypeIndex && return Ptr{UA_Byte}(x + 25)
@@ -5946,24 +6224,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_373
+struct __JL_Ctag_398
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_373}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_374}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_398}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_399}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_373, f::Symbol)
-    r = Ref{__JL_Ctag_373}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_373}, r)
+function Base.getproperty(x::__JL_Ctag_398, f::Symbol)
+    r = Ref{__JL_Ctag_398}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_398}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_373}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_398}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5979,7 +6257,7 @@ function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_373}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_398}(x + 328)
     f === :accessLevel && return Ptr{UA_Byte}(x + 424)
     f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 432)
     f === :historizing && return Ptr{UA_Boolean}(x + 440)
@@ -5998,24 +6276,24 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_375
+struct __JL_Ctag_400
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_375}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_376}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_400}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_401}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_375, f::Symbol)
-    r = Ref{__JL_Ctag_375}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_375}, r)
+function Base.getproperty(x::__JL_Ctag_400, f::Symbol)
+    r = Ref{__JL_Ctag_400}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_400}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_375}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_400}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6040,7 +6318,7 @@ function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_375}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_400}(x + 328)
     f === :isAbstract && return Ptr{UA_Boolean}(x + 424)
     f === :lifecycle && return Ptr{UA_NodeTypeLifecycle}(x + 432)
     return getfield(x, f)
@@ -7234,6 +7512,56 @@ function UA_Client_readArrayDimensionsAttribute(client,
         outArrayDimensions::Ptr{Ptr{UA_UInt32}})::UA_StatusCode
 end
 
+# typedef UA_Boolean ( * UA_HistoricalIteratorCallback ) ( UA_Client * client , const UA_NodeId * nodeId , UA_Boolean moreDataAvailable , const UA_ExtensionObject * data , void * callbackContext )
+const UA_HistoricalIteratorCallback = Ptr{Cvoid}
+
+function UA_Client_HistoryRead_raw(client,
+        nodeId,
+        callback,
+        startTime,
+        endTime,
+        indexRange,
+        returnBounds,
+        numValuesPerNode,
+        timestampsToReturn,
+        callbackContext)
+    @ccall libopen62541.UA_Client_HistoryRead_raw(client::Ptr{UA_Client},
+        nodeId::Ptr{UA_NodeId},
+        callback::UA_HistoricalIteratorCallback,
+        startTime::UA_DateTime,
+        endTime::UA_DateTime,
+        indexRange::UA_String,
+        returnBounds::UA_Boolean,
+        numValuesPerNode::UA_UInt32,
+        timestampsToReturn::UA_TimestampsToReturn,
+        callbackContext::Ptr{Cvoid})::UA_StatusCode
+end
+
+function UA_Client_HistoryUpdate_insert(client, nodeId, value)
+    @ccall libopen62541.UA_Client_HistoryUpdate_insert(client::Ptr{UA_Client},
+        nodeId::Ptr{UA_NodeId},
+        value::Ptr{UA_DataValue})::UA_StatusCode
+end
+
+function UA_Client_HistoryUpdate_replace(client, nodeId, value)
+    @ccall libopen62541.UA_Client_HistoryUpdate_replace(client::Ptr{UA_Client},
+        nodeId::Ptr{UA_NodeId},
+        value::Ptr{UA_DataValue})::UA_StatusCode
+end
+
+function UA_Client_HistoryUpdate_update(client, nodeId, value)
+    @ccall libopen62541.UA_Client_HistoryUpdate_update(client::Ptr{UA_Client},
+        nodeId::Ptr{UA_NodeId},
+        value::Ptr{UA_DataValue})::UA_StatusCode
+end
+
+function UA_Client_HistoryUpdate_deleteRaw(client, nodeId, startTimestamp, endTimestamp)
+    @ccall libopen62541.UA_Client_HistoryUpdate_deleteRaw(client::Ptr{UA_Client},
+        nodeId::Ptr{UA_NodeId},
+        startTimestamp::UA_DateTime,
+        endTimestamp::UA_DateTime)::UA_StatusCode
+end
+
 """
     __UA_Client_writeAttribute(client, nodeId, attributeId, in, inDataType)
 
@@ -8157,6 +8485,78 @@ function UA_SecurityPolicy_None(policy, localCertificate, logger)
         logger::Ptr{UA_Logger})::UA_StatusCode
 end
 
+@cenum MatchStrategy::UInt32 begin
+    MATCH_EQUAL = 0
+    MATCH_AFTER = 1
+    MATCH_EQUAL_OR_AFTER = 2
+    MATCH_BEFORE = 3
+    MATCH_EQUAL_OR_BEFORE = 4
+end
+
+struct UA_HistoryDataBackend
+    context::Ptr{Cvoid}
+    deleteMembers::Ptr{Cvoid}
+    serverSetHistoryData::Ptr{Cvoid}
+    getHistoryData::Ptr{Cvoid}
+    getDateTimeMatch::Ptr{Cvoid}
+    getEnd::Ptr{Cvoid}
+    lastIndex::Ptr{Cvoid}
+    firstIndex::Ptr{Cvoid}
+    resultSize::Ptr{Cvoid}
+    copyDataValues::Ptr{Cvoid}
+    getDataValue::Ptr{Cvoid}
+    boundSupported::Ptr{Cvoid}
+    timestampsToReturnSupported::Ptr{Cvoid}
+    insertDataValue::Ptr{Cvoid}
+    replaceDataValue::Ptr{Cvoid}
+    updateDataValue::Ptr{Cvoid}
+    removeDataValue::Ptr{Cvoid}
+end
+
+@cenum UA_HistorizingUpdateStrategy::UInt32 begin
+    UA_HISTORIZINGUPDATESTRATEGY_USER = 0
+    UA_HISTORIZINGUPDATESTRATEGY_VALUESET = 1
+    UA_HISTORIZINGUPDATESTRATEGY_POLL = 2
+end
+
+struct UA_HistorizingNodeIdSettings
+    historizingBackend::UA_HistoryDataBackend
+    maxHistoryDataResponseSize::Csize_t
+    historizingUpdateStrategy::UA_HistorizingUpdateStrategy
+    pollingInterval::Csize_t
+    userContext::Ptr{Cvoid}
+end
+
+struct UA_HistoryDataGathering
+    context::Ptr{Cvoid}
+    deleteMembers::Ptr{Cvoid}
+    registerNodeId::Ptr{Cvoid}
+    stopPoll::Ptr{Cvoid}
+    startPoll::Ptr{Cvoid}
+    updateNodeIdSetting::Ptr{Cvoid}
+    getHistorizingSetting::Ptr{Cvoid}
+    setValue::Ptr{Cvoid}
+end
+
+function UA_HistoryDatabase_default(gathering)
+    @ccall libopen62541.UA_HistoryDatabase_default(gathering::UA_HistoryDataGathering)::UA_HistoryDatabase
+end
+
+function UA_HistoryDataGathering_Default(initialNodeIdStoreSize)
+    @ccall libopen62541.UA_HistoryDataGathering_Default(initialNodeIdStoreSize::Csize_t)::UA_HistoryDataGathering
+end
+
+function UA_HistoryDataBackend_Memory(initialNodeIdStoreSize, initialDataStoreSize)
+    @ccall libopen62541.UA_HistoryDataBackend_Memory(initialNodeIdStoreSize::Csize_t,
+        initialDataStoreSize::Csize_t)::UA_HistoryDataBackend
+end
+
+function UA_HistoryDataBackend_Memory_clear(backend)
+    @ccall libopen62541.UA_HistoryDataBackend_Memory_clear(backend::Ptr{
+        UA_HistoryDataBackend,
+    })::Cvoid
+end
+
 function UA_ServerNetworkLayerTCP(config, port, maxConnections)
     @ccall libopen62541.UA_ServerNetworkLayerTCP(config::UA_ConnectionConfig,
         port::UA_UInt16,
@@ -8192,150 +8592,150 @@ function UA_deinitialize_architecture_network()
     @ccall libopen62541.UA_deinitialize_architecture_network()::Cvoid
 end
 
-struct __JL_Ctag_371
+struct __JL_Ctag_396
     typeId::UA_NodeId
     body::UA_ByteString
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_371}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_396}, f::Symbol)
     f === :typeId && return Ptr{UA_NodeId}(x + 0)
     f === :body && return Ptr{UA_ByteString}(x + 24)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_371, f::Symbol)
-    r = Ref{__JL_Ctag_371}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_371}, r)
+function Base.getproperty(x::__JL_Ctag_396, f::Symbol)
+    r = Ref{__JL_Ctag_396}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_396}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_371}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_396}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_372
+struct __JL_Ctag_397
     type::Ptr{UA_DataType}
     data::Ptr{Cvoid}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_372}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_397}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_372, f::Symbol)
-    r = Ref{__JL_Ctag_372}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_372}, r)
+function Base.getproperty(x::__JL_Ctag_397, f::Symbol)
+    r = Ref{__JL_Ctag_397}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_397}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_372}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_397}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_374
+struct __JL_Ctag_399
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_374}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_399}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_374, f::Symbol)
-    r = Ref{__JL_Ctag_374}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_374}, r)
+function Base.getproperty(x::__JL_Ctag_399, f::Symbol)
+    r = Ref{__JL_Ctag_399}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_399}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_374}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_399}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_376
+struct __JL_Ctag_401
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_376}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_401}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_376, f::Symbol)
-    r = Ref{__JL_Ctag_376}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_376}, r)
+function Base.getproperty(x::__JL_Ctag_401, f::Symbol)
+    r = Ref{__JL_Ctag_401}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_401}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_376}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_401}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_378
+struct __JL_Ctag_404
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_378}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_404}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_378, f::Symbol)
-    r = Ref{__JL_Ctag_378}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_378}, r)
+function Base.getproperty(x::__JL_Ctag_404, f::Symbol)
+    r = Ref{__JL_Ctag_404}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_404}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_378}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_404}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_379
+struct __JL_Ctag_405
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_379}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_405}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_379, f::Symbol)
-    r = Ref{__JL_Ctag_379}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_379}, r)
+function Base.getproperty(x::__JL_Ctag_405, f::Symbol)
+    r = Ref{__JL_Ctag_405}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_405}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_379}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_405}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_382
+struct __JL_Ctag_407
     idTreeRoot::Ptr{aa_entry}
     nameTreeRoot::Ptr{aa_entry}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_382}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_407}, f::Symbol)
     f === :idTreeRoot && return Ptr{Ptr{aa_entry}}(x + 0)
     f === :nameTreeRoot && return Ptr{Ptr{aa_entry}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_382, f::Symbol)
-    r = Ref{__JL_Ctag_382}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_382}, r)
+function Base.getproperty(x::__JL_Ctag_407, f::Symbol)
+    r = Ref{__JL_Ctag_407}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_407}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_382}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_407}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -19825,7 +20225,7 @@ const UA_DATETIME_UNIX_EPOCH = Clonglong(11644473600) * UA_DATETIME_SEC
 
 # Skipping MacroDefinition: UA_EMPTY_ARRAY_SENTINEL ( ( void * ) 0x01 )
 const UA_DATATYPEKINDS = 31
-const UA_TYPES_COUNT = 191
+const UA_TYPES_COUNT = 211
 const UA_TYPES_BOOLEAN = 0
 const UA_TYPES_SBYTE = 1
 const UA_TYPES_BYTE = 2
@@ -19952,71 +20352,91 @@ const UA_TYPES_TIMESTAMPSTORETURN = 122
 const UA_TYPES_READVALUEID = 123
 const UA_TYPES_READREQUEST = 124
 const UA_TYPES_READRESPONSE = 125
-const UA_TYPES_WRITEVALUE = 126
-const UA_TYPES_WRITEREQUEST = 127
-const UA_TYPES_WRITERESPONSE = 128
-const UA_TYPES_CALLMETHODREQUEST = 129
-const UA_TYPES_CALLMETHODRESULT = 130
-const UA_TYPES_CALLREQUEST = 131
-const UA_TYPES_CALLRESPONSE = 132
-const UA_TYPES_MONITORINGMODE = 133
-const UA_TYPES_DATACHANGETRIGGER = 134
-const UA_TYPES_DEADBANDTYPE = 135
-const UA_TYPES_DATACHANGEFILTER = 136
-const UA_TYPES_EVENTFILTER = 137
-const UA_TYPES_AGGREGATECONFIGURATION = 138
-const UA_TYPES_AGGREGATEFILTER = 139
-const UA_TYPES_EVENTFILTERRESULT = 140
-const UA_TYPES_MONITORINGPARAMETERS = 141
-const UA_TYPES_MONITOREDITEMCREATEREQUEST = 142
-const UA_TYPES_MONITOREDITEMCREATERESULT = 143
-const UA_TYPES_CREATEMONITOREDITEMSREQUEST = 144
-const UA_TYPES_CREATEMONITOREDITEMSRESPONSE = 145
-const UA_TYPES_MONITOREDITEMMODIFYREQUEST = 146
-const UA_TYPES_MONITOREDITEMMODIFYRESULT = 147
-const UA_TYPES_MODIFYMONITOREDITEMSREQUEST = 148
-const UA_TYPES_MODIFYMONITOREDITEMSRESPONSE = 149
-const UA_TYPES_SETMONITORINGMODEREQUEST = 150
-const UA_TYPES_SETMONITORINGMODERESPONSE = 151
-const UA_TYPES_SETTRIGGERINGREQUEST = 152
-const UA_TYPES_SETTRIGGERINGRESPONSE = 153
-const UA_TYPES_DELETEMONITOREDITEMSREQUEST = 154
-const UA_TYPES_DELETEMONITOREDITEMSRESPONSE = 155
-const UA_TYPES_CREATESUBSCRIPTIONREQUEST = 156
-const UA_TYPES_CREATESUBSCRIPTIONRESPONSE = 157
-const UA_TYPES_MODIFYSUBSCRIPTIONREQUEST = 158
-const UA_TYPES_MODIFYSUBSCRIPTIONRESPONSE = 159
-const UA_TYPES_SETPUBLISHINGMODEREQUEST = 160
-const UA_TYPES_SETPUBLISHINGMODERESPONSE = 161
-const UA_TYPES_NOTIFICATIONMESSAGE = 162
-const UA_TYPES_MONITOREDITEMNOTIFICATION = 163
-const UA_TYPES_EVENTFIELDLIST = 164
-const UA_TYPES_STATUSCHANGENOTIFICATION = 165
-const UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT = 166
-const UA_TYPES_PUBLISHREQUEST = 167
-const UA_TYPES_PUBLISHRESPONSE = 168
-const UA_TYPES_REPUBLISHREQUEST = 169
-const UA_TYPES_REPUBLISHRESPONSE = 170
-const UA_TYPES_TRANSFERRESULT = 171
-const UA_TYPES_TRANSFERSUBSCRIPTIONSREQUEST = 172
-const UA_TYPES_TRANSFERSUBSCRIPTIONSRESPONSE = 173
-const UA_TYPES_DELETESUBSCRIPTIONSREQUEST = 174
-const UA_TYPES_DELETESUBSCRIPTIONSRESPONSE = 175
-const UA_TYPES_BUILDINFO = 176
-const UA_TYPES_REDUNDANCYSUPPORT = 177
-const UA_TYPES_SERVERSTATE = 178
-const UA_TYPES_SERVERDIAGNOSTICSSUMMARYDATATYPE = 179
-const UA_TYPES_SERVERSTATUSDATATYPE = 180
-const UA_TYPES_RANGE = 181
-const UA_TYPES_EUINFORMATION = 182
-const UA_TYPES_AXISSCALEENUMERATION = 183
-const UA_TYPES_COMPLEXNUMBERTYPE = 184
-const UA_TYPES_DOUBLECOMPLEXNUMBERTYPE = 185
-const UA_TYPES_AXISINFORMATION = 186
-const UA_TYPES_XVTYPE = 187
-const UA_TYPES_ENUMDEFINITION = 188
-const UA_TYPES_DATACHANGENOTIFICATION = 189
-const UA_TYPES_EVENTNOTIFICATIONLIST = 190
+const UA_TYPES_HISTORYREADVALUEID = 126
+const UA_TYPES_HISTORYREADRESULT = 127
+const UA_TYPES_READRAWMODIFIEDDETAILS = 128
+const UA_TYPES_READATTIMEDETAILS = 129
+const UA_TYPES_HISTORYDATA = 130
+const UA_TYPES_HISTORYREADREQUEST = 131
+const UA_TYPES_HISTORYREADRESPONSE = 132
+const UA_TYPES_WRITEVALUE = 133
+const UA_TYPES_WRITEREQUEST = 134
+const UA_TYPES_WRITERESPONSE = 135
+const UA_TYPES_HISTORYUPDATETYPE = 136
+const UA_TYPES_PERFORMUPDATETYPE = 137
+const UA_TYPES_UPDATEDATADETAILS = 138
+const UA_TYPES_DELETERAWMODIFIEDDETAILS = 139
+const UA_TYPES_HISTORYUPDATERESULT = 140
+const UA_TYPES_HISTORYUPDATEREQUEST = 141
+const UA_TYPES_HISTORYUPDATERESPONSE = 142
+const UA_TYPES_CALLMETHODREQUEST = 143
+const UA_TYPES_CALLMETHODRESULT = 144
+const UA_TYPES_CALLREQUEST = 145
+const UA_TYPES_CALLRESPONSE = 146
+const UA_TYPES_MONITORINGMODE = 147
+const UA_TYPES_DATACHANGETRIGGER = 148
+const UA_TYPES_DEADBANDTYPE = 149
+const UA_TYPES_DATACHANGEFILTER = 150
+const UA_TYPES_EVENTFILTER = 151
+const UA_TYPES_AGGREGATECONFIGURATION = 152
+const UA_TYPES_AGGREGATEFILTER = 153
+const UA_TYPES_EVENTFILTERRESULT = 154
+const UA_TYPES_MONITORINGPARAMETERS = 155
+const UA_TYPES_MONITOREDITEMCREATEREQUEST = 156
+const UA_TYPES_MONITOREDITEMCREATERESULT = 157
+const UA_TYPES_CREATEMONITOREDITEMSREQUEST = 158
+const UA_TYPES_CREATEMONITOREDITEMSRESPONSE = 159
+const UA_TYPES_MONITOREDITEMMODIFYREQUEST = 160
+const UA_TYPES_MONITOREDITEMMODIFYRESULT = 161
+const UA_TYPES_MODIFYMONITOREDITEMSREQUEST = 162
+const UA_TYPES_MODIFYMONITOREDITEMSRESPONSE = 163
+const UA_TYPES_SETMONITORINGMODEREQUEST = 164
+const UA_TYPES_SETMONITORINGMODERESPONSE = 165
+const UA_TYPES_SETTRIGGERINGREQUEST = 166
+const UA_TYPES_SETTRIGGERINGRESPONSE = 167
+const UA_TYPES_DELETEMONITOREDITEMSREQUEST = 168
+const UA_TYPES_DELETEMONITOREDITEMSRESPONSE = 169
+const UA_TYPES_CREATESUBSCRIPTIONREQUEST = 170
+const UA_TYPES_CREATESUBSCRIPTIONRESPONSE = 171
+const UA_TYPES_MODIFYSUBSCRIPTIONREQUEST = 172
+const UA_TYPES_MODIFYSUBSCRIPTIONRESPONSE = 173
+const UA_TYPES_SETPUBLISHINGMODEREQUEST = 174
+const UA_TYPES_SETPUBLISHINGMODERESPONSE = 175
+const UA_TYPES_NOTIFICATIONMESSAGE = 176
+const UA_TYPES_MONITOREDITEMNOTIFICATION = 177
+const UA_TYPES_EVENTFIELDLIST = 178
+const UA_TYPES_HISTORYEVENTFIELDLIST = 179
+const UA_TYPES_STATUSCHANGENOTIFICATION = 180
+const UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT = 181
+const UA_TYPES_PUBLISHREQUEST = 182
+const UA_TYPES_PUBLISHRESPONSE = 183
+const UA_TYPES_REPUBLISHREQUEST = 184
+const UA_TYPES_REPUBLISHRESPONSE = 185
+const UA_TYPES_TRANSFERRESULT = 186
+const UA_TYPES_TRANSFERSUBSCRIPTIONSREQUEST = 187
+const UA_TYPES_TRANSFERSUBSCRIPTIONSRESPONSE = 188
+const UA_TYPES_DELETESUBSCRIPTIONSREQUEST = 189
+const UA_TYPES_DELETESUBSCRIPTIONSRESPONSE = 190
+const UA_TYPES_BUILDINFO = 191
+const UA_TYPES_REDUNDANCYSUPPORT = 192
+const UA_TYPES_SERVERSTATE = 193
+const UA_TYPES_SERVERDIAGNOSTICSSUMMARYDATATYPE = 194
+const UA_TYPES_SERVERSTATUSDATATYPE = 195
+const UA_TYPES_RANGE = 196
+const UA_TYPES_EUINFORMATION = 197
+const UA_TYPES_AXISSCALEENUMERATION = 198
+const UA_TYPES_COMPLEXNUMBERTYPE = 199
+const UA_TYPES_DOUBLECOMPLEXNUMBERTYPE = 200
+const UA_TYPES_AXISINFORMATION = 201
+const UA_TYPES_XVTYPE = 202
+const UA_TYPES_ENUMDEFINITION = 203
+const UA_TYPES_READEVENTDETAILS = 204
+const UA_TYPES_READPROCESSEDDETAILS = 205
+const UA_TYPES_MODIFICATIONINFO = 206
+const UA_TYPES_HISTORYMODIFIEDDATA = 207
+const UA_TYPES_HISTORYEVENT = 208
+const UA_TYPES_DATACHANGENOTIFICATION = 209
+const UA_TYPES_EVENTNOTIFICATIONLIST = 210
 const UA_PRINTF_STRING_FORMAT = "\"%.*s\""
 
 # Skipping MacroDefinition: ZIP_INLINE inline
@@ -20043,6 +20463,7 @@ const UA_REFERENCETYPEINDEX_HASINTERFACE = 17
 const UA_REFERENCETYPESET_MAX = 128
 
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
+const INITIAL_MEMORY_STORE_SIZE = 1000
 
 include("generated_defs.jl")
 include("helper_functions.jl")
