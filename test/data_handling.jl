@@ -38,9 +38,9 @@ UA_ReadRequest_delete(rr2)
 ns = 1
 i = 1234
 id1 = UA_NODEID_NUMERIC(ns, i)
-@test id1.namespaceIndex == ns
-# @test id1.identifier == i # TODO: Not working due to type union, find workaround
-@test id1.identifierType == UA_NODEIDTYPE_NUMERIC
+@test unsafe_load(id1.namespaceIndex) == ns
+@test_broken id1.identifier == i # TODO: Not working due to type union, find workaround
+@test unsafe_load(id1.identifierType) == UA_NODEIDTYPE_NUMERIC
 
 id2 = UA_NODEID_STRING_ALLOC(1, "testid")
 @test !UA_NodeId_equal(id1, id2)

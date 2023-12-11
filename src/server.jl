@@ -87,9 +87,9 @@ end
 function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId,
         browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
-    return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, Ref(requestedNewNodeId),
-        Ref(parentNodeId), Ref(referenceTypeId), browseName,
-        Ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
+    return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
+        wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+        wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
         nodeContext, outNewNodeId)
 end
 

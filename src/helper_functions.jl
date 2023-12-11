@@ -29,5 +29,5 @@ end
 
 #function that wraps a non-ref argument into a ref of appropriate type.
 #used in client.jl and server.jl
-wrap_ref(x::Ref) = x #no-op fall back
+wrap_ref(x::Union{Ref, Ptr}) = x #no-op fall back
 wrap_ref(x) = Ref(x)

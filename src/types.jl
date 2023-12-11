@@ -253,10 +253,19 @@ function UA_GUID(s::AbstractString)
 end
 
 ## NodeId
+function UA_NodeId_new(nsIndex::Integer, identifier::Integer)
+    nodeid = UA_NodeId_new()
+    nodeid.namespaceIndex = UA_UInt16(nsIndex)
+    nodeid.identifierType = UA_NODEIDTYPE_NUMERIC
+
+    identifier_tuple = open62541.anonymous_struct_tuple(UInt32(identifier),
+        typeof(unsafe_load(nodeid.identifier)))
+    nodeid.identifier = identifier_tuple
+    return nodeid
+end
+
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
-    identifier_tuple = anonymous_struct_tuple(UInt32(identifier),
-        fieldtype(UA_NodeId, :identifier))
-    return UA_NodeId(nsIndex, UA_NODEIDTYPE_NUMERIC, identifier_tuple)
+    return UA_NodeId_new(nsIndex, identifier)
 end
 
 # String `s` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_NODEID_STRING_ALLOC with a subsequent call to UA_NodeId_delete.
