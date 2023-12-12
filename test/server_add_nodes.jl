@@ -55,7 +55,7 @@ retval2 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 # Test whether adding node to the server worked
 @test retval2 == UA_STATUSCODE_GOOD
 
-## VariableTypeNode
+## VariableTypeNode - array
 input = zeros(2)
 pointtypeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVELMASK_READ
@@ -111,3 +111,21 @@ retval5 = UA_Server_addVariableNode(server, UA_NODEID_NULL,
 @test_throws open62541.AttributeReadWriteError UA_Server_writeValueRank(server,
     pointvariableid1,
     UA_VALUERANK_ONE_OR_MORE_DIMENSIONS)
+
+#variable type node - scalar (to increase test coverage)
+input = 42
+scalartypeid = UA_NodeId_new()
+accesslevel = UA_ACCESSLEVELMASK_READ
+displayname = "scalar integer type"
+description = "This is a scalar integer type."
+attr = UA_generate_variabletype_attributes(input,
+    displayname,
+    description)
+retval6 = UA_Server_addVariableTypeNode(server, UA_NODEID_NULL,
+    UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
+    UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
+    UA_QUALIFIEDNAME(1, "scalar integer type"), UA_NODEID_NULL,
+    attr, C_NULL, scalartypeid)
+
+# Test whether adding the variable type node to the server worked
+@test retval6 == UA_STATUSCODE_GOOD
