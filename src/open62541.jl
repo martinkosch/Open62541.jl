@@ -145,9 +145,7 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_402}, f::Symbol, v)
 end
 
 struct UA_NodeId
-    namespaceIndex::UA_UInt16
-    identifierType::UA_NodeIdType
-    identifier::__JL_Ctag_402
+    data::NTuple{24, UInt8}
 end
 
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
@@ -20465,15 +20463,12 @@ const UA_REFERENCETYPESET_MAX = 128
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
 const INITIAL_MEMORY_STORE_SIZE = 1000
 
-include("generated_defs.jl")
-include("helper_functions.jl")
 const UA_STRING_NULL = UA_String(0, C_NULL)
 const UA_GUID_NULL = UA_Guid(0, 0, 0, Tuple(zeros(UA_Byte, 8)))
-const UA_NODEID_NULL = UA_NodeId(0,
-    UA_NodeIdType(0),
-    anonymous_struct_tuple(UInt32(0), fieldtype(UA_NodeId, :identifier)))
+const UA_NODEID_NULL = UA_NodeId(Tuple(zeros(UA_Byte, sizeof(UA_NodeId))))
 const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL, 0)
-
+include("generated_defs.jl")
+include("helper_functions.jl")
 include("types.jl")
 include("server.jl")
 include("client.jl")

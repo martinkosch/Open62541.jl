@@ -110,14 +110,14 @@ close(f)
 #     data = replace(data, r => "")
 # end
 
-# Correct type definition of UA_NodeId
-r = Regex("struct UA_NodeId\n.*\nend")
-data = replace(data, r => "struct UA_NodeId
-namespaceIndex::UA_UInt16
-identifierType::UA_NodeIdType
-identifier::__JL_Ctag_402
-end
-")
+# # Correct type definition of UA_NodeId
+# r = Regex("struct UA_NodeId\n.*\nend")
+# data = replace(data, r => "struct UA_NodeId
+# namespaceIndex::UA_UInt16
+# identifierType::UA_NodeIdType
+# identifier::__JL_Ctag_402
+# end
+# ")
 
 fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "w")

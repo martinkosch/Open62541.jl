@@ -243,6 +243,7 @@ datetime2ua_datetime(dt::DateTime) = UA_DateTime_fromUnixTime(round(Int, datetim
 ua_datetime2datetime(dt::UA_DateTime) = unix2datetime(UA_DateTime_toUnixTime(dt))
 
 ## Guid
+# XXX - UA_GUID("test") --> BadInternalError
 function UA_GUID(s::AbstractString)
     guid = Ref{UA_Guid}()
     ua_s = UA_STRING_unsafe(s)
@@ -253,6 +254,7 @@ function UA_GUID(s::AbstractString)
 end
 
 ## NodeId
+#numeric
 function UA_NodeId_new(nsIndex::Integer, identifier::Integer)
     nodeid = UA_NodeId_new()
     nodeid.namespaceIndex = UA_UInt16(nsIndex)
@@ -268,16 +270,25 @@ function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     return UA_NodeId_new(nsIndex, identifier)
 end
 
+#string
+function UA_NodeId_new(nsIndex::Integer, identifier::AbstractString)
+    nodeid = UA_NodeId_new()
+    nodeid.namespaceIndex = UA_UInt16(nsIndex)
+    nodeid.identifierType = UA_NODEIDTYPE_STRING
+
+    identifier_tuple = open62541.anonymous_struct_tuple(UA_String_fromChars(identifier),
+        typeof(unsafe_load(nodeid.identifier)))
+    nodeid.identifier = identifier_tuple
+    return nodeid
+end
+
+function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)
+    return UA_NodeId_new(nsIndex, identifier)
+end
+
 # String `s` must be kept valid using GC.@preserve as long as the return value is used. It is recommended to use UA_NODEID_STRING_ALLOC with a subsequent call to UA_NodeId_delete.
 function UA_NODEID_STRING_unsafe(nsIndex::Integer, s::AbstractString)
     GC.@preserve s identifier_tuple=anonymous_struct_tuple(UA_STRING_unsafe(s),
-        fieldtype(UA_NodeId, :identifier))
-    return UA_NodeId(nsIndex, UA_NODEIDTYPE_STRING, identifier_tuple)
-end
-
-# String `s` is copied to newly allocated memory that needs to be freed
-function UA_NODEID_STRING_ALLOC(nsIndex::Integer, s::AbstractString)
-    identifier_tuple = anonymous_struct_tuple(UA_String_fromChars(s),
         fieldtype(UA_NodeId, :identifier))
     return UA_NodeId(nsIndex, UA_NODEIDTYPE_STRING, identifier_tuple)
 end
@@ -287,6 +298,7 @@ function UA_NODEID_GUID(nsIndex::Integer, guid::UA_Guid)
     return UA_NodeId(nsIndex, UA_NODEIDTYPE_GUID, identifier_tuple)
 end
 
+#TODO: since UA_NodeId_delete(Ptr{UA_NodeId}) is defined, do I still need this function?
 function UA_NodeId_delete(n::UA_NodeId)
     if n.identifier == UA_NODEIDTYPE_STRING
         UA_String_delete(n.identifier.string)
@@ -294,20 +306,12 @@ function UA_NodeId_delete(n::UA_NodeId)
     return nothing
 end
 
-function UA_NodeId_equal(n1::Ref{UA_NodeId}, n2::Ref{UA_NodeId})
+function UA_NodeId_equal(n1::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}}, n2::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}})
     UA_NodeId_order(n1, n2) == UA_ORDER_EQ
 end
 
-function UA_NodeId_equal(n1::Ref{UA_NodeId}, n2::UA_NodeId)
-    UA_NodeId_order(n1, Ref(n2)) == UA_ORDER_EQ
-end
-
-function UA_NodeId_equal(n1::UA_NodeId, n2::Ref{UA_NodeId})
-    UA_NodeId_order(Ref(n1), n2) == UA_ORDER_EQ
-end
-
-function UA_NodeId_equal(n1::UA_NodeId, n2::UA_NodeId)
-    UA_NodeId_order(Ref(n1), Ref(n2)) == UA_ORDER_EQ
+function UA_NodeId_equal(n1, n2)
+    UA_NodeId_equal(wrap_ref(n1), wrap_ref(n2))
 end
 
 ## ExpandedNodeId
