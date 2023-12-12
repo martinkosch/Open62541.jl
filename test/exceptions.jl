@@ -5,11 +5,8 @@ using Test
 
 #configure server
 server = UA_Server_new()
-retval1 = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-    4842,
-    C_NULL,
-    0,
-    0)
+retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
+@test retval0 == UA_STATUSCODE_GOOD
 
 #configure client
 client = UA_Client_new()
