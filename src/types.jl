@@ -102,18 +102,6 @@ for (i, type_name) in enumerate(type_names)
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
 
         if !(type_names[$(i)] in types_ambiguous_ignorelist)
-            function juliatype2uasymbol(::Type{$julia_type})
-                return type_names[$(i)]
-            end
-            function juliatype2uaword(::Type{$julia_type})
-                return uppercasefirst(String(type_names[$(i)])[4:end])
-            end
-            function juliatype2uaindicator(::Type{$julia_type})
-                $(type_ind_name)
-            end
-        end
-
-        if !(type_names[$(i)] in types_ambiguous_ignorelist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
 
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
