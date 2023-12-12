@@ -21,6 +21,10 @@ end
     include("server_write.jl")
 end
 
+@safetestset "Server configurations" begin
+    include("server_config.jl")
+end
+
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
