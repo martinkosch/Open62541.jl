@@ -111,7 +111,7 @@ close(f)
 # #remove inlined functions
 # inlined_funcs = extract_inlined_funcs(open62541_header)
 # for i in eachindex(inlined_funcs)
-#     r = Regex("function $(inlined_funcs[i])(.*)\n(.*)\nend\n")
+#     r = Regex("function $(inlined_funcs[i])\(.*\)\n(.*)\nend\n") #TODO: this doesn't really match the required pattern.
 #     data = replace(data, r => "")
 # end
 
