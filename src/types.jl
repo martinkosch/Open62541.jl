@@ -291,14 +291,14 @@ function UA_NodeId_delete(n::UA_NodeId)
     return nothing
 end
 
-function UA_NodeId_equal(n1::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}},
-        n2::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}})
+function UA_NodeId_equal(n1::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, JUA_NodeId},
+        n2::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, JUA_NodeId})
     UA_NodeId_order(n1, n2) == UA_ORDER_EQ
 end
 
-function UA_NodeId_equal(n1, n2)
-    UA_NodeId_equal(wrap_ref(n1), wrap_ref(n2))
-end
+# function UA_NodeId_equal(n1, n2)
+#     UA_NodeId_equal(wrap_ref(n1), wrap_ref(n2))
+# end
 
 ## ExpandedNodeId
 # String `ns_uri` is copied to newly allocated memory that needs to be freed.
