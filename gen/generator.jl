@@ -2,7 +2,12 @@ using Clang.Generators
 using open62541_jll
 using JuliaFormatter
 using OffsetArrays
+using Pkg
 
+#update packages by default
+Pkg.update()
+
+#change dir
 cd(@__DIR__)
 
 include_dir = joinpath(open62541_jll.artifact_dir, "include") |> normpath
@@ -110,15 +115,6 @@ close(f)
 #     data = replace(data, r => "")
 # end
 
-# # Correct type definition of UA_NodeId
-# r = Regex("struct UA_NodeId\n.*\nend")
-# data = replace(data, r => "struct UA_NodeId
-# namespaceIndex::UA_UInt16
-# identifierType::UA_NodeIdType
-# identifier::__JL_Ctag_402
-# end
-# ")
-
 fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "w")
 write(f, data)
@@ -185,6 +181,19 @@ close(f)
 new_content = replace(orig_content, "\n\nconst" => "\nconst")
 f = open(fn, "w")
 write(f, new_content)
+
+#set compat bound in Projet.toml automatically to version that the generator ran on.
+fn = joinpath(@__DIR__, "Project.toml")
+vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
+f = open(fn, "r")
+orig_content = read(f, String)
+close(f)
+reg = r"open62541_jll = \"=[0-9]+\.[0-9]+\.[0-9]+\""
+open62541_version = vn2string(pkgversion(open62541_jll))
+new_content = replace(orig_content, reg => "open62541_jll = \"=$open62541_version\"")
+f = open(fn, "w")
+write(f, new_content)
+close(f)
 
 # automated formatting
 format(joinpath(@__DIR__, ".."))

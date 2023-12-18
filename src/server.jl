@@ -11,25 +11,25 @@ end
 function UA_ServerConfig_setDefault(config::Union{
         Ref{UA_ServerConfig},
         Ptr{UA_ServerConfig},
-    })
+})
     UA_ServerConfig_setMinimal(config, 4840, C_NULL)
 end
 
 ## Add node functions TODO: work in progress - make note generation code more general (include all types of nodes)
-for nodeclass in instances(UA_NodeClass)
-    nodeclass_sym = Symbol(nodeclass)
-    funname_sym = Symbol("UA_Server_add" * titlecase(string(nodeclass_sym)[14:end]) *
-                         "Node")
-    #@show nodeclass_sym, funname_sym
-    # function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
-    #     referenceTypeId,
-    #     browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
-    # return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
-    #     wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
-    #     wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
-    #     nodeContext, outNewNodeId)
-    # end
-end
+# for nodeclass in instances(UA_NodeClass)
+#     nodeclass_sym = Symbol(nodeclass)
+#     funname_sym = Symbol("UA_Server_add" * titlecase(string(nodeclass_sym)[14:end]) *
+#                          "Node")
+#     #@show nodeclass_sym, funname_sym
+#     # function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
+#     #     referenceTypeId,
+#     #     browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
+#     # return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
+#     #     wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+#     #     wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
+#     #     nodeContext, outNewNodeId)
+#     # end
+# end
 
 function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId,
