@@ -18,7 +18,8 @@ end
 ## Add node functions TODO: work in progress - make note generation code more general (include all types of nodes)
 for nodeclass in instances(UA_NodeClass)
     nodeclass_sym = Symbol(nodeclass)
-    funname_sym = Symbol("UA_Server_add"*titlecase(string(nodeclass_sym)[14:end])*"Node")
+    funname_sym = Symbol("UA_Server_add" * titlecase(string(nodeclass_sym)[14:end]) *
+                         "Node")
     #@show nodeclass_sym, funname_sym
     # function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
     #     referenceTypeId,

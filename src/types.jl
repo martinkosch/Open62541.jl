@@ -97,13 +97,10 @@ for (i, type_name) in enumerate(type_names)
     val_type = Val{type_name}
 
     @eval begin
-
         # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
-
         if !(type_names[$(i)] in types_ambiguous_ignorelist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
-
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
         end
 

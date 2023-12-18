@@ -68,7 +68,7 @@ for node in nodes
         attr_name = Symbol(att[2])
         if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
             if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+               in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
                 read_value = eval(fun_read)(server, node) #read
                 statuscode = eval(fun_write)(server, node, read_value) #write read value back...
                 @test statuscode == UA_STATUSCODE_GOOD
