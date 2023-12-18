@@ -43,10 +43,10 @@ Distributed.@spawnat Distributed.workers()[end] begin
             parentreferencenodeid,
             browsename, typedefinition, attr, nodecontext, outnewnodeid)
         # Test whether adding node to the server worked    
-        @test retval == UA_STATUSCODE_GOOD #TODO: are these tests actually running? (don't show up in test total)
+        @test retval == UA_STATUSCODE_GOOD
         # Test whether the correct array is within the server (read from server)
         output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
-        @test isapprox(input, output_server) #TODO: are these tests actually running? (don't show up in test total)
+        @test isapprox(input, output_server)
     end
 
     # Start up the server
