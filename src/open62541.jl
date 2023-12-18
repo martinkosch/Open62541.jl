@@ -20470,6 +20470,7 @@ const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL,
 include("generated_defs.jl")
 include("helper_functions.jl")
 include("types.jl")
+include("attribute_generation.jl")
 include("server.jl")
 include("client.jl")
 include("exceptions.jl")
