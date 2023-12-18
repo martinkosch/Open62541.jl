@@ -20058,6 +20058,7 @@ include("server.jl")
 include("client.jl")
 include("exceptions.jl")
 include("init.jl")
+include("wrappertest.jl")
 
 # exports
 const PREFIXES = ["UA_", "__UA_"]
