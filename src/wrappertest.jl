@@ -10,7 +10,7 @@ UA_NodeId_equal(n1, n2)
 UA_NodeId_equal(n3, n4)
 
 n3 = 10 #this causes reference to the pointer in n3 to be lost (which is connected to allocated memory). 
-        #since finalizer is defined in the wrapper, the memory gets automatically freed.
+#since finalizer is defined in the wrapper, the memory gets automatically freed.
 GC.gc() #garbage collector frees the memory (normally runs automatically) 
 
 for i in 1:50_000_000 #"forgetting" to free memory creates memory leak - should eat up about 3GB of memory.
@@ -25,6 +25,11 @@ for i in 1:50_000_000 #no memory leak; usage constant, because the GC is at work
     n6 = 10
 end
 
+server = open62541.JUA_Server()
+config = open62541.JUA_ServerConfig(server)
 
-
-
+UA_ServerConfig_setMinimalCustomBuffer(config,
+    4842,
+    C_NULL,
+    0,
+    0)
