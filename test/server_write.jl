@@ -46,17 +46,17 @@ attr = UA_generate_variable_attributes(input,
     displayname,
     description,
     accesslevel)
-retval = UA_Server_addVariableTypeNode(server, UA_NODEID_NULL,
+retval = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
-    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NODEID_NULL,
+    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NodeId_new(),
     attr, C_NULL, variabletypenodeid)
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
 nodes = (varnodeid, variabletypenodeid)
 for node in nodes
-    nodeclass = UA_Server_readNodeClass(server, node)
+    nodeclass = unsafe_load(UA_Server_readNodeClass(server, node))
     if nodeclass == UA_NODECLASS_VARIABLE
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE

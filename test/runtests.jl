@@ -5,6 +5,22 @@ using Test
     include("aqua.jl")
 end
 
+@safetestset "Statuscodes" begin
+    include("statuscodes.jl")
+end
+
+@safetestset "String, LocalizedText, QualifiedName" begin
+    include("strings_localizedtexts_qualifiednames.jl")
+end
+
+@safetestset "NodeIds" begin
+    include("nodeids.jl")
+end
+
+@safetestset "Memory leaks" begin
+    include("memoryleaks.jl")
+end
+
 @safetestset "Exceptions" begin
     include("exceptions.jl")
 end

@@ -7,61 +7,101 @@ function UA_ServerConfig_setDefault(config)
     UA_ServerConfig_setMinimal(config, 4840, C_NULL)
 end
 
-## Add node functions TODO: work in progress - make note generation code more general (include all types of nodes)
-# for nodeclass in instances(UA_NodeClass)
-#     nodeclass_sym = Symbol(nodeclass)
-#     funname_sym = Symbol("UA_Server_add" * titlecase(string(nodeclass_sym)[14:end]) *
-#                          "Node")
-#     #@show nodeclass_sym, funname_sym
-#     # function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
-#     #     referenceTypeId,
-#     #     browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
-#     # return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
-#     #     wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
-#     #     wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
-#     #     nodeContext, outNewNodeId)
-#     # end
+#XXX: There's mistakes in the function definitions here; number of arguments not correct for all types.
+## Add node functions
+for nodeclass in instances(UA_NodeClass)
+    if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
+        nodeclass_sym = Symbol(nodeclass)
+        funname_sym = Symbol(replace("UA_Server_add" *
+                                     titlecase(string(nodeclass_sym)[14:end]) *
+                                     "Node", "type" => "Type"))
+        attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
+                                             "ATTRIBUTES"))
+        attributetype_sym = Symbol(replace("UA_"*titlecase(string(nodeclass_sym)[14:end]) *
+        "Attributes", "type" => "Type"))
+        @eval begin
+            # emit specific add node functions
+            function $(funname_sym)(server,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    typeDefinition,
+                    attributes,
+                    nodeContext,
+                    outNewNodeId)
+                return __UA_Server_addNode(server, $(nodeclass_sym),
+                    requestedNewNodeId,
+                    parentNodeId, referenceTypeId, browseName,
+                    typeDefinition, attributes,
+                    UA_TYPES_PTRS[$(attributeptr_sym)],
+                    nodeContext, outNewNodeId)
+            end
+
+            #higher level function using dispatch
+            function JUA_Server_addNode(server,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    typeDefinition,
+                    attributes::Ptr{$(attributetype_sym)},
+                    nodeContext,
+                    outNewNodeId)
+                return $(funname_sym)(server,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    typeDefinition,
+                    attributes,
+                    nodeContext,
+                    outNewNodeId) 
+            end
+        end
+    end
+end
+
+
+# function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
+#         referenceTypeId,
+#         browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
+#     return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
+#         wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+#         wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
+#         nodeContext, outNewNodeId)
 # end
 
-function UA_Server_addVariableNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId,
-        browseName, typeDefinition, attributes, nodeContext, outNewNodeId)
-    return __UA_Server_addNode(server, UA_NODECLASS_VARIABLE, wrap_ref(requestedNewNodeId),
-        wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
-        wrap_ref(typeDefinition), attributes, UA_TYPES_PTRS[UA_TYPES_VARIABLEATTRIBUTES],
-        nodeContext, outNewNodeId)
-end
-
-function UA_Server_addVariableTypeNode(server,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attributes,
-        nodeContext, outNewNodeId)
-    return __UA_Server_addNode(server, UA_NODECLASS_VARIABLETYPE,
-        wrap_ref(requestedNewNodeId), wrap_ref(parentNodeId), wrap_ref(referenceTypeId),
-        browseName, wrap_ref(typeDefinition),
-        attributes,
-        UA_TYPES_PTRS[UA_TYPES_VARIABLETYPEATTRIBUTES],
-        nodeContext, outNewNodeId)
-end
+# function UA_Server_addVariableTypeNode(server,
+#         requestedNewNodeId,
+#         parentNodeId,
+#         referenceTypeId,
+#         browseName,
+#         typeDefinition,
+#         attributes,
+#         nodeContext, outNewNodeId)
+#     return __UA_Server_addNode(server, UA_NODECLASS_VARIABLETYPE,
+#         wrap_ref(requestedNewNodeId), wrap_ref(parentNodeId), wrap_ref(referenceTypeId),
+#         browseName, wrap_ref(typeDefinition),
+#         attributes,
+#         UA_TYPES_PTRS[UA_TYPES_VARIABLETYPEATTRIBUTES],
+#         nodeContext, outNewNodeId)
+# end
 
 ## Read functions
 for att in attributes_UA_Server_read
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])
-    ret_type = Symbol(att[3])
+    ret_type = Symbol(att[3]*"_new")
     ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(server::Ref{UA_Server}, nodeId::Ref{UA_NodeId})
-            out = Ref{$(ret_type)}()
+        function $(fun_name)(server, nodeId)
+            out = $(ret_type)()
             statuscode = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
             if statuscode == UA_STATUSCODE_GOOD
-                return out[]
+                return out
             else
                 action = "Reading"
                 side = "Server"
@@ -73,10 +113,6 @@ for att in attributes_UA_Server_read
                     statuscode)
                 throw(err)
             end
-        end
-
-        function $(fun_name)(server, nodeId)
-            return $(fun_name)(wrap_ref(server), wrap_ref(nodeId))
         end
     end
 end

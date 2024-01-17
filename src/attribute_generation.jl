@@ -8,18 +8,22 @@ function UA_VALUERANK(N::Integer)
 end
 
 function __set_generic_attributes!(attr,
-        displayname,
-        description,
+        name,
+        desc,
         type,
-        localization)
-    attr.displayName = UA_LOCALIZEDTEXT_ALLOC(localization, displayname)
-    attr.description = UA_LOCALIZEDTEXT_ALLOC(localization, description)
+        localization)  
+    displayname = UA_LOCALIZEDTEXT(localization, name)
+    description = UA_LOCALIZEDTEXT(localization, desc)
+    UA_LocalizedText_copy(displayname, attr.displayName)
+    UA_LocalizedText_copy(description, attr.description)
     attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+    UA_LocalizedText_delete(displayname)
+    UA_LocalizedText_delete(description)
     return nothing
 end
 
 function __set_scalar_attributes!(attr,
-        input::Union{Ref{T}, Ptr{T}, T},
+        input::T,
         valuerank) where {T}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank

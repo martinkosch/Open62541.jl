@@ -25,6 +25,11 @@ typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
 nodecontext = C_NULL
 outnewnodeid = C_NULL
+#JUA interface
+# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
+#     parentreferencenodeid,
+#     browsename, typedefinition, attr, nodecontext, outnewnodeid)
+#UA interface
 retval1 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
     parentreferencenodeid,
     browsename, typedefinition, attr, nodecontext, outnewnodeid)
@@ -64,10 +69,10 @@ description = "This is a 2D point type."
 attr = UA_generate_variabletype_attributes(input,
     displayname,
     description)
-retval3 = UA_Server_addVariableTypeNode(server, UA_NODEID_NULL,
+retval3 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
-    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NODEID_NULL,
+    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NodeId_new(),
     attr, C_NULL, pointtypeid)
 
 # Test whether adding the variable type node to the server worked
@@ -82,7 +87,7 @@ description = "This is a 2D point variable."
 attr = UA_generate_variabletype_attributes(input,
     displayname,
     description)
-retval4 = UA_Server_addVariableNode(server, UA_NODEID_NULL,
+retval4 = UA_Server_addVariableNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
     UA_QUALIFIEDNAME(1, "2DPoint Type"), pointtypeid,
@@ -99,7 +104,7 @@ description = "This should fail"
 attr = UA_generate_variabletype_attributes(input,
     displayname,
     description)
-retval5 = UA_Server_addVariableNode(server, UA_NODEID_NULL,
+retval5 = UA_Server_addVariableNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
     UA_QUALIFIEDNAME(1, "2DPoint Type"), pointtypeid,
@@ -121,10 +126,10 @@ description = "This is a scalar integer type."
 attr = UA_generate_variabletype_attributes(input,
     displayname,
     description)
-retval6 = UA_Server_addVariableTypeNode(server, UA_NODEID_NULL,
+retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
-    UA_QUALIFIEDNAME(1, "scalar integer type"), UA_NODEID_NULL,
+    UA_QUALIFIEDNAME(1, "scalar integer type"), UA_NodeId_new(),
     attr, C_NULL, scalartypeid)
 
 # Test whether adding the variable type node to the server worked

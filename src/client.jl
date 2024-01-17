@@ -45,27 +45,136 @@ for att in attributes_UA_Client_Service
     end
 end
 
+#TODO: Untested
+function UA_Client_MonitoredItems_setMonitoringMode(client, request)
+    response = UA_SetMonitoringModeResponse_new()
+    __UA_Client_Service(client,
+        request, UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODEREQUEST],
+        response, UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODERESPONSE])
+    return response
+end
+
+#TODO: Untested
+function UA_Client_Subscriptions_setPublishingMode(client, request) 
+    response = UA_SetPublishingModeResponse_new()
+    __UA_Client_Service(client,
+        request, UA_TYPES_PTRS[UA_TYPES_SETPUBLISHINGMODEREQUEST],
+        response, UA_TYPES_PTRS[UA_TYPES_SETPUBLISHINGMODERESPONSE])
+    return response
+end
+
+#TODO: Untested
+function UA_Client_MonitoredItems_setTriggering(client, request)
+    response = UA_SetTriggeringResponse_new()
+    __UA_Client_Service(client,
+        request, UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGREQUEST],
+        response, UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGRESPONSE])
+    return response;
+end
+
+## Client Add node functions
+for nodeclass in instances(UA_NodeClass)
+    if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
+        nodeclass_sym = Symbol(nodeclass)
+        funname_sym = Symbol(replace("UA_Client_add" *
+                                     titlecase(string(nodeclass_sym)[14:end]) *
+                                     "Node", "type" => "Type"))
+        attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
+                                             "ATTRIBUTES"))
+        attributetype_sym = Symbol(replace("UA_"*titlecase(string(nodeclass_sym)[14:end]) *
+        "Attributes", "type" => "Type"))
+        if funname_sym == :UA_Client_addVariableNode || funname_sym == :UA_Client_addObjectNode
+            @eval begin
+                # emit specific add node functions
+                # UA_Client_addVariableNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId)
+                # UA_Client_addObjectNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId) 
+                # UA_Client_addVariableTypeNode (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
+                # UA_Client_addObjectTypeNode   (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                # UA_Client_addViewNode         (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                # UA_Client_addDataTypeNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
+                # UA_Client_addMethodNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                
+                #UA_Server_addVariableNode     (*server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *nodeContext, *outNewNodeId)
+                function $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        outNewNodeId)
+                    return __UA_Client_addNode(client, $(nodeclass_sym),
+                        wrap_ref(requestedNewNodeId),
+                        wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+                        wrap_ref(typeDefinition), attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)],
+                        outNewNodeId)
+                end
+            end
+        else
+            @eval begin
+                function $(funname_sym)(client,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    attributes,
+                    outNewNodeId)
+                return __UA_Client_addNode(client, $(nodeclass_sym),
+                    wrap_ref(requestedNewNodeId),
+                    wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+                    UA_NODEID_NULL, attributes,
+                    UA_TYPES_PTRS[$(attributeptr_sym)],
+                    outNewNodeId) 
+                end
+            end
+        end
+
+        # #higher level function using dispatch
+        # function JUA_Server_addNode(server,
+        #         requestedNewNodeId,
+        #         parentNodeId,
+        #         referenceTypeId,
+        #         browseName,
+        #         typeDefinition,
+        #         attributes::Ptr{$(attributetype_sym)},
+        #         nodeContext,
+        #         outNewNodeId)
+        #     return $(funname_sym)(server,
+        #         requestedNewNodeId,
+        #         parentNodeId,
+        #         referenceTypeId,
+        #         browseName,
+        #         typeDefinition,
+        #         attributes,
+        #         nodeContext,
+        #         outNewNodeId) 
+        # end
+    end
+end
+
 ## Read attribute functions
 for att in attributes_UA_Client_read
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])
-    ret_type = Symbol(att[3])
-    ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
+    returnobject = Symbol(att[3]*"_new")
+    ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(Symbol(att[3]))[4:end]))
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(client::Ref{UA_Client}, nodeId::Ref{UA_NodeId})
+        function $(fun_name)(client, nodeId, out =  $returnobject())
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
-            out = Ref{$(ret_type)}()
             statuscode = __UA_Client_readAttribute(client,
                 nodeId,
                 $(ua_attr_name),
                 out,
                 data_type_ptr)
             if statuscode == UA_STATUSCODE_GOOD
-                return out[]
+                return out
             else
-                action = "Writing"
+                action = "Reading"
                 side = "Client"
                 mode = ""
                 err = AttributeReadWriteError(action,
@@ -77,7 +186,7 @@ for att in attributes_UA_Client_read
             end
         end
         #function fallback that wraps any non-ref arguments into refs:
-        $(fun_name)(client, nodeId) = $(fun_name)(wrap_ref(client), wrap_ref(nodeId))
+        #$(fun_name)(client, nodeId) = $(fun_name)(wrap_ref(client), wrap_ref(nodeId))
     end
 end
 
@@ -149,7 +258,7 @@ for att in attributes_UA_Client_read_async
             else
                 action = "Reading"
                 side = "Client"
-                mode = ""
+                mode = "asynchronously"
                 err = AttributeReadWriteError(action,
                     mode,
                     side,
@@ -169,7 +278,7 @@ for att in attributes_UA_Client_read_async
     end
 end
 
-# ## Write attribute async functions
+## Write attribute async functions
 for att in attributes_UA_Client_write_async
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])

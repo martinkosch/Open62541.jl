@@ -1386,8 +1386,15 @@ function UA_UInt32_random()
     @ccall libopen62541.UA_UInt32_random()::UA_UInt32
 end
 
+#NOTE: Manually altered! Original code in comment below
+# function UA_Guid_random()
+#     @ccall libopen62541.UA_Guid_random()::UA_Guid
+# end
 function UA_Guid_random()
-    @ccall libopen62541.UA_Guid_random()::UA_Guid
+    guid_dst = UA_Guid_new()
+    guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
+    UA_Guid_copy(guid_src, guid_dst)
+    return guid_dst
 end
 
 """
@@ -20540,10 +20547,6 @@ const UA_REFERENCETYPESET_MAX = 128
 # Skipping MacroDefinition: UA_NODE_VARIABLEATTRIBUTES /* Constraints on possible values */ UA_NodeId dataType ; UA_Int32 valueRank ; size_t arrayDimensionsSize ; UA_UInt32 * arrayDimensions ; UA_ValueBackend valueBackend ; /* The current value */ UA_ValueSource valueSource ; union { struct { UA_DataValue value ; UA_ValueCallback callback ; } data ; UA_DataSource dataSource ; } value ;
 const INITIAL_MEMORY_STORE_SIZE = 1000
 
-const UA_STRING_NULL = UA_String(0, C_NULL)
-const UA_GUID_NULL = UA_Guid(0, 0, 0, Tuple(zeros(UA_Byte, 8)))
-const UA_NODEID_NULL = UA_NodeId(Tuple(zeros(UA_Byte, sizeof(UA_NodeId))))
-const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL, 0)
 include("generated_defs.jl")
 include("helper_functions.jl")
 include("server.jl")
@@ -20556,6 +20559,7 @@ include("init.jl")
 
 # exports
 const PREFIXES = ["UA_", "JUA_"]
+#const PREFIXES = ["JUA_"]
 for name in names(@__MODULE__; all = true), prefix in PREFIXES
     if startswith(string(name), prefix)
         @eval export $name
