@@ -86,6 +86,7 @@ for nodeclass in instances(UA_NodeClass)
         if funname_sym == :UA_Client_addVariableNode || funname_sym == :UA_Client_addObjectNode
             @eval begin
                 # emit specific add node functions
+                # original function signatures are the following, note difference in number of arguments.
                 # UA_Client_addVariableNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId)
                 # UA_Client_addObjectNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId) 
                 # UA_Client_addVariableTypeNode (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
@@ -96,6 +97,7 @@ for nodeclass in instances(UA_NodeClass)
                 # UA_Client_addDataTypeNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
                 # UA_Client_addMethodNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
                 
+                #for comparison: server has one more argument.
                 #UA_Server_addVariableNode     (*server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *nodeContext, *outNewNodeId)
                 function $(funname_sym)(client,
                         requestedNewNodeId,
@@ -106,11 +108,29 @@ for nodeclass in instances(UA_NodeClass)
                         attributes,
                         outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        wrap_ref(requestedNewNodeId),
-                        wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
-                        wrap_ref(typeDefinition), attributes,
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName,
+                        typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)],
                         outNewNodeId)
+                #higher level function using dispatch
+                function JUA_Client_addNode(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes::Ptr{$(attributetype_sym)},
+                        outNewNodeId,
+                        typeDefinition)
+                    return $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        outNewNodeId) 
+                    end
                 end
             end
         else
@@ -123,35 +143,31 @@ for nodeclass in instances(UA_NodeClass)
                     attributes,
                     outNewNodeId)
                 return __UA_Client_addNode(client, $(nodeclass_sym),
-                    wrap_ref(requestedNewNodeId),
-                    wrap_ref(parentNodeId), wrap_ref(referenceTypeId), browseName,
+                    requestedNewNodeId,
+                    parentNodeId, referenceTypeId, browseName,
                     UA_NODEID_NULL, attributes,
                     UA_TYPES_PTRS[$(attributeptr_sym)],
                     outNewNodeId) 
                 end
-            end
-        end
 
-        # #higher level function using dispatch
-        # function JUA_Server_addNode(server,
-        #         requestedNewNodeId,
-        #         parentNodeId,
-        #         referenceTypeId,
-        #         browseName,
-        #         typeDefinition,
-        #         attributes::Ptr{$(attributetype_sym)},
-        #         nodeContext,
-        #         outNewNodeId)
-        #     return $(funname_sym)(server,
-        #         requestedNewNodeId,
-        #         parentNodeId,
-        #         referenceTypeId,
-        #         browseName,
-        #         typeDefinition,
-        #         attributes,
-        #         nodeContext,
-        #         outNewNodeId) 
-        # end
+                #higher level function using dispatch
+                function JUA_Client_addNode(client,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    attributes::Ptr{$(attributetype_sym)},
+                    outNewNodeId)
+                return $(funname_sym)(client,
+                    requestedNewNodeId,
+                    parentNodeId,
+                    referenceTypeId,
+                    browseName,
+                    attributes,
+                    outNewNodeId) 
+                end
+            end
+        end        
     end
 end
 
@@ -185,8 +201,6 @@ for att in attributes_UA_Client_read
                 throw(err)
             end
         end
-        #function fallback that wraps any non-ref arguments into refs:
-        #$(fun_name)(client, nodeId) = $(fun_name)(wrap_ref(client), wrap_ref(nodeId))
     end
 end
 

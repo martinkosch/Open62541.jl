@@ -7,7 +7,6 @@ function UA_ServerConfig_setDefault(config)
     UA_ServerConfig_setMinimal(config, 4840, C_NULL)
 end
 
-#XXX: There's mistakes in the function definitions here; number of arguments not correct for all types.
 ## Add node functions
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
@@ -19,45 +18,84 @@ for nodeclass in instances(UA_NodeClass)
                                              "ATTRIBUTES"))
         attributetype_sym = Symbol(replace("UA_"*titlecase(string(nodeclass_sym)[14:end]) *
         "Attributes", "type" => "Type"))
-        @eval begin
-            # emit specific add node functions
-            function $(funname_sym)(server,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    typeDefinition,
-                    attributes,
-                    nodeContext,
-                    outNewNodeId)
-                return __UA_Server_addNode(server, $(nodeclass_sym),
-                    requestedNewNodeId,
-                    parentNodeId, referenceTypeId, browseName,
-                    typeDefinition, attributes,
-                    UA_TYPES_PTRS[$(attributeptr_sym)],
-                    nodeContext, outNewNodeId)
-            end
+        if funname_sym == :UA_Client_addVariableNode || funname_sym == :UA_Server_addObjectNode
+            @eval begin
+                # emit specific add node functions
+                function $(funname_sym)(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        nodeContext,
+                        outNewNodeId)
+                    return __UA_Server_addNode(server, $(nodeclass_sym),
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName,
+                        typeDefinition, attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)],
+                        nodeContext, outNewNodeId)
+                end
 
-            #higher level function using dispatch
-            function JUA_Server_addNode(server,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    typeDefinition,
-                    attributes::Ptr{$(attributetype_sym)},
-                    nodeContext,
-                    outNewNodeId)
-                return $(funname_sym)(server,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    typeDefinition,
-                    attributes,
-                    nodeContext,
-                    outNewNodeId) 
+                #higher level function using dispatch
+                function JUA_Server_addNode(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes::Ptr{$(attributetype_sym)},
+                        outNewNodeId, 
+                        nodeContext,
+                        typeDefinition)
+                    return $(funname_sym)(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        nodeContext,
+                        outNewNodeId) 
+                end
             end
+        else 
+            @eval begin
+                # emit specific add node functions
+                function $(funname_sym)(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes,
+                        nodeContext,
+                        outNewNodeId)
+                    return __UA_Server_addNode(server, $(nodeclass_sym),
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName, attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)],
+                        nodeContext, outNewNodeId)
+                end
+
+                #higher level function using dispatch
+                function JUA_Server_addNode(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes::Ptr{$(attributetype_sym)},
+                        outNewNodeId, 
+                        nodeContext)
+                    return $(funname_sym)(server,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes,
+                        nodeContext,
+                        outNewNodeId) 
+                end
+            end 
         end
     end
 end

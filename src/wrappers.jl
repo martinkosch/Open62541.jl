@@ -1,18 +1,18 @@
 #Preliminary definitions
-abstract type AbstractJuliaOpen62541Type end
+abstract type AbstractOpen62541Wrapper end
 
-Jpointer(x::AbstractJuliaOpen62541Type) = getfield(x, :ptr)
-function Base.getproperty(x::AbstractJuliaOpen62541Type, f::Symbol)
+Jpointer(x::AbstractOpen62541Wrapper) = getfield(x, :ptr)
+function Base.getproperty(x::AbstractOpen62541Wrapper, f::Symbol)
     unsafe_load(getproperty(Jpointer(x), f))
 end
 
-function Base.unsafe_convert(::Type{Ptr{T}}, obj::AbstractJuliaOpen62541Type) where {T}
+function Base.unsafe_convert(::Type{Ptr{T}}, obj::AbstractOpen62541Wrapper) where {T}
     Base.unsafe_convert(Ptr{T}, Jpointer(obj))
 end
 
 ## Useful basic types
 #String
-mutable struct JUA_String <: AbstractJuliaOpen62541Type
+mutable struct JUA_String <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_String}
     function JUA_String(s::AbstractString)
         obj = new(UA_STRING(s))
@@ -26,7 +26,7 @@ function release_handle(obj::JUA_String)
 end
 
 #Guid
-mutable struct JUA_Guid <: AbstractJuliaOpen62541Type
+mutable struct JUA_Guid <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Guid}
     function JUA_Guid()
         obj = new(UA_Guid_random())
@@ -34,7 +34,7 @@ mutable struct JUA_Guid <: AbstractJuliaOpen62541Type
         return obj
     end
     function JUA_Guid(guidstring::AbstractString)
-        obj = new(UA_GUI(guidstring))
+        obj = new(UA_GUID(guidstring))
         finalizer(release_handle, obj)
         return obj
     end
@@ -45,7 +45,7 @@ function release_handle(obj::JUA_Guid)
 end
 
 ## Server and server config
-mutable struct JUA_Server <: AbstractJuliaOpen62541Type
+mutable struct JUA_Server <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Server}
     function JUA_Server()
         obj = new(UA_Server_new())
@@ -58,7 +58,7 @@ function release_handle(obj::JUA_Server)
     UA_Server_delete(Jpointer(obj))
 end
 
-mutable struct JUA_ServerConfig <: AbstractJuliaOpen62541Type
+mutable struct JUA_ServerConfig <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ServerConfig}
     function JUA_ServerConfig(server::JUA_Server)
         #no finalizer, because the config object lives and dies with the server itself
@@ -85,7 +85,7 @@ const JUA_AccessControl_default = UA_AccessControl_default
 const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
 
 ## NodeIds
-mutable struct JUA_NodeId <: AbstractJuliaOpen62541Type
+mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_NodeId}
 
     function JUA_NodeId()
@@ -119,9 +119,12 @@ function release_handle(obj::JUA_NodeId)
     UA_NodeId_delete(Jpointer(obj))
 end
 
+JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
 
 
-# mutable struct JUA_Variant{T} <: AbstractJuliaOpen62541Type
+
+#TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
+# mutable struct JUA_Variant{T} <: AbstractOpen62541Wrapper
 #     ptr::Ptr{UA_Variant}
 #     v::T
 
