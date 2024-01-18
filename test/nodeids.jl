@@ -144,3 +144,11 @@ end
 for i in 13:33
     @eval UA_ExpandedNodeId_delete($(Symbol("n"*string(i))))
 end
+
+## Now testing the high level interface
+j1 = JUA_NodeId()
+j2 = JUA_NodeId("ns=1;i=1234")
+j3 = JUA_NodeId(1, 1234)
+j4 = JUA_NodeId(1, "test")
+guid = JUA_Guid()
+j5 = JUA_NodeId(1, guid)

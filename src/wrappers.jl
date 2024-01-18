@@ -12,7 +12,7 @@ end
 
 ## Useful basic types
 #String
-mutable struct JUA_String
+mutable struct JUA_String <: AbstractJuliaOpen62541Type
     ptr::Ptr{UA_String}
     function JUA_String(s::AbstractString)
         obj = new(UA_STRING(s))
@@ -26,10 +26,15 @@ function release_handle(obj::JUA_String)
 end
 
 #Guid
-mutable struct JUA_Guid
+mutable struct JUA_Guid <: AbstractJuliaOpen62541Type
     ptr::Ptr{UA_Guid}
+    function JUA_Guid()
+        obj = new(UA_Guid_random())
+        finalizer(release_handle, obj)
+        return obj
+    end
     function JUA_Guid(guidstring::AbstractString)
-        obj = new(UA_GUID(guidstring))
+        obj = new(UA_GUI(guidstring))
         finalizer(release_handle, obj)
         return obj
     end
@@ -89,7 +94,7 @@ mutable struct JUA_NodeId <: AbstractJuliaOpen62541Type
         return obj
     end
     function JUA_NodeId(identifier::Union{AbstractString,JUA_String})
-        obj = new(UA_NodeId_new(identifier))
+        obj = new(UA_NODEID(identifier))
         finalizer(release_handle, obj)
         return obj
     end
@@ -104,7 +109,7 @@ mutable struct JUA_NodeId <: AbstractJuliaOpen62541Type
         return obj
     end
     function JUA_NodeId(nsIndex::Integer, identifier::JUA_Guid)
-        obj = new(UA_NODEID_GUID(nsIndex, identifier))
+        obj = new(UA_NODEID_GUID(nsIndex, Jpointer(identifier)))
         finalizer(release_handle, obj)
         return obj
     end
