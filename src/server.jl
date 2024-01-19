@@ -8,6 +8,14 @@ function UA_ServerConfig_setDefault(config)
 end
 
 ## Add node functions
+# UA_Server_addVariableNode          (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, nodeContext, outNewNodeId)
+# UA_Server_addVariableTypeNode      (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, nodeContext, outNewNodeId)
+# UA_Server_addObjectNode            (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, nodeContext, outNewNodeId)
+# UA_Server_addObjectTypeNode        (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
+# UA_Server_addViewNode              (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
+# UA_Server_addReferenceTypeNode     (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
+# UA_Server_addDataTypeNode          (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
+
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
         nodeclass_sym = Symbol(nodeclass)
@@ -18,9 +26,14 @@ for nodeclass in instances(UA_NodeClass)
                                              "ATTRIBUTES"))
         attributetype_sym = Symbol(replace("UA_"*titlecase(string(nodeclass_sym)[14:end]) *
         "Attributes", "type" => "Type"))
-        if funname_sym == :UA_Client_addVariableNode || funname_sym == :UA_Server_addObjectNode
+        if funname_sym == :UA_Server_addMethodNode 
+            function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, method, inputArgumentsSize, inputArguments, outputArgumentsSize, outputArguments, nodeContext, outNewNodeId)
+                return UA_Server_addMethodNodeEx(server, requestedNewNodeId,  parentNodeId, referenceTypeId, browseName, attr, method, inputArgumentsSize, inputArguments,
+                                     UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments, UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
+            end
+        elseif funname_sym == :UA_Server_addVariableNode || funname_sym == :UA_Server_addVariableTypeNode || funname_sym == :UA_Server_addObjectNode
             @eval begin
-                # emit specific add node functions
+                # emit specific add node functions                 
                 function $(funname_sym)(server,
                         requestedNewNodeId,
                         parentNodeId,
@@ -71,10 +84,11 @@ for nodeclass in instances(UA_NodeClass)
                         nodeContext,
                         outNewNodeId)
                     return __UA_Server_addNode(server, $(nodeclass_sym),
-                        requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName, attributes,
-                        UA_TYPES_PTRS[$(attributeptr_sym)],
-                        nodeContext, outNewNodeId)
+                                requestedNewNodeId,
+                                parentNodeId, referenceTypeId, browseName,
+                                UA_NODEID_NULL, attributes,
+                                UA_TYPES_PTRS[$(attributeptr_sym)],
+                                nodeContext, outNewNodeId)
                 end
 
                 #higher level function using dispatch
