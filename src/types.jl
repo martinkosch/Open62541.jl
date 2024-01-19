@@ -244,16 +244,24 @@ function UA_ByteString_equal(s1, s2)
 end
 
 ## DateTime
+#NOTE: Return type of this function in open62541 is UA_Int64, but a UA_DateTime is encoded as a 64-bit 
+#      signed integer which represents the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+#      (start of day, i.e., midnight). Therefore, the calculation implemented by open62541 can result in
+#      non-Integer values. These get truncated to fit with the return type. The open62541 implementation
+#      is faithfully reproduced here with the original name. If loss of precision is to be avoided, use
+#      the UA_DateTime_toUnixTime_precise functions. 
+
 function UA_DateTime_toUnixTime(date::UA_DateTime)
+    return trunc(Int, (date - UA_DATETIME_UNIX_EPOCH) / UA_DATETIME_SEC)
+end
+
+function UA_DateTime_toUnixTime_precise(date::UA_DateTime)
     return (date - UA_DATETIME_UNIX_EPOCH) / UA_DATETIME_SEC
 end
 
 function UA_DateTime_fromUnixTime(unixDate::Integer)
-    return UA_DateTime(unixDate * UA_DATETIME_SEC) + UA_DATETIME_UNIX_EPOCH
+    return unixDate * UA_DATETIME_SEC + UA_DATETIME_UNIX_EPOCH
 end
-
-datetime2ua_datetime(dt::DateTime) = UA_DateTime_fromUnixTime(round(Int, datetime2unix(dt)))
-ua_datetime2datetime(dt::UA_DateTime) = unix2datetime(UA_DateTime_toUnixTime(dt))
 
 ## Guid
 function UA_GUID(s::AbstractString)
@@ -647,4 +655,16 @@ end
 
 function UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId}) 
     UA_MonitoredItemCreateRequest_default(unsafe_load(nodeId))
+end
+
+function UA_constantTimeEqual(ptr1, ptr2, len)
+    a = reinterpret(Ptr{UInt8}, ptr1)
+    b = reinterpret(Ptr{UInt8}, ptr2)
+    c = UInt8(0)
+    for i in 1:len
+        x = unsafe_load(a, i)
+        y = unsafe_load(b, i)
+        c = c | (x ⊻ y)
+    end
+    return (c == 0)
 end

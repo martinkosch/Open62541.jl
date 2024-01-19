@@ -9,8 +9,8 @@ end
     include("statuscodes.jl")
 end
 
-@safetestset "String, LocalizedText, QualifiedName" begin
-    include("strings_localizedtexts_qualifiednames.jl")
+@safetestset "Basic types and functions" begin
+    include("basic_types_and_functions.jl")
 end
 
 @safetestset "NodeIds" begin
