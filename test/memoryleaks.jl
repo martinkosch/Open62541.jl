@@ -1,8 +1,8 @@
 using open62541
-using Test 
+using Test
 
 function meminfo_julia()
-    Float64(Sys.maxrss()/2^20) #gives memory use of the whole julia process in MBs
+    Float64(Sys.maxrss() / 2^20) #gives memory use of the whole julia process in MBs
 end
 
 #Basic functions
@@ -14,7 +14,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #UA_QualifiedName
 ua_s = UA_STRING("scalar variable")
@@ -27,7 +27,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #UA_LocalizedText
 ua_s1 = UA_STRING("test1")
@@ -41,7 +41,7 @@ for i in 1:100_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #NodeIds
 ua_s = UA_STRING("test")
@@ -56,10 +56,10 @@ for i in 1:10_000_000
     n4 = UA_NODEID_STRING_ALLOC(1, ua_s)
     n5 = UA_NODEID_STRING_ALLOC(1, "test")
     n6 = UA_NODEID_NUMERIC(1, 1234)
-    n7 = UA_NODEID("ns=1;g="*guid_string)
+    n7 = UA_NODEID("ns=1;g=" * guid_string)
     n8 = UA_NODEID_GUID(1, guid)
     n9 = UA_NODEID_GUID(1, guid_string)
-    n10 = UA_NODEID("ns=1;b=dGVzdA==") 
+    n10 = UA_NODEID("ns=1;b=dGVzdA==")
     n11 = UA_NODEID_BYTESTRING(1, "test")
     n12 = UA_NODEID_BYTESTRING_ALLOC(1, "test")
     UA_NodeId_delete(n1)
@@ -70,14 +70,14 @@ for i in 1:10_000_000
     UA_NodeId_delete(n6)
     UA_NodeId_delete(n7)
     UA_NodeId_delete(n8)
-    UA_NodeId_delete(n9)    
+    UA_NodeId_delete(n9)
     UA_NodeId_delete(n10)
-    UA_NodeId_delete(n11) 
-    UA_NodeId_delete(n12) 
+    UA_NodeId_delete(n11)
+    UA_NodeId_delete(n12)
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #expanded nodeids
 ns_uri = "http://example.com"
@@ -94,7 +94,7 @@ for i in 1:10_000_000
     e4 = UA_EXPANDEDNODEID("ns=1;i=1234")
     e5 = UA_EXPANDEDNODEID_NUMERIC(1, 1234)
     e6 = UA_EXPANDEDNODEID_NUMERIC(1, 1234)
-    e7 = UA_EXPANDEDNODEID("ns=1;g="*guid_string)
+    e7 = UA_EXPANDEDNODEID("ns=1;g=" * guid_string)
     e8 = UA_EXPANDEDNODEID_STRING_GUID(1, guid)
     e9 = UA_EXPANDEDNODEID_STRING_GUID(1, guid_string)
     e10 = UA_EXPANDEDNODEID("ns=1;b=dGVzdA==")
@@ -133,7 +133,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #VariableAttributes - both scalar and array
 
@@ -142,14 +142,14 @@ for i in 1:10_000_000
     accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
     input = rand(Float64)
     attr = UA_generate_variable_attributes(input,
-    "scalar variable",
-    "this is a scalar variable",
-    accesslevel)
+        "scalar variable",
+        "this is a scalar variable",
+        accesslevel)
     UA_VariableAttributes_delete(attr)
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0
 
 #adding a node to a server
 server = UA_Server_new()
@@ -186,4 +186,4 @@ for i in 1:1_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end-mem_start) < 50.0
+@test (mem_end - mem_start) < 50.0

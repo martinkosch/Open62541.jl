@@ -93,7 +93,7 @@ mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
         finalizer(release_handle, obj)
         return obj
     end
-    function JUA_NodeId(identifier::Union{AbstractString,JUA_String})
+    function JUA_NodeId(identifier::Union{AbstractString, JUA_String})
         obj = new(UA_NODEID(identifier))
         finalizer(release_handle, obj)
         return obj
@@ -103,7 +103,7 @@ mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
         finalizer(release_handle, obj)
         return obj
     end
-    function JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString,JUA_String})
+    function JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString, JUA_String})
         obj = new(UA_NODEID_STRING_ALLOC(nsIndex, identifier))
         finalizer(release_handle, obj)
         return obj
@@ -120,8 +120,6 @@ function release_handle(obj::JUA_NodeId)
 end
 
 JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
-
-
 
 #TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
 # mutable struct JUA_Variant{T} <: AbstractOpen62541Wrapper

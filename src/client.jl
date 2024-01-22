@@ -1,5 +1,9 @@
+#TODO: add docstring
+#TODO: add tests
 UA_Client_getContext(client::UA_Client) = UA_Client_getConfig(client).clientContext
 
+#TODO: add docstring
+#TODO: add tests
 function UA_Client_connectUsername(client::Ptr{UA_Client},
         endpointUrl::AbstractString,
         username::AbstractString,
@@ -26,6 +30,8 @@ for att in attributes_UA_Client_Service
 
     @eval begin
         if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
+            #TODO: add docstring
+            #TODO: add tests
             function $(fun_name)(client::Ref{UA_Client}, request::Ptr{$(req_type)})
                 response = Ref{$(resp_type)}()
                 statuscode = __UA_Client_Service(client,
@@ -45,7 +51,8 @@ for att in attributes_UA_Client_Service
     end
 end
 
-#TODO: Untested
+#TODO: add docstring
+#TODO: add tests
 function UA_Client_MonitoredItems_setMonitoringMode(client, request)
     response = UA_SetMonitoringModeResponse_new()
     __UA_Client_Service(client,
@@ -54,8 +61,9 @@ function UA_Client_MonitoredItems_setMonitoringMode(client, request)
     return response
 end
 
-#TODO: Untested
-function UA_Client_Subscriptions_setPublishingMode(client, request) 
+#TODO: add docstring
+#TODO: add tests
+function UA_Client_Subscriptions_setPublishingMode(client, request)
     response = UA_SetPublishingModeResponse_new()
     __UA_Client_Service(client,
         request, UA_TYPES_PTRS[UA_TYPES_SETPUBLISHINGMODEREQUEST],
@@ -63,13 +71,14 @@ function UA_Client_Subscriptions_setPublishingMode(client, request)
     return response
 end
 
-#TODO: Untested
+#TODO: add docstring
+#TODO: add tests
 function UA_Client_MonitoredItems_setTriggering(client, request)
     response = UA_SetTriggeringResponse_new()
     __UA_Client_Service(client,
         request, UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGREQUEST],
         response, UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGRESPONSE])
-    return response;
+    return response
 end
 
 ## Client Add node functions
@@ -80,10 +89,12 @@ for nodeclass in instances(UA_NodeClass)
                                      titlecase(string(nodeclass_sym)[14:end]) *
                                      "Node", "type" => "Type"))
         attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
-                                             "ATTRIBUTES"))
-        attributetype_sym = Symbol(replace("UA_"*titlecase(string(nodeclass_sym)[14:end]) *
-        "Attributes", "type" => "Type"))
-        if funname_sym == :UA_Client_addVariableNode || funname_sym == :UA_Client_addObjectNode
+                                            "ATTRIBUTES"))
+        attributetype_sym = Symbol(replace("UA_" *
+                                           titlecase(string(nodeclass_sym)[14:end]) *
+                                           "Attributes", "type" => "Type"))
+        if funname_sym == :UA_Client_addVariableNode ||
+           funname_sym == :UA_Client_addObjectNode
             @eval begin
                 # emit specific add node functions
                 # original function signatures are the following, note difference in number of arguments.
@@ -96,9 +107,9 @@ for nodeclass in instances(UA_NodeClass)
                 # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
                 # UA_Client_addDataTypeNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
                 # UA_Client_addMethodNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                
-                #for comparison: server has one more argument.
-                #UA_Server_addVariableNode     (*server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *nodeContext, *outNewNodeId)
+
+                #TODO: add docstring
+                #TODO: add tests
                 function $(funname_sym)(client,
                         requestedNewNodeId,
                         parentNodeId,
@@ -113,6 +124,45 @@ for nodeclass in instances(UA_NodeClass)
                         typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)],
                         outNewNodeId)
+                    #higher level function using dispatch
+                    #TODO: add docstring
+                    #TODO: add tests
+                    function JUA_Client_addNode(client,
+                            requestedNewNodeId,
+                            parentNodeId,
+                            referenceTypeId,
+                            browseName,
+                            attributes::Ptr{$(attributetype_sym)},
+                            outNewNodeId,
+                            typeDefinition)
+                        return $(funname_sym)(client,
+                            requestedNewNodeId,
+                            parentNodeId,
+                            referenceTypeId,
+                            browseName,
+                            typeDefinition,
+                            attributes,
+                            outNewNodeId)
+                    end
+                end
+            end
+        else
+            @eval begin
+                function $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes,
+                        outNewNodeId)
+                    return __UA_Client_addNode(client, $(nodeclass_sym),
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName,
+                        UA_NODEID_NULL, attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)],
+                        outNewNodeId)
+                end
+
                 #higher level function using dispatch
                 function JUA_Client_addNode(client,
                         requestedNewNodeId,
@@ -120,54 +170,17 @@ for nodeclass in instances(UA_NodeClass)
                         referenceTypeId,
                         browseName,
                         attributes::Ptr{$(attributetype_sym)},
-                        outNewNodeId,
-                        typeDefinition)
+                        outNewNodeId)
                     return $(funname_sym)(client,
                         requestedNewNodeId,
                         parentNodeId,
                         referenceTypeId,
                         browseName,
-                        typeDefinition,
                         attributes,
-                        outNewNodeId) 
-                    end
+                        outNewNodeId)
                 end
             end
-        else
-            @eval begin
-                function $(funname_sym)(client,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    attributes,
-                    outNewNodeId)
-                return __UA_Client_addNode(client, $(nodeclass_sym),
-                    requestedNewNodeId,
-                    parentNodeId, referenceTypeId, browseName,
-                    UA_NODEID_NULL, attributes,
-                    UA_TYPES_PTRS[$(attributeptr_sym)],
-                    outNewNodeId) 
-                end
-
-                #higher level function using dispatch
-                function JUA_Client_addNode(client,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    attributes::Ptr{$(attributetype_sym)},
-                    outNewNodeId)
-                return $(funname_sym)(client,
-                    requestedNewNodeId,
-                    parentNodeId,
-                    referenceTypeId,
-                    browseName,
-                    attributes,
-                    outNewNodeId) 
-                end
-            end
-        end        
+        end
     end
 end
 
@@ -175,12 +188,23 @@ end
 for att in attributes_UA_Client_read
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])
-    returnobject = Symbol(att[3]*"_new")
+    returnobject = Symbol(att[3] * "_new")
     ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(Symbol(att[3]))[4:end]))
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        function $(fun_name)(client, nodeId, out =  $returnobject())
+        #TODO: check whether function signature is correct here; decision on whether carrying wrap-ref signature is desirable.
+        """
+        ```
+        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
+                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
+                       out::Ptr{$($(att[3]))} = $($(String(returnobject)))())
+        ```
+
+        Uses the UA Client API to read the value of attribute $($(String(attr_name))) from the NodeId `nodeId` accessed through the client `client`. 
+
+        """
+        function $(fun_name)(client, nodeId, out = $returnobject())
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
             statuscode = __UA_Client_readAttribute(client,
                 nodeId,
@@ -213,6 +237,16 @@ for att in attributes_UA_Client_write
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
+        """
+        ```
+        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
+                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
+                       new_val::Union{Ref{$($(String(attr_type)))},Ptr{$($(String(attr_type)))}, $($(String(attr_type)))})
+        ```
+
+        Uses the UA Client API to write the value `new_val` to the attribute $($(String(attr_name))) of the NodeId `nodeId` accessed through the client `client`. 
+
+        """
         function $(fun_name)(client::Ref{UA_Client},
                 nodeId::Ref{UA_NodeId},
                 new_attr::Ref{$attr_type})
@@ -241,6 +275,107 @@ for att in attributes_UA_Client_write
             return ($fun_name)(wrap_ref(client),
                 wrap_ref(nodeId),
                 wrap_ref(new_attr))
+        end
+    end
+end
+
+#Client add node async functions 
+for nodeclass in instances(UA_NodeClass)
+    if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
+        nodeclass_sym = Symbol(nodeclass)
+        funname_sym = Symbol(replace("UA_Client_add" *
+                                     titlecase(string(nodeclass_sym)[14:end]) *
+                                     "Node", "type" => "Type") * "_async")
+        attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
+                                            "ATTRIBUTES"))
+        attributetype_sym = Symbol(replace("UA_" *
+                                           titlecase(string(nodeclass_sym)[14:end]) *
+                                           "Attributes", "type" => "Type"))
+        # original function signatures are the following, note difference in number of arguments.
+        # UA_Client_addVariableNode_async     (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, outNewNodeId, callback, userdata, reqId)
+        # UA_Client_addObjectNode_async       (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, outNewNodeId, callback, userdata, reqId) 
+        # UA_Client_addVariableTypeNode_async (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId) 
+        # UA_Client_addObjectTypeNode_async   (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId) 
+        # UA_Client_addViewNode_async         (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId)  
+        # UA_Client_addReferenceTypeNode_async(client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId) 
+        # UA_Client_addDataTypeNode_async     (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId)
+        # UA_Client_addMethodNode_async       (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, outNewNodeId, callback, userdata, reqId)             
+
+        if funname_sym == :UA_Client_addVariableNode ||
+           funname_sym == :UA_Client_addObjectNode
+            @eval begin
+                # emit specific add node functions
+                #TODO: add docstring
+                #TODO: add tests
+                function $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        outNewNodeId, callback, userdata, reqId)
+                    return __UA_Client_addNode_async(client, $(nodeclass_sym),
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName, typeDefinition,
+                        attributes, UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
+                        reinterpret(UA_ClientAsyncAddNodesCallback, callback), userdata,
+                        reqId)
+                end
+                #higher level function using dispatch
+                #TODO: add docstring
+                #TODO: add tests
+                function JUA_Client_addNode(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes::Ptr{$(attributetype_sym)},
+                        outNewNodeId, callback, userdata, reqId,
+                        typeDefinition)
+                    return $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        typeDefinition,
+                        attributes,
+                        outNewNodeId, callback, userdata, reqId)
+                end
+            end
+        else
+            @eval begin
+                function $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes,
+                        outNewNodeId, callback, userdata, reqId)
+                    return __UA_Client_addNode_async(client, $(nodeclass_sym),
+                        requestedNewNodeId,
+                        parentNodeId, referenceTypeId, browseName, UA_NODEID_NULL,
+                        attributes, UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
+                        reinterpret(UA_ClientAsyncAddNodesCallback, callback), userdata,
+                        reqId)
+                end
+                #higher level function using dispatch
+                function JUA_Client_addNode(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes::Ptr{$(attributetype_sym)},
+                        outNewNodeId, callback, userdata, reqId)
+                    return $(funname_sym)(client,
+                        requestedNewNodeId,
+                        parentNodeId,
+                        referenceTypeId,
+                        browseName,
+                        attributes,
+                        outNewNodeId, callback, userdata, reqId)
+                end
+            end
         end
     end
 end
@@ -341,3 +476,13 @@ for att in attributes_UA_Client_write_async
         end
     end
 end
+
+## TODO: MISSING INLINED Functions
+# "UA_Client_MonitoredItems_modify_async"
+# "UA_Client_MonitoredItems_setMonitoringMode_async"
+# "UA_Client_MonitoredItems_setTriggering_async"
+# "UA_Client_sendAsyncReadRequest"
+# "UA_Client_sendAsyncWriteRequest"
+# "UA_Client_sendAsyncBrowseRequest"
+# "UA_Client_writeMinimumSamplingIntervalAttribute_async"
+# "UA_Client_call_async"

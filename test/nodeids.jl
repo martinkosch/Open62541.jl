@@ -25,7 +25,7 @@ n6 = UA_NODEID_NUMERIC(1, 1234)
 #Nodeid Guid
 guid = UA_Guid_random()
 guid_string = UA_print(unsafe_load(guid))
-n7 = UA_NODEID("ns=1;g="*guid_string)
+n7 = UA_NODEID("ns=1;g=" * guid_string)
 n8 = UA_NODEID_GUID(1, guid)
 n9 = UA_NODEID_GUID(1, guid_string)
 UA_Guid_delete(guid)
@@ -70,7 +70,7 @@ n18 = UA_EXPANDEDNODEID_NUMERIC(1, 1234)
 #ExpandedNodeid String Guid
 guid = UA_Guid_random()
 guid_string = UA_print(unsafe_load(guid))
-n19 = UA_EXPANDEDNODEID("ns=1;g="*guid_string)
+n19 = UA_EXPANDEDNODEID("ns=1;g=" * guid_string)
 n20 = UA_EXPANDEDNODEID_STRING_GUID(1, guid)
 n21 = UA_EXPANDEDNODEID_STRING_GUID(1, guid_string)
 UA_Guid_delete(guid)
@@ -139,10 +139,10 @@ UA_NodeId_delete(nodeid)
 
 #clean up the node ids
 for i in 1:12
-    @eval UA_NodeId_delete($(Symbol("n"*string(i))))
+    @eval UA_NodeId_delete($(Symbol("n" * string(i))))
 end
 for i in 13:33
-    @eval UA_ExpandedNodeId_delete($(Symbol("n"*string(i))))
+    @eval UA_ExpandedNodeId_delete($(Symbol("n" * string(i))))
 end
 
 ## Now testing the high level interface

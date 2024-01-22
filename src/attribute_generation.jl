@@ -11,7 +11,7 @@ function __set_generic_attributes!(attr,
         name,
         desc,
         type,
-        localization)  
+        localization)
     displayname = UA_LOCALIZEDTEXT(localization, name)
     description = UA_LOCALIZEDTEXT(localization, desc)
     UA_LocalizedText_copy(displayname, attr.displayName)

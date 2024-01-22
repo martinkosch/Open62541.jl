@@ -117,7 +117,7 @@ retval5 = UA_Server_addVariableNode(server, UA_NodeId_new(),
     pointvariableid1,
     UA_VALUERANK_ONE_OR_MORE_DIMENSIONS)
 
-#variable type node - scalar (to increase test coverage)
+#variable type node - scalar
 input = 42
 scalartypeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVELMASK_READ

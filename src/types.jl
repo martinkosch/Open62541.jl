@@ -123,17 +123,17 @@ for (i, type_name) in enumerate(type_names)
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_clear(p, data_type_ptr)
         end
-        
+
         function $(Symbol(type_name, "_delete"))(p::Ptr{$(type_name)})
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_delete(p, data_type_ptr)
         end
 
         function $(Symbol(type_name, "_deleteMembers"))(p::Ptr{$(type_name)})
-            oldname = :test
+            oldname = $(Symbol(type_name, "_deleteMembers"))
             newname = $(Symbol(type_name, "_clear"))
             Base.depwarn("$oldname is deprecated; use $newname instead",
-                oldname,
+                :test,
                 force = true)
             $(Symbol(type_name, "_clear"))(p::Ptr{$(type_name)})
         end
@@ -208,21 +208,35 @@ function UA_StatusCode_isGood(sc)
 end
 
 ## String
+"""
+```
+UA_STRING_ALLOC(s::AbstractString)::Ptr{UA_String}
+```
+
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+"""
 function UA_STRING_ALLOC(s::AbstractString)
     dst = UA_String_new()
     GC.@preserve s begin
-        if isempty(s) 
+        if isempty(s)
             src = UA_String(0, C_NULL)
         else
             src = UA_String(length(s), pointer(s))
         end
-        UA_String_copy(src, dst)    
-    end    
+        UA_String_copy(src, dst)
+    end
     return dst
 end
 
+"""
+```
+UA_STRING(s::AbstractString)::Ptr{UA_String}
+```
+
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+"""
 function UA_STRING(s::AbstractString)
-    return UA_STRING_ALLOC(s) 
+    return UA_STRING_ALLOC(s)
 end
 
 #TODO: think whether this can be cleaned up further
@@ -231,14 +245,35 @@ Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
 Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
 
 ## UA_BYTESTRING
+"""
+```
+UA_BYTESTRING_ALLOC(s::AbstractString)::Ptr{UA_String}
+```
+
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+"""
 function UA_BYTESTRING_ALLOC(s::AbstractString)
     return UA_STRING_ALLOC(s)
 end
 
+"""
+```
+UA_BYTESTRING(s::AbstractString)::Ptr{UA_String}
+```
+
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+"""
 function UA_BYTESTRING(s::AbstractString)
     return UA_BYTESTRING_ALLOC(s)
 end
 
+"""
+```
+UA_ByteString_equal(s1::Ptr{UA_ByteString}, s2::Ptr{UA_ByteString})::Bool
+```
+
+returns `true` if `s1` and `s2` have identical content.
+"""
 function UA_ByteString_equal(s1, s2)
     return UA_String_equal(s1, s2)
 end
@@ -280,6 +315,21 @@ function UA_GUID(s::Ptr{UA_String})
 end
 
 ## NodeId
+"""
+```
+UA_NODEID(s::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID(s::Ptr{UA_String})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by parsing `s` (which can be a string or UA_String).
+
+Example:
+
+```
+UA_NODEID("ns=1;i=1234") #generates UA_NodeId with numeric identifier
+UA_NODEID("ns=1;s=test") #generates UA_NodeId with string identifier
+```
+"""
 function UA_NODEID(s::AbstractString)
     ua_s = UA_STRING(s)
     id = UA_NODEID(ua_s)
@@ -294,6 +344,13 @@ function UA_NODEID(s::Ptr{UA_String})
     return id
 end
 
+"""
+```
+UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and numerical identifier `identifier`. Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     nodeid = UA_NodeId_new()
     nodeid.namespaceIndex = nsIndex
@@ -302,6 +359,14 @@ function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     return nodeid
 end
 
+"""
+```
+UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
 function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
     nodeid.namespaceIndex = nsIndex
@@ -317,10 +382,27 @@ function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)
     return nodeid
 end
 
-function UA_NODEID_STRING(nsIndex::Integer, identifier::Union{AbstractString,Ptr{UA_String}})
-    return UA_NODEID_STRING_ALLOC(nsIndex, identifier)    
+"""
+```
+UA_NODEID_STRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID_STRING(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
+function UA_NODEID_STRING(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
+    return UA_NODEID_STRING_ALLOC(nsIndex, identifier)
 end
 
+"""
+```
+UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
 function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
     nodeid.namespaceIndex = nsIndex
@@ -336,7 +418,16 @@ function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString
     return nodeid
 end
 
-function UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Union{AbstractString,Ptr{UA_String}})
+"""
+```
+UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
+function UA_NODEID_BYTESTRING(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
     return UA_NODEID_BYTESTRING_ALLOC(nsIndex, identifier)
 end
 
@@ -345,7 +436,7 @@ function UA_NODEID_GUID(nsIndex, guid::Ptr{UA_Guid})
     nodeid.namespaceIndex = nsIndex
     nodeid.identifierType = UA_NODEIDTYPE_GUID
     nodeid.identifier.guid = guid
-    return nodeid    
+    return nodeid
 end
 
 function UA_NODEID_GUID(nsIndex, guid::AbstractString)
@@ -355,6 +446,13 @@ function UA_NODEID_GUID(nsIndex, guid::AbstractString)
     return nodeid
 end
 
+"""
+```
+UA_NodeId_equal(n1::Ptr{UA_NodeId}, n2::Ptr{UA_NodeId})::Bool
+```
+
+returns `true` if `n1` and `n2` are UA_NodeIds with identical content.
+"""
 function UA_NodeId_equal(n1, n2)
     UA_NodeId_order(n1, n2) == UA_ORDER_EQ
 end
@@ -369,21 +467,22 @@ end
 
 function UA_EXPANDEDNODEID(s::Ptr{UA_String})
     id = UA_ExpandedNodeId_new()
-    retval = UA_ExpandedNodeId_parse(id, s)    
+    retval = UA_ExpandedNodeId_parse(id, s)
     retval != UA_STATUSCODE_GOOD &&
         error("Parsing of ExpandedNodeId \"$(s)\" failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
     return id
 end
 
 function UA_EXPANDEDNODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
-    id = UA_ExpandedNodeId_new() 
+    id = UA_ExpandedNodeId_new()
     nodeid = UA_NODEID_NUMERIC(nsIndex, identifier)
     id.nodeId = nodeid
     UA_NodeId_delete(nodeid)
     return id
 end
 
-function UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex::Integer, identifier::Union{AbstractString, Ptr{UA_String}})
+function UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
     id = UA_ExpandedNodeId_new()
     nodeid_src = UA_NODEID_STRING_ALLOC(nsIndex, identifier)
     nodeid_dst = id.nodeId
@@ -392,12 +491,14 @@ function UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex::Integer, identifier::Union{Abst
     return id
 end
 
-function UA_EXPANDEDNODEID_STRING(nsIndex::Integer, identifier::Union{AbstractString, Ptr{UA_String}})
-    return UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex, identifier) 
+function UA_EXPANDEDNODEID_STRING(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
+    return UA_EXPANDEDNODEID_STRING_ALLOC(nsIndex, identifier)
 end
 
-function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Union{AbstractString, Ptr{UA_String}})
-    id = UA_ExpandedNodeId_new() 
+function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
+    id = UA_ExpandedNodeId_new()
     nodeid_src = UA_NODEID_BYTESTRING_ALLOC(nsIndex, identifier)
     nodeid_dst = id.nodeId
     UA_NodeId_copy(nodeid_src, nodeid_dst)
@@ -405,7 +506,8 @@ function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Union{
     return id
 end
 
-function UA_EXPANDEDNODEID_BYTESTRING(nsIndex::Integer, identifier::Union{AbstractString, Ptr{UA_String}})
+function UA_EXPANDEDNODEID_BYTESTRING(nsIndex::Integer,
+        identifier::Union{AbstractString, Ptr{UA_String}})
     return UA_EXPANDEDNODEID_BYTESTRING_ALLOC(nsIndex, identifier)
 end
 
@@ -416,8 +518,9 @@ function UA_EXPANDEDNODEID_NODEID(nodeId::Ptr{UA_NodeId})
     return id
 end
 
-function UA_EXPANDEDNODEID_STRING_GUID(nsIndex::Integer, guid::Union{Ptr{UA_Guid},AbstractString})
-    id = UA_ExpandedNodeId_new() 
+function UA_EXPANDEDNODEID_STRING_GUID(nsIndex::Integer,
+        guid::Union{Ptr{UA_Guid}, AbstractString})
+    id = UA_ExpandedNodeId_new()
     nodeid_src = UA_NODEID_GUID(nsIndex, guid)
     nodeid_dst = id.nodeId
     UA_NodeId_copy(nodeid_src, nodeid_dst)
@@ -426,7 +529,9 @@ function UA_EXPANDEDNODEID_STRING_GUID(nsIndex::Integer, guid::Union{Ptr{UA_Guid
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_NUMERIC(identifier::Integer, ns_uri::AbstractString, server_ind::Integer)
+function UA_EXPANDEDNODEID_NUMERIC(identifier::Integer,
+        ns_uri::AbstractString,
+        server_ind::Integer)
     id = UA_EXPANDEDNODEID_NUMERIC(0, identifier)
     ua_ns_uri = UA_STRING_ALLOC(ns_uri)
     id.serverIndex = server_ind
@@ -437,7 +542,9 @@ function UA_EXPANDEDNODEID_NUMERIC(identifier::Integer, ns_uri::AbstractString, 
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_STRING_ALLOC(identifier::Union{Ptr{UA_String},AbstractString}, ns_uri::AbstractString, server_ind::Integer)
+function UA_EXPANDEDNODEID_STRING_ALLOC(identifier::Union{Ptr{UA_String}, AbstractString},
+        ns_uri::AbstractString,
+        server_ind::Integer)
     id = UA_EXPANDEDNODEID_STRING_ALLOC(0, identifier)
     ua_ns_uri = UA_STRING_ALLOC(ns_uri)
     id.serverIndex = server_ind
@@ -448,7 +555,9 @@ function UA_EXPANDEDNODEID_STRING_ALLOC(identifier::Union{Ptr{UA_String},Abstrac
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_STRING_GUID(guid::Union{Ptr{UA_Guid},AbstractString}, ns_uri::AbstractString, server_ind::Integer)
+function UA_EXPANDEDNODEID_STRING_GUID(guid::Union{Ptr{UA_Guid}, AbstractString},
+        ns_uri::AbstractString,
+        server_ind::Integer)
     id = UA_EXPANDEDNODEID_STRING_GUID(0, guid)
     ua_ns_uri = UA_STRING_ALLOC(ns_uri)
     id.serverIndex = server_ind
@@ -459,7 +568,12 @@ function UA_EXPANDEDNODEID_STRING_GUID(guid::Union{Ptr{UA_Guid},AbstractString},
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(identifier::Union{Ptr{UA_String},AbstractString}, ns_uri::AbstractString, server_ind::Integer)
+function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(identifier::Union{
+            Ptr{UA_String},
+            AbstractString,
+        },
+        ns_uri::AbstractString,
+        server_ind::Integer)
     id = UA_EXPANDEDNODEID_BYTESTRING_ALLOC(0, identifier)
     ua_ns_uri = UA_STRING_ALLOC(ns_uri)
     id.serverIndex = server_ind
@@ -470,7 +584,9 @@ function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(identifier::Union{Ptr{UA_String},Abs
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_NODEID(nodeid::Ptr{UA_NodeId}, ns_uri::AbstractString, server_ind::Integer)
+function UA_EXPANDEDNODEID_NODEID(nodeid::Ptr{UA_NodeId},
+        ns_uri::AbstractString,
+        server_ind::Integer)
     id = UA_EXPANDEDNODEID_NODEID(nodeid)
     ua_ns_uri = UA_STRING_ALLOC(ns_uri)
     id.serverIndex = server_ind
@@ -500,11 +616,13 @@ function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::Ptr{UA_String})
     return qn
 end
 
-function UA_QUALIFIEDNAME(nsIndex::Integer, s::Union{AbstractString,Ptr{UA_String}})
+function UA_QUALIFIEDNAME(nsIndex::Integer, s::Union{AbstractString, Ptr{UA_String}})
     UA_QUALIFIEDNAME_ALLOC(nsIndex, s)
 end
 
-UA_QualifiedName_isNull(q::Ptr{UA_QualifiedName}) = (unsafe_load(q.namespaceIndex) == 0 && unsafe_load(q.name.length) == 0)
+function UA_QualifiedName_isNull(q::Ptr{UA_QualifiedName})
+    (unsafe_load(q.namespaceIndex) == 0 && unsafe_load(q.name.length) == 0)
+end
 
 ## LocalizedText
 function UA_LOCALIZEDTEXT_ALLOC(locale::AbstractString, text::AbstractString)
@@ -535,7 +653,8 @@ function UA_LOCALIZEDTEXT_ALLOC(locale::Ptr{UA_String}, text::Ptr{UA_String})
     return lt
 end
 
-function UA_LOCALIZEDTEXT(locale::Union{AbstractString, Ptr{UA_String}}, text::Union{AbstractString, Ptr{UA_String}}) 
+function UA_LOCALIZEDTEXT(locale::Union{AbstractString, Ptr{UA_String}},
+        text::Union{AbstractString, Ptr{UA_String}})
     return UA_LOCALIZEDTEXT_ALLOC(locale, text)
 end
 
@@ -641,7 +760,7 @@ function UA_CreateSubscriptionRequest_default()
     return request
 end
 
-function UA_MonitoredItemCreateRequest_default(nodeId::UA_NodeId) 
+function UA_MonitoredItemCreateRequest_default(nodeId)
     request = UA_MonitoredItemCreateRequest_new()
     UA_MonitoredItemCreateRequest_init(request)
     request.itemToMonitor.nodeId = nodeId
@@ -651,10 +770,6 @@ function UA_MonitoredItemCreateRequest_default(nodeId::UA_NodeId)
     request.requestedParameters.discardOldest = true
     request.requestedParameters.queueSize = 1
     return request
-end
-
-function UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId}) 
-    UA_MonitoredItemCreateRequest_default(unsafe_load(nodeId))
 end
 
 function UA_constantTimeEqual(ptr1, ptr2, len)

@@ -17,7 +17,7 @@ ua_s3 = UA_BYTESTRING_ALLOC(bytestring_s1)
 @test isa(ua_s1, Ptr{UA_String})
 @test isa(ua_s2, Ptr{UA_String})
 @test UA_String_equal(ua_s1, ua_s2)
-@test String(base64decode(unsafe_string(ua_s3))) == s1 
+@test String(base64decode(unsafe_string(ua_s3))) == s1
 
 UA_String_delete(ua_s1)
 UA_String_delete(ua_s2)
@@ -73,7 +73,8 @@ UA_LocalizedText_delete(lt4)
 timenow = UA_DateTime_now()
 jtime = Dates.now()
 jtime_UTC = Dates.now(Dates.UTC)
-UTC_offset = ceil(Int, ceil(Int, Dates.value(jtime - jtime_UTC)/3600000*4)/4*36_000_000_000) #the 4 is to accommodate all possible timezones.
+UTC_offset = ceil(Int,
+    ceil(Int, Dates.value(jtime - jtime_UTC) / 3600000 * 4) / 4 * 36_000_000_000) #the 4 is to accommodate all possible timezones.
 @test isa(UA_DateTime_nowMonotonic(), Int)
 @test UA_DateTime_fromStruct(UA_DateTime_toStruct(timenow)) == timenow
 @test UTC_offset == UA_DateTime_localTimeUtcOffset()

@@ -44,7 +44,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     @test retval == UA_STATUSCODE_GOOD
 
     # Add variable node containing a scalar to the server
-    input = rand(100,100)
+    input = rand(100, 100)
     accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
     attr = UA_generate_variable_attributes(input,
         "test",
@@ -92,7 +92,6 @@ for i in 1:3000
     output_client = UA_Client_readValueAttribute(client, varnodeid)
     output_client = 10
 end
-
 
 # Disconnect client
 UA_Client_disconnect(client)
