@@ -102,7 +102,7 @@ UA_String_delete(ua_s3)
 #CreateSubscription
 sr = UA_CreateSubscriptionRequest_default()
 @test isa(sr, Ptr{UA_CreateSubscriptionRequest})
-UA_CreateSubscripionRequest_delete(sr)
+UA_CreateSubscriptionRequest_delete(sr)
 
 #MonitoredItem
 n = UA_NODEID_NUMERIC(1, 1234)
