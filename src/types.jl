@@ -101,11 +101,24 @@ for (i, type_name) in enumerate(type_names)
         end
 
         # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
+        """
+        ```
+        $($(type_name))_new"()::Ptr{$($(type_name))}
+        ```
+        creates and initializes a `$($(type_name))` object whose memory is allocated by C. After use, it needs to be 
+        cleaned up with `$($(type_name))_delete(x::Ptr{$($(type_name))})`
+        """
         function $(Symbol(type_name, "_new"))()
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return convert(Ptr{$(type_name)}, UA_new(data_type_ptr))
         end
-
+        
+        """
+        ```
+        $($(type_name))_init"(x::Ptr{$($(type_name))})
+        ```
+        initializes the object `x`. This is synonymous with zeroing out the allocated memory. 
+        """
         $(Symbol(type_name, "_init"))(p::Ptr{$(type_name)}) = UA_init(p)
 
         function $(Symbol(type_name, "_copy"))(src::Ref{$(type_name)},
@@ -114,21 +127,47 @@ for (i, type_name) in enumerate(type_names)
             return UA_copy(src, dst, data_type_ptr)
         end
 
+        """
+        ```
+        $($(type_name))_copy"(src::Ptr{$($(type_name))}, dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        $($(type_name))_copy"(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        ```
+        Copy the content of the source object `src` to the destination object `dst`. Returns `UA_STATUSCODE_GOOD` or `UA_STATUSCODE_BADOUTOFMEMORY`.
+        """        
         function $(Symbol(type_name, "_copy"))(src::$(type_name),
                 dst::Ptr{$(type_name)})
             return $(Symbol(type_name, "_copy"))(Ref(src), dst)
         end
 
+        """
+        ```
+        $($(type_name))_clear"(x::Ptr{$($(type_name)))}
+        ```
+        deletes the dynamically allocated content of the object `x` and calls `$($(type_name))_init(x)` to reset the type and its memory. 
+        """
         function $(Symbol(type_name, "_clear"))(p::Ptr{$(type_name)})
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_clear(p, data_type_ptr)
         end
 
+        """
+        ```
+        $($(type_name))_delete(x::Ptr{$($(type_name)))}
+        ```
+        deletes the content of object `x` and its memory. 
+        """
         function $(Symbol(type_name, "_delete"))(p::Ptr{$(type_name)})
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             UA_delete(p, data_type_ptr)
         end
 
+        """
+        ```
+        $($(type_name))_deleteMembers(x::Ptr{$($(type_name))})
+        ```
+        (deprecated, use `$($(type_name))_clear(x)` instead)
+        deletes the dynamically allocated content of the object `x` and calls `$($(type_name))_init(x)` to reset the type and its memory.
+        """
         function $(Symbol(type_name, "_deleteMembers"))(p::Ptr{$(type_name)})
             oldname = $(Symbol(type_name, "_deleteMembers"))
             newname = $(Symbol(type_name, "_clear"))
@@ -349,7 +388,8 @@ end
 UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and numerical identifier `identifier`. Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`. 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     nodeid = UA_NodeId_new()
@@ -365,7 +405,8 @@ UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_Nod
 UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -388,7 +429,8 @@ UA_NODEID_STRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_STRING(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
@@ -401,7 +443,8 @@ UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA
 UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -424,13 +467,24 @@ UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeI
 UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
     return UA_NODEID_BYTESTRING_ALLOC(nsIndex, identifier)
 end
 
+"""
+```
+UA_NODEID_GUID(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
+UA_NODEID_GUID(nsIndex::Integer, identifier::Ptr{UA_Guid})::Ptr{UA_NodeId}
+```
+
+creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier `identifier` based on a globally unique id (`UA_Guid`) 
+that can be supplied as a string (which will be parsed) or as a valid `Ptr{UA_Guid}`.  
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+"""
 function UA_NODEID_GUID(nsIndex, guid::Ptr{UA_Guid})
     nodeid = UA_NodeId_new()
     nodeid.namespaceIndex = nsIndex

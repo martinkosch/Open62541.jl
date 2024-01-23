@@ -23,8 +23,8 @@ j1 = JUA_String("test1")
 UA_String_delete(ua_s1)
 UA_String_delete(ua_s2)
 UA_String_delete(ua_s3)
-
-
+j1 = 0 #this should trigger the garbage collector 
+GC.gc()
 
 #QualifiedName
 s1 = "test1"
@@ -74,10 +74,13 @@ UA_LocalizedText_delete(lt4)
 
 #Testing date functions
 timenow = UA_DateTime_now()
+unixtime = UA_DateTime_toUnixTime(timenow)
+unixtime_precise = UA_DateTime_toUnixTime_precise(timenow)
+@test UA_DateTime_fromUnixTime(unixtime) == UA_DateTime_fromUnixTime(trunc(Int, unixtime_precise))
 jtime = Dates.now()
 jtime_UTC = Dates.now(Dates.UTC)
 UTC_offset = ceil(Int,
-    ceil(Int, Dates.value(jtime - jtime_UTC) / 3600000 * 4) / 4 * 36_000_000_000) #the 4 is to accommodate all possible timezones.
+    ceil(Int, Dates.value(jtime - jtime_UTC) / 3600000 * 4) / 4 * 36_000_000_000) #the 4 is to accommodate all possible timezones; hello Nepali timezone.
 @test isa(UA_DateTime_nowMonotonic(), Int)
 @test UA_DateTime_fromStruct(UA_DateTime_toStruct(timenow)) == timenow
 @test UTC_offset == UA_DateTime_localTimeUtcOffset()
@@ -92,3 +95,18 @@ ptr3 = unsafe_load(ua_s3.data)
 @test UA_constantTimeEqual(ptr1, ptr2, 5)
 @test !UA_constantTimeEqual(ptr1, ptr3, 5)
 @test UA_constantTimeEqual(ptr1, ptr3, 4)
+UA_String_delete(ua_s1)
+UA_String_delete(ua_s2)
+UA_String_delete(ua_s3)
+
+#CreateSubscription
+sr = UA_CreateSubscriptionRequest_default()
+@test isa(sr, Ptr{UA_CreateSubscriptionRequest})
+UA_CreateSubscripionRequest_delete(sr)
+
+#MonitoredItem
+n = UA_NODEID_NUMERIC(1, 1234)
+mi = UA_MonitoredItemCreateRequest_default(n)
+@test isa(mi, Ptr{UA_MonitoredItemCreateRequest})
+UA_NodeId_delete(n)
+UA_MonitoredItemCreateRequest_delete(mi)
