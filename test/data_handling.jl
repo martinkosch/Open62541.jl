@@ -23,7 +23,6 @@ UA_init(rr) # Generic method
 UA_ReadRequest_init(rr) # Shorthand for the previous line
 
 rr.requestHeader.timestamp = UA_DateTime_now() # Members of a structure
-
 rr.nodesToRead = UA_ReadValueId_new()
 rr.nodesToRead = UA_Array_new(5, UA_ReadValueId)
 rr.nodesToReadSize = 5 # Array size needs to be made known
@@ -39,15 +38,16 @@ ns = 1
 i = 1234
 id1 = UA_NODEID_NUMERIC(ns, i)
 @test unsafe_load(id1.namespaceIndex) == ns
-@test_broken id1.identifier == i # TODO: Not working due to type union, find workaround
+@test unsafe_load(id1.identifier.numeric) == i
 @test unsafe_load(id1.identifierType) == UA_NODEIDTYPE_NUMERIC
+UA_NodeId_delete(id1)
 
 id2 = UA_NODEID_STRING_ALLOC(1, "testid")
 @test !UA_NodeId_equal(id1, id2)
-UA_NodeId_delete(id2)
 
 id3 = UA_NodeId_new()
 UA_NodeId_copy(id2, id3)
+UA_NodeId_delete(id2)
 UA_NodeId_delete(id3)
 
 # Variants

@@ -12,16 +12,19 @@ bytestring_s1 = base64encode(write, s1)
 emptyString = UA_STRING("")
 ua_s1 = UA_STRING(s1)
 ua_s2 = UA_STRING(s1)
-ua_s3 = UA_BYTESTRING_ALLOC(bytestring_s1)
+ua_s3 = UA_BYTESTRING(bytestring_s1)
+j1 = JUA_String("test1")
 @test isa(emptyString, Ptr{UA_String})
 @test isa(ua_s1, Ptr{UA_String})
 @test isa(ua_s2, Ptr{UA_String})
 @test UA_String_equal(ua_s1, ua_s2)
+@test UA_String_equal(j1, ua_s1)
 @test String(base64decode(unsafe_string(ua_s3))) == s1
-
 UA_String_delete(ua_s1)
 UA_String_delete(ua_s2)
 UA_String_delete(ua_s3)
+
+
 
 #QualifiedName
 s1 = "test1"

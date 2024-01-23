@@ -152,10 +152,15 @@ j3 = JUA_NodeId(1, 1234)
 j4 = JUA_NodeId(1, "test")
 guid = JUA_Guid()
 j5 = JUA_NodeId(1, guid)
+j6 = JUA_NodeId(1, "b20e80d9-e073-9042-4284-c8dcd3addabd")
 
 @test isa(j1, JUA_NodeId)
 @test isa(j2, JUA_NodeId)
 @test isa(j3, JUA_NodeId)
 @test isa(j4, JUA_NodeId)
 @test isa(j5, JUA_NodeId)
+@test isa(j6, JUA_NodeId)
+guid = 0 #this should trigger that the GC collects the object
+j6 = 0 #this should trigger that the GC collects the object
+GC.gc()
 @test JUA_NodeId_equal(j2, j3)
