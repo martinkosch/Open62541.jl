@@ -9,24 +9,24 @@ end
     include("statuscodes.jl")
 end
 
+@safetestset "Exceptions" begin
+    include("exceptions.jl")
+end
+
 @safetestset "Basic types and functions" begin
     include("basic_types_and_functions.jl")
+end
+
+@safetestset "Basic data handling" begin
+    include("data_handling.jl")
 end
 
 @safetestset "NodeIds" begin
     include("nodeids.jl")
 end
 
-@safetestset "Memory leaks" begin
-    include("memoryleaks.jl")
-end
-
-@safetestset "Exceptions" begin
-    include("exceptions.jl")
-end
-
-@safetestset "Basic data handling" begin
-    include("data_handling.jl")
+@safetestset "Attribute generation" begin
+    include("attribute_generation.jl")
 end
 
 @safetestset "Server configurations" begin
@@ -43,6 +43,10 @@ end
 
 @safetestset "Server Add Nodes" begin
     include("server_add_nodes.jl")
+end
+
+@safetestset "Memory leaks" begin
+    include("memoryleaks.jl")
 end
 
 #Testsets below here use Distributed; normal testsets required

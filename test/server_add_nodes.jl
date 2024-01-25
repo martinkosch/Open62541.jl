@@ -12,12 +12,12 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 ## Variable nodes with scalar and array floats - other number types are tested 
 ## in add_change_var_scalar.jl and add_change_var_array.jl
 #Variable node: scalar
-accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
-attr = UA_generate_variable_attributes(input,
-    "scalar variable",
-    "this is a scalar variable",
-    accesslevel)
+attr = UA_generate_variable_attributes(value = input,
+    displayname = "scalar variable",
+    description = "this is a scalar variable",
+    accesslevel = accesslevel)
 varnodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
 parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
@@ -42,11 +42,11 @@ output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
 #Variable node: array
 input = rand(Float64, 2, 3, 4)
 varnodetext = "array variable"
-accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
-attr = UA_generate_variable_attributes(input,
-    varnodetext,
-    "this is an array variable",
-    accesslevel)
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
+attr = UA_generate_variable_attributes(value = input,
+    displayname = varnodetext,
+    description = "this is an array variable",
+    accesslevel = accesslevel)
 varnodeid = UA_NODEID_STRING_ALLOC(1, varnodetext)
 parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
@@ -63,12 +63,12 @@ retval2 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 ## VariableTypeNode - array
 input = zeros(2)
 pointtypeid = UA_NodeId_new()
-accesslevel = UA_ACCESSLEVELMASK_READ
+accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "2D point type"
 description = "This is a 2D point type."
-attr = UA_generate_variabletype_attributes(input,
-    displayname,
-    description)
+attr = UA_generate_variabletype_attributes(value = input,
+    displayname = displayname,
+    description = description)
 retval3 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
@@ -81,12 +81,12 @@ retval3 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 #now add a variable node based on the variabletype node that we just defined.
 input = rand(2)
 pointvariableid1 = UA_NodeId_new()
-accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 displayname = "a 2D point variable"
 description = "This is a 2D point variable."
-attr = UA_generate_variabletype_attributes(input,
-    displayname,
-    description)
+attr = UA_generate_variabletype_attributes(value = input,
+    displayname = displayname,
+    description = description)
 retval4 = UA_Server_addVariableNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
@@ -98,12 +98,12 @@ retval4 = UA_Server_addVariableNode(server, UA_NodeId_new(),
 #now attempt to add a node with the wrong dimensions 
 input = rand(2, 3)
 pointvariableid2 = UA_NodeId_new()
-accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 displayname = "not a 2d point variable"
 description = "This should fail"
-attr = UA_generate_variabletype_attributes(input,
-    displayname,
-    description)
+attr = UA_generate_variabletype_attributes(value = input,
+    displayname = displayname,
+    description = description)
 retval5 = UA_Server_addVariableNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
@@ -120,12 +120,12 @@ retval5 = UA_Server_addVariableNode(server, UA_NodeId_new(),
 #variable type node - scalar
 input = 42
 scalartypeid = UA_NodeId_new()
-accesslevel = UA_ACCESSLEVELMASK_READ
+accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "scalar integer type"
 description = "This is a scalar integer type."
-attr = UA_generate_variabletype_attributes(input,
-    displayname,
-    description)
+attr = UA_generate_variabletype_attributes(value = input,
+    displayname = displayname,
+    description = description)
 retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
     UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
@@ -134,3 +134,15 @@ retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 
 # Test whether adding the variable type node to the server worked
 @test retval6 == UA_STATUSCODE_GOOD
+
+#add object node
+#follows this tutorial page: https://www.open62541.org/doc/1.3/tutorial_server_object.html
+pumpId = UA_NodeId_new()
+# UA_NodeId pumpId; /* get the nodeid assigned by the server */
+#     UA_ObjectAttributes oAttr = UA_ObjectAttributes_default()
+#     oAttr.displayName = UA_LOCALIZEDTEXT("en-US", "Pump (Manual)");
+#     UA_Server_addObjectNode(server, UA_NODEID_NULL,
+#     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
+#     UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES),
+#     UA_QUALIFIEDNAME(1, "Pump (Manual)"), UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE),
+#     oAttr, NULL, pumpId)

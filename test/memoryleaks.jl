@@ -136,15 +136,12 @@ mem_end = meminfo_julia()
 @test (mem_end - mem_start) < 50.0
 
 #VariableAttributes - both scalar and array
-
 mem_start = meminfo_julia()
 for i in 1:10_000_000
-    accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+    accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     input = rand(Float64)
-    attr = UA_generate_variable_attributes(input,
-        "scalar variable",
-        "this is a scalar variable",
-        accesslevel)
+    attr = UA_generate_variable_attributes(value = input, displayname =  "scalar variable",
+        description =  "this is a scalar variable", accesslevel = accesslevel)
     UA_VariableAttributes_delete(attr)
 end
 GC.gc()
@@ -160,17 +157,15 @@ nodecontext = C_NULL
 outnewnodeid = C_NULL
 mem_start = meminfo_julia()
 for i in 1:1_000_000
-    accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+    accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     input = rand(Float64)
     variablenodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
     parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
     parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
     typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
     browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
-    attr = UA_generate_variable_attributes(input,
-        "scalar variable",
-        "this is a scalar variable",
-        accesslevel)
+    attr = UA_generate_variable_attributes(value = input, displayname = "scalar variable",
+        description = "this is a scalar variable", accesslevel = accesslevel)
     retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid,
         parentreferencenodeid,
         browsename, typedefinition, attr, nodecontext, outnewnodeid)

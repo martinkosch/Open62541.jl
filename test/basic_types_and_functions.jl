@@ -1,5 +1,5 @@
-#Purpose: Tests functionality of basic types used in UA for a lot of thinks:
-#Types currently covered: UA_String, UA_QualifiedName, UA_LocalizedText, UA_ByteString
+#Purpose: Tests functionality of basic types used in UA for a lot of things:
+#Types currently covered: (J)UA_String, (J)UA_QualifiedName, (J)UA_LocalizedText, (J)UA_ByteString
 #Functions currently covered: UA_DateTime_
 using open62541
 using Test
@@ -13,12 +13,14 @@ emptyString = UA_STRING("")
 ua_s1 = UA_STRING(s1)
 ua_s2 = UA_STRING(s1)
 ua_s3 = UA_BYTESTRING(bytestring_s1)
+ua_s4 = UA_BYTESTRING(bytestring_s1)
 j1 = JUA_String("test1")
 @test isa(emptyString, Ptr{UA_String})
 @test isa(ua_s1, Ptr{UA_String})
 @test isa(ua_s2, Ptr{UA_String})
 @test UA_String_equal(ua_s1, ua_s2)
 @test UA_String_equal(j1, ua_s1)
+@test UA_ByteString_equal(ua_s3, ua_s4)
 @test String(base64decode(unsafe_string(ua_s3))) == s1
 UA_String_delete(ua_s1)
 UA_String_delete(ua_s2)
@@ -76,7 +78,8 @@ UA_LocalizedText_delete(lt4)
 timenow = UA_DateTime_now()
 unixtime = UA_DateTime_toUnixTime(timenow)
 unixtime_precise = UA_DateTime_toUnixTime_precise(timenow)
-@test UA_DateTime_fromUnixTime(unixtime) == UA_DateTime_fromUnixTime(trunc(Int, unixtime_precise))
+@test UA_DateTime_fromUnixTime(unixtime) ==
+      UA_DateTime_fromUnixTime(trunc(Int, unixtime_precise))
 jtime = Dates.now()
 jtime_UTC = Dates.now(Dates.UTC)
 UTC_offset = ceil(Int,

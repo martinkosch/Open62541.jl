@@ -65,7 +65,7 @@ function UA_Array_new(v::AbstractArray{T},
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
     arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
-    GC.@preserve v_typed unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
+    GC.@preserve v_typed arr_ptr unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
     return UA_Array(arr_ptr, length(v))
 end
 
@@ -112,7 +112,7 @@ for (i, type_name) in enumerate(type_names)
             data_type_ptr = UA_TYPES_PTRS[$(type_ind_name)]
             return convert(Ptr{$(type_name)}, UA_new(data_type_ptr))
         end
-        
+
         """
         ```
         $($(type_name))_init"(x::Ptr{$($(type_name))})
@@ -133,7 +133,7 @@ for (i, type_name) in enumerate(type_names)
         $($(type_name))_copy"(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
         ```
         Copy the content of the source object `src` to the destination object `dst`. Returns `UA_STATUSCODE_GOOD` or `UA_STATUSCODE_BADOUTOFMEMORY`.
-        """        
+        """
         function $(Symbol(type_name, "_copy"))(src::$(type_name),
                 dst::Ptr{$(type_name)})
             return $(Symbol(type_name, "_copy"))(Ref(src), dst)
@@ -141,7 +141,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_clear"(x::Ptr{$($(type_name)))}
+        $($(type_name))_clear"(x::Ptr{$($(type_name))})
         ```
         deletes the dynamically allocated content of the object `x` and calls `$($(type_name))_init(x)` to reset the type and its memory. 
         """
@@ -152,7 +152,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_delete(x::Ptr{$($(type_name)))}
+        $($(type_name))_delete(x::Ptr{$($(type_name))})
         ```
         deletes the content of object `x` and its memory. 
         """
@@ -388,7 +388,7 @@ end
 UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`. 
+creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`.
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
@@ -405,7 +405,7 @@ UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_Nod
 UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). 
+creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
@@ -429,7 +429,7 @@ UA_NODEID_STRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_STRING(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String). 
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING(nsIndex::Integer,
@@ -443,7 +443,7 @@ UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA
 UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). 
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
@@ -467,7 +467,7 @@ UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeI
 UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString). 
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING(nsIndex::Integer,
@@ -481,8 +481,8 @@ UA_NODEID_GUID(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_GUID(nsIndex::Integer, identifier::Ptr{UA_Guid})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier `identifier` based on a globally unique id (`UA_Guid`) 
-that can be supplied as a string (which will be parsed) or as a valid `Ptr{UA_Guid}`.  
+creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier `identifier` based on a globally unique id (`UA_Guid`)
+that can be supplied as a string (which will be parsed) or as a valid `Ptr{UA_Guid}`.
 Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_GUID(nsIndex, guid::Ptr{UA_Guid})
@@ -717,9 +717,12 @@ function UA_LocalizedText_equal(lt1, lt2)
 end
 
 ## NumericRange
-function UA_NUMERICRANGE(s::AbstractArray)
+#TODO: This leaks memory.
+function UA_NUMERICRANGE(s::AbstractString)
     nr = Ref{UA_NumericRange}()
-    retval = GC.@preserve s UA_NumericRange_parse(nr, UA_STRING(s))
+    ua_s = UA_STRING(s)
+    retval = GC.@preserve s UA_NumericRange_parse(nr, ua_s)
+    UA_String_delete(ua_s)
     retval != UA_STATUSCODE_GOOD &&
         error("Parsing of NumericRange \"$(s)\" failed with statuscode \"$(UA_StatusCode_name_print(retval))\".")
     return nr[]

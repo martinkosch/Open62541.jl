@@ -137,7 +137,7 @@ UA_NodeId_delete(nodeid)
 @test UA_ExpandedNodeId_equal(n29, n30)
 @test UA_ExpandedNodeId_equal(n32, n33)
 
-#clean up the node ids
+#tidy up
 for i in 1:12
     @eval UA_NodeId_delete($(Symbol("n" * string(i))))
 end
@@ -145,7 +145,7 @@ for i in 13:33
     @eval UA_ExpandedNodeId_delete($(Symbol("n" * string(i))))
 end
 
-## Now testing the high level interface
+## Now testing JUA Interface
 j1 = JUA_NodeId()
 j2 = JUA_NodeId("ns=1;i=1234")
 j3 = JUA_NodeId(1, 1234)
