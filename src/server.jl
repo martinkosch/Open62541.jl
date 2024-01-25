@@ -27,6 +27,25 @@ end
 # UA_Server_addReferenceTypeNode     (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
 # UA_Server_addDataTypeNode          (server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, nodeContext, outNewNodeId)
 
+function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
+    referenceTypeId, browseName, attr, method::Function, 
+    inputArgumentsSize, inputArguments, outputArgumentsSize, 
+    outputArguments, nodeContext, outNewNodeId) 
+
+#Generate the appropriate Cfunction pointer.
+cb = @cfunction($method, UA_StatusCode, 
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant})) 
+
+return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
+    parentNodeId, referenceTypeId, browseName, unsafe_load(attr), 
+    cb, inputArgumentsSize, inputArguments,
+    UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments,
+    UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
+end
+#TODO: would need a JUA_Server_addNode version of this as well.
+
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
         nodeclass_sym = Symbol(nodeclass)
@@ -38,30 +57,7 @@ for nodeclass in instances(UA_NodeClass)
         attributetype_sym = Symbol(replace("UA_" *
                                            titlecase(string(nodeclass_sym)[14:end]) *
                                            "Attributes", "type" => "Type"))
-        if funname_sym == :UA_Server_addMethodNode
-            @eval begin
-                function $(funname_sym)(server,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attr,
-                        method,
-                        inputArgumentsSize,
-                        inputArguments,
-                        outputArgumentsSize,
-                        outputArguments,
-                        nodeContext,
-                        outNewNodeId)
-                    return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName, attr, method,
-                        inputArgumentsSize, inputArguments,
-                        UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments,
-                        UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
-                end
-            end
-            #TODO: would need a JUA_Server_addNode version of this as well.
-        elseif funname_sym == :UA_Server_addVariableNode ||
+        if funname_sym == :UA_Server_addVariableNode ||
                funname_sym == :UA_Server_addVariableTypeNode ||
                funname_sym == :UA_Server_addObjectNode
             @eval begin
@@ -104,7 +100,7 @@ for nodeclass in instances(UA_NodeClass)
                         outNewNodeId)
                 end
             end
-        else
+        elseif funname_sym != :UA_Server_addMethodNode
             @eval begin
                 # emit specific add node functions
                 function $(funname_sym)(server,

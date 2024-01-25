@@ -226,6 +226,7 @@ end
 
 Base.convert(::Type{UA_String}, x::Ptr{UA_String}) = unsafe_load(x)
 Base.convert(::Type{UA_QualifiedName}, x::Ptr{UA_QualifiedName}) = unsafe_load(x)
+Base.convert(::Type{UA_LocalizedText}, x::Ptr{UA_LocalizedText}) = unsafe_load(x)
 Base.convert(::Type{UA_NodeId}, x::Ptr{UA_NodeId}) = unsafe_load(x)
 Base.convert(::Type{UA_Guid}, x::Ptr{UA_Guid}) = unsafe_load(x)
 
@@ -776,10 +777,13 @@ end
 function Base.unsafe_wrap(v::UA_Variant)
     type = juliadatatype(v.type)
     data = reinterpret(Ptr{type}, v.data)
-    UA_Variant_isScalar(v) && return GC.@preserve data unsafe_load(data)
-    values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
-    values_row_major = reshape(values, unsafe_size(v))
-    return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+    if UA_Variant_isScalar(v)
+        return GC.@preserve data unsafe_load(data)
+    else
+        values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
+        values_row_major = reshape(values, unsafe_size(v))
+        return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+    end
 end
 
 Base.unsafe_wrap(p::Ref{UA_Variant}) = unsafe_wrap(unsafe_load(p))

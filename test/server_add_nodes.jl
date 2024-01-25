@@ -11,6 +11,7 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 
 ## Variable nodes with scalar and array floats - other number types are tested 
 ## in add_change_var_scalar.jl and add_change_var_array.jl
+
 #Variable node: scalar
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
@@ -25,10 +26,7 @@ typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
 nodecontext = C_NULL
 outnewnodeid = C_NULL
-#JUA interface
-# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
-#     parentreferencenodeid,
-#     browsename, typedefinition, attr, nodecontext, outnewnodeid)
+
 #UA interface
 retval1 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
     parentreferencenodeid,
@@ -38,6 +36,12 @@ retval1 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 # Test whether the correct array is within the server (read from server)
 output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
 @test all(isapprox(input, output_server))
+
+#TODO: should be testing the higher level interface as well. template code below
+#JUA interface
+# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
+#     parentreferencenodeid,
+#     browsename, typedefinition, attr, nodecontext, outnewnodeid)
 
 #Variable node: array
 input = rand(Float64, 2, 3, 4)
@@ -137,12 +141,53 @@ retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 
 #add object node
 #follows this tutorial page: https://www.open62541.org/doc/1.3/tutorial_server_object.html
-pumpId = UA_NodeId_new()
-# UA_NodeId pumpId; /* get the nodeid assigned by the server */
-#     UA_ObjectAttributes oAttr = UA_ObjectAttributes_default()
-#     oAttr.displayName = UA_LOCALIZEDTEXT("en-US", "Pump (Manual)");
-#     UA_Server_addObjectNode(server, UA_NODEID_NULL,
-#     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
-#     UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES),
-#     UA_QUALIFIEDNAME(1, "Pump (Manual)"), UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE),
-#     oAttr, NULL, pumpId)
+pumpid = UA_NodeId_new()
+displayname = "Pump (Manual)"
+description = "This is a manually added pump."
+oAttr = UA_generate_object_attributes(displayname = displayname, description = description)
+requestednewnodeid = UA_NodeId_new() 
+parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+referencetypeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
+browsename = UA_QUALIFIEDNAME(1, displayname)
+typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE)
+retval7 = UA_Server_addObjectNode(server, requestednewnodeid, parentnodeid, referencetypeid,
+                        browsename, typedefinition, oAttr, C_NULL, pumpid)
+
+@test retval6 == UA_STATUSCODE_GOOD
+
+#TODO: follow rest of tutorial 
+
+#add method node
+#follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+
+function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId, 
+        methodContext, objectId, objectContext, inputSize, input, outputSize, output) 
+    inputstr = unsafe_string(unsafe_wrap(input))
+    tmp = UA_STRING("Hello "*inputstr)
+    UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
+    UA_String_delete(tmp)
+    return UA_STATUSCODE_GOOD
+end
+
+inputArgument = UA_Argument_new()
+inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
+inputArgument.name = UA_STRING("MyInput");
+inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId;
+inputArgument.valueRank = UA_VALUERANK_SCALAR
+outputArgument = UA_Argument_new()
+outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
+outputArgument.name = UA_STRING("MyOutput");
+outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
+outputArgument.valueRank = UA_VALUERANK_SCALAR
+helloAttr = UA_generate_method_attributes(description = "Say Hello World", displayname = "Hello World", executable = true, userexecutable = true)
+
+retval = UA_Server_addMethodNode(server, UA_NODEID_NUMERIC(1,62541),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+                            UA_QUALIFIEDNAME(1, "hello world"),
+                            helloAttr, helloWorldMethodCallback,
+                            1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
+
+#UA_Server_run(server, Ref(true)) - checking server in uaexpret shows that the 
+#hello world method is there and that it produces the correct results when called; 
+#confirm here via an appropriate test.
