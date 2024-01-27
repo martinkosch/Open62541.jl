@@ -228,6 +228,7 @@ Base.convert(::Type{UA_String}, x::Ptr{UA_String}) = unsafe_load(x)
 Base.convert(::Type{UA_QualifiedName}, x::Ptr{UA_QualifiedName}) = unsafe_load(x)
 Base.convert(::Type{UA_LocalizedText}, x::Ptr{UA_LocalizedText}) = unsafe_load(x)
 Base.convert(::Type{UA_NodeId}, x::Ptr{UA_NodeId}) = unsafe_load(x)
+Base.convert(::Type{UA_ExpandedNodeId}, x::Ptr{UA_ExpandedNodeId}) = unsafe_load(x)
 Base.convert(::Type{UA_Guid}, x::Ptr{UA_Guid}) = unsafe_load(x)
 
 ## StatusCode

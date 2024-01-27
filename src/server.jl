@@ -114,7 +114,7 @@ for nodeclass in instances(UA_NodeClass)
                     return __UA_Server_addNode(server, $(nodeclass_sym),
                         requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
-                        UA_NODEID_NULL, attributes,
+                        wrap_ref(UA_NODEID_NULL), attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)],
                         nodeContext, outNewNodeId)
                 end
@@ -196,15 +196,13 @@ for att in attributes_UA_Server_write
         Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) of the NodeId `nodeId` located on server `server`. 
 
         """
-        function $(fun_name)(server::Union{Ref, Ptr},
-                nodeId::Union{Ref, Ptr},
-                new_val::Union{Ref, Ptr})
+        function $(fun_name)(server, nodeId, new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             statuscode = __UA_Server_write(server,
                 nodeId,
                 $(ua_attr_name),
                 data_type_ptr,
-                new_val)
+                wrap_ref(new_val))
             if statuscode == UA_STATUSCODE_GOOD
                 return statuscode
             else
@@ -219,11 +217,11 @@ for att in attributes_UA_Server_write
                 throw(err)
             end
         end
-        #function fallback that wraps any non-ref arguments into refs:
-        function $(fun_name)(server, nodeId, new_val)
-            return ($fun_name)(wrap_ref(server),
-                wrap_ref(nodeId),
-                wrap_ref(new_val))
-        end
     end
+end
+
+function UA_Server_call(server, request, result)
+    r = UA_Server_call(server, request)
+    UA_CallMethodResult_copy(r, result)
+    return result
 end

@@ -133,17 +133,24 @@ function __set_generic_attributes!(attr,
     return nothing
 end
 
-function __set_scalar_attributes!(attr,
-        value::T,
-        valuerank) where {T}
+function __set_scalar_attributes!(attr, value::T, 
+        valuerank) where {T <: Union{AbstractFloat,Integer}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
     return nothing
 end
 
-function __set_array_attributes!(attr,
-        value::AbstractArray{T, N},
+function __set_scalar_attributes!(attr, value::AbstractString, valuerank) 
+    ua_s = UA_STRING(value)
+    type_ptr = ua_data_type_ptr_default(UA_String)
+    attr.valueRank = valuerank
+    UA_Variant_setScalarCopy(attr.value, ua_s, type_ptr)
+    UA_String_delete(ua_s)
+    return nothing
+end
+
+function __set_array_attributes!(attr, value::AbstractArray{T, N},
         valuerank) where {T, N}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
@@ -177,7 +184,7 @@ UA_generate_variable_attributes(; value::Union{AbstractArray{T}, T},
     useraccesslevel::Union{Nothing, UInt8} = nothing,
     minimumsamplinginterval::Union{Nothing, Float64} = nothing,
     historizing::Union{Nothing, Bool} = nothing,
-    valuerank::Union{Integer, Nothing} = nothing)::Ptr{UA_VariableAttributes} where {T <: Union{AbstractFloat, Integer}}
+    valuerank::Union{Integer, Nothing} = nothing)::Ptr{UA_VariableAttributes} where {T <: Union{AbstractFloat, Integer, AbstractString}}
 ```
 generates a `UA_VariableAttributes` object. Memory for the object is allocated 
 by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)` 
@@ -192,7 +199,7 @@ See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref), [`UA_ACCESSLEVEL`](
 and [`UA_USERACCESSLEVEL`](@ref) for information on how to generate the respective 
 keyword inputs.
 """
-function UA_generate_variable_attributes(; value::Union{AbstractArray{T}, T},
+function UA_generate_variable_attributes(; value::Union{AbstractArray{T},T},
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
@@ -201,7 +208,8 @@ function UA_generate_variable_attributes(; value::Union{AbstractArray{T}, T},
         useraccesslevel::Union{Nothing, UInt8} = nothing,
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
-        valuerank::Union{Nothing, Integer} = nothing) where {T <: Union{AbstractFloat, Integer}}
+        valuerank::Union{Nothing, Integer} = nothing) where 
+        {T <: Union{AbstractFloat, Integer, AbstractString}} #TODO: implement array of strings
     attr = __generate_variable_attributes(value, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, valuerank)
@@ -223,7 +231,7 @@ end
 
 function __generate_variable_attributes(value::T, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
-        minimumsamplinginterval, historizing, valuerank) where T 
+        minimumsamplinginterval, historizing, valuerank) where T
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
@@ -254,7 +262,11 @@ function __generic_variable_attributes(displayname, description, localization,
         if !isnothing(historizing)
             attr.historizing = historizing
         end
-        attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+        if type <: AbstractString
+            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
+        else
+            attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+        end
         return attr
     else
         err = AttributeCopyError(statuscode)
@@ -271,7 +283,7 @@ UA_generate_variabletype_attributes(; value::Union{AbstractArray{T}, T},
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
     valuerank::Union{Nothing, Integer} = nothing,
-    isabstract::Union{Nothing, Bool})::Ptr{UA_VariableTypeAttributes} where {T <: Union{AbstractFloat, Integer}}
+    isabstract::Union{Nothing, Bool})::Ptr{UA_VariableTypeAttributes} where {T <: Union{AbstractFloat, Integer, AbstractString}}
 ```
 generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated 
 by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)` 
