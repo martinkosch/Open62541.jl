@@ -22,7 +22,8 @@ function UA_NodeTypeLifecycle_constructor_generate(constructor::Function)
             Ptr{Ptr{Cvoid}}))
         return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
-        error("the function supplied does not have the right signature.") #TODO: more informative error message.
+        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        throw(err)
     end
 end
 
@@ -47,7 +48,8 @@ function UA_NodeTypeLifecycle_destructor_generate(destructor::Function)
             Ptr{Ptr{Cvoid}}))
         return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
-        error("the function supplied does not have the right signature.") #TODO: more informative error message.
+        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        throw(err)    
     end
 end
 
@@ -78,14 +80,18 @@ creates a `UA_MethodCallback` that can be attached to a method node using
        outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
 """
 function UA_MethodCallback_generate(method::Function)
-    if hasmethod(method, (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    input_argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, 
+        Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Csize_t, Ptr{UA_Variant}, 
+        Csize_t, Ptr{UA_Variant})
+    if hasmethod(method, input_argtuple)
         callback = @cfunction($method, UA_StatusCode, 
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
             Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
             Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant})) 
         return callback
     else
-        error("the function supplied does not have the right signature.") #TODO: more informative error message.
+        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        throw(err)
     end
 end
 

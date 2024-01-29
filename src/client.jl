@@ -319,7 +319,7 @@ for nodeclass in instances(UA_NodeClass)
                         requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName, typeDefinition,
                         attributes, UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
-                        reinterpret(UA_ClientAsyncAddNodesCallback, callback), userdata, #todo: callback type wrong, see open62541.h
+                        reinterpret(UA_ClientAsyncServiceCallback, callback), userdata,
                         reqId)
                 end
                 #higher level function using dispatch
@@ -478,12 +478,65 @@ for att in attributes_UA_Client_write_async
     end
 end
 
-## TODO: MISSING INLINED Functions
-# "UA_Client_MonitoredItems_modify_async"
-# "UA_Client_MonitoredItems_setMonitoringMode_async"
-# "UA_Client_MonitoredItems_setTriggering_async"
-# "UA_Client_sendAsyncReadRequest"
-# "UA_Client_sendAsyncWriteRequest"
-# "UA_Client_sendAsyncBrowseRequest"
-# "UA_Client_writeMinimumSamplingIntervalAttribute_async"
-# "UA_Client_call_async"
+## TODO: Functions below here are entirely untested so far.
+function UA_Client_MonitoredItems_modify_async(client, request, callback, userdata, 
+        requestId)
+    return __UA_Client_AsyncService(client, request,
+        UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSREQUEST], callback,
+        UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSRESPONSE],
+        userdata, requestId)
+end
+
+function UA_Client_MonitoredItems_setMonitoringMode_async(client, request, 
+        callback, userdata, requestId)
+    return __UA_Client_AsyncService(client, request,
+        UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODEREQUEST], callback,
+        UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODERESPONSE],
+        userdata, requestId)
+end
+
+function UA_Client_MonitoredItems_setTriggering_async(client, request, callback, 
+        userdata, requestId) 
+    return __UA_Client_AsyncService(client, request,
+        UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGREQUEST], callback,
+        UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGRESPONSE],
+        userdata, requestId)
+end
+
+function UA_Client_sendAsyncReadRequest(client, request, readCallback, userdata, 
+        reqId) 
+    return UA_Client_sendAsyncRequest(client, request, 
+        UA_TYPES_PTRS[UA_TYPES_READREQUEST], 
+        reinterpret(UA_ClientAsyncServiceCallback, readCallback), 
+        UA_TYPES_PTRS[UA_TYPES_READRESPONSE], userdata, reqId)
+end
+
+
+function UA_Client_sendAsyncWriteRequest(client, request, writeCallback, userdata,
+        reqId) 
+    return UA_Client_sendAsyncRequest(client, request, UA_TYPES_PTRS[UA_TYPES_WRITEREQUEST],
+        reinterpret(UA_ClientAsyncServiceCallback, writeCallback),
+        UA_TYPES_PTRS[UA_TYPES_WRITERESPONSE], userdata, reqId)
+end
+
+function UA_Client_sendAsyncBrowseRequest(client, request, browseCallback,
+        userdata, reqId) 
+    return UA_Client_sendAsyncRequest(client, request, UA_TYPES_PTRS[UA_TYPES_BROWSEREQUEST],
+                                      reinterpret(UA_ClientAsyncServiceCallback, browseCallback),
+                                      UA_TYPES_PTRS[UA_TYPES_BROWSERESPONSE], userdata,
+                                      reqId)
+end
+
+function UA_Client_writeMinimumSamplingIntervalAttribute_async(client, nodeId, 
+        outMinimumSamplingInterval, callback, userdata, reqId) 
+    return __UA_Client_writeAttribute_async(
+        client, nodeId, UA_ATTRIBUTEID_MINIMUMSAMPLINGINTERVAL,
+        outMinimumSamplingInterval, UA_TYPES_PTRS[UA_TYPES_DOUBLE], callback, userdata,
+        reqId)
+end
+
+function UA_Client_call_async(client, objectId, methodId, inputSize, input,
+                     callback, userdata, reqId) 
+    return __UA_Client_call_async(client, objectId, methodId, inputSize, input,
+        reinterpret(UA_ClientAsyncServiceCallback, callback), userdata, reqId)
+end
