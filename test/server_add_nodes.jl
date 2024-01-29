@@ -18,7 +18,7 @@ retval0 = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
 #Variable node: scalar
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
-attr = UA_generate_variable_attributes(value = input,
+attr = UA_VariableAttributes_generate(value = input,
     displayname = "scalar variable",
     description = "this is a scalar variable",
     accesslevel = accesslevel)
@@ -50,7 +50,7 @@ output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
 input = rand(Float64, 2, 3, 4)
 varnodetext = "array variable"
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
-attr = UA_generate_variable_attributes(value = input,
+attr = UA_VariableAttributes_generate(value = input,
     displayname = varnodetext,
     description = "this is an array variable",
     accesslevel = accesslevel)
@@ -73,7 +73,7 @@ pointtypeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "2D point type"
 description = "This is a 2D point type."
-attr = UA_generate_variabletype_attributes(value = input,
+attr = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
 retval3 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
@@ -91,7 +91,7 @@ pointvariableid1 = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 displayname = "a 2D point variable"
 description = "This is a 2D point variable."
-attr = UA_generate_variabletype_attributes(value = input,
+attr = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
 retval4 = UA_Server_addVariableNode(server, UA_NodeId_new(),
@@ -108,7 +108,7 @@ pointvariableid2 = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 displayname = "not a 2d point variable"
 description = "This should fail"
-attr = UA_generate_variabletype_attributes(value = input,
+attr = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
 retval5 = UA_Server_addVariableNode(server, UA_NodeId_new(),
@@ -130,7 +130,7 @@ scalartypeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "scalar integer type"
 description = "This is a scalar integer type."
-attr = UA_generate_variabletype_attributes(value = input,
+attr = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
 retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
@@ -147,7 +147,7 @@ retval6 = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 pumpid = UA_NodeId_new()
 displayname = "Pump (Manual)"
 description = "This is a manually added pump."
-oAttr = UA_generate_object_attributes(displayname = displayname, description = description)
+oAttr = UA_ObjectAttributes_generate(displayname = displayname, description = description)
 requestednewnodeid = UA_NodeId_new() 
 parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
 referencetypeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
@@ -162,7 +162,7 @@ retval7 = UA_Server_addObjectNode(server, requestednewnodeid, parentnodeid, refe
 pumpTypeId = UA_NODEID_NUMERIC(1, 1001)
 #Define the object type for "Device"
 deviceTypeId = UA_NodeId_new()
-dtAttr = UA_generate_objecttype_attributes(displayname = "DeviceType", description = "Object type for a device")
+dtAttr = UA_ObjectTypeAttributes_generate(displayname = "DeviceType", description = "Object type for a device")
 retval7 = UA_Server_addObjectTypeNode(server, UA_NodeId_new(),
             UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE),
             UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
@@ -171,7 +171,7 @@ retval7 = UA_Server_addObjectTypeNode(server, UA_NodeId_new(),
 @test retval7 == UA_STATUSCODE_GOOD
 
 #add manufacturer name to device
-mnAttr = UA_generate_variable_attributes(value = "", displayname = "ManufacturerName", description = "Name of the manufacturer")
+mnAttr = UA_VariableAttributes_generate(value = "", displayname = "ManufacturerName", description = "Name of the manufacturer")
 manufacturerNameId = UA_NodeId_new()
 retval8 = UA_Server_addVariableNode(server, UA_NodeId_new(), deviceTypeId,
                             UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
@@ -186,7 +186,7 @@ retval9 = UA_Server_addReference(server, manufacturerNameId,
 @test retval9 == UA_STATUSCODE_GOOD
 
 #Add model name
-modelAttr = UA_generate_variable_attributes(value = "", displayname = "ModelName", description = "Name of the model") 
+modelAttr = UA_VariableAttributes_generate(value = "", displayname = "ModelName", description = "Name of the model") 
 retval10 = UA_Server_addVariableNode(server, UA_NodeId_new(), deviceTypeId,
                             UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
                             UA_QUALIFIEDNAME(1, "ModelName"),
@@ -194,14 +194,14 @@ retval10 = UA_Server_addVariableNode(server, UA_NodeId_new(), deviceTypeId,
 @test retval10 == UA_STATUSCODE_GOOD
 
 #Define the object type for "Pump"
-ptAttr = UA_generate_objecttype_attributes(displayname = "PumpType", description = "Object type for a pump")
+ptAttr = UA_ObjectTypeAttributes_generate(displayname = "PumpType", description = "Object type for a pump")
 retval11 = UA_Server_addObjectTypeNode(server, pumpTypeId,
                             deviceTypeId, UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
                             UA_QUALIFIEDNAME(1, "PumpType"), ptAttr,
                             C_NULL, C_NULL)
 @test retval11 == UA_STATUSCODE_GOOD
 
-statusAttr = UA_generate_variable_attributes(value = false, displayname = "Status", description = "Status")
+statusAttr = UA_VariableAttributes_generate(value = false, displayname = "Status", description = "Status")
 statusId = UA_NodeId_new()
 retval12 = UA_Server_addVariableNode(server, UA_NodeId_new(), pumpTypeId,
                             UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
@@ -215,7 +215,7 @@ retval13 = UA_Server_addReference(server, statusId,
                         UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
 @test retval13 == UA_STATUSCODE_GOOD
 
-rpmAttr = UA_generate_variable_attributes(displayname = "MotorRPM", description = "Pump speed in rpm", value = 0)
+rpmAttr = UA_VariableAttributes_generate(displayname = "MotorRPM", description = "Pump speed in rpm", value = 0)
 retval14 = UA_Server_addVariableNode(server, UA_NodeId_new(), pumpTypeId,
                             UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
                             UA_QUALIFIEDNAME(1, "MotorRPMs"),
@@ -223,7 +223,7 @@ retval14 = UA_Server_addVariableNode(server, UA_NodeId_new(), pumpTypeId,
 @test retval14 == UA_STATUSCODE_GOOD
 
 function addPumpObjectInstance(server, name)
-    oAttr = UA_generate_object_attributes(displayname = name, description = name)
+    oAttr = UA_ObjectAttributes_generate(displayname = name, description = name)
     UA_Server_addObjectNode(server, UA_NodeId_new(),
                             UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
                             UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES),
@@ -261,13 +261,13 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
     value = UA_Variant_new()
     UA_Variant_setScalarCopy(value, Ref(status), UA_TYPES_PTRS[UA_TYPES_BOOLEAN])
     UA_Server_writeValue(server, bpr.targets.targetId.nodeId, value)
+
+    #TODO: clean up to avoid memory leaks
     return UA_STATUSCODE_GOOD
 end
 
 function addPumpTypeConstructor(server)
-    c_pumpTypeConstructor = @cfunction(pumpTypeConstructor, UA_StatusCode, 
-        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, 
-        Ptr{Ptr{Cvoid}}))
+    c_pumpTypeConstructor = UA_NodeTypeLifecycle_constructor_generate(pumpTypeConstructor)
     lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
     UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
 end
@@ -300,7 +300,7 @@ outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
 outputArgument.name = UA_STRING("MyOutput");
 outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
 outputArgument.valueRank = UA_VALUERANK_SCALAR
-helloAttr = UA_generate_method_attributes(description = "Say Hello World", displayname = "Hello World", executable = true, userexecutable = true)
+helloAttr = UA_MethodAttributes_generate(description = "Say Hello World", displayname = "Hello World", executable = true, userexecutable = true)
 
 methodid = UA_NODEID_NUMERIC(1,62541)
 obj = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
@@ -331,4 +331,5 @@ UA_Server_call(server, req, answer)
 
 UA_CallMethodRequest_delete(req)
 UA_CallMethodResult_delete(answer)
+
 #TODO: this will need a test to see whether any memory is leaking.

@@ -12,6 +12,12 @@ function UA_ServerConfig_setMinimal(config, portNumber, certificate)
     UA_ServerConfig_setMinimalCustomBuffer(config, portNumber, certificate, 0, 0)
 end
 
+"""
+```
+UA_ServerConfig_setDefault(config)
+```
+Creates a server config on the default port 4840 with no server certificate.
+"""
 function UA_ServerConfig_setDefault(config)
     UA_ServerConfig_setMinimal(config, 4840, C_NULL)
 end
@@ -22,15 +28,12 @@ function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         inputArgumentsSize, inputArguments, outputArgumentsSize, 
         outputArguments, nodeContext, outNewNodeId) 
 
-    #Generate the appropriate Cfunction pointer.
-    cb = @cfunction($method, UA_StatusCode, 
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, 
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant})) 
+    #Generate the appropriate Cfunction pointer for the callback method
+    callback = UA_MethodCallback_generate(method)
 
     return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName, unsafe_load(attr), 
-        cb, inputArgumentsSize, inputArguments,
+        callback, inputArgumentsSize, inputArguments,
         UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments,
         UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
 end

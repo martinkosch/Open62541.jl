@@ -140,7 +140,7 @@ mem_start = meminfo_julia()
 for i in 1:10_000_000
     accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     input = rand(Float64)
-    attr = UA_generate_variable_attributes(value = input, displayname =  "scalar variable",
+    attr = UA_VariableAttributes_generate(value = input, displayname =  "scalar variable",
         description =  "this is a scalar variable", accesslevel = accesslevel)
     UA_VariableAttributes_delete(attr)
 end
@@ -164,7 +164,7 @@ for i in 1:1_000_000
     parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
     typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
     browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
-    attr = UA_generate_variable_attributes(value = input, displayname = "scalar variable",
+    attr = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
         description = "this is a scalar variable", accesslevel = accesslevel)
     retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid,
         parentreferencenodeid,

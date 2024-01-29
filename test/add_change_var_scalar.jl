@@ -28,7 +28,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     for (type_ind, type) in enumerate(types)
         accesslevel = UA_ACCESSLEVEL(read = true, write = true)
         input = input_data[type_ind]
-        attr = UA_generate_variable_attributes(value = input,
+        attr = UA_VariableAttributes_generate(value = input,
             displayname = varnode_ids[type_ind],
             description = "this is a $(Symbol(type)) scalar variable",
             accesslevel = accesslevel)

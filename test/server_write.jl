@@ -19,7 +19,7 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 #add variable node
 accesslevel = UA_ACCESSLEVEL(read = true, write = true) 
 input = rand(Float64)
-attr = UA_generate_variable_attributes(value = input,
+attr = UA_VariableAttributes_generate(value = input,
     displayname = "scalar variable",
     description = "this is a scalar variable",
     accesslevel = accesslevel)
@@ -42,7 +42,7 @@ variabletypenodeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "2D point type"
 description = "This is a 2D point type."
-attr = UA_generate_variable_attributes(value = input,
+attr = UA_VariableAttributes_generate(value = input,
     displayname = displayname,
     description = description,
     accesslevel = accesslevel) #TODO: BUG?!?!!?!? shouldn't this be variableTYPE_attributes

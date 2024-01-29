@@ -172,10 +172,9 @@ function __set_array_attributes!(attr, value::AbstractArray{T, N},
     return nothing
 end
 
-#VariableAttributes
 """
 ```
-UA_generate_variable_attributes(; value::Union{AbstractArray{T}, T},
+UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
     displayname::AbstractString, description::AbstractString,
     localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
@@ -199,7 +198,7 @@ See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref), [`UA_ACCESSLEVEL`](
 and [`UA_USERACCESSLEVEL`](@ref) for information on how to generate the respective 
 keyword inputs.
 """
-function UA_generate_variable_attributes(; value::Union{AbstractArray{T},T},
+function UA_VariableAttributes_generate(; value::Union{AbstractArray{T},T},
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
@@ -274,10 +273,9 @@ function __generic_variable_attributes(displayname, description, localization,
     end
 end
 
-#VariableType Attributes
 """
 ```
-UA_generate_variabletype_attributes(; value::Union{AbstractArray{T}, T},
+UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
     displayname::AbstractString, description::AbstractString,
     localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
@@ -297,7 +295,7 @@ If nothing is given for keyword `valuerank`, then it is either set to `UA_VALUER
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on 
 how to generate the respective keyword inputs.
 """
-function UA_generate_variabletype_attributes(; value::Union{AbstractArray{T}, T},
+function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
@@ -349,10 +347,9 @@ function __generic_variabletype_attributes(displayname, description, localizatio
     end
 end
 
-#ObjectAttributes
 """
 ```
-UA_generate_object_attributes(; displayname::AbstractString,
+UA_ObjectAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -366,7 +363,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_O
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref), [`UA_EVENTNOTIFIER`](@ref)
 for information on how to generate the respective keyword inputs.
 """
-function UA_generate_object_attributes(; displayname::AbstractString,
+function UA_ObjectAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
@@ -391,10 +388,9 @@ function UA_generate_object_attributes(; displayname::AbstractString,
     end
 end
 
-#ObjectTypeAttributes
 """
 ```
-UA_generate_objecttype_attributes(; displayname::AbstractString,
+UA_ObjectTypeAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -408,7 +404,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_O
 See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
 how to generate the respective keyword inputs.
 """
-function UA_generate_objecttype_attributes(; displayname::AbstractString,
+function UA_ObjectTypeAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
@@ -433,10 +429,9 @@ function UA_generate_objecttype_attributes(; displayname::AbstractString,
     end
 end
 
-#MethodAttributes
 """
 ```
-UA_generate_method_attributes(; displayname::AbstractString,
+UA_MethodAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -450,7 +445,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_M
 See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
 how to generate the respective keyword inputs.
 """
-function UA_generate_method_attributes(; displayname::AbstractString,
+function UA_MethodAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
@@ -479,10 +474,9 @@ function UA_generate_method_attributes(; displayname::AbstractString,
     end
 end
 
-#ViewAttributes
 """
 ```
-UA_generate_view_attributes(; displayname::AbstractString,
+UA_ViewAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -497,7 +491,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_V
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) and [`UA_EVENTNOTIFIER`](@ref) 
 for information on how to generate the respective keyword inputs.
 """
-function UA_generate_view_attributes(; displayname::AbstractString,
+function UA_ViewAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
@@ -526,10 +520,9 @@ function UA_generate_view_attributes(; displayname::AbstractString,
     end
 end
 
-#DataTypeAttributes
 """
 ```
-UA_generate_datatype_attributes(; displayname::AbstractString,
+UA_DataTypeAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -543,7 +536,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_D
 See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
 how to generate the respective keyword inputs.
 """
-function UA_generate_datatype_attributes(; displayname::AbstractString,
+function UA_DataTypeAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
@@ -568,10 +561,9 @@ function UA_generate_datatype_attributes(; displayname::AbstractString,
     end
 end
 
-#ReferenceTypeAttributes
 """
 ```
-UA_generate_referencetype_attributes(; displayname::AbstractString,
+UA_ReferenceTypeAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
@@ -587,7 +579,7 @@ For keywords given as `nothing`, the respective default value is used, see `UA_R
 See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
 how to generate the respective keyword inputs.
 """
-function UA_generate_referencetype_attributes(; displayname::AbstractString,
+function UA_ReferenceTypeAttributes_generate(; displayname::AbstractString,
         description::AbstractString, localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,

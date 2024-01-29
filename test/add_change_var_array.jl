@@ -36,7 +36,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
             # Generate a UA_Server with standard config
             input = input_data[type_ind][array_size_ind]
             accesslevel = UA_ACCESSLEVEL(read = true, write = true)
-            attr = UA_generate_variable_attributes(value = input,
+            attr = UA_VariableAttributes_generate(value = input,
                 displayname = varnode_ids[type_ind, array_size_ind],
                 description = "this is a $(string(array_size)) $(Symbol(type)) array variable",
                 accesslevel = accesslevel)

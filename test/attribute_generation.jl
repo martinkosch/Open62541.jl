@@ -47,7 +47,7 @@ using Test
       UA_EVENTNOTIFIER_SUBSCRIBE_TO_EVENT | UA_EVENTNOTIFIER_HISTORY_READ |
       UA_EVENTNOTIFIER_HISTORY_WRITE
 
-#UA_generate_variable_attributes
+#UA_VariableAttributes_generate
 #define different sized input cases to test both scalar and array codes
 inputs = (rand(), rand(2), rand(2,3), rand(2,3,4))
 valueranks = [-1, 1, 2, 3]
@@ -61,7 +61,7 @@ useraccesslevel = UA_ACCESSLEVEL(read = true, historyread = true)
 minimumsamplinginterval = rand()
 historizing = true
 for i in 1:length(inputs)
-    attr = UA_generate_variable_attributes(value = inputs[i], displayname = displayname,
+    attr = UA_VariableAttributes_generate(value = inputs[i], displayname = displayname,
             description =  description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask, 
             accesslevel = accesslevel, useraccesslevel = useraccesslevel, 
@@ -81,7 +81,7 @@ for i in 1:length(inputs)
     UA_VariableAttributes_delete(attr)
 end
 
-#UA_generate_variabletype_attributes
+#UA_VariableTypeAttributes_generate
 #define different sized input cases to test both scalar and array codes
 inputs = (rand(), rand(2), rand(2,3), rand(2,3,4))
 valueranks = [-1, 1, 2, 3]
@@ -92,7 +92,7 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
 for i in 1:length(inputs)
-    attr = UA_generate_variabletype_attributes(value = inputs[i], displayname = displayname,
+    attr = UA_VariableTypeAttributes_generate(value = inputs[i], displayname = displayname,
             description =  description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask, 
             isabstract = isabstract)
@@ -107,7 +107,7 @@ for i in 1:length(inputs)
     UA_VariableTypeAttributes_delete(attr)
 end
 
-#UA_generate_object_attributes
+#UA_ObjectAttributes_generate
 displayname = "whatever"
 description = "this is a whatever variable"
 localization = "en-GB"
@@ -115,7 +115,7 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 eventnotifier = UA_EVENTNOTIFIER(subscribetoevent = true, historyread = true)
 
-objattr = UA_generate_object_attributes(displayname = displayname, 
+objattr = UA_ObjectAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             eventnotifier = eventnotifier)
@@ -129,7 +129,7 @@ objattr = UA_generate_object_attributes(displayname = displayname,
 @test unsafe_load(objattr.eventNotifier) == eventnotifier
 UA_ObjectAttributes_delete(objattr)
 
-#UA_generate_objecttype_attributes
+#UA_ObjectTypeAttributes_generate
 displayname = "whatever"
 description = "this is a whatever variable"
 localization = "en-GB"
@@ -137,7 +137,7 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
 
-objtypeattr = UA_generate_objecttype_attributes(displayname = displayname, 
+objtypeattr = UA_ObjectTypeAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             isabstract = isabstract)
@@ -160,7 +160,7 @@ userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = 
 executable = true
 userexecutable = true
 
-methodattr = UA_generate_method_attributes(displayname = displayname, 
+methodattr = UA_MethodAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             executable = executable, userexecutable = userexecutable)
@@ -185,7 +185,7 @@ userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = 
 containsnoloops = true
 eventnotifier = UA_EVENTNOTIFIER(subscribetoevent = true, historyread = true)
 
-viewattr = UA_generate_view_attributes(displayname = displayname, 
+viewattr = UA_ViewAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             containsnoloops = containsnoloops, eventnotifier = eventnotifier)
@@ -208,7 +208,7 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
 
-datatypeattr = UA_generate_datatype_attributes(displayname = displayname, 
+datatypeattr = UA_DataTypeAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             isabstract = isabstract)
@@ -233,7 +233,7 @@ isabstract = true
 symmetric = true
 inversename = "invname"
 
-referencetypeattr = UA_generate_referencetype_attributes(displayname = displayname, 
+referencetypeattr = UA_ReferenceTypeAttributes_generate(displayname = displayname, 
             description = description, localization = localization, 
             writemask = writemask, userwritemask = userwritemask,
             isabstract = isabstract, symmetric = symmetric, inversename = inversename)

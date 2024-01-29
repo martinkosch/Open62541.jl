@@ -319,7 +319,7 @@ for nodeclass in instances(UA_NodeClass)
                         requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName, typeDefinition,
                         attributes, UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
-                        reinterpret(UA_ClientAsyncAddNodesCallback, callback), userdata,
+                        reinterpret(UA_ClientAsyncAddNodesCallback, callback), userdata, #todo: callback type wrong, see open62541.h
                         reqId)
                 end
                 #higher level function using dispatch
@@ -387,7 +387,8 @@ for att in attributes_UA_Client_read_async
     ret_type = Symbol(att[3])
     ret_type_ptr = Symbol("UA_TYPES_", uppercase(String(ret_type)[4:end]))
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-
+    
+    #todo: add tests and docstrings
     @eval begin
         function $(fun_name)(client::Ref{UA_Client},
                 nodeId::Ref{UA_NodeId},
