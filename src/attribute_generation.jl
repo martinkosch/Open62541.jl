@@ -14,8 +14,9 @@ UA_ACCESSLEVEL(; read = false, write = false, historyread = false,
         historywrite = false, semanticchange = false, statuswrite = false, 
         timestampwrite = false)::UInt8
 ```
+
 calculates a `UInt8` number expressing how the value of a variable can be accessed.
-Default is to disallow all operations. The meaning of the keywords is explained 
+Default is to disallow all operations. The meaning of the keywords is explained
 here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57
 """
 function UA_ACCESSLEVEL(;
@@ -48,6 +49,7 @@ UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
         userexecutable = false, userwritemask = false, valuerank = false,
         writemask = false, valueforvariabletype = false)::UInt32
 ```
+
 calculates a `UInt32` number expressing which attributes of a node are writeable.
 The meaning of the keywords is explained here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60
 
@@ -95,6 +97,7 @@ const UA_USERWRITEMASK = UA_WRITEMASK
 UA_EVENTNOTIFIER(; subscribetoevent = false, historyread = false, 
         historywrite = false)::UInt8
 ```
+
 calculates a `UInt8` number expressing whether a node can be used to subscribe to
 events and/or read/write historic events.
 
@@ -133,15 +136,15 @@ function __set_generic_attributes!(attr,
     return nothing
 end
 
-function __set_scalar_attributes!(attr, value::T, 
-        valuerank) where {T <: Union{AbstractFloat,Integer}}
+function __set_scalar_attributes!(attr, value::T,
+        valuerank) where {T <: Union{AbstractFloat, Integer}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
     return nothing
 end
 
-function __set_scalar_attributes!(attr, value::AbstractString, valuerank) 
+function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
     ua_s = UA_STRING(value)
     type_ptr = ua_data_type_ptr_default(UA_String)
     attr.valueRank = valuerank
@@ -158,8 +161,8 @@ function __set_array_attributes!(attr, value::AbstractArray{T, N},
     #and once for the attr structure itself. If the same array is put into both 
     #places, using for example UA_VariableAttributes_delete(attr) leads to free-ing
     #the same memory twice --> julia crash (hard to track down!)
-    arraydims_variant = UA_UInt32_Array_new(reverse(size(value))) 
-    arraydims_attr = UA_UInt32_Array_new(reverse(size(value))) 
+    arraydims_variant = UA_UInt32_Array_new(reverse(size(value)))
+    arraydims_attr = UA_UInt32_Array_new(reverse(size(value)))
     attr.arrayDimensions = arraydims_attr
     attr.arrayDimensionsSize = length(arraydims_attr)
     ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
@@ -185,8 +188,9 @@ UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
     historizing::Union{Nothing, Bool} = nothing,
     valuerank::Union{Integer, Nothing} = nothing)::Ptr{UA_VariableAttributes} where {T <: Union{AbstractFloat, Integer, AbstractString}}
 ```
-generates a `UA_VariableAttributes` object. Memory for the object is allocated 
-by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)` 
+
+generates a `UA_VariableAttributes` object. Memory for the object is allocated
+by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)`
 after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_VariableAttributes_default[]`.
@@ -195,10 +199,10 @@ If nothing is given for keyword `valuerank`, then it is either set to `UA_VALUER
 (i.e., `N` for an AbstractArray{T,N}).
 
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref), [`UA_ACCESSLEVEL`](@ref),
-and [`UA_USERACCESSLEVEL`](@ref) for information on how to generate the respective 
+and [`UA_USERACCESSLEVEL`](@ref) for information on how to generate the respective
 keyword inputs.
 """
-function UA_VariableAttributes_generate(; value::Union{AbstractArray{T},T},
+function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
@@ -207,7 +211,7 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T},T},
         useraccesslevel::Union{Nothing, UInt8} = nothing,
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
-        valuerank::Union{Nothing, Integer} = nothing) where 
+        valuerank::Union{Nothing, Integer} = nothing) where
         {T <: Union{AbstractFloat, Integer, AbstractString}} #TODO: implement array of strings
     attr = __generate_variable_attributes(value, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
@@ -222,7 +226,7 @@ function __generate_variable_attributes(value::AbstractArray{T, N}, displayname,
         valuerank = UA_VALUERANK(N)
     end
     attr = __generic_variable_attributes(displayname, description, localization,
-        writemask, userwritemask, accesslevel, useraccesslevel, 
+        writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, T)
     __set_array_attributes!(attr, value, valuerank)
     return attr
@@ -230,12 +234,12 @@ end
 
 function __generate_variable_attributes(value::T, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
-        minimumsamplinginterval, historizing, valuerank) where T
+        minimumsamplinginterval, historizing, valuerank) where {T}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
     attr = __generic_variable_attributes(displayname, description, localization,
-        writemask, userwritemask, accesslevel, useraccesslevel, 
+        writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, T)
     __set_scalar_attributes!(attr, value, valuerank)
     return attr
@@ -283,8 +287,9 @@ UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
     valuerank::Union{Nothing, Integer} = nothing,
     isabstract::Union{Nothing, Bool})::Ptr{UA_VariableTypeAttributes} where {T <: Union{AbstractFloat, Integer, AbstractString}}
 ```
-generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated 
-by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)` 
+
+generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated
+by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)`
 after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_VariableAttributes_default[]`.
@@ -292,7 +297,7 @@ If nothing is given for keyword `valuerank`, then it is either set to `UA_VALUER
 (if `value` is a scalar), or to the dimensionality of the supplied array
 (i.e., `N` for an AbstractArray{T,N}).
 
-See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on 
+See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
 function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
@@ -307,30 +312,32 @@ function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
     return attr
 end
 
-function __generate_variabletype_attributes(value::AbstractArray{T,N}, displayname, 
-        description, localization, writemask, userwritemask, valuerank, isabstract) where {T,N}
+function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
+        description, localization, writemask, userwritemask, valuerank,
+        isabstract) where {T, N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
     attr = __generic_variabletype_attributes(displayname, description, localization,
-            writemask, userwritemask, isabstract, T)
+        writemask, userwritemask, isabstract, T)
     __set_array_attributes!(attr, value, valuerank)
     return attr
 end
 
-function __generate_variabletype_attributes(value::T, displayname, 
-        description, localization, writemask, userwritemask, valuerank, isabstract) where {T}
+function __generate_variabletype_attributes(value::T, displayname,
+        description, localization, writemask, userwritemask, valuerank,
+        isabstract) where {T}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
     attr = __generic_variabletype_attributes(displayname, description, localization,
-            writemask, userwritemask, isabstract, T)
+        writemask, userwritemask, isabstract, T)
     __set_scalar_attributes!(attr, value, valuerank)
     return attr
 end
-    
-function __generic_variabletype_attributes(displayname, description, localization, 
-        writemask, userwritemask, isabstract, type) 
+
+function __generic_variabletype_attributes(displayname, description, localization,
+        writemask, userwritemask, isabstract, type)
     attr = UA_VariableTypeAttributes_new()
     retval = UA_VariableTypeAttributes_copy(UA_VariableTypeAttributes_default, attr)
     if retval == UA_STATUSCODE_GOOD
@@ -355,7 +362,8 @@ UA_ObjectAttributes_generate(; displayname::AbstractString,
     userwritemask::Union{Nothing, UInt32} = nothing,
     eventnotifier::Union{Nothing, UInt8} = nothing)::Ptr{UA_ObjectAttributes}
 ```
-generates a `UA_ObjectAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_ObjectAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_ObjectAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_ObjectAttributes_default[]`
@@ -396,12 +404,13 @@ UA_ObjectTypeAttributes_generate(; displayname::AbstractString,
     userwritemask::Union{Nothing, UInt32} = nothing,
     isabstract::Union{Nothing, Bool} = nothing)::Ptr{UA_ObjectTypeAttributes}
 ```
-generates a `UA_ObjectTypeAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_ObjectTypeAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_ObjectTypeAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_ObjectTypeAttributes_default[]`
 
-See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
+See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
 function UA_ObjectTypeAttributes_generate(; displayname::AbstractString,
@@ -437,12 +446,13 @@ UA_MethodAttributes_generate(; displayname::AbstractString,
     userwritemask::Union{Nothing, UInt32} = nothing,
     isabstract::Union{Nothing, Bool} = nothing)::Ptr{UA_MethodAttributes}
 ```
-generates a `UA_MethodAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_MethodAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_MethodAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_MethodAttributes_default[]`
 
-See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
+See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
 function UA_MethodAttributes_generate(; displayname::AbstractString,
@@ -483,12 +493,13 @@ UA_ViewAttributes_generate(; displayname::AbstractString,
     containsnoloops::Union{Nothing, Bool} = nothing,
     eventnotifier::Union{Nothing, UInt8} = nothing)::Ptr{UA_ViewAttributes}
 ```
-generates a `UA_ViewAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_ViewAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_ViewAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_ViewAttributes_default[]`
 
-See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) and [`UA_EVENTNOTIFIER`](@ref) 
+See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) and [`UA_EVENTNOTIFIER`](@ref)
 for information on how to generate the respective keyword inputs.
 """
 function UA_ViewAttributes_generate(; displayname::AbstractString,
@@ -528,12 +539,13 @@ UA_DataTypeAttributes_generate(; displayname::AbstractString,
     userwritemask::Union{Nothing, UInt32} = nothing,
     isabstract::Union{Nothing, Bool} = nothing)::Ptr{UA_DataTypeAttributes}
 ```
-generates a `UA_DataTypeAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_DataTypeAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_DataTypeAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_DataTypeAttributes_default[]`
 
-See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
+See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
 function UA_DataTypeAttributes_generate(; displayname::AbstractString,
@@ -571,12 +583,13 @@ UA_ReferenceTypeAttributes_generate(; displayname::AbstractString,
     symmetric::Union{Nothing, Bool} = nothing,
     inversename::Union{Nothing, AbstractString} = nothing)::Ptr{UA_ReferenceTypeAttributes}
 ```
-generates a `UA_ReferenceTypeAttributes` object. Memory for the object is allocated by 
+
+generates a `UA_ReferenceTypeAttributes` object. Memory for the object is allocated by
 C and needs to be cleaned up by calling `UA_ReferenceTypeAttributes_delete(x)` after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_ReferenceTypeAttributes_default[]`
 
-See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on 
+See also [`UA_WRITEMASK`](@ref) and [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
 function UA_ReferenceTypeAttributes_generate(; displayname::AbstractString,

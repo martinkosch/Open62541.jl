@@ -12,7 +12,8 @@ using Test
 #UA_ACCESSLEVEL
 @test UA_ACCESSLEVEL() == 0 #default is read = true
 @test UA_ACCESSLEVEL(write = true) == UA_ACCESSLEVELMASK_WRITE
-@test UA_ACCESSLEVEL(write = true, read = true) == UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+@test UA_ACCESSLEVEL(write = true, read = true) ==
+      UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
 @test UA_ACCESSLEVEL(read = true, write = true, historyread = true, historywrite = true,
     semanticchange = true, timestampwrite = true, statuswrite = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE |
@@ -49,7 +50,7 @@ using Test
 
 #UA_VariableAttributes_generate
 #define different sized input cases to test both scalar and array codes
-inputs = (rand(), rand(2), rand(2,3), rand(2,3,4))
+inputs = (rand(), rand(2), rand(2, 3), rand(2, 3, 4))
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -62,11 +63,11 @@ minimumsamplinginterval = rand()
 historizing = true
 for i in 1:length(inputs)
     attr = UA_VariableAttributes_generate(value = inputs[i], displayname = displayname,
-            description =  description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask, 
-            accesslevel = accesslevel, useraccesslevel = useraccesslevel, 
-            minimumsamplinginterval = minimumsamplinginterval, 
-            historizing = historizing)
+        description = description, localization = localization,
+        writemask = writemask, userwritemask = userwritemask,
+        accesslevel = accesslevel, useraccesslevel = useraccesslevel,
+        minimumsamplinginterval = minimumsamplinginterval,
+        historizing = historizing)
     @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
     @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
     @test unsafe_string(unsafe_load(attr.description.text)) == description
@@ -83,7 +84,7 @@ end
 
 #UA_VariableTypeAttributes_generate
 #define different sized input cases to test both scalar and array codes
-inputs = (rand(), rand(2), rand(2,3), rand(2,3,4))
+inputs = (rand(), rand(2), rand(2, 3), rand(2, 3, 4))
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -93,9 +94,9 @@ userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = 
 isabstract = true
 for i in 1:length(inputs)
     attr = UA_VariableTypeAttributes_generate(value = inputs[i], displayname = displayname,
-            description =  description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask, 
-            isabstract = isabstract)
+        description = description, localization = localization,
+        writemask = writemask, userwritemask = userwritemask,
+        isabstract = isabstract)
     @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
     @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
     @test unsafe_string(unsafe_load(attr.description.text)) == description
@@ -115,10 +116,10 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 eventnotifier = UA_EVENTNOTIFIER(subscribetoevent = true, historyread = true)
 
-objattr = UA_ObjectAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            eventnotifier = eventnotifier)
+objattr = UA_ObjectAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    eventnotifier = eventnotifier)
 
 @test unsafe_string(unsafe_load(objattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(objattr.displayName.locale)) == localization
@@ -137,10 +138,10 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
 
-objtypeattr = UA_ObjectTypeAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            isabstract = isabstract)
+objtypeattr = UA_ObjectTypeAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    isabstract = isabstract)
 
 @test unsafe_string(unsafe_load(objtypeattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(objtypeattr.displayName.locale)) == localization
@@ -160,10 +161,10 @@ userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = 
 executable = true
 userexecutable = true
 
-methodattr = UA_MethodAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            executable = executable, userexecutable = userexecutable)
+methodattr = UA_MethodAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    executable = executable, userexecutable = userexecutable)
 
 @test unsafe_string(unsafe_load(methodattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(methodattr.displayName.locale)) == localization
@@ -175,7 +176,6 @@ methodattr = UA_MethodAttributes_generate(displayname = displayname,
 @test unsafe_load(methodattr.userExecutable) == userexecutable
 UA_MethodAttributes_delete(methodattr)
 
-
 #UA_view_attributes
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -185,10 +185,10 @@ userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = 
 containsnoloops = true
 eventnotifier = UA_EVENTNOTIFIER(subscribetoevent = true, historyread = true)
 
-viewattr = UA_ViewAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            containsnoloops = containsnoloops, eventnotifier = eventnotifier)
+viewattr = UA_ViewAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    containsnoloops = containsnoloops, eventnotifier = eventnotifier)
 
 @test unsafe_string(unsafe_load(viewattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(viewattr.displayName.locale)) == localization
@@ -208,10 +208,10 @@ writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
 
-datatypeattr = UA_DataTypeAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            isabstract = isabstract)
+datatypeattr = UA_DataTypeAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    isabstract = isabstract)
 
 @test unsafe_string(unsafe_load(datatypeattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(datatypeattr.displayName.locale)) == localization
@@ -221,7 +221,6 @@ datatypeattr = UA_DataTypeAttributes_generate(displayname = displayname,
 @test unsafe_load(datatypeattr.userWriteMask) == userwritemask
 @test unsafe_load(datatypeattr.isAbstract) == isabstract
 UA_DataTypeAttributes_delete(datatypeattr)
-
 
 #UA_referencetype_attributes
 displayname = "whatever"
@@ -233,10 +232,10 @@ isabstract = true
 symmetric = true
 inversename = "invname"
 
-referencetypeattr = UA_ReferenceTypeAttributes_generate(displayname = displayname, 
-            description = description, localization = localization, 
-            writemask = writemask, userwritemask = userwritemask,
-            isabstract = isabstract, symmetric = symmetric, inversename = inversename)
+referencetypeattr = UA_ReferenceTypeAttributes_generate(displayname = displayname,
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    isabstract = isabstract, symmetric = symmetric, inversename = inversename)
 
 @test unsafe_string(unsafe_load(referencetypeattr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(referencetypeattr.displayName.locale)) == localization

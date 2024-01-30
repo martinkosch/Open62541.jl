@@ -140,8 +140,8 @@ mem_start = meminfo_julia()
 for i in 1:10_000_000
     accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     input = rand(Float64)
-    attr = UA_VariableAttributes_generate(value = input, displayname =  "scalar variable",
-        description =  "this is a scalar variable", accesslevel = accesslevel)
+    attr = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
+        description = "this is a scalar variable", accesslevel = accesslevel)
     UA_VariableAttributes_delete(attr)
 end
 GC.gc()

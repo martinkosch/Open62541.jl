@@ -17,7 +17,7 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 @test retval0 == UA_STATUSCODE_GOOD
 
 #add variable node
-accesslevel = UA_ACCESSLEVEL(read = true, write = true) 
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
 attr = UA_VariableAttributes_generate(value = input,
     displayname = "scalar variable",

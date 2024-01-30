@@ -16,7 +16,7 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 #add a variable node
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
-attr = UA_VariableAttributes_generate(value = input, displayname =  "scalar variable",
+attr = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
     description = "this is a scalar variable",
     accesslevel = accesslevel)
 variablenodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")

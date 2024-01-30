@@ -3,9 +3,10 @@
 ```
 UA_ServerConfig_setMinimal(config, portNumber, certificate)
 ```
-creates a new server config with one endpoint. The config will set the tcp 
-network layer to the given port and adds a single endpoint with the security 
-policy ``SecurityPolicy#None`` to the server. A server certificate may be 
+
+creates a new server config with one endpoint. The config will set the tcp
+network layer to the given port and adds a single endpoint with the security
+policy ``SecurityPolicy#None`` to the server. A server certificate may be
 supplied but is optional.
 """
 function UA_ServerConfig_setMinimal(config, portNumber, certificate)
@@ -16,6 +17,7 @@ end
 ```
 UA_ServerConfig_setDefault(config)
 ```
+
 Creates a server config on the default port 4840 with no server certificate.
 """
 function UA_ServerConfig_setDefault(config)
@@ -24,15 +26,15 @@ end
 
 ## Add node Functions
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, attr, method::Function, 
-        inputArgumentsSize, inputArguments, outputArgumentsSize, 
-        outputArguments, nodeContext, outNewNodeId) 
+        referenceTypeId, browseName, attr, method::Function,
+        inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId)
 
     #Generate the appropriate Cfunction pointer for the callback method
     callback = UA_MethodCallback_generate(method)
 
     return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
-        parentNodeId, referenceTypeId, browseName, unsafe_load(attr), 
+        parentNodeId, referenceTypeId, browseName, unsafe_load(attr),
         callback, inputArgumentsSize, inputArguments,
         UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments,
         UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
@@ -52,16 +54,16 @@ for nodeclass in instances(UA_NodeClass)
                                            titlecase(string(nodeclass_sym)[14:end]) *
                                            "Attributes", "type" => "Type"))
         if funname_sym == :UA_Server_addVariableNode ||
-               funname_sym == :UA_Server_addVariableTypeNode ||
-               funname_sym == :UA_Server_addObjectNode
+           funname_sym == :UA_Server_addVariableTypeNode ||
+           funname_sym == :UA_Server_addObjectNode
             @eval begin
                 # emit specific add node functions                 
-                function $(funname_sym)(server, requestedNewNodeId, parentNodeId, 
-                        referenceTypeId, browseName, typeDefinition, attributes, 
+                function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
+                        referenceTypeId, browseName, typeDefinition, attributes,
                         nodeContext, outNewNodeId)
                     return __UA_Server_addNode(server, $(nodeclass_sym),
-                        requestedNewNodeId, parentNodeId, referenceTypeId, 
-                        browseName, typeDefinition, attributes, 
+                        requestedNewNodeId, parentNodeId, referenceTypeId,
+                        browseName, typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], nodeContext, outNewNodeId)
                 end
 
@@ -73,7 +75,7 @@ for nodeclass in instances(UA_NodeClass)
                     return $(funname_sym)(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         typeDefinition, attributes, nodeContext, outNewNodeId)
-                end 
+                end
             end
         elseif funname_sym != :UA_Server_addMethodNode
             @eval begin
@@ -129,7 +131,7 @@ for att in attributes_UA_Server_read
                 action = "Reading"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, 
+                err = AttributeReadWriteError(action, mode, side,
                     $(String(attr_name)), statuscode)
                 throw(err)
             end
@@ -164,7 +166,7 @@ for att in attributes_UA_Server_write
                 action = "Writing"
                 side = "Server"
                 mode = ""
-                err = AttributeReadWriteError(action, mode, side, 
+                err = AttributeReadWriteError(action, mode, side,
                     $(String(attr_name)), statuscode)
                 throw(err)
             end

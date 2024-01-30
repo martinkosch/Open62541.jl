@@ -35,8 +35,8 @@ end
 #Callback generator argument error 
 #fields intentionally kept abstract; no specialization needed.
 struct CallbackGeneratorArgumentError <: Exception
-    f
-    argtuple 
+    f::Any
+    argtuple::Any
 end
 
 function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
@@ -47,9 +47,9 @@ function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
         unclear which one should be used as basis of the callback."
     else
         args_in = fieldtypes(first(methods(e.f)).sig)
-        nargs_in = length(args_in) - 1         
+        nargs_in = length(args_in) - 1
         msg = "Callback generator expected a method with $nargs_exp input arguments 
-            (argument types: $(string(e.argtuple))); a method with $nargs_in has been provided ($(e.f) ($(string(args_in[2:end])))" 
+            (argument types: $(string(e.argtuple))); a method with $nargs_in has been provided ($(e.f) ($(string(args_in[2:end])))"
     end
     print(io, msg)
 end
