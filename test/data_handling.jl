@@ -12,7 +12,7 @@ UA_Int32_delete(j)
 # String
 s1 = UA_STRING_ALLOC("test2") # Copies the content to the heap
 s2 = UA_String_new()
-UA_String_copy(s1, s2);
+UA_String_copy(s1, s2)
 @test UA_String_equal(s1, s2)
 UA_String_delete(s1)
 UA_String_delete(s2)
@@ -38,9 +38,9 @@ UA_ReadRequest_delete(rr2)
 ns = 1
 i = 1234
 id1 = UA_NODEID_NUMERIC(ns, i)
-@test id1.namespaceIndex == ns
-# @test id1.identifier == i # TODO: Not working due to type union, find workaround
-@test id1.identifierType == UA_NODEIDTYPE_NUMERIC
+@test unsafe_load(id1.namespaceIndex) == ns
+@test_broken id1.identifier == i # TODO: Not working due to type union, find workaround
+@test unsafe_load(id1.identifierType) == UA_NODEIDTYPE_NUMERIC
 
 id2 = UA_NODEID_STRING_ALLOC(1, "testid")
 @test !UA_NodeId_equal(id1, id2)
@@ -68,6 +68,7 @@ UA_Variant_clear(v2)
 # Set an array value
 d = Float64[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
 v3 = UA_Variant_new_copy(d)
+Base.promote_rule(::Type{T}, ::Type{UA_Double}) where {T <: AbstractFloat} = Float64
 @test all(isapprox.(d, unsafe_wrap(v3)))
 
 # Set array dimensions

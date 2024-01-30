@@ -13,12 +13,20 @@ end
     include("data_handling.jl")
 end
 
+@safetestset "Server configurations" begin
+    include("server_config.jl")
+end
+
 @safetestset "Server Read Functions" begin
     include("server_read.jl")
 end
 
 @safetestset "Server Write Functions" begin
     include("server_write.jl")
+end
+
+@safetestset "Server Add Nodes" begin
+    include("server_add_nodes.jl")
 end
 
 #Testsets below here use Distributed; normal testsets required

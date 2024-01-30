@@ -13,12 +13,10 @@ using Base.Threads
 
 #configure server
 server = UA_Server_new()
-retval1 = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-    4842,
-    C_NULL,
-    0,
-    0)
+retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
+@test retval0 == UA_STATUSCODE_GOOD
 
+#add variable node
 accesslevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
 input = rand(Float64)
 attr = UA_generate_variable_attributes(input,
@@ -38,16 +36,43 @@ retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
-for att in open62541.attributes_UA_Server_write
-    fun_write = Symbol(att[1])
-    fun_read = Symbol(replace(att[1], "write" => "read"))
-    attr_name = Symbol(att[2])
-    if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
-        if in(Symbol(lowercasefirst(att[2])), fieldnames(UA_VariableAttributes)) ||
-           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-            read_value = eval(fun_read)(server, varnodeid) #read
-            statuscode = eval(fun_write)(server, varnodeid, read_value) #write read value back...
-            @test statuscode == UA_STATUSCODE_GOOD
+#add a variabletype node
+input = zeros(2)
+variabletypenodeid = UA_NodeId_new()
+accesslevel = UA_ACCESSLEVELMASK_READ
+displayname = "2D point type"
+description = "This is a 2D point type."
+attr = UA_generate_variable_attributes(input,
+    displayname,
+    description,
+    accesslevel)
+retval = UA_Server_addVariableTypeNode(server, UA_NODEID_NULL,
+    UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
+    UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
+    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NODEID_NULL,
+    attr, C_NULL, variabletypenodeid)
+#test whether adding node to the server worked    
+@test retval == UA_STATUSCODE_GOOD
+
+nodes = (varnodeid, variabletypenodeid)
+for node in nodes
+    nodeclass = UA_Server_readNodeClass(server, node)
+    if nodeclass == UA_NODECLASS_VARIABLE
+        attributeset = UA_VariableAttributes
+    elseif nodeclass == UA_NODECLASS_VARIABLETYPE
+        attributeset = UA_VariableTypeAttributes
+    end #TODO: add more node types once implemented
+    for att in open62541.attributes_UA_Server_write
+        fun_write = Symbol(att[1])
+        fun_read = Symbol(replace(att[1], "write" => "read"))
+        attr_name = Symbol(att[2])
+        if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
+            if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
+               in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+                read_value = eval(fun_read)(server, node) #read
+                statuscode = eval(fun_write)(server, node, read_value) #write read value back...
+                @test statuscode == UA_STATUSCODE_GOOD
+            end
         end
     end
 end
