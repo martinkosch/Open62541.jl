@@ -13,6 +13,10 @@ end
     include("exceptions.jl")
 end
 
+@safetestset "Callback generators" begin
+    include("callbacks.jl")
+end
+
 @safetestset "Basic types and functions" begin
     include("basic_types_and_functions.jl")
 end

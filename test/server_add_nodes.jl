@@ -277,7 +277,7 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
 end
 
 function addPumpTypeConstructor(server)
-    c_pumpTypeConstructor = UA_NodeTypeLifecycle_constructor_generate(pumpTypeConstructor)
+    c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
     lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
     UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
 end

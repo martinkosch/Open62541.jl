@@ -3,86 +3,89 @@
 
 """
 ```
-UA_NodeTypeLifeCycle_constructor_generate(constructor::Function)
+UA_NodeTypeLifeCycleCallback_constructor_generate(f::Function)
 ```
+
 creates a function pointer for the `constructor` field of a `UA_NodeTypeLifeCycle`
 object.
 
-`constructor` must be a Julia function with the following signature:
+`f` must be a Julia function with the following signature:
 
-```constructor(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
        nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode```
 ```
 """
-function UA_NodeTypeLifecycle_constructor_generate(constructor::Function)
+function UA_NodeTypeLifecycleCallback_constructor_generate(f::Function)
     input_argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
         Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Ptr{Cvoid}})
-    if hasmethod(constructor, input_argtuple)
-        callback = @cfunction($constructor,
+    if hasmethod(f, input_argtuple)
+        callback = @cfunction($f,
             UA_StatusCode,
             (Ptr{UA_Server},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
                 Ptr{Ptr{Cvoid}}))
         return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
-        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        err = CallbackGeneratorArgumentError(f, input_argtuple)
         throw(err)
     end
 end
 
 """
 ```
-UA_NodeTypeLifeCycle_destructor_generate(destructor::Function)
+UA_NodeTypeLifeCycleCallback_destructor_generate(f::Function)
 ```
+
 creates a function pointer for the `destructor` field of a `UA_NodeTypeLifeCycle`
 object.
 
-`destructor` must be a Julia function with the following signature:
+`f` must be a Julia function with the following signature:
 
-```destructor(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
        nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::Cvoid```
 ```
 """
-function UA_NodeTypeLifecycle_destructor_generate(destructor::Function)
+function UA_NodeTypeLifecycleCallback_destructor_generate(f::Function)
     input_argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
         Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Ptr{Cvoid}})
-    if hasmethod(destructor, input_argtuple)
-        callback = @cfunction($destructor,
-            Cvoid,
-            (Ptr{UA_Server},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
-                Ptr{Ptr{Cvoid}}))
+    if hasmethod(f, input_argtuple)
+        callback = @cfunction($f, Cvoid, (Ptr{UA_Server}, Ptr{UA_NodeId}, 
+            Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Ptr{Cvoid}}))
         return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
-        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        err = CallbackGeneratorArgumentError(f, input_argtuple)
         throw(err)
     end
 end
 
 """
 ```
-UA_MethodCallback_generate(method::Function)
+UA_MethodCallback_generate(f::Function)
 ```
+
 creates a `UA_MethodCallback` that can be attached to a method node using
 `UA_Server_addMethodNode`.
 
-`method` must be a Julia function with the following signature:
-```method(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`,  methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},  objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},  outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
+`f` must be a Julia function with the following signature:
+```f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`,  
+    methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},  
+    objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},  
+    outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
 """
-function UA_MethodCallback_generate(method::Function)
+function UA_MethodCallback_generate(f::Function)
     input_argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
         Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Csize_t, Ptr{UA_Variant},
         Csize_t, Ptr{UA_Variant})
-    if hasmethod(method, input_argtuple)
-        callback = @cfunction($method, UA_StatusCode,
+    if hasmethod(f, input_argtuple)
+        callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
         return callback
     else
-        err = CallbackGeneratorArgumentError(method, input_argtuple)
+        err = CallbackGeneratorArgumentError(f, input_argtuple)
         throw(err)
     end
 end
@@ -101,7 +104,6 @@ end
 # void *sessionContext, const UA_NodeId *nodeid,
 # void *nodeContext, const UA_NumericRange *range,
 # const UA_DataValue *value);
-
 
 # struct UA_DataSource
 #     read::Ptr{Cvoid}

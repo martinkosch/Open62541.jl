@@ -1,16 +1,23 @@
-#TODO: add tests
 """
 ```
 UA_Client_getContext(client::Ptr{UA_Client})::Ptr{Ptr{Cvoid}}
 ```
+
 Get the client context.
 """
 UA_Client_getContext(client::Ptr{UA_Client}) = UA_Client_getConfig(client).clientContext
 
-#TODO: add docstring
-#TODO: add tests
+"""
+```
+UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::AbstractString, 
+    username::AbstractString, password::AbstractString)::UA_StatusCode
+```
+
+connects the `client` to the server with endpoint URL `endpointurl` and supplies
+`username` and `password` as login credentials.
+"""
 function UA_Client_connectUsername(client::Ptr{UA_Client},
-        endpointUrl::AbstractString,
+        endpointurl::AbstractString,
         username::AbstractString,
         password::AbstractString)
     identityToken = UA_UserNameIdentityToken_new()
@@ -22,7 +29,7 @@ function UA_Client_connectUsername(client::Ptr{UA_Client},
     cc.userIdentityToken.encoding = UA_EXTENSIONOBJECT_DECODED
     cc.userIdentityToken.content.decoded.type = UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN]
     cc.userIdentityToken.content.decoded.data = identityToken
-    return UA_Client_connect(client, endpointUrl)
+    return UA_Client_connect(client, endpointurl)
 end
 
 ## UA_Client_Service functions

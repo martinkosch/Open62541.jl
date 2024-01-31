@@ -18,7 +18,7 @@ end
 
 function Base.showerror(io::IO, e::AttributeReadWriteError)
     print(io,
-        "$(e.action) ´$(e.attributename)´ by UA_$(e.side) failed with statuscode \"$(UA_StatusCode_name_print(e.statuscode))\".")
+        "$(e.action) $(e.mode) ´$(e.attributename)´ by UA_$(e.side) failed with statuscode \"$(UA_StatusCode_name_print(e.statuscode))\".")
 end
 
 #Attribute copy error

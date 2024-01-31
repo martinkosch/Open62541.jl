@@ -113,3 +113,9 @@ mi = UA_MonitoredItemCreateRequest_default(n)
 @test isa(mi, Ptr{UA_MonitoredItemCreateRequest})
 UA_NodeId_delete(n)
 UA_MonitoredItemCreateRequest_delete(mi)
+
+#Client_getContext
+client = UA_Client_new()
+context = UA_Client_getContext(client)
+@test isa(context, Ptr{Ptr{Nothing}})
+UA_Client_delete(client)

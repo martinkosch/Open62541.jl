@@ -8,19 +8,19 @@ Distributed.@everywhere begin
     using Test
     using Pkg
 
-    function allowAddNode(server, ac, sessionId, sessionContext, item) 
+    function allowAddNode(server, ac, sessionId, sessionContext, item)
         return UA_TRUE
     end
-    
-    function allowAddReference(server, ac, sessionId, sessionContext, item) 
+
+    function allowAddReference(server, ac, sessionId, sessionContext, item)
         return UA_TRUE
     end
-    
+
     function allowDeleteNode(server, ac, sessionId, sessionContext, item)
         return UA_FALSE #Do not allow node deletion from client
     end
-    
-    function allowDeleteReference(server, ac, sessionId, sessionContext, item) 
+
+    function allowDeleteReference(server, ac, sessionId, sessionContext, item)
         return UA_TRUE
     end
 end
@@ -31,15 +31,39 @@ Distributed.@spawnat Distributed.workers()[end] begin
     config = UA_Server_getConfig(server)
     UA_ServerConfig_setDefault(config)
     login = UA_UsernamePasswordLogin(UA_STRING("user"), UA_STRING("password"))
-    retval0 = UA_AccessControl_default(config, false, C_NULL, 
+    retval0 = UA_AccessControl_default(config, false, C_NULL,
         Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri), 1, Ref(login))
     @test retval0 == UA_STATUSCODE_GOOD
-    
+
     #generate callbacks and add them to the config; TODO: define callback generators for these, so that the user doesn't have to deal with @cfunction etc.
-    cb_allowAddNode = @cfunction(allowAddNode, Bool, (Ptr{UA_Server}, Ptr{UA_AccessControl}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_AddNodesItem}))
-    cb_allowAddReference = @cfunction(allowAddReference, Bool, (Ptr{UA_Server}, Ptr{UA_AccessControl}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_AddReferencesItem}))
-    cb_allowDeleteNode = @cfunction(allowDeleteNode, Bool, (Ptr{UA_Server}, Ptr{UA_AccessControl}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_DeleteNodesItem}))
-    cb_allowDeleteReference = @cfunction(allowDeleteReference, Bool, (Ptr{UA_Server}, Ptr{UA_AccessControl}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_DeleteReferencesItem}))
+    cb_allowAddNode = @cfunction(allowAddNode,
+        Bool,
+        (Ptr{UA_Server},
+            Ptr{UA_AccessControl},
+            Ptr{UA_NodeId},
+            Ptr{Cvoid},
+            Ptr{UA_AddNodesItem}))
+    cb_allowAddReference = @cfunction(allowAddReference,
+        Bool,
+        (Ptr{UA_Server},
+            Ptr{UA_AccessControl},
+            Ptr{UA_NodeId},
+            Ptr{Cvoid},
+            Ptr{UA_AddReferencesItem}))
+    cb_allowDeleteNode = @cfunction(allowDeleteNode,
+        Bool,
+        (Ptr{UA_Server},
+            Ptr{UA_AccessControl},
+            Ptr{UA_NodeId},
+            Ptr{Cvoid},
+            Ptr{UA_DeleteNodesItem}))
+    cb_allowDeleteReference = @cfunction(allowDeleteReference,
+        Bool,
+        (Ptr{UA_Server},
+            Ptr{UA_AccessControl},
+            Ptr{UA_NodeId},
+            Ptr{Cvoid},
+            Ptr{UA_DeleteReferencesItem}))
 
     config.accessControl.allowAddNode = cb_allowAddNode
     config.accessControl.allowAddReference = cb_allowAddReference
@@ -57,7 +81,10 @@ sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
-        retval1 = UA_Client_connectUsername(client, "opc.tcp://localhost:4840", "user", "password")
+        retval1 = UA_Client_connectUsername(client,
+            "opc.tcp://localhost:4840",
+            "user",
+            "password")
         if retval1 == UA_STATUSCODE_GOOD
             println("Connection established.")
             break
@@ -74,7 +101,10 @@ value = UA_UInt32(50)
 accesslevel = UA_ACCESSLEVEL(read = true)
 description = "NewVariable description"
 displayname = "NewVariable"
-newVariableAttributes = UA_VariableAttributes_generate(value = value, accesslevel = accesslevel, description = description, displayname = displayname)
+newVariableAttributes = UA_VariableAttributes_generate(value = value,
+    accesslevel = accesslevel,
+    description = description,
+    displayname = displayname)
 retval2 = UA_Client_addVariableNode(client, newVariableIdRequest,
     UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
     UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES), UA_QUALIFIEDNAME(1, "newVariable"),
@@ -85,7 +115,7 @@ retval2 = UA_Client_addVariableNode(client, newVariableIdRequest,
 extNodeId = UA_EXPANDEDNODEID_NUMERIC(0, 0);
 extNodeId.nodeId = newVariableId
 retval3 = UA_Client_addReference(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT), UA_TRUE, UA_STRING_NULL, extNodeId, 
+    UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT), UA_TRUE, UA_STRING_NULL, extNodeId,
     UA_NODECLASS_VARIABLE)
 @test retval3 == UA_STATUSCODE_GOOD
 

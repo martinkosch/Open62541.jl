@@ -65,7 +65,7 @@ The callback will be triggered once the read operation has been carried out.
                   "function $(fun_name)(f)
                       input_argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
                           $attr_type)
-                      if hasmethod(method, input_argtuple)
+                      if hasmethod(f, input_argtuple)
                           callback = @cfunction(\$f, Cvoid, 
                               (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode, $attr_type)) 
                           return callback
