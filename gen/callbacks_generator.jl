@@ -54,7 +54,7 @@ for cb in client_async_read_callbacks
 ```
 $(fun_name)(f::Function)
 ```
-creates a `$(cb[1])` that can be supplied as callback argument when using `$(fun_name2)`.
+creates a `$(cb[1])` that can be supplied as callback argument to `$(fun_name2)`.
 The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:

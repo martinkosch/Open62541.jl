@@ -14,7 +14,7 @@ function UA_Client_connectUsername(client::Ptr{UA_Client},
         username::AbstractString,
         password::AbstractString)
     identityToken = UA_UserNameIdentityToken_new()
-    identityToken == CNULL && return UA_STATUSCODE_BADOUTOFMEMORY
+    identityToken == C_NULL && return UA_STATUSCODE_BADOUTOFMEMORY
     identityToken.userName = UA_STRING_ALLOC(username)
     identityToken.password = UA_STRING_ALLOC(password)
     cc = UA_Client_getConfig(client)

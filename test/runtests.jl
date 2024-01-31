@@ -63,3 +63,7 @@ end
 @testset "Add, read, change array variables" begin
     include("add_change_var_array.jl")
 end
+
+@testset "Username/password login & access control" begin
+    include("username_password_login_accesscontrol.jl")
+end

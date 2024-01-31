@@ -5622,6 +5622,32 @@ struct UA_AccessControl
     allowHistoryUpdateDeleteRawModified::Ptr{Cvoid}
 end
 
+function Base.getproperty(x::Ptr{UA_AccessControl}, f::Symbol)
+    f === :context && return Ptr{Ptr{Cvoid}}(x + 0)
+    f === :clear && return Ptr{Ptr{Cvoid}}(x + 8)
+    f === :userTokenPoliciesSize && return Ptr{Csize_t}(x + 16)
+    f === :userTokenPolicies && return Ptr{Ptr{UA_UserTokenPolicy}}(x + 24)
+    f === :activateSession && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :closeSession && return Ptr{Ptr{Cvoid}}(x + 40)
+    f === :getUserRightsMask && return Ptr{Ptr{Cvoid}}(x + 48)
+    f === :getUserAccessLevel && return Ptr{Ptr{Cvoid}}(x + 56)
+    f === :getUserExecutable && return Ptr{Ptr{Cvoid}}(x + 64)
+    f === :getUserExecutableOnObject && return Ptr{Ptr{Cvoid}}(x + 72)
+    f === :allowAddNode && return Ptr{Ptr{Cvoid}}(x + 80)
+    f === :allowAddReference && return Ptr{Ptr{Cvoid}}(x + 88)
+    f === :allowDeleteNode && return Ptr{Ptr{Cvoid}}(x + 96)
+    f === :allowDeleteReference && return Ptr{Ptr{Cvoid}}(x + 104)
+    f === :allowBrowseNode && return Ptr{Ptr{Cvoid}}(x + 112)
+    f === :allowTransferSubscription && return Ptr{Ptr{Cvoid}}(x + 120)
+    f === :allowHistoryUpdateUpdateData && return Ptr{Ptr{Cvoid}}(x + 128)
+    f === :allowHistoryUpdateDeleteRawModified && return Ptr{Ptr{Cvoid}}(x + 136)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AccessControl}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 struct UA_Nodestore
     context::Ptr{Cvoid}
     clear::Ptr{Cvoid}
