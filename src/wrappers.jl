@@ -121,6 +121,23 @@ end
 
 JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
 
+#QualifiedName
+mutable struct JUA_QualifiedName <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_QualifiedName}
+    function JUA_QualifiedName(nsIndex::Integer, identifier::AbstractString)
+        obj = new(UA_QUALIFIEDNAME_ALLOC(nsIndex, identifier))
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_QualifiedName)
+    UA_QualifiedName_delete(Jpointer(obj))
+end
+
+Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpointer(x))
+
+
 #TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
 # mutable struct JUA_Variant{T} <: AbstractOpen62541Wrapper
 #     ptr::Ptr{UA_Variant}

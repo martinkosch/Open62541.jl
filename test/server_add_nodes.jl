@@ -152,7 +152,6 @@ retval7 = UA_Server_addObjectNode(server, requestednewnodeid, parentnodeid, refe
 
 @test retval6 == UA_STATUSCODE_GOOD
 
-#TODO: follow rest of tutorial, C code below
 pumpTypeId = UA_NODEID_NUMERIC(1, 1001)
 #Define the object type for "Device"
 deviceTypeId = UA_NodeId_new()
@@ -341,8 +340,42 @@ UA_CallMethodResult_delete(answer)
 
 #TODO: this will need a test to see whether any memory is leaking.
 
-#TODO: should be testing the higher level interface as well. template code below
-#JUA interface
-# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
-#     parentreferencenodeid,
-#     browsename, typedefinition, attr, nodecontext, outnewnodeid)
+#Now test with the higher level JUA interface as well
+#configure server
+server2 = JUA_Server()
+retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_Server_getConfig(server2),
+    4842, C_NULL, 0, 0)
+@test retvalj0 == UA_STATUSCODE_GOOD
+
+#Variable node: scalar
+accesslevel = UA_ACCESSLEVEL(read = true, write = true)
+input = rand(Float64)
+attr = UA_VariableAttributes_generate(value = input,
+    displayname = "scalar variable",
+    description = "this is a scalar variable",
+    accesslevel = accesslevel)
+varnodeid = JUA_NodeId(1, "scalar variable")
+parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
+parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
+typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+browsename = JUA_QualifiedName(1, "scalar variable")
+nodecontext = C_NULL
+outnewnodeid = C_NULL
+retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
+    parentreferencenodeid, browsename, attr, nodecontext, 
+    outnewnodeid, typedefinition)
+@test retvalj1 == UA_STATUSCODE_GOOD
+
+# hit objecttype add node function
+pumpTypeId = JUA_NodeId(1, 1001)
+#Define the object type for "Device"
+deviceTypeId = JUA_NodeId()
+attr = UA_ObjectTypeAttributes_generate(displayname = "DeviceType",
+    description = "Object type for a device")
+parentnodeid = JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE)
+parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASSUBTYPE)
+browsename = JUA_QualifiedName(1, "DeviceType")
+retvalj2 = JUA_Server_addNode(server2, JUA_NodeId(), parentnodeid,
+    parentreferencenodeid, browsename, attr, C_NULL, 
+    outnewnodeid)
+@test retvalj2 == UA_STATUSCODE_GOOD
