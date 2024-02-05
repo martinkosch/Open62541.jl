@@ -14,9 +14,9 @@ e3 = open62541.AttributeCopyError(UA_STATUSCODE_BADOUTOFMEMORY)
 f1(x::Float64, y::Float64) = 0.0
 f1(x::Float64) = 0.0
 input_argtuple = (Int64,)
-e4 = open62541.CallbackGeneratorArgumentError(f1, input_argtuple)
+e4 = open62541.CallbackGeneratorArgumentError(f1, input_argtuple, Float64)
 f2(x::Float64) = 0.0
-e5 = open62541.CallbackGeneratorArgumentError(f2, input_argtuple)
+e5 = open62541.CallbackGeneratorArgumentError(f2, input_argtuple, Float64)
 (buf = IOBuffer(); showerror(buf, e1); msg = String(take!(buf)); @test !isempty(msg))
 (buf = IOBuffer(); showerror(buf, e2); msg = String(take!(buf)); @test !isempty(msg))
 (buf = IOBuffer(); showerror(buf, e3); msg = String(take!(buf)); @test !isempty(msg))

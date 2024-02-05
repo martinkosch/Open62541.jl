@@ -40,12 +40,6 @@ retval1 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
 @test all(isapprox(input, output_server))
 
-#TODO: should be testing the higher level interface as well. template code below
-#JUA interface
-# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
-#     parentreferencenodeid,
-#     browsename, typedefinition, attr, nodecontext, outnewnodeid)
-
 #Variable node: array
 input = rand(Float64, 2, 3, 4)
 varnodetext = "array variable"
@@ -346,3 +340,9 @@ UA_CallMethodRequest_delete(req)
 UA_CallMethodResult_delete(answer)
 
 #TODO: this will need a test to see whether any memory is leaking.
+
+#TODO: should be testing the higher level interface as well. template code below
+#JUA interface
+# retval1 = JUA_Server_addNode(server, varnodeid, parentnodeid,
+#     parentreferencenodeid,
+#     browsename, typedefinition, attr, nodecontext, outnewnodeid)

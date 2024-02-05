@@ -63,14 +63,16 @@ The callback will be triggered once the read operation has been carried out.
 \"\"\"\n"
     addedString = addedString * docstring *
                   "function $(fun_name)(f)
-                      input_argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
+                      argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
                           $attr_type)
-                      if hasmethod(f, input_argtuple)
+                      returntype = Nothing
+                      ret = Base.return_types(f, argtuple)
+                      if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret)  && ret[1] == returntype
                           callback = @cfunction(\$f, Cvoid, 
                               (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode, $attr_type)) 
                           return callback
                       else
-                          err = CallbackGeneratorArgumentError(f, input_argtuple)
+                          err = CallbackGeneratorArgumentError(f, argtuple, returntype)
                           throw(err)
                       end
                   end

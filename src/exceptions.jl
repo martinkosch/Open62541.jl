@@ -37,19 +37,21 @@ end
 struct CallbackGeneratorArgumentError <: Exception
     f::Any
     argtuple::Any
+    returntype::Any
 end
 
 function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
-    nargs_exp = length(e.argtuple)
     m = methods(e.f)
     if length(m) > 1
         msg = "The provided function ($(e.f)) has more than one method; it is 
         unclear which one should be used as basis of the callback."
     else
         args_in = fieldtypes(first(methods(e.f)).sig)
-        nargs_in = length(args_in) - 1
-        msg = "Callback generator expected a method with $nargs_exp input arguments 
-            (argument types: $(string(e.argtuple))); a method with $nargs_in has been provided ($(e.f) ($(string(args_in[2:end])))"
+        @show args_in[2:end]
+        @show e.f, e.argtuple, methods(e.f), args_in
+        ret = Base.return_types(e.f, args_in[2:end])[1]
+        msg = "Callback generator expected a method with f($(join([e.argtuple...], ", ")))::$(string(e.returntype)), 
+            but received a method f($(join(args_in[2:end], ", ")))::$(string(ret))." #TODO: does the job, but it's an ugly error message
     end
     print(io, msg)
 end
