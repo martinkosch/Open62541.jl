@@ -10,11 +10,23 @@ using Test
 @test UA_VALUERANK(-2) == -2
 
 #UA_ACCESSLEVEL
-@test UA_ACCESSLEVEL() == 0 #default is read = true
+@test UA_ACCESSLEVEL() == 0 
 @test UA_ACCESSLEVEL(write = true) == UA_ACCESSLEVELMASK_WRITE
 @test UA_ACCESSLEVEL(write = true, read = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
 @test UA_ACCESSLEVEL(read = true, write = true, historyread = true, historywrite = true,
+    semanticchange = true, timestampwrite = true, statuswrite = true) ==
+      UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE |
+      UA_ACCESSLEVELMASK_HISTORYREAD | UA_ACCESSLEVELMASK_HISTORYWRITE |
+      UA_ACCESSLEVELMASK_SEMANTICCHANGE | UA_ACCESSLEVELMASK_STATUSWRITE |
+      UA_ACCESSLEVELMASK_TIMESTAMPWRITE
+
+#UA_USERACCESSLEVEL
+@test UA_USERACCESSLEVEL() == 0 
+@test UA_USERACCESSLEVEL(write = true) == UA_ACCESSLEVELMASK_WRITE
+@test UA_USERACCESSLEVEL(write = true, read = true) ==
+      UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
+@test UA_USERACCESSLEVEL(read = true, write = true, historyread = true, historywrite = true,
     semanticchange = true, timestampwrite = true, statuswrite = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE |
       UA_ACCESSLEVELMASK_HISTORYREAD | UA_ACCESSLEVELMASK_HISTORYWRITE |
@@ -41,6 +53,28 @@ using Test
       UA_WRITEMASK_USERACCESSLEVEL | UA_WRITEMASK_USEREXECUTABLE |
       UA_WRITEMASK_USERWRITEMASK | UA_WRITEMASK_VALUERANK | UA_WRITEMASK_WRITEMASK |
       UA_WRITEMASK_VALUEFORVARIABLETYPE
+
+#UA_WRITEMASK
+@test UA_USERWRITEMASK() == 0
+@test UA_USERWRITEMASK(; accesslevel = true, arraydimensions = true,
+    browsename = true, containsnoloops = true, datatype = true,
+    description = true, displayname = true, eventnotifier = true,
+    executable = true, historizing = true, inversename = true,
+    isabstract = true, minimumsamplinginterval = true, nodeclass = true,
+    nodeid = true, symmetric = true, useraccesslevel = true,
+    userexecutable = true, userwritemask = true, valuerank = true,
+    writemask = true, valueforvariabletype = true) ==
+      UA_WRITEMASK_ACCESSLEVEL | UA_WRITEMASK_ARRRAYDIMENSIONS |
+      UA_WRITEMASK_BROWSENAME | UA_WRITEMASK_CONTAINSNOLOOPS | UA_WRITEMASK_DATATYPE |
+      UA_WRITEMASK_DESCRIPTION | UA_WRITEMASK_DISPLAYNAME |
+      UA_WRITEMASK_EVENTNOTIFIER | UA_WRITEMASK_EXECUTABLE |
+      UA_WRITEMASK_HISTORIZING | UA_WRITEMASK_INVERSENAME |
+      UA_WRITEMASK_ISABSTRACT | UA_WRITEMASK_MINIMUMSAMPLINGINTERVAL |
+      UA_WRITEMASK_NODECLASS | UA_WRITEMASK_NODEID | UA_WRITEMASK_SYMMETRIC |
+      UA_WRITEMASK_USERACCESSLEVEL | UA_WRITEMASK_USEREXECUTABLE |
+      UA_WRITEMASK_USERWRITEMASK | UA_WRITEMASK_VALUERANK | UA_WRITEMASK_WRITEMASK |
+      UA_WRITEMASK_VALUEFORVARIABLETYPE
+
 
 #UA_EVENTNOTIFIER
 @test UA_EVENTNOTIFIER() == 0
