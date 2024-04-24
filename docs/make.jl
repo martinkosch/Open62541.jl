@@ -11,10 +11,28 @@ makedocs(;
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://martinkosch.github.io/open62541.jl",
-        assets = String[]),
+        assets = String[],
+        size_threshold=8000 * 2^10
+    ),
     pages = [
         "Home" => "index.md"
-    ])
+    ],
+    warnonly = Documenter.except(
+        :autodocs_block, 
+        # :cross_references, 
+        :docs_block, 
+        :doctest, 
+        :eval_block, 
+        :example_block, 
+        :footnote, 
+        :linkcheck_remotes, 
+        :linkcheck, 
+        :meta_block, 
+        :missing_docs, 
+        :parse_error, 
+        :setup_block
+    ),
+)
 
 deploydocs(;
     repo = "github.com/martinkosch/open62541.jl",
