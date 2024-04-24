@@ -39,7 +39,7 @@ uses the server API to add a method node with the callback `method` to the `serv
 `UA_MethodCallback_generate` is internally called on the `method` supplied and thus
 its function signature must match its requirements.
 
-See `UA_MethodAttributes_generate` on how to define valid attributes.
+See [`UA_MethodAttributes_generate`](@ref) on how to define valid attributes.
 """
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, attr, method::Function,
@@ -99,7 +99,7 @@ for nodeclass in instances(UA_NodeClass)
 
                 uses the server API to add a $(lowercase(string($nodeclass_sym)[14:end])) node to the `server`.
 
-                See `$($(attributetype_sym))_generate` on how to define valid attributes.
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid attributes.
                 """
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, typeDefinition, attributes,
@@ -135,7 +135,7 @@ for nodeclass in instances(UA_NodeClass)
 
                 uses the server API to add a $(lowercase(string($nodeclass_sym)[14:end])) node to the `server`.
 
-                See `$($(attributetype_sym))_generate` on how to define valid attributes.
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid attributes.
                 """
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, attributes, nodeContext,
@@ -210,7 +210,7 @@ for att in attributes_UA_Server_write
         $($(fun_name))(server, nodeId, new_val)
         ```
         Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) 
-        of the NodeId `nodeId` located on server `server`. 
+        of the NodeId `nodeId` located on the `server`. 
         """
         function $(fun_name)(server, nodeId, new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]

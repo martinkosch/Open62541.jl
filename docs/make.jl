@@ -16,7 +16,12 @@ makedocs(;
         repolink = "https://github.com/martinkosch/open62541.jl",
     ),
     pages = [
-        "Home" => "index.md"
+        "Home" => "index.md",
+        "Manual" => [                
+                "manual/attributegeneration.md",
+                "manual/server.md",
+                "manual/client.md",
+                ]
     ],
     warnonly = Documenter.except(
         :autodocs_block, 

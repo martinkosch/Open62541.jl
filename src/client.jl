@@ -113,19 +113,30 @@ for nodeclass in instances(UA_NodeClass)
            funname_sym == :UA_Client_addObjectNode
             @eval begin
                 # emit specific add node functions
-                # original function signatures are the following, note difference in number of arguments.
-                # UA_Client_addVariableNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId)
-                # UA_Client_addObjectNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId) 
-                # UA_Client_addVariableTypeNode (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
-                # UA_Client_addObjectTypeNode   (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addViewNode         (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addDataTypeNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
-                # UA_Client_addMethodNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-
-                #TODO: add docstring
                 #TODO: add tests
+                # Untested: UA_Client_addVariableNode   
+                # Untested: UA_Client_addObjectNode       
+                # Untested: UA_Client_addVariableTypeNode 
+                # Untested: UA_Client_addReferenceTypeNode
+                # Untested: UA_Client_addObjectTypeNode   
+                # Untested: UA_Client_addReferenceTypeNode
+                # Untested: UA_Client_addDataTypeNode      
+                # Untested: UA_Client_addMethodNode (does addmethodnode even make sense? There is no possibility to transfer a callback over?!?!)
+                # --> Tests should go into test/client_add_nodes.jl
+                """
+                ```
+                $($(funname_sym))(::Ptr{UA_Client}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, typedefinition::Ptr{UA_NodeId},
+                        attr::Ptr{$($(attributetype_sym))}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
+
+                uses the client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                node to the `client`.
+
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
+                attributes.
+                """
                 function $(funname_sym)(client,
                         requestedNewNodeId,
                         parentNodeId,
@@ -164,6 +175,20 @@ for nodeclass in instances(UA_NodeClass)
             end
         else
             @eval begin
+                """
+                ```
+                $($(funname_sym))(::Ptr{UA_Client}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, attr::Ptr{$($(attributetype_sym))}, 
+                        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
+
+                uses the client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                node to the `client`.
+
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
+                attributes.
+                """
                 function $(funname_sym)(client,
                         requestedNewNodeId,
                         parentNodeId,

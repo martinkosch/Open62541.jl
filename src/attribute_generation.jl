@@ -1,6 +1,14 @@
 ### attribute generation functions
 
 ##generic functions
+"""
+```
+UA_VALUERANK(N::Integer)::Integer
+```
+
+returns the valuerank based on the dimensionality of an array `N`. For special 
+cases see here: [Unified Automation Website](https://documentation.unified-automation.com/uasdknet/2.5.7/html/classUnifiedAutomation_1_1UaBase_1_1ValueRanks.html#details)
+"""
 function UA_VALUERANK(N::Integer)
     N == 1 && return UA_VALUERANK_ONE_DIMENSION
     N == 2 && return UA_VALUERANK_TWO_DIMENSIONS
@@ -17,16 +25,12 @@ UA_ACCESSLEVEL(; read = false, write = false, historyread = false,
 
 calculates a `UInt8` number expressing how the value of a variable can be accessed.
 Default is to disallow all operations. The meaning of the keywords is explained
-here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57
+here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
-function UA_ACCESSLEVEL(;
-        read::Bool = false,
-        write::Bool = false,
-        historyread::Bool = false,
-        historywrite::Bool = false,
-        semanticchange::Bool = false,
-        statuswrite::Bool = false,
-        timestampwrite::Bool = false)
+function UA_ACCESSLEVEL(; read::Bool = false, write::Bool = false, 
+    historyread::Bool = false, historywrite::Bool = false, 
+    semanticchange::Bool = false, statuswrite::Bool = false,
+    timestampwrite::Bool = false)
     al = UA_Byte(0)
     al = read ? al | UA_ACCESSLEVELMASK_READ : al
     al = write ? al | UA_ACCESSLEVELMASK_WRITE : al
@@ -36,6 +40,26 @@ function UA_ACCESSLEVEL(;
     al = statuswrite ? al | UA_ACCESSLEVELMASK_STATUSWRITE : al
     al = timestampwrite ? al | UA_ACCESSLEVELMASK_TIMESTAMPWRITE : al
     return UA_Byte(al)
+end
+
+"""
+```
+UA_USERACCESSLEVEL(; read = false, write = false, historyread = false, 
+        historywrite = false, semanticchange = false, statuswrite = false, 
+        timestampwrite = false)::UInt8
+```
+
+calculates a `UInt8` number expressing how the value of a variable can be accessed.
+Default is to disallow all operations. The meaning of the keywords is explained
+here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
+"""
+function UA_USERACCESSLEVEL(; read::Bool = false, write::Bool = false, 
+        historyread::Bool = false, historywrite::Bool = false, 
+        semanticchange::Bool = false, statuswrite::Bool = false,
+        timestampwrite::Bool = false)
+    UA_ACCESSLEVEL(; read = read, write = write, historyread = historyread, 
+        historywrite = historywrite, semanticchange = semanticchange, 
+        statuswrite = statuswrite, timestampwrite = timestampwrite)
 end
 
 """
@@ -56,14 +80,14 @@ The meaning of the keywords is explained here: https://reference.opcfoundation.o
 If the specific node type does not support an attribute, the corresponding keyword
 must be set to false. *This is currently not enforced automatically.*
 """
-function UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
-        browsename = false, containsnoloops = false, datatype = false,
-        description = false, displayname = false, eventnotifier = false,
-        executable = false, historizing = false, inversename = false,
-        isabstract = false, minimumsamplinginterval = false, nodeclass = false,
-        nodeid = false, symmetric = false, useraccesslevel = false,
-        userexecutable = false, userwritemask = false, valuerank = false,
-        writemask = false, valueforvariabletype = false)
+function UA_WRITEMASK(; accesslevel::Bool = false, arraydimensions::Bool = false,
+        browsename::Bool = false, containsnoloops::Bool = false, datatype::Bool = false,
+        description::Bool = false, displayname::Bool = false, eventnotifier::Bool = false,
+        executable::Bool = false, historizing::Bool = false, inversename::Bool = false,
+        isabstract::Bool = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid::Bool = false, symmetric::Bool = false, useraccesslevel::Bool = false,
+        userexecutable::Bool = false, userwritemask::Bool = false, valuerank::Bool = false,
+        writemask::Bool = false, valueforvariabletype::Bool = false)
     wm = UInt32(0)
     wm = accesslevel ? wm | UA_WRITEMASK_ACCESSLEVEL : wm
     wm = arraydimensions ? wm | UA_WRITEMASK_ARRRAYDIMENSIONS : wm #Note: RRR is a typo in open62541, not here.
@@ -90,7 +114,41 @@ function UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
     return wm
 end
 
-const UA_USERWRITEMASK = UA_WRITEMASK
+"""
+```
+UA_USERWRITEMASK(; accesslevel = false, arraydimensions = false,
+        browsename = false, containsnoloops = false, datatype = false,
+        description = false, displayname = false, eventnotifier = false,
+        executable = false, historizing = false, inversename = false,
+        isabstract = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid = false, symmetric = false, useraccesslevel = false, 
+        userexecutable = false, userwritemask = false, valuerank = false,
+        writemask = false, valueforvariabletype = false)::UInt32
+```
+
+calculates a `UInt32` number expressing which attributes of a node are writeable.
+The meaning of the keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60)
+
+If the specific node type does not support an attribute, the corresponding keyword
+must be set to false. *This is currently not enforced automatically.*
+"""
+function UA_USERWRITEMASK(; accesslevel::Bool = false, arraydimensions::Bool = false,
+        browsename::Bool = false, containsnoloops::Bool = false, datatype::Bool = false,
+        description::Bool = false, displayname::Bool = false, eventnotifier::Bool = false,
+        executable::Bool = false, historizing::Bool = false, inversename::Bool = false,
+        isabstract::Bool = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid::Bool = false, symmetric::Bool = false, useraccesslevel::Bool = false,
+        userexecutable::Bool = false, userwritemask::Bool = false, valuerank::Bool = false,
+        writemask::Bool = false, valueforvariabletype::Bool = false)
+    UA_WRITEMASK(; accesslevel = accesslevel, arraydimensions = arraydimensions,
+    browsename = browsename, containsnoloops = containsnoloops, datatype = datatype,
+    description = description , displayname = displayname , eventnotifier = eventnotifier,
+    executable = executable, historizing = historizing, inversename = inversename,
+    isabstract = isabstract, minimumsamplinginterval = minimumsamplinginterval, nodeclass = nodeclass,
+    nodeid = nodeid, symmetric = symmetric, useraccesslevel = useraccesslevel,
+    userexecutable = userexecutable, userwritemask = userwritemask, valuerank = valuerank,
+    writemask = writemask, valueforvariabletype = valueforvariabletype)
+end
 
 """
 ```
@@ -101,7 +159,7 @@ UA_EVENTNOTIFIER(; subscribetoevent = false, historyread = false,
 calculates a `UInt8` number expressing whether a node can be used to subscribe to
 events and/or read/write historic events.
 
-Meaning of keywords is explained here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59
+Meaning of keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59)
 """
 function UA_EVENTNOTIFIER(;
         subscribetoevent = false,
