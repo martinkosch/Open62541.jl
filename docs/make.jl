@@ -12,7 +12,8 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://martinkosch.github.io/open62541.jl",
         assets = String[],
-        size_threshold=8000 * 2^10
+        size_threshold=8000 * 2^10,
+        repolink = "https://github.com/martinkosch/open62541.jl",
     ),
     pages = [
         "Home" => "index.md"
