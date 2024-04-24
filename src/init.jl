@@ -8,28 +8,36 @@ function __init__()
         end
 
         # Load default attribute definitions (extern variables are missed by Clang.jl)
-        UA_VariableAttributes_default[] = unsafe_load(cglobal((:UA_VariableAttributes_default,
+        UA_VariableAttributes_default[] = unsafe_load(cglobal(
+            (:UA_VariableAttributes_default,
                 libopen62541),
             UA_VariableAttributes))
-        UA_VariableTypeAttributes_default[] = unsafe_load(cglobal((:UA_VariableTypeAttributes_default,
+        UA_VariableTypeAttributes_default[] = unsafe_load(cglobal(
+            (:UA_VariableTypeAttributes_default,
                 libopen62541),
             UA_VariableTypeAttributes))
-        UA_MethodAttributes_default[] = unsafe_load(cglobal((:UA_MethodAttributes_default,
+        UA_MethodAttributes_default[] = unsafe_load(cglobal(
+            (:UA_MethodAttributes_default,
                 libopen62541),
             UA_MethodAttributes))
-        UA_ObjectAttributes_default[] = unsafe_load(cglobal((:UA_ObjectAttributes_default,
+        UA_ObjectAttributes_default[] = unsafe_load(cglobal(
+            (:UA_ObjectAttributes_default,
                 libopen62541),
             UA_ObjectAttributes))
-        UA_ObjectTypeAttributes_default[] = unsafe_load(cglobal((:UA_ObjectTypeAttributes_default,
+        UA_ObjectTypeAttributes_default[] = unsafe_load(cglobal(
+            (:UA_ObjectTypeAttributes_default,
                 libopen62541),
             UA_ObjectTypeAttributes))
-        UA_ReferenceTypeAttributes_default[] = unsafe_load(cglobal((:UA_ReferenceTypeAttributes_default,
+        UA_ReferenceTypeAttributes_default[] = unsafe_load(cglobal(
+            (:UA_ReferenceTypeAttributes_default,
                 libopen62541),
             UA_ReferenceTypeAttributes))
-        UA_DataTypeAttributes_default[] = unsafe_load(cglobal((:UA_DataTypeAttributes_default,
+        UA_DataTypeAttributes_default[] = unsafe_load(cglobal(
+            (:UA_DataTypeAttributes_default,
                 libopen62541),
             UA_DataTypeAttributes))
-        UA_ViewAttributes_default[] = unsafe_load(cglobal((:UA_ViewAttributes_default,
+        UA_ViewAttributes_default[] = unsafe_load(cglobal(
+            (:UA_ViewAttributes_default,
                 libopen62541),
             UA_ViewAttributes))
     end

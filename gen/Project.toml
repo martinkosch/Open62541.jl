@@ -6,8 +6,7 @@ OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 open62541_jll = "de311183-6042-582f-9ed9-05a52085bec4"
 
 [compat]
-CEnum = "0.4.2"
-Clang = "0.17.6"
+Clang = "0.18"
 JuliaFormatter = "1.0.42"
 OffsetArrays = "1.12.10"
-open62541_jll = "1.3.7"
+open62541_jll = "=1.3.9"

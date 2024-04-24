@@ -1,11 +1,11 @@
+using Pkg
+#update packages by default
+Pkg.update()
+
 using Clang.Generators
 using open62541_jll
 using JuliaFormatter
 using OffsetArrays
-using Pkg
-
-#update packages by default
-Pkg.update()
 
 #change dir
 cd(@__DIR__)
@@ -15,7 +15,7 @@ open62541_header = joinpath(include_dir, "open62541.h") |> normpath
 @assert isfile(open62541_header)
 
 function write_generated_defs(generated_defs_dir::String,
-        open62541_header::String,
+        headers,
         type_names,
         julia_types)
     julia_types = replace("$julia_types", Regex("Main\\.open62541\\.") => "")
@@ -37,7 +37,7 @@ function write_generated_defs(generated_defs_dir::String,
     """
 
     data_UA_Client = """
-    # UA_Client_ functions data
+    # UA_Client_ functions data 
     const attributes_UA_Client_Service = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", open62541_header))
     const attributes_UA_Client_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", open62541_header))
     const attributes_UA_Client_write = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", open62541_header))
@@ -88,9 +88,9 @@ end
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 # Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
-# error on low memory machines. Implemented Post-Clang.jl removal using Regexp, which is lower
+# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
 # memory requirement
-append!(options["general"]["output_ignorelist"], extract_inlined_funcs(open62541_header))
+# append!(options["general"]["output_ignorelist"], extract_inlined_funcs(open62541_header))
 
 # Add compiler flags
 args = get_default_args()
@@ -100,28 +100,29 @@ push!(args, "-std=c99")
 # Create context
 ctx = create_context(open62541_header, args, options)
 
-# # Run generator
+# Run generator
 build!(ctx)
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/open62541_new.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
 
-# #remove inlined functions
-# inlined_funcs = extract_inlined_funcs(open62541_header)
-# for i in eachindex(inlined_funcs)
-#     r = Regex("function $(inlined_funcs[i])\(.*\)\n(.*)\nend\n") #TODO: this doesn't really match the required pattern.
-#     data = replace(data, r => "")
-# end
+#remove inlined functions
+inlined_funcs = extract_inlined_funcs(open62541_header)
+for i in eachindex(inlined_funcs)
+    @show i
+    r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
+    data = replace(data, r => "")
+end
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/open62541_new.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
 
 @show "loading module"
-include("../src/open62541.jl")
+include("../src/open62541_new.jl")
 
 # Get UA type names
 UA_TYPES = Ref{Ptr{open62541.UA_DataType}}(0)
@@ -155,7 +156,7 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
 
 # Now let's get the epilogue into the open62541.jl filter
 # 1. Read original file content
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/open62541_new.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 orig_content = replace(orig_content, "end # module" => "")
@@ -168,13 +169,13 @@ epilogue_content = read(f, String)
 close(f)
 
 # 3. Write overall content to the file
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/open62541_new.jl")
 f = open(fn, "w")
 write(f, orig_content * "\n" * epilogue_content * "\nend # module")
 close(f)
 
 #remove double new lines on each "const xxx = ..." line
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/open62541_new.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
@@ -183,7 +184,7 @@ f = open(fn, "w")
 write(f, new_content)
 
 #set compat bound in Projet.toml automatically to version that the generator ran on.
-fn = joinpath(@__DIR__, "Project.toml")
+fn = joinpath(@__DIR__, "../Project.toml")
 vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
 f = open(fn, "r")
 orig_content = read(f, String)
