@@ -107,9 +107,11 @@ creates a function pointer for the `onRead` field of a `UA_ValueCallback`
 object.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid}, 
+
+```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
         data::Ptr{UA_DataValue})::Nothing```
+```
 """
 function UA_ValueCallback_onRead_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -120,7 +122,7 @@ function UA_ValueCallback_onRead_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
-            Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
+                Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -137,9 +139,11 @@ creates a function pointer for the `onWrite` field of a `UA_ValueCallback`
 object.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid}, 
+
+```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
         data::Ptr{UA_DataValue})::Nothing```
+```
 """
 function UA_ValueCallback_onWrite_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -150,7 +154,7 @@ function UA_ValueCallback_onWrite_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
-            Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
+                Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -167,9 +171,11 @@ creates a function pointer for the `write` field of a `UA_DataSource`
 object.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid}, 
+
+```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
         data::Ptr{UA_DataValue})::UA_StatusCode```
+```
 """
 function UA_DataSourceCallback_write_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -180,7 +186,7 @@ function UA_DataSourceCallback_write_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
-            Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
+                Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -197,9 +203,11 @@ creates a function pointer for the `read` field of a `UA_DataSource`
 object.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid}, 
+
+```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, includesourcetimestamp::UA_Boolean, 
         range::Ptr{UA_NumericRange}, data::Ptr{UA_DataValue})::UA_StatusCode```
+```
 """
 function UA_DataSourceCallback_read_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -210,7 +218,7 @@ function UA_DataSourceCallback_read_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
-            Ptr{Cvoid}, UA_Boolean, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
+                Ptr{Cvoid}, UA_Boolean, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -223,11 +231,11 @@ end
 UA_ServerCallback_generate(f::Function)
 ```
 
-creates a `UA_ServerCallback` object that can be used in `UA_Server_addTimedCallback` 
+creates a `UA_ServerCallback` object that can be used in `UA_Server_addTimedCallback`
 or `UA_Server_addRepeatedCallback`.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, data::Ptr{Cvoid}))::Nothing```
+`f(server::Ptr{UA_Server}, data::Ptr{Cvoid}))::Nothing`
 """
 function UA_ServerCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{Cvoid})
@@ -247,11 +255,12 @@ end
 ```
 UA_ClientCallback_generate(f::Function)
 ```
-creates a `UA_ClientCallback` object that can be used in `UA_Client_addTimedCallback` 
+
+creates a `UA_ClientCallback` object that can be used in `UA_Client_addTimedCallback`
 or `UA_Client_addRepeatedCallback`.
 
 `f` must be a Julia function with the following signature:
-```f(client::Ptr{UA_Client}, data::Ptr{Cvoid}))::Nothing```
+`f(client::Ptr{UA_Client}, data::Ptr{Cvoid}))::Nothing`
 """
 function UA_ClientCallback_generate(f::Function)
     argtuple = (Ptr{UA_Client}, Ptr{Cvoid})
@@ -285,7 +294,7 @@ end
 #                                           (UA_Server *server, UA_UInt32 monitoredItemId, void *monitoredItemContext,
 #                                            const UA_NodeId *nodeId, void *nodeContext, UA_UInt32 attributeId,
 #                                            const UA_DataValue *value);
-                                      
+
 #                                       typedef void (*UA_Server_EventNotificationCallback)
 #                                           (UA_Server *server, UA_UInt32 monId, void *monContext,
 #                                            size_t nEventFields, const UA_Variant *eventFields);      
@@ -424,7 +433,6 @@ end
 #     void (*clear)(UA_ServerNetworkLayer *nl);
 # };
 
-
 # struct UA_AccessControl {
 #     void *context;
 #     void (*clear)(UA_AccessControl *ac);
@@ -521,7 +529,6 @@ end
 #                                                       bool isDeleteModified);
 # #endif
 # };
-
 
 # struct UA_CertificateVerification {
 #     void *context;
@@ -651,7 +658,6 @@ end
 #     size_t (*getRemotePlainTextBlockSize)(const void *channelContext);
 # } UA_SecurityPolicyEncryptionAlgorithm;
 
-
 # typedef struct {
 #     /* Generates a thumbprint for the specified certificate.
 #      *
@@ -678,7 +684,6 @@ end
 
 #     UA_SecurityPolicyCryptoModule cryptoModule;
 # } UA_SecurityPolicyAsymmetricModule;
-
 
 # typedef struct {
 #     /* Pseudo random function that is used to generate the symmetric keys.
@@ -1334,7 +1339,6 @@ end
 #                                                UA_UInt32 requestId,
 #                                                UA_AddNodesResponse *ar);
 
-
 # typedef UA_StatusCode (*UA_UsernamePasswordLoginCallback)
 # (const UA_String *userName, const UA_ByteString *password,
 # size_t usernamePasswordLoginSize, const UA_UsernamePasswordLogin
@@ -1344,10 +1348,10 @@ end
 
 #     struct UA_HistoryDataBackend {
 #         void *context;
-    
+
 #         void
 #         (*deleteMembers)(UA_HistoryDataBackend *backend);
-    
+
 #         /* This function sets a DataValue for a node in the historical data storage.
 #          *
 #          * server is the server the node lives in.
@@ -1365,7 +1369,7 @@ end
 #                                 const UA_NodeId *nodeId,
 #                                 UA_Boolean historizing,
 #                                 const UA_DataValue *value);
-    
+
 #         /* This function is the high level interface for the ReadRaw operation. Set
 #          * it to NULL if you use the low level API for your plugin. It should be
 #          * used if the low level interface does not suite your database. It is more
@@ -1407,7 +1411,7 @@ end
 #                           const UA_ByteString *continuationPoint,
 #                           UA_ByteString *outContinuationPoint,
 #                           UA_HistoryData *result);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * index of a value in the database which matches certain criteria.
 #          *
@@ -1425,7 +1429,7 @@ end
 #                             const UA_NodeId *nodeId,
 #                             const UA_DateTime timestamp,
 #                             const MatchStrategy strategy);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * index of the element after the last valid entry in the database for a
 #          * node.
@@ -1440,7 +1444,7 @@ end
 #                   const UA_NodeId *sessionId,
 #                   void *sessionContext,
 #                   const UA_NodeId *nodeId);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * index of the last element in the database for a node.
 #          *
@@ -1455,7 +1459,7 @@ end
 #                      const UA_NodeId *sessionId,
 #                      void *sessionContext,
 #                      const UA_NodeId *nodeId);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * index of the first element in the database for a node.
 #          *
@@ -1470,7 +1474,7 @@ end
 #                       const UA_NodeId *sessionId,
 #                       void *sessionContext,
 #                       const UA_NodeId *nodeId);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * number of elements between startIndex and endIndex including both.
 #          *
@@ -1488,7 +1492,7 @@ end
 #                       const UA_NodeId *nodeId,
 #                       size_t startIndex,
 #                       size_t endIndex);
-    
+
 #         /* This function is part of the low level HistoryRead API. It copies data
 #          * values inside a certain range into a buffer.
 #          *
@@ -1522,7 +1526,7 @@ end
 #                           UA_ByteString *outContinuationPoint,
 #                           size_t *providedValues,
 #                           UA_DataValue *values);
-    
+
 #         /* This function is part of the low level HistoryRead API. It returns the
 #          * data value stored at a certain index in the database.
 #          *
@@ -1538,7 +1542,7 @@ end
 #                         void *sessionContext,
 #                         const UA_NodeId *nodeId,
 #                         size_t index);
-    
+
 #         /* This function returns UA_TRUE if the backend supports returning bounding
 #          * values for a node. This function is mandatory.
 #          *
@@ -1554,7 +1558,7 @@ end
 #                           const UA_NodeId *sessionId,
 #                           void *sessionContext,
 #                           const UA_NodeId *nodeId);
-    
+
 #         /* This function returns UA_TRUE if the backend supports returning the
 #          * requested timestamps for a node. This function is mandatory.
 #          *
@@ -1570,7 +1574,7 @@ end
 #                                        void *sessionContext,
 #                                        const UA_NodeId *nodeId,
 #                                        const UA_TimestampsToReturn timestampsToReturn);
-    
+
 #         UA_StatusCode
 #         (*insertDataValue)(UA_Server *server,
 #                            void *hdbContext,
@@ -1605,10 +1609,10 @@ end
 #     typedef struct UA_HistoryDataGathering UA_HistoryDataGathering;
 #         struct UA_HistoryDataGathering {
 #             void *context;
-        
+
 #             void
 #             (*deleteMembers)(UA_HistoryDataGathering *gathering);
-        
+
 #             /* This function registers a node for the gathering of historical data.
 #              *
 #              * server is the server the node lives in.
@@ -1620,7 +1624,7 @@ end
 #                               void *hdgContext,
 #                               const UA_NodeId *nodeId,
 #                               const UA_HistorizingNodeIdSettings setting);
-        
+
 #             /* This function stops polling a node for value changes.
 #              *
 #              * server is the server the node lives in.
@@ -1631,7 +1635,7 @@ end
 #             (*stopPoll)(UA_Server *server,
 #                         void *hdgContext,
 #                         const UA_NodeId *nodeId);
-        
+
 #             /* This function starts polling a node for value changes.
 #              *
 #              * server is the server the node lives in.
@@ -1641,7 +1645,7 @@ end
 #             (*startPoll)(UA_Server *server,
 #                          void *hdgContext,
 #                          const UA_NodeId *nodeId);
-        
+
 #             /* This function modifies the gathering settings for a node.
 #              *
 #              * server is the server the node lives in.
@@ -1653,7 +1657,7 @@ end
 #                                    void *hdgContext,
 #                                    const UA_NodeId *nodeId,
 #                                    const UA_HistorizingNodeIdSettings setting);
-        
+
 #             /* Returns the gathering settings for a node.
 #              *
 #              * server is the server the node lives in.
@@ -1664,7 +1668,7 @@ end
 #             (*getHistorizingSetting)(UA_Server *server,
 #                                      void *hdgContext,
 #                                      const UA_NodeId *nodeId);
-        
+
 #             /* Sets a DataValue for a node in the historical data storage.
 #              *
 #              * server is the server the node lives in.
@@ -1682,5 +1686,3 @@ end
 #                         UA_Boolean historizing,
 #                         const UA_DataValue *value);
 #         };
-
-

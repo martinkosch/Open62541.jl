@@ -97,14 +97,18 @@ end
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
         nodeclass_sym = Symbol(nodeclass)
-        funname_sym = Symbol(replace("UA_Client_add" *
-                                     titlecase(string(nodeclass_sym)[14:end]) *
-                                     "Node", "type" => "Type"))
+        funname_sym = Symbol(replace(
+            "UA_Client_add" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Node",
+            "type" => "Type"))
         attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
                                             "ATTRIBUTES"))
-        attributetype_sym = Symbol(replace("UA_" *
-                                           titlecase(string(nodeclass_sym)[14:end]) *
-                                           "Attributes", "type" => "Type"))
+        attributetype_sym = Symbol(replace(
+            "UA_" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Attributes",
+            "type" => "Type"))
         if funname_sym == :UA_Client_addVariableNode ||
            funname_sym == :UA_Client_addObjectNode
             @eval begin
@@ -295,14 +299,18 @@ end
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
         nodeclass_sym = Symbol(nodeclass)
-        funname_sym = Symbol(replace("UA_Client_add" *
-                                     titlecase(string(nodeclass_sym)[14:end]) *
-                                     "Node", "type" => "Type") * "_async")
+        funname_sym = Symbol(replace(
+            "UA_Client_add" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Node",
+            "type" => "Type") * "_async")
         attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
                                             "ATTRIBUTES"))
-        attributetype_sym = Symbol(replace("UA_" *
-                                           titlecase(string(nodeclass_sym)[14:end]) *
-                                           "Attributes", "type" => "Type"))
+        attributetype_sym = Symbol(replace(
+            "UA_" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Attributes",
+            "type" => "Type"))
         # original function signatures are the following, note difference in number of arguments.
         # UA_Client_addVariableNode_async     (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, outNewNodeId, callback, userdata, reqId)
         # UA_Client_addObjectNode_async       (client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, outNewNodeId, callback, userdata, reqId) 
@@ -525,7 +533,8 @@ end
 
 function UA_Client_sendAsyncWriteRequest(client, request, writeCallback, userdata,
         reqId)
-    return UA_Client_sendAsyncRequest(client, request, UA_TYPES_PTRS[UA_TYPES_WRITEREQUEST],
+    return UA_Client_sendAsyncRequest(
+        client, request, UA_TYPES_PTRS[UA_TYPES_WRITEREQUEST],
         reinterpret(UA_ClientAsyncServiceCallback, writeCallback),
         UA_TYPES_PTRS[UA_TYPES_WRITERESPONSE], userdata, reqId)
 end

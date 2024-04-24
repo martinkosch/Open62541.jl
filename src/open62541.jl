@@ -7,7 +7,6 @@ using CEnum
 
 using Dates
 using OffsetArrays
-
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)
 const UA_UINT64_MAX = typemax(UInt64)
@@ -122,11 +121,11 @@ NodeId ^^^^^^ An identifier for a node in the address space of an OPC UA Server.
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_402
+struct __JL_Ctag_425
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_402}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_425}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -134,14 +133,14 @@ function Base.getproperty(x::Ptr{__JL_Ctag_402}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_402, f::Symbol)
-    r = Ref{__JL_Ctag_402}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_402}, r)
+function Base.getproperty(x::__JL_Ctag_425, f::Symbol)
+    r = Ref{__JL_Ctag_425}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_425}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_402}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_425}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -152,7 +151,7 @@ end
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_402}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_425}(x + 8)
     return getfield(x, f)
 end
 
@@ -330,27 +329,21 @@ end
 const zip_cmp_cb = Ptr{Cvoid}
 
 function __ZIP_INSERT(cmp, fieldoffset, keyoffset, root, elm)
-    @ccall libopen62541.__ZIP_INSERT(cmp::zip_cmp_cb,
-        fieldoffset::Cushort,
-        keyoffset::Cushort,
-        root::Ptr{Cvoid},
-        elm::Ptr{Cvoid})::Ptr{Cvoid}
+    @ccall libopen62541.__ZIP_INSERT(
+        cmp::zip_cmp_cb, fieldoffset::Cushort, keyoffset::Cushort,
+        root::Ptr{Cvoid}, elm::Ptr{Cvoid})::Ptr{Cvoid}
 end
 
 function __ZIP_REMOVE(cmp, fieldoffset, keyoffset, root, elm)
-    @ccall libopen62541.__ZIP_REMOVE(cmp::zip_cmp_cb,
-        fieldoffset::Cushort,
-        keyoffset::Cushort,
-        root::Ptr{Cvoid},
-        elm::Ptr{Cvoid})::Ptr{Cvoid}
+    @ccall libopen62541.__ZIP_REMOVE(
+        cmp::zip_cmp_cb, fieldoffset::Cushort, keyoffset::Cushort,
+        root::Ptr{Cvoid}, elm::Ptr{Cvoid})::Ptr{Cvoid}
 end
 
 function __ZIP_FIND(cmp, fieldoffset, keyoffset, root, key)
-    @ccall libopen62541.__ZIP_FIND(cmp::zip_cmp_cb,
-        fieldoffset::Cushort,
-        keyoffset::Cushort,
-        root::Ptr{Cvoid},
-        key::Ptr{Cvoid})::Ptr{Cvoid}
+    @ccall libopen62541.__ZIP_FIND(
+        cmp::zip_cmp_cb, fieldoffset::Cushort, keyoffset::Cushort,
+        root::Ptr{Cvoid}, key::Ptr{Cvoid})::Ptr{Cvoid}
 end
 
 function __ZIP_MIN(fieldoffset, elm)
@@ -365,10 +358,8 @@ end
 const __zip_iter_cb = Ptr{Cvoid}
 
 function __ZIP_ITER(fieldoffset, cb, context, elm)
-    @ccall libopen62541.__ZIP_ITER(fieldoffset::Cushort,
-        cb::__zip_iter_cb,
-        context::Ptr{Cvoid},
-        elm::Ptr{Cvoid})::Cvoid
+    @ccall libopen62541.__ZIP_ITER(fieldoffset::Cushort, cb::__zip_iter_cb,
+        context::Ptr{Cvoid}, elm::Ptr{Cvoid})::Cvoid
 end
 
 """
@@ -383,25 +374,25 @@ const UA_Int32 = Int32
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_403
+struct __JL_Ctag_417
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_403}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_404}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_417}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_418}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_405}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_419}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_403, f::Symbol)
-    r = Ref{__JL_Ctag_403}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_403}, r)
+function Base.getproperty(x::__JL_Ctag_417, f::Symbol)
+    r = Ref{__JL_Ctag_417}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_417}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_403}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_417}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -411,7 +402,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
-    f === :backend && return Ptr{__JL_Ctag_403}(x + 8)
+    f === :backend && return Ptr{__JL_Ctag_417}(x + 8)
     return getfield(x, f)
 end
 
@@ -590,8 +581,8 @@ UInt64 ^^^^^^ An integer value between 0 and 18 446 744 073 709 551 615.
 const UA_UInt64 = UInt64
 
 function UA_Server_removeCallback(server, callbackId)
-    @ccall libopen62541.UA_Server_removeCallback(server::Ptr{UA_Server},
-        callbackId::UA_UInt64)::Cvoid
+    @ccall libopen62541.UA_Server_removeCallback(
+        server::Ptr{UA_Server}, callbackId::UA_UInt64)::Cvoid
 end
 
 # typedef UA_StatusCode ( * UA_MethodCallback ) ( UA_Server * server , const UA_NodeId * sessionId , void * sessionContext , const UA_NodeId * methodId , void * methodContext , const UA_NodeId * objectId , void * objectContext , size_t inputSize , const UA_Variant * input , size_t outputSize , UA_Variant * output )
@@ -607,8 +598,8 @@ Note that the same MethodNode may be referenced from several objects (and object
 const UA_MethodCallback = Ptr{Cvoid}
 
 function UA_Server_setMethodNodeCallback(server, methodNodeId, methodCallback)
-    @ccall libopen62541.UA_Server_setMethodNodeCallback(server::Ptr{UA_Server},
-        methodNodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_setMethodNodeCallback(
+        server::Ptr{UA_Server}, methodNodeId::UA_NodeId,
         methodCallback::UA_MethodCallback)::UA_StatusCode
 end
 
@@ -779,14 +770,19 @@ function UA_StatusCode_name(code)
 end
 
 function UA_StatusCode_isEqualTop(s1, s2)
-    @ccall libopen62541.UA_StatusCode_isEqualTop(s1::UA_StatusCode,
-        s2::UA_StatusCode)::UA_Boolean
+    @ccall libopen62541.UA_StatusCode_isEqualTop(
+        s1::UA_StatusCode, s2::UA_StatusCode)::UA_Boolean
 end
 
 function UA_String_equal(s1, s2)
     @ccall libopen62541.UA_String_equal(s1::Ptr{UA_String}, s2::Ptr{UA_String})::UA_Boolean
 end
 
+"""
+    UA_STRING(chars)
+
+`[`UA_STRING`](@ref)` returns a string pointing to the original char-array. `[`UA_STRING_ALLOC`](@ref)` is shorthand for `[`UA_String_fromChars`](@ref)` and makes a copy of the char-array.
+"""
 function UA_DateTime_now()
     @ccall libopen62541.UA_DateTime_now()::UA_DateTime
 end
@@ -856,24 +852,23 @@ ByteString ^^^^^^^^^^ A sequence of octets.
 const UA_ByteString = UA_String
 
 function UA_ByteString_allocBuffer(bs, length)
-    @ccall libopen62541.UA_ByteString_allocBuffer(bs::Ptr{UA_ByteString},
-        length::Csize_t)::UA_StatusCode
+    @ccall libopen62541.UA_ByteString_allocBuffer(
+        bs::Ptr{UA_ByteString}, length::Csize_t)::UA_StatusCode
 end
 
 function UA_ByteString_toBase64(bs, output)
-    @ccall libopen62541.UA_ByteString_toBase64(bs::Ptr{UA_ByteString},
-        output::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_ByteString_toBase64(
+        bs::Ptr{UA_ByteString}, output::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_ByteString_fromBase64(bs, input)
-    @ccall libopen62541.UA_ByteString_fromBase64(bs::Ptr{UA_ByteString},
-        input::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_ByteString_fromBase64(
+        bs::Ptr{UA_ByteString}, input::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_ByteString_hash(initialHashValue, data, size)
-    @ccall libopen62541.UA_ByteString_hash(initialHashValue::UA_UInt32,
-        data::Ptr{UA_Byte},
-        size::Csize_t)::UA_UInt32
+    @ccall libopen62541.UA_ByteString_hash(
+        initialHashValue::UA_UInt32, data::Ptr{UA_Byte}, size::Csize_t)::UA_UInt32
 end
 
 """
@@ -886,14 +881,19 @@ function UA_NodeId_isNull(p)
 end
 
 function UA_NodeId_print(id, output)
-    @ccall libopen62541.UA_NodeId_print(id::Ptr{UA_NodeId},
-        output::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_NodeId_print(
+        id::Ptr{UA_NodeId}, output::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_NodeId_parse(id, str)
     @ccall libopen62541.UA_NodeId_parse(id::Ptr{UA_NodeId}, str::UA_String)::UA_StatusCode
 end
 
+"""
+    UA_NODEID_NUMERIC(nsIndex, identifier)
+
+The following functions are shorthand for creating NodeIds.
+"""
 function UA_NodeId_order(n1, n2)
     @ccall libopen62541.UA_NodeId_order(n1::Ptr{UA_NodeId}, n2::Ptr{UA_NodeId})::UA_Order
 end
@@ -924,22 +924,27 @@ function Base.setproperty!(x::Ptr{UA_ExpandedNodeId}, f::Symbol, v)
 end
 
 function UA_ExpandedNodeId_print(id, output)
-    @ccall libopen62541.UA_ExpandedNodeId_print(id::Ptr{UA_ExpandedNodeId},
-        output::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_ExpandedNodeId_print(
+        id::Ptr{UA_ExpandedNodeId}, output::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_ExpandedNodeId_parse(id, str)
-    @ccall libopen62541.UA_ExpandedNodeId_parse(id::Ptr{UA_ExpandedNodeId},
-        str::UA_String)::UA_StatusCode
+    @ccall libopen62541.UA_ExpandedNodeId_parse(
+        id::Ptr{UA_ExpandedNodeId}, str::UA_String)::UA_StatusCode
 end
 
+"""
+    UA_EXPANDEDNODEID_NUMERIC(nsIndex, identifier)
+
+The following functions are shorthand for creating ExpandedNodeIds.
+"""
 function UA_ExpandedNodeId_isLocal(n)
     @ccall libopen62541.UA_ExpandedNodeId_isLocal(n::Ptr{UA_ExpandedNodeId})::UA_Boolean
 end
 
 function UA_ExpandedNodeId_order(n1, n2)
-    @ccall libopen62541.UA_ExpandedNodeId_order(n1::Ptr{UA_ExpandedNodeId},
-        n2::Ptr{UA_ExpandedNodeId})::UA_Order
+    @ccall libopen62541.UA_ExpandedNodeId_order(
+        n1::Ptr{UA_ExpandedNodeId}, n2::Ptr{UA_ExpandedNodeId})::UA_Order
 end
 
 function UA_ExpandedNodeId_hash(n)
@@ -972,8 +977,8 @@ function UA_QualifiedName_hash(q)
 end
 
 function UA_QualifiedName_equal(qn1, qn2)
-    @ccall libopen62541.UA_QualifiedName_equal(qn1::Ptr{UA_QualifiedName},
-        qn2::Ptr{UA_QualifiedName})::UA_Boolean
+    @ccall libopen62541.UA_QualifiedName_equal(
+        qn1::Ptr{UA_QualifiedName}, qn2::Ptr{UA_QualifiedName})::UA_Boolean
 end
 
 """
@@ -1015,53 +1020,45 @@ struct UA_NumericRange
 end
 
 function UA_NumericRange_parse(range, str)
-    @ccall libopen62541.UA_NumericRange_parse(range::Ptr{UA_NumericRange},
-        str::UA_String)::UA_StatusCode
+    @ccall libopen62541.UA_NumericRange_parse(
+        range::Ptr{UA_NumericRange}, str::UA_String)::UA_StatusCode
 end
 
 function UA_Variant_setScalar(v, p, type)
-    @ccall libopen62541.UA_Variant_setScalar(v::Ptr{UA_Variant},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.UA_Variant_setScalar(
+        v::Ptr{UA_Variant}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::Cvoid
 end
 
 function UA_Variant_setScalarCopy(v, p, type)
-    @ccall libopen62541.UA_Variant_setScalarCopy(v::Ptr{UA_Variant},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_Variant_setScalarCopy(
+        v::Ptr{UA_Variant}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Variant_setArray(v, array, arraySize, type)
-    @ccall libopen62541.UA_Variant_setArray(v::Ptr{UA_Variant},
-        array::Ptr{Cvoid},
-        arraySize::Csize_t,
-        type::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.UA_Variant_setArray(v::Ptr{UA_Variant}, array::Ptr{Cvoid},
+        arraySize::Csize_t, type::Ptr{UA_DataType})::Cvoid
 end
 
 function UA_Variant_setArrayCopy(v, array, arraySize, type)
-    @ccall libopen62541.UA_Variant_setArrayCopy(v::Ptr{UA_Variant},
-        array::Ptr{Cvoid},
-        arraySize::Csize_t,
+    @ccall libopen62541.UA_Variant_setArrayCopy(
+        v::Ptr{UA_Variant}, array::Ptr{Cvoid}, arraySize::Csize_t,
         type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Variant_copyRange(src, dst, range)
-    @ccall libopen62541.UA_Variant_copyRange(src::Ptr{UA_Variant},
-        dst::Ptr{UA_Variant},
-        range::UA_NumericRange)::UA_StatusCode
+    @ccall libopen62541.UA_Variant_copyRange(
+        src::Ptr{UA_Variant}, dst::Ptr{UA_Variant}, range::UA_NumericRange)::UA_StatusCode
 end
 
 function UA_Variant_setRange(v, array, arraySize, range)
-    @ccall libopen62541.UA_Variant_setRange(v::Ptr{UA_Variant},
-        array::Ptr{Cvoid},
-        arraySize::Csize_t,
+    @ccall libopen62541.UA_Variant_setRange(
+        v::Ptr{UA_Variant}, array::Ptr{Cvoid}, arraySize::Csize_t,
         range::UA_NumericRange)::UA_StatusCode
 end
 
 function UA_Variant_setRangeCopy(v, array, arraySize, range)
-    @ccall libopen62541.UA_Variant_setRangeCopy(v::Ptr{UA_Variant},
-        array::Ptr{Cvoid},
-        arraySize::Csize_t,
+    @ccall libopen62541.UA_Variant_setRangeCopy(
+        v::Ptr{UA_Variant}, array::Ptr{Cvoid}, arraySize::Csize_t,
         range::UA_NumericRange)::UA_StatusCode
 end
 
@@ -1082,24 +1079,24 @@ ExtensionObjects may contain scalars of any data type. Even those that are unkno
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_395
+struct __JL_Ctag_420
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_395}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_396}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_397}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_420}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_421}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_422}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_395, f::Symbol)
-    r = Ref{__JL_Ctag_395}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_395}, r)
+function Base.getproperty(x::__JL_Ctag_420, f::Symbol)
+    r = Ref{__JL_Ctag_420}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_420}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_395}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_420}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -1109,7 +1106,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
-    f === :content && return Ptr{__JL_Ctag_395}(x + 8)
+    f === :content && return Ptr{__JL_Ctag_420}(x + 8)
     return getfield(x, f)
 end
 
@@ -1125,26 +1122,23 @@ function Base.setproperty!(x::Ptr{UA_ExtensionObject}, f::Symbol, v)
 end
 
 function UA_ExtensionObject_setValue(eo, p, type)
-    @ccall libopen62541.UA_ExtensionObject_setValue(eo::Ptr{UA_ExtensionObject},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.UA_ExtensionObject_setValue(
+        eo::Ptr{UA_ExtensionObject}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::Cvoid
 end
 
 function UA_ExtensionObject_setValueNoDelete(eo, p, type)
-    @ccall libopen62541.UA_ExtensionObject_setValueNoDelete(eo::Ptr{UA_ExtensionObject},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.UA_ExtensionObject_setValueNoDelete(
+        eo::Ptr{UA_ExtensionObject}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::Cvoid
 end
 
 function UA_ExtensionObject_setValueCopy(eo, p, type)
-    @ccall libopen62541.UA_ExtensionObject_setValueCopy(eo::Ptr{UA_ExtensionObject},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_ExtensionObject_setValueCopy(
+        eo::Ptr{UA_ExtensionObject}, p::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_DataValue_copyVariantRange(src, dst, range)
-    @ccall libopen62541.UA_DataValue_copyVariantRange(src::Ptr{UA_DataValue},
-        dst::Ptr{UA_DataValue},
+    @ccall libopen62541.UA_DataValue_copyVariantRange(
+        src::Ptr{UA_DataValue}, dst::Ptr{UA_DataValue},
         range::UA_NumericRange)::UA_StatusCode
 end
 
@@ -1259,11 +1253,9 @@ struct UA_DataTypeArray
 end
 
 function UA_DataType_getStructMember(type, memberName, outOffset, outMemberType, outIsArray)
-    @ccall libopen62541.UA_DataType_getStructMember(type::Ptr{UA_DataType},
-        memberName::Cstring,
-        outOffset::Ptr{Csize_t},
-        outMemberType::Ptr{Ptr{UA_DataType}},
-        outIsArray::Ptr{UA_Boolean})::UA_Boolean
+    @ccall libopen62541.UA_DataType_getStructMember(
+        type::Ptr{UA_DataType}, memberName::Cstring, outOffset::Ptr{Csize_t},
+        outMemberType::Ptr{Ptr{UA_DataType}}, outIsArray::Ptr{UA_Boolean})::UA_Boolean
 end
 
 function UA_DataType_isNumeric(type)
@@ -1288,9 +1280,8 @@ function UA_new(type)
 end
 
 function UA_copy(src, dst, type)
-    @ccall libopen62541.UA_copy(src::Ptr{Cvoid},
-        dst::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_copy(
+        src::Ptr{Cvoid}, dst::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_delete(p, type)
@@ -1298,15 +1289,13 @@ function UA_delete(p, type)
 end
 
 function UA_print(p, type, output)
-    @ccall libopen62541.UA_print(p::Ptr{Cvoid},
-        type::Ptr{UA_DataType},
-        output::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_print(
+        p::Ptr{Cvoid}, type::Ptr{UA_DataType}, output::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_order(p1, p2, type)
-    @ccall libopen62541.UA_order(p1::Ptr{Cvoid},
-        p2::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_Order
+    @ccall libopen62541.UA_order(
+        p1::Ptr{Cvoid}, p2::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_Order
 end
 
 """
@@ -1319,9 +1308,8 @@ function UA_calcSizeBinary(p, type)
 end
 
 function UA_encodeBinary(p, type, outBuf)
-    @ccall libopen62541.UA_encodeBinary(p::Ptr{Cvoid},
-        type::Ptr{UA_DataType},
-        outBuf::Ptr{UA_ByteString})::UA_StatusCode
+    @ccall libopen62541.UA_encodeBinary(
+        p::Ptr{Cvoid}, type::Ptr{UA_DataType}, outBuf::Ptr{UA_ByteString})::UA_StatusCode
 end
 
 struct UA_DecodeBinaryOptions
@@ -1329,9 +1317,8 @@ struct UA_DecodeBinaryOptions
 end
 
 function UA_decodeBinary(inBuf, p, type, options)
-    @ccall libopen62541.UA_decodeBinary(inBuf::Ptr{UA_ByteString},
-        p::Ptr{Cvoid},
-        type::Ptr{UA_DataType},
+    @ccall libopen62541.UA_decodeBinary(
+        inBuf::Ptr{UA_ByteString}, p::Ptr{Cvoid}, type::Ptr{UA_DataType},
         options::Ptr{UA_DecodeBinaryOptions})::UA_StatusCode
 end
 
@@ -1340,37 +1327,28 @@ function UA_Array_new(size, type)
 end
 
 function UA_Array_copy(src, size, dst, type)
-    @ccall libopen62541.UA_Array_copy(src::Ptr{Cvoid},
-        size::Csize_t,
-        dst::Ptr{Ptr{Cvoid}},
+    @ccall libopen62541.UA_Array_copy(src::Ptr{Cvoid}, size::Csize_t, dst::Ptr{Ptr{Cvoid}},
         type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Array_resize(p, size, newSize, type)
-    @ccall libopen62541.UA_Array_resize(p::Ptr{Ptr{Cvoid}},
-        size::Ptr{Csize_t},
-        newSize::Csize_t,
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_Array_resize(p::Ptr{Ptr{Cvoid}}, size::Ptr{Csize_t},
+        newSize::Csize_t, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Array_append(p, size, newElem, type)
-    @ccall libopen62541.UA_Array_append(p::Ptr{Ptr{Cvoid}},
-        size::Ptr{Csize_t},
-        newElem::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_Array_append(p::Ptr{Ptr{Cvoid}}, size::Ptr{Csize_t},
+        newElem::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Array_appendCopy(p, size, newElem, type)
-    @ccall libopen62541.UA_Array_appendCopy(p::Ptr{Ptr{Cvoid}},
-        size::Ptr{Csize_t},
-        newElem::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_Array_appendCopy(p::Ptr{Ptr{Cvoid}}, size::Ptr{Csize_t},
+        newElem::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Array_delete(p, size, type)
-    @ccall libopen62541.UA_Array_delete(p::Ptr{Cvoid},
-        size::Csize_t,
-        type::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.UA_Array_delete(
+        p::Ptr{Cvoid}, size::Csize_t, type::Ptr{UA_DataType})::Cvoid
 end
 
 """
@@ -1386,10 +1364,6 @@ function UA_UInt32_random()
     @ccall libopen62541.UA_UInt32_random()::UA_UInt32
 end
 
-#NOTE: Manually altered! Original code in comment below
-# function UA_Guid_random()
-#     @ccall libopen62541.UA_Guid_random()::UA_Guid
-# end
 function UA_Guid_random()
     guid_dst = UA_Guid_new()
     guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
@@ -5621,7 +5595,6 @@ struct UA_AccessControl
     allowHistoryUpdateUpdateData::Ptr{Cvoid}
     allowHistoryUpdateDeleteRawModified::Ptr{Cvoid}
 end
-
 function Base.getproperty(x::Ptr{UA_AccessControl}, f::Symbol)
     f === :context && return Ptr{Ptr{Cvoid}}(x + 0)
     f === :clear && return Ptr{Ptr{Cvoid}}(x + 8)
@@ -5923,87 +5896,76 @@ end
 Key Value Map ------------- Helper functions to work with configuration parameters in an array of [`UA_KeyValuePair`](@ref). Lookup is linear. So this is for small numbers of keys.
 """
 function UA_KeyValueMap_setQualified(map, mapSize, key, value)
-    @ccall libopen62541.UA_KeyValueMap_setQualified(map::Ptr{Ptr{UA_KeyValuePair}},
-        mapSize::Ptr{Csize_t},
-        key::Ptr{UA_QualifiedName},
-        value::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_KeyValueMap_setQualified(
+        map::Ptr{Ptr{UA_KeyValuePair}}, mapSize::Ptr{Csize_t},
+        key::Ptr{UA_QualifiedName}, value::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_KeyValueMap_set(map, mapSize, key, value)
-    @ccall libopen62541.UA_KeyValueMap_set(map::Ptr{Ptr{UA_KeyValuePair}},
-        mapSize::Ptr{Csize_t},
-        key::Cstring,
-        value::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_KeyValueMap_set(
+        map::Ptr{Ptr{UA_KeyValuePair}}, mapSize::Ptr{Csize_t},
+        key::Cstring, value::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_KeyValueMap_getQualified(map, mapSize, key)
-    @ccall libopen62541.UA_KeyValueMap_getQualified(map::Ptr{UA_KeyValuePair},
-        mapSize::Csize_t,
+    @ccall libopen62541.UA_KeyValueMap_getQualified(
+        map::Ptr{UA_KeyValuePair}, mapSize::Csize_t,
         key::Ptr{UA_QualifiedName})::Ptr{UA_Variant}
 end
 
 function UA_KeyValueMap_get(map, mapSize, key)
-    @ccall libopen62541.UA_KeyValueMap_get(map::Ptr{UA_KeyValuePair},
-        mapSize::Csize_t,
-        key::Cstring)::Ptr{UA_Variant}
+    @ccall libopen62541.UA_KeyValueMap_get(
+        map::Ptr{UA_KeyValuePair}, mapSize::Csize_t, key::Cstring)::Ptr{UA_Variant}
 end
 
 function UA_KeyValueMap_getScalar(map, mapSize, key, type)
-    @ccall libopen62541.UA_KeyValueMap_getScalar(map::Ptr{UA_KeyValuePair},
-        mapSize::Csize_t,
-        key::Cstring,
-        type::Ptr{UA_DataType})::Ptr{UA_Variant}
+    @ccall libopen62541.UA_KeyValueMap_getScalar(
+        map::Ptr{UA_KeyValuePair}, mapSize::Csize_t,
+        key::Cstring, type::Ptr{UA_DataType})::Ptr{UA_Variant}
 end
 
 function UA_KeyValueMap_getArray(map, mapSize, key, type)
-    @ccall libopen62541.UA_KeyValueMap_getArray(map::Ptr{UA_KeyValuePair},
-        mapSize::Csize_t,
-        key::Cstring,
-        type::Ptr{UA_DataType})::Ptr{UA_Variant}
+    @ccall libopen62541.UA_KeyValueMap_getArray(
+        map::Ptr{UA_KeyValuePair}, mapSize::Csize_t,
+        key::Cstring, type::Ptr{UA_DataType})::Ptr{UA_Variant}
 end
 
 function UA_KeyValueMap_deleteQualified(map, mapSize, key)
-    @ccall libopen62541.UA_KeyValueMap_deleteQualified(map::Ptr{Ptr{UA_KeyValuePair}},
-        mapSize::Ptr{Csize_t},
+    @ccall libopen62541.UA_KeyValueMap_deleteQualified(
+        map::Ptr{Ptr{UA_KeyValuePair}}, mapSize::Ptr{Csize_t},
         key::Ptr{UA_QualifiedName})::Cvoid
 end
 
 function UA_KeyValueMap_delete(map, mapSize, key)
-    @ccall libopen62541.UA_KeyValueMap_delete(map::Ptr{Ptr{UA_KeyValuePair}},
-        mapSize::Ptr{Csize_t},
-        key::Cstring)::Cvoid
+    @ccall libopen62541.UA_KeyValueMap_delete(
+        map::Ptr{Ptr{UA_KeyValuePair}}, mapSize::Ptr{Csize_t}, key::Cstring)::Cvoid
 end
 
 function UA_parseEndpointUrl(endpointUrl, outHostname, outPort, outPath)
-    @ccall libopen62541.UA_parseEndpointUrl(endpointUrl::Ptr{UA_String},
-        outHostname::Ptr{UA_String},
-        outPort::Ptr{UA_UInt16},
-        outPath::Ptr{UA_String})::UA_StatusCode
+    @ccall libopen62541.UA_parseEndpointUrl(
+        endpointUrl::Ptr{UA_String}, outHostname::Ptr{UA_String},
+        outPort::Ptr{UA_UInt16}, outPath::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_parseEndpointUrlEthernet(endpointUrl, target, vid, pcp)
-    @ccall libopen62541.UA_parseEndpointUrlEthernet(endpointUrl::Ptr{UA_String},
-        target::Ptr{UA_String},
-        vid::Ptr{UA_UInt16},
-        pcp::Ptr{UA_Byte})::UA_StatusCode
+    @ccall libopen62541.UA_parseEndpointUrlEthernet(
+        endpointUrl::Ptr{UA_String}, target::Ptr{UA_String},
+        vid::Ptr{UA_UInt16}, pcp::Ptr{UA_Byte})::UA_StatusCode
 end
 
 function UA_readNumber(buf, buflen, number)
-    @ccall libopen62541.UA_readNumber(buf::Ptr{UA_Byte},
-        buflen::Csize_t,
-        number::Ptr{UA_UInt32})::Csize_t
+    @ccall libopen62541.UA_readNumber(
+        buf::Ptr{UA_Byte}, buflen::Csize_t, number::Ptr{UA_UInt32})::Csize_t
 end
 
 function UA_readNumberWithBase(buf, buflen, number, base)
-    @ccall libopen62541.UA_readNumberWithBase(buf::Ptr{UA_Byte},
-        buflen::Csize_t,
-        number::Ptr{UA_UInt32},
-        base::UA_Byte)::Csize_t
+    @ccall libopen62541.UA_readNumberWithBase(
+        buf::Ptr{UA_Byte}, buflen::Csize_t, number::Ptr{UA_UInt32}, base::UA_Byte)::Csize_t
 end
 
 function UA_RelativePath_parse(rp, str)
-    @ccall libopen62541.UA_RelativePath_parse(rp::Ptr{UA_RelativePath},
-        str::UA_String)::UA_StatusCode
+    @ccall libopen62541.UA_RelativePath_parse(
+        rp::Ptr{UA_RelativePath}, str::UA_String)::UA_StatusCode
 end
 
 """
@@ -6072,14 +6034,14 @@ It is the job of the server network layer to listen on a TCP socket, to accept n
 The network layer is part of the server config. So users can provide a custom implementation if the provided example does not fit their architecture. The network layer is invoked only from the server's main loop. So the network layer does not need to be thread-safe. If the network layer receives a positive duration for blocking listening, the server's main loop will block until a message is received or the duration times out.
 """
 function UA_Server_processBinaryMessage(server, connection, message)
-    @ccall libopen62541.UA_Server_processBinaryMessage(server::Ptr{UA_Server},
-        connection::Ptr{UA_Connection},
+    @ccall libopen62541.UA_Server_processBinaryMessage(
+        server::Ptr{UA_Server}, connection::Ptr{UA_Connection},
         message::Ptr{UA_ByteString})::Cvoid
 end
 
 function UA_Server_removeConnection(server, connection)
-    @ccall libopen62541.UA_Server_removeConnection(server::Ptr{UA_Server},
-        connection::Ptr{UA_Connection})::Cvoid
+    @ccall libopen62541.UA_Server_removeConnection(
+        server::Ptr{UA_Server}, connection::Ptr{UA_Connection})::Cvoid
 end
 
 # typedef UA_Connection ( * UA_ConnectClientConnection ) ( UA_ConnectionConfig config , UA_String endpointUrl , UA_UInt32 timeout , const UA_Logger * logger )
@@ -6111,10 +6073,8 @@ struct aa_head
 end
 
 function aa_init(head, cmp, entry_offset, key_offset)
-    @ccall libopen62541.aa_init(head::Ptr{aa_head},
-        cmp::Ptr{Cvoid},
-        entry_offset::Cuint,
-        key_offset::Cuint)::Cvoid
+    @ccall libopen62541.aa_init(
+        head::Ptr{aa_head}, cmp::Ptr{Cvoid}, entry_offset::Cuint, key_offset::Cuint)::Cvoid
 end
 
 function aa_insert(head, elem)
@@ -6161,24 +6121,24 @@ struct UA_ReferenceTypeSet
     bits::NTuple{4, UA_UInt32}
 end
 
-struct __JL_Ctag_406
+struct __JL_Ctag_428
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_406}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_428}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
-    f === :tree && return Ptr{__JL_Ctag_407}(x + 0)
+    f === :tree && return Ptr{__JL_Ctag_429}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_406, f::Symbol)
-    r = Ref{__JL_Ctag_406}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_406}, r)
+function Base.getproperty(x::__JL_Ctag_428, f::Symbol)
+    r = Ref{__JL_Ctag_428}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_428}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_406}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_428}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6187,7 +6147,7 @@ struct UA_NodeReferenceKind
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
-    f === :targets && return Ptr{__JL_Ctag_406}(x + 0)
+    f === :targets && return Ptr{__JL_Ctag_428}(x + 0)
     f === :targetsSize && return Ptr{Csize_t}(x + 16)
     f === :hasRefTree && return Ptr{UA_Boolean}(x + 24)
     f === :referenceTypeIndex && return Ptr{UA_Byte}(x + 25)
@@ -6257,8 +6217,8 @@ function UA_NodePointer_clear(np)
 end
 
 function UA_NodePointer_copy(in, out)
-    @ccall libopen62541.UA_NodePointer_copy(in::UA_NodePointer,
-        out::Ptr{UA_NodePointer})::UA_StatusCode
+    @ccall libopen62541.UA_NodePointer_copy(
+        in::UA_NodePointer, out::Ptr{UA_NodePointer})::UA_StatusCode
 end
 
 function UA_NodePointer_isLocal(np)
@@ -6266,8 +6226,8 @@ function UA_NodePointer_isLocal(np)
 end
 
 function UA_NodePointer_order(p1, p2)
-    @ccall libopen62541.UA_NodePointer_order(p1::UA_NodePointer,
-        p2::UA_NodePointer)::UA_Order
+    @ccall libopen62541.UA_NodePointer_order(
+        p1::UA_NodePointer, p2::UA_NodePointer)::UA_Order
 end
 
 function UA_NodePointer_fromNodeId(id)
@@ -6275,9 +6235,7 @@ function UA_NodePointer_fromNodeId(id)
 end
 
 function UA_NodePointer_fromExpandedNodeId(id)
-    @ccall libopen62541.UA_NodePointer_fromExpandedNodeId(id::Ptr{
-        UA_ExpandedNodeId,
-    })::UA_NodePointer
+    @ccall libopen62541.UA_NodePointer_fromExpandedNodeId(id::Ptr{UA_ExpandedNodeId})::UA_NodePointer
 end
 
 function UA_NodePointer_toExpandedNodeId(np)
@@ -6315,9 +6273,7 @@ function UA_NodeReferenceKind_iterate(rk, prev)
 end
 
 function UA_NodeReferenceKind_switch(rk)
-    @ccall libopen62541.UA_NodeReferenceKind_switch(rk::Ptr{
-        UA_NodeReferenceKind,
-    })::UA_StatusCode
+    @ccall libopen62541.UA_NodeReferenceKind_switch(rk::Ptr{UA_NodeReferenceKind})::UA_StatusCode
 end
 
 """
@@ -6332,24 +6288,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_398
+struct __JL_Ctag_426
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_398}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_399}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_426}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_427}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_398, f::Symbol)
-    r = Ref{__JL_Ctag_398}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_398}, r)
+function Base.getproperty(x::__JL_Ctag_426, f::Symbol)
+    r = Ref{__JL_Ctag_426}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_426}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_398}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_426}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6365,7 +6321,7 @@ function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_398}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_426}(x + 328)
     f === :accessLevel && return Ptr{UA_Byte}(x + 424)
     f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 432)
     f === :historizing && return Ptr{UA_Boolean}(x + 440)
@@ -6384,24 +6340,24 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_400
+struct __JL_Ctag_423
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_400}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_401}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_423}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_424}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_400, f::Symbol)
-    r = Ref{__JL_Ctag_400}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_400}, r)
+function Base.getproperty(x::__JL_Ctag_423, f::Symbol)
+    r = Ref{__JL_Ctag_423}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_423}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_400}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_423}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6426,7 +6382,7 @@ function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_400}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_423}(x + 328)
     f === :isAbstract && return Ptr{UA_Boolean}(x + 424)
     f === :lifecycle && return Ptr{UA_NodeTypeLifecycle}(x + 432)
     return getfield(x, f)
@@ -6622,8 +6578,7 @@ Outside of custom nodestore implementations, users should not manually edit node
 const UA_NodestoreVisitor = Ptr{Cvoid}
 
 function UA_Node_setAttributes(node, attributes, attributeType)
-    @ccall libopen62541.UA_Node_setAttributes(node::Ptr{UA_Node},
-        attributes::Ptr{Cvoid},
+    @ccall libopen62541.UA_Node_setAttributes(node::Ptr{UA_Node}, attributes::Ptr{Cvoid},
         attributeType::Ptr{UA_DataType})::UA_StatusCode
 end
 
@@ -6635,28 +6590,22 @@ function UA_Node_copy_alloc(src)
     @ccall libopen62541.UA_Node_copy_alloc(src::Ptr{UA_Node})::Ptr{UA_Node}
 end
 
-function UA_Node_addReference(node,
-        refTypeIndex,
-        isForward,
-        targetNodeId,
-        targetBrowseNameHash)
-    @ccall libopen62541.UA_Node_addReference(node::Ptr{UA_Node},
-        refTypeIndex::UA_Byte,
-        isForward::UA_Boolean,
-        targetNodeId::Ptr{UA_ExpandedNodeId},
+function UA_Node_addReference(
+        node, refTypeIndex, isForward, targetNodeId, targetBrowseNameHash)
+    @ccall libopen62541.UA_Node_addReference(node::Ptr{UA_Node}, refTypeIndex::UA_Byte,
+        isForward::UA_Boolean, targetNodeId::Ptr{UA_ExpandedNodeId},
         targetBrowseNameHash::UA_UInt32)::UA_StatusCode
 end
 
 function UA_Node_deleteReference(node, refTypeIndex, isForward, targetNodeId)
-    @ccall libopen62541.UA_Node_deleteReference(node::Ptr{UA_Node},
-        refTypeIndex::UA_Byte,
-        isForward::UA_Boolean,
+    @ccall libopen62541.UA_Node_deleteReference(
+        node::Ptr{UA_Node}, refTypeIndex::UA_Byte, isForward::UA_Boolean,
         targetNodeId::Ptr{UA_ExpandedNodeId})::UA_StatusCode
 end
 
 function UA_Node_deleteReferencesSubset(node, keepSet)
-    @ccall libopen62541.UA_Node_deleteReferencesSubset(node::Ptr{UA_Node},
-        keepSet::Ptr{UA_ReferenceTypeSet})::Cvoid
+    @ccall libopen62541.UA_Node_deleteReferencesSubset(
+        node::Ptr{UA_Node}, keepSet::Ptr{UA_ReferenceTypeSet})::Cvoid
 end
 
 function UA_Node_deleteReferences(node)
@@ -6674,9 +6623,7 @@ function UA_ServerConfig_clean(config)
 end
 
 function UA_Server_newWithConfig(config)
-    @ccall libopen62541.UA_Server_newWithConfig(config::Ptr{
-        UA_ServerConfig,
-    })::Ptr{UA_Server}
+    @ccall libopen62541.UA_Server_newWithConfig(config::Ptr{UA_ServerConfig})::Ptr{UA_Server}
 end
 
 function UA_Server_delete(server)
@@ -6688,8 +6635,8 @@ function UA_Server_getConfig(server)
 end
 
 function UA_Server_run(server, running)
-    @ccall libopen62541.UA_Server_run(server::Ptr{UA_Server},
-        running::Ptr{UA_Boolean})::UA_StatusCode
+    @ccall libopen62541.UA_Server_run(
+        server::Ptr{UA_Server}, running::Ptr{UA_Boolean})::UA_StatusCode
 end
 
 function UA_Server_run_startup(server)
@@ -6697,8 +6644,8 @@ function UA_Server_run_startup(server)
 end
 
 function UA_Server_run_iterate(server, waitInternal)
-    @ccall libopen62541.UA_Server_run_iterate(server::Ptr{UA_Server},
-        waitInternal::UA_Boolean)::UA_UInt16
+    @ccall libopen62541.UA_Server_run_iterate(
+        server::Ptr{UA_Server}, waitInternal::UA_Boolean)::UA_UInt16
 end
 
 function UA_Server_run_shutdown(server)
@@ -6706,24 +6653,20 @@ function UA_Server_run_shutdown(server)
 end
 
 function UA_Server_addTimedCallback(server, callback, data, date, callbackId)
-    @ccall libopen62541.UA_Server_addTimedCallback(server::Ptr{UA_Server},
-        callback::UA_ServerCallback,
-        data::Ptr{Cvoid},
-        date::UA_DateTime,
-        callbackId::Ptr{UA_UInt64})::UA_StatusCode
+    @ccall libopen62541.UA_Server_addTimedCallback(
+        server::Ptr{UA_Server}, callback::UA_ServerCallback, data::Ptr{Cvoid},
+        date::UA_DateTime, callbackId::Ptr{UA_UInt64})::UA_StatusCode
 end
 
 function UA_Server_addRepeatedCallback(server, callback, data, interval_ms, callbackId)
-    @ccall libopen62541.UA_Server_addRepeatedCallback(server::Ptr{UA_Server},
-        callback::UA_ServerCallback,
-        data::Ptr{Cvoid},
-        interval_ms::UA_Double,
-        callbackId::Ptr{UA_UInt64})::UA_StatusCode
+    @ccall libopen62541.UA_Server_addRepeatedCallback(
+        server::Ptr{UA_Server}, callback::UA_ServerCallback, data::Ptr{Cvoid},
+        interval_ms::UA_Double, callbackId::Ptr{UA_UInt64})::UA_StatusCode
 end
 
 function UA_Server_changeRepeatedCallbackInterval(server, callbackId, interval_ms)
-    @ccall libopen62541.UA_Server_changeRepeatedCallbackInterval(server::Ptr{UA_Server},
-        callbackId::UA_UInt64,
+    @ccall libopen62541.UA_Server_changeRepeatedCallbackInterval(
+        server::Ptr{UA_Server}, callbackId::UA_UInt64,
         interval_ms::UA_Double)::UA_StatusCode
 end
 
@@ -6733,70 +6676,58 @@ end
 Session Handling ---------------- A new session is announced via the AccessControl plugin. The session identifier is forwarded to the relevant callbacks back into userland. The following methods enable an interaction with a particular session.
 """
 function UA_Server_closeSession(server, sessionId)
-    @ccall libopen62541.UA_Server_closeSession(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId})::UA_StatusCode
+    @ccall libopen62541.UA_Server_closeSession(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
 function UA_Server_setSessionParameter(server, sessionId, name, parameter)
-    @ccall libopen62541.UA_Server_setSessionParameter(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId},
-        name::Cstring,
-        parameter::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_Server_setSessionParameter(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId},
+        name::Cstring, parameter::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_Server_deleteSessionParameter(server, sessionId, name)
-    @ccall libopen62541.UA_Server_deleteSessionParameter(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId},
-        name::Cstring)::Cvoid
+    @ccall libopen62541.UA_Server_deleteSessionParameter(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}, name::Cstring)::Cvoid
 end
 
 function UA_Server_getSessionParameter(server, sessionId, name, outParameter)
-    @ccall libopen62541.UA_Server_getSessionParameter(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId},
-        name::Cstring,
-        outParameter::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_Server_getSessionParameter(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId},
+        name::Cstring, outParameter::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_Server_getSessionScalarParameter(server, sessionId, name, type, outParameter)
-    @ccall libopen62541.UA_Server_getSessionScalarParameter(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId},
-        name::Cstring,
-        type::Ptr{UA_DataType},
-        outParameter::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_Server_getSessionScalarParameter(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}, name::Cstring,
+        type::Ptr{UA_DataType}, outParameter::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_Server_getSessionArrayParameter(server, sessionId, name, type, outParameter)
-    @ccall libopen62541.UA_Server_getSessionArrayParameter(server::Ptr{UA_Server},
-        sessionId::Ptr{UA_NodeId},
-        name::Cstring,
-        type::Ptr{UA_DataType},
-        outParameter::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_Server_getSessionArrayParameter(
+        server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}, name::Cstring,
+        type::Ptr{UA_DataType}, outParameter::Ptr{UA_Variant})::UA_StatusCode
 end
 
 function UA_Server_read(server, item, timestamps)
-    @ccall libopen62541.UA_Server_read(server::Ptr{UA_Server},
-        item::Ptr{UA_ReadValueId},
+    @ccall libopen62541.UA_Server_read(server::Ptr{UA_Server}, item::Ptr{UA_ReadValueId},
         timestamps::UA_TimestampsToReturn)::UA_DataValue
 end
 
 function __UA_Server_read(server, nodeId, attributeId, v)
-    @ccall libopen62541.__UA_Server_read(server::Ptr{UA_Server},
-        nodeId::Ptr{UA_NodeId},
-        attributeId::UA_AttributeId,
-        v::Ptr{Cvoid})::UA_StatusCode
+    @ccall libopen62541.__UA_Server_read(server::Ptr{UA_Server}, nodeId::Ptr{UA_NodeId},
+        attributeId::UA_AttributeId, v::Ptr{Cvoid})::UA_StatusCode
 end
 
 function UA_Server_write(server, value)
-    @ccall libopen62541.UA_Server_write(server::Ptr{UA_Server},
-        value::Ptr{UA_WriteValue})::UA_StatusCode
+    @ccall libopen62541.UA_Server_write(
+        server::Ptr{UA_Server}, value::Ptr{UA_WriteValue})::UA_StatusCode
 end
 
 function __UA_Server_write(server, nodeId, attributeId, attr_type, attr)
-    @ccall libopen62541.__UA_Server_write(server::Ptr{UA_Server},
-        nodeId::Ptr{UA_NodeId},
-        attributeId::UA_AttributeId,
-        attr_type::Ptr{UA_DataType},
-        attr::Ptr{Cvoid})::UA_StatusCode
+    @ccall libopen62541.__UA_Server_write(
+        server::Ptr{UA_Server}, nodeId::Ptr{UA_NodeId}, attributeId::UA_AttributeId,
+        attr_type::Ptr{UA_DataType}, attr::Ptr{Cvoid})::UA_StatusCode
 end
 
 """
@@ -6805,33 +6736,30 @@ end
 Browsing --------
 """
 function UA_Server_browse(server, maxReferences, bd)
-    @ccall libopen62541.UA_Server_browse(server::Ptr{UA_Server},
-        maxReferences::UA_UInt32,
+    @ccall libopen62541.UA_Server_browse(server::Ptr{UA_Server}, maxReferences::UA_UInt32,
         bd::Ptr{UA_BrowseDescription})::UA_BrowseResult
 end
 
 function UA_Server_browseNext(server, releaseContinuationPoint, continuationPoint)
-    @ccall libopen62541.UA_Server_browseNext(server::Ptr{UA_Server},
-        releaseContinuationPoint::UA_Boolean,
+    @ccall libopen62541.UA_Server_browseNext(
+        server::Ptr{UA_Server}, releaseContinuationPoint::UA_Boolean,
         continuationPoint::Ptr{UA_ByteString})::UA_BrowseResult
 end
 
 function UA_Server_browseRecursive(server, bd, resultsSize, results)
-    @ccall libopen62541.UA_Server_browseRecursive(server::Ptr{UA_Server},
-        bd::Ptr{UA_BrowseDescription},
-        resultsSize::Ptr{Csize_t},
-        results::Ptr{Ptr{UA_ExpandedNodeId}})::UA_StatusCode
+    @ccall libopen62541.UA_Server_browseRecursive(
+        server::Ptr{UA_Server}, bd::Ptr{UA_BrowseDescription},
+        resultsSize::Ptr{Csize_t}, results::Ptr{Ptr{UA_ExpandedNodeId}})::UA_StatusCode
 end
 
 function UA_Server_translateBrowsePathToNodeIds(server, browsePath)
-    @ccall libopen62541.UA_Server_translateBrowsePathToNodeIds(server::Ptr{UA_Server},
-        browsePath::Ptr{UA_BrowsePath})::UA_BrowsePathResult
+    @ccall libopen62541.UA_Server_translateBrowsePathToNodeIds(
+        server::Ptr{UA_Server}, browsePath::Ptr{UA_BrowsePath})::UA_BrowsePathResult
 end
 
 function UA_Server_browseSimplifiedBrowsePath(server, origin, browsePathSize, browsePath)
-    @ccall libopen62541.UA_Server_browseSimplifiedBrowsePath(server::Ptr{UA_Server},
-        origin::UA_NodeId,
-        browsePathSize::Csize_t,
+    @ccall libopen62541.UA_Server_browseSimplifiedBrowsePath(
+        server::Ptr{UA_Server}, origin::UA_NodeId, browsePathSize::Csize_t,
         browsePath::Ptr{UA_QualifiedName})::UA_BrowsePathResult
 end
 
@@ -6839,10 +6767,9 @@ end
 const UA_NodeIteratorCallback = Ptr{Cvoid}
 
 function UA_Server_forEachChildNodeCall(server, parentNodeId, callback, handle)
-    @ccall libopen62541.UA_Server_forEachChildNodeCall(server::Ptr{UA_Server},
-        parentNodeId::UA_NodeId,
-        callback::UA_NodeIteratorCallback,
-        handle::Ptr{Cvoid})::UA_StatusCode
+    @ccall libopen62541.UA_Server_forEachChildNodeCall(
+        server::Ptr{UA_Server}, parentNodeId::UA_NodeId,
+        callback::UA_NodeIteratorCallback, handle::Ptr{Cvoid})::UA_StatusCode
 end
 
 """
@@ -6855,26 +6782,24 @@ There are three places where a callback from an information model to user-define
   - Custom node constructors and destructors - Linking VariableNodes with an external data source - MethodNode callbacks
 """
 function UA_Server_setAdminSessionContext(server, context)
-    @ccall libopen62541.UA_Server_setAdminSessionContext(server::Ptr{UA_Server},
-        context::Ptr{Cvoid})::Cvoid
+    @ccall libopen62541.UA_Server_setAdminSessionContext(
+        server::Ptr{UA_Server}, context::Ptr{Cvoid})::Cvoid
 end
 
 function UA_Server_setNodeTypeLifecycle(server, nodeId, lifecycle)
-    @ccall libopen62541.UA_Server_setNodeTypeLifecycle(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_setNodeTypeLifecycle(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId,
         lifecycle::UA_NodeTypeLifecycle)::UA_StatusCode
 end
 
 function UA_Server_getNodeContext(server, nodeId, nodeContext)
-    @ccall libopen62541.UA_Server_getNodeContext(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_getNodeContext(server::Ptr{UA_Server}, nodeId::UA_NodeId,
         nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode
 end
 
 function UA_Server_setNodeContext(server, nodeId, nodeContext)
-    @ccall libopen62541.UA_Server_setNodeContext(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
-        nodeContext::Ptr{Cvoid})::UA_StatusCode
+    @ccall libopen62541.UA_Server_setNodeContext(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId, nodeContext::Ptr{Cvoid})::UA_StatusCode
 end
 
 """
@@ -6889,20 +6814,19 @@ The server has a unique way of dealing with the content of variables. Instead of
 It is expected that the read callback is implemented. The write callback can be set to a null-pointer.
 """
 function UA_Server_setVariableNode_dataSource(server, nodeId, dataSource)
-    @ccall libopen62541.UA_Server_setVariableNode_dataSource(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
-        dataSource::UA_DataSource)::UA_StatusCode
+    @ccall libopen62541.UA_Server_setVariableNode_dataSource(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId, dataSource::UA_DataSource)::UA_StatusCode
 end
 
 function UA_Server_setVariableNode_valueCallback(server, nodeId, callback)
-    @ccall libopen62541.UA_Server_setVariableNode_valueCallback(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_setVariableNode_valueCallback(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId,
         callback::UA_ValueCallback)::UA_StatusCode
 end
 
 function UA_Server_setVariableNode_valueBackend(server, nodeId, valueBackend)
-    @ccall libopen62541.UA_Server_setVariableNode_valueBackend(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_setVariableNode_valueBackend(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId,
         valueBackend::UA_ValueBackend)::UA_StatusCode
 end
 
@@ -6912,136 +6836,85 @@ const UA_Server_DataChangeNotificationCallback = Ptr{Cvoid}
 # typedef void ( * UA_Server_EventNotificationCallback ) ( UA_Server * server , UA_UInt32 monId , void * monContext , size_t nEventFields , const UA_Variant * eventFields )
 const UA_Server_EventNotificationCallback = Ptr{Cvoid}
 
-function UA_Server_createDataChangeMonitoredItem(server,
-        timestampsToReturn,
-        item,
-        monitoredItemContext,
-        callback)
-    @ccall libopen62541.UA_Server_createDataChangeMonitoredItem(server::Ptr{UA_Server},
-        timestampsToReturn::UA_TimestampsToReturn,
-        item::UA_MonitoredItemCreateRequest,
-        monitoredItemContext::Ptr{Cvoid},
+function UA_Server_createDataChangeMonitoredItem(
+        server, timestampsToReturn, item, monitoredItemContext, callback)
+    @ccall libopen62541.UA_Server_createDataChangeMonitoredItem(
+        server::Ptr{UA_Server}, timestampsToReturn::UA_TimestampsToReturn,
+        item::UA_MonitoredItemCreateRequest, monitoredItemContext::Ptr{Cvoid},
         callback::UA_Server_DataChangeNotificationCallback)::UA_MonitoredItemCreateResult
 end
 
 function UA_Server_deleteMonitoredItem(server, monitoredItemId)
-    @ccall libopen62541.UA_Server_deleteMonitoredItem(server::Ptr{UA_Server},
-        monitoredItemId::UA_UInt32)::UA_StatusCode
+    @ccall libopen62541.UA_Server_deleteMonitoredItem(
+        server::Ptr{UA_Server}, monitoredItemId::UA_UInt32)::UA_StatusCode
 end
 
 function UA_Server_getMethodNodeCallback(server, methodNodeId, outMethodCallback)
-    @ccall libopen62541.UA_Server_getMethodNodeCallback(server::Ptr{UA_Server},
-        methodNodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_getMethodNodeCallback(
+        server::Ptr{UA_Server}, methodNodeId::UA_NodeId,
         outMethodCallback::Ptr{UA_MethodCallback})::UA_StatusCode
 end
 
 function UA_Server_call(server, request)
-    @ccall libopen62541.UA_Server_call(server::Ptr{UA_Server},
-        request::Ptr{UA_CallMethodRequest})::UA_CallMethodResult
+    @ccall libopen62541.UA_Server_call(
+        server::Ptr{UA_Server}, request::Ptr{UA_CallMethodRequest})::UA_CallMethodResult
 end
 
 function UA_Server_writeObjectProperty(server, objectId, propertyName, value)
-    @ccall libopen62541.UA_Server_writeObjectProperty(server::Ptr{UA_Server},
-        objectId::UA_NodeId,
-        propertyName::UA_QualifiedName,
-        value::UA_Variant)::UA_StatusCode
+    @ccall libopen62541.UA_Server_writeObjectProperty(
+        server::Ptr{UA_Server}, objectId::UA_NodeId,
+        propertyName::UA_QualifiedName, value::UA_Variant)::UA_StatusCode
 end
 
 function UA_Server_writeObjectProperty_scalar(server, objectId, propertyName, value, type)
-    @ccall libopen62541.UA_Server_writeObjectProperty_scalar(server::Ptr{UA_Server},
-        objectId::UA_NodeId,
-        propertyName::UA_QualifiedName,
-        value::Ptr{Cvoid},
-        type::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.UA_Server_writeObjectProperty_scalar(
+        server::Ptr{UA_Server}, objectId::UA_NodeId, propertyName::UA_QualifiedName,
+        value::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_StatusCode
 end
 
 function UA_Server_readObjectProperty(server, objectId, propertyName, value)
-    @ccall libopen62541.UA_Server_readObjectProperty(server::Ptr{UA_Server},
-        objectId::UA_NodeId,
-        propertyName::UA_QualifiedName,
-        value::Ptr{UA_Variant})::UA_StatusCode
+    @ccall libopen62541.UA_Server_readObjectProperty(
+        server::Ptr{UA_Server}, objectId::UA_NodeId,
+        propertyName::UA_QualifiedName, value::Ptr{UA_Variant})::UA_StatusCode
 end
 
-function __UA_Server_addNode(server,
-        nodeClass,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attr,
-        attributeType,
-        nodeContext,
-        outNewNodeId)
-    @ccall libopen62541.__UA_Server_addNode(server::Ptr{UA_Server},
-        nodeClass::UA_NodeClass,
-        requestedNewNodeId::Ptr{UA_NodeId},
-        parentNodeId::Ptr{UA_NodeId},
-        referenceTypeId::Ptr{UA_NodeId},
-        browseName::UA_QualifiedName,
-        typeDefinition::Ptr{UA_NodeId},
-        attr::Ptr{UA_NodeAttributes},
-        attributeType::Ptr{UA_DataType},
-        nodeContext::Ptr{Cvoid},
-        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+function __UA_Server_addNode(
+        server, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId,
+        browseName, typeDefinition, attr, attributeType, nodeContext, outNewNodeId)
+    @ccall libopen62541.__UA_Server_addNode(
+        server::Ptr{UA_Server}, nodeClass::UA_NodeClass, requestedNewNodeId::Ptr{UA_NodeId},
+        parentNodeId::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId},
+        browseName::UA_QualifiedName, typeDefinition::Ptr{UA_NodeId},
+        attr::Ptr{UA_NodeAttributes}, attributeType::Ptr{UA_DataType},
+        nodeContext::Ptr{Cvoid}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
-function UA_Server_addDataSourceVariableNode(server,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attr,
-        dataSource,
-        nodeContext,
-        outNewNodeId)
-    @ccall libopen62541.UA_Server_addDataSourceVariableNode(server::Ptr{UA_Server},
-        requestedNewNodeId::UA_NodeId,
-        parentNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        browseName::UA_QualifiedName,
-        typeDefinition::UA_NodeId,
-        attr::UA_VariableAttributes,
-        dataSource::UA_DataSource,
-        nodeContext::Ptr{Cvoid},
-        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+function UA_Server_addDataSourceVariableNode(
+        server, requestedNewNodeId, parentNodeId, referenceTypeId, browseName,
+        typeDefinition, attr, dataSource, nodeContext, outNewNodeId)
+    @ccall libopen62541.UA_Server_addDataSourceVariableNode(
+        server::Ptr{UA_Server}, requestedNewNodeId::UA_NodeId, parentNodeId::UA_NodeId,
+        referenceTypeId::UA_NodeId, browseName::UA_QualifiedName,
+        typeDefinition::UA_NodeId, attr::UA_VariableAttributes, dataSource::UA_DataSource,
+        nodeContext::Ptr{Cvoid}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
-function UA_Server_addMethodNodeEx(server,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        attr,
-        method,
-        inputArgumentsSize,
-        inputArguments,
-        inputArgumentsRequestedNewNodeId,
-        inputArgumentsOutNewNodeId,
-        outputArgumentsSize,
-        outputArguments,
-        outputArgumentsRequestedNewNodeId,
-        outputArgumentsOutNewNodeId,
-        nodeContext,
-        outNewNodeId)
-    @ccall libopen62541.UA_Server_addMethodNodeEx(server::Ptr{UA_Server},
-        requestedNewNodeId::UA_NodeId,
-        parentNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        browseName::UA_QualifiedName,
-        attr::UA_MethodAttributes,
-        method::UA_MethodCallback,
-        inputArgumentsSize::Csize_t,
-        inputArguments::Ptr{UA_Argument},
-        inputArgumentsRequestedNewNodeId::UA_NodeId,
-        inputArgumentsOutNewNodeId::Ptr{UA_NodeId},
-        outputArgumentsSize::Csize_t,
-        outputArguments::Ptr{UA_Argument},
-        outputArgumentsRequestedNewNodeId::UA_NodeId,
+function UA_Server_addMethodNodeEx(
+        server, requestedNewNodeId, parentNodeId, referenceTypeId,
+        browseName, attr, method, inputArgumentsSize, inputArguments,
+        inputArgumentsRequestedNewNodeId, inputArgumentsOutNewNodeId,
+        outputArgumentsSize, outputArguments, outputArgumentsRequestedNewNodeId,
+        outputArgumentsOutNewNodeId, nodeContext, outNewNodeId)
+    @ccall libopen62541.UA_Server_addMethodNodeEx(
+        server::Ptr{UA_Server}, requestedNewNodeId::UA_NodeId,
+        parentNodeId::UA_NodeId, referenceTypeId::UA_NodeId,
+        browseName::UA_QualifiedName, attr::UA_MethodAttributes,
+        method::UA_MethodCallback, inputArgumentsSize::Csize_t,
+        inputArguments::Ptr{UA_Argument}, inputArgumentsRequestedNewNodeId::UA_NodeId,
+        inputArgumentsOutNewNodeId::Ptr{UA_NodeId}, outputArgumentsSize::Csize_t,
+        outputArguments::Ptr{UA_Argument}, outputArgumentsRequestedNewNodeId::UA_NodeId,
         outputArgumentsOutNewNodeId::Ptr{UA_NodeId},
-        nodeContext::Ptr{Cvoid},
-        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+        nodeContext::Ptr{Cvoid}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
 """
@@ -7057,54 +6930,31 @@ The \\_finish method: - copies mandatory children - calls the node constructor(s
 
 The special [`UA_Server_addMethodNode_finish`](@ref) method needs to be used for method nodes, since there you need to explicitly specifiy the input and output arguments which are added in the finish step (if not yet already there)
 """
-function UA_Server_addNode_begin(server,
-        nodeClass,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attr,
-        attributeType,
-        nodeContext,
-        outNewNodeId)
-    @ccall libopen62541.UA_Server_addNode_begin(server::Ptr{UA_Server},
-        nodeClass::UA_NodeClass,
-        requestedNewNodeId::UA_NodeId,
-        parentNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        browseName::UA_QualifiedName,
-        typeDefinition::UA_NodeId,
-        attr::Ptr{Cvoid},
-        attributeType::Ptr{UA_DataType},
-        nodeContext::Ptr{Cvoid},
-        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+function UA_Server_addNode_begin(
+        server, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId,
+        browseName, typeDefinition, attr, attributeType, nodeContext, outNewNodeId)
+    @ccall libopen62541.UA_Server_addNode_begin(
+        server::Ptr{UA_Server}, nodeClass::UA_NodeClass, requestedNewNodeId::UA_NodeId,
+        parentNodeId::UA_NodeId, referenceTypeId::UA_NodeId, browseName::UA_QualifiedName,
+        typeDefinition::UA_NodeId, attr::Ptr{Cvoid}, attributeType::Ptr{UA_DataType},
+        nodeContext::Ptr{Cvoid}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
 function UA_Server_addNode_finish(server, nodeId)
-    @ccall libopen62541.UA_Server_addNode_finish(server::Ptr{UA_Server},
-        nodeId::UA_NodeId)::UA_StatusCode
+    @ccall libopen62541.UA_Server_addNode_finish(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId)::UA_StatusCode
 end
 
-function UA_Server_addMethodNode_finish(server,
-        nodeId,
-        method,
-        inputArgumentsSize,
-        inputArguments,
-        outputArgumentsSize,
-        outputArguments)
-    @ccall libopen62541.UA_Server_addMethodNode_finish(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
-        method::UA_MethodCallback,
-        inputArgumentsSize::Csize_t,
-        inputArguments::Ptr{UA_Argument},
-        outputArgumentsSize::Csize_t,
-        outputArguments::Ptr{UA_Argument})::UA_StatusCode
+function UA_Server_addMethodNode_finish(server, nodeId, method, inputArgumentsSize,
+        inputArguments, outputArgumentsSize, outputArguments)
+    @ccall libopen62541.UA_Server_addMethodNode_finish(
+        server::Ptr{UA_Server}, nodeId::UA_NodeId, method::UA_MethodCallback,
+        inputArgumentsSize::Csize_t, inputArguments::Ptr{UA_Argument},
+        outputArgumentsSize::Csize_t, outputArguments::Ptr{UA_Argument})::UA_StatusCode
 end
 
 function UA_Server_deleteNode(server, nodeId, deleteReferences)
-    @ccall libopen62541.UA_Server_deleteNode(server::Ptr{UA_Server},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Server_deleteNode(server::Ptr{UA_Server}, nodeId::UA_NodeId,
         deleteReferences::UA_Boolean)::UA_StatusCode
 end
 
@@ -7114,39 +6964,28 @@ end
 Reference Management --------------------
 """
 function UA_Server_addReference(server, sourceId, refTypeId, targetId, isForward)
-    @ccall libopen62541.UA_Server_addReference(server::Ptr{UA_Server},
-        sourceId::UA_NodeId,
-        refTypeId::UA_NodeId,
-        targetId::UA_ExpandedNodeId,
-        isForward::UA_Boolean)::UA_StatusCode
+    @ccall libopen62541.UA_Server_addReference(
+        server::Ptr{UA_Server}, sourceId::UA_NodeId, refTypeId::UA_NodeId,
+        targetId::UA_ExpandedNodeId, isForward::UA_Boolean)::UA_StatusCode
 end
 
-function UA_Server_deleteReference(server,
-        sourceNodeId,
-        referenceTypeId,
-        isForward,
-        targetNodeId,
-        deleteBidirectional)
-    @ccall libopen62541.UA_Server_deleteReference(server::Ptr{UA_Server},
-        sourceNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        isForward::UA_Boolean,
-        targetNodeId::UA_ExpandedNodeId,
+function UA_Server_deleteReference(
+        server, sourceNodeId, referenceTypeId, isForward, targetNodeId, deleteBidirectional)
+    @ccall libopen62541.UA_Server_deleteReference(
+        server::Ptr{UA_Server}, sourceNodeId::UA_NodeId, referenceTypeId::UA_NodeId,
+        isForward::UA_Boolean, targetNodeId::UA_ExpandedNodeId,
         deleteBidirectional::UA_Boolean)::UA_StatusCode
 end
 
 function UA_Server_createEvent(server, eventType, outNodeId)
-    @ccall libopen62541.UA_Server_createEvent(server::Ptr{UA_Server},
-        eventType::UA_NodeId,
+    @ccall libopen62541.UA_Server_createEvent(server::Ptr{UA_Server}, eventType::UA_NodeId,
         outNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
 function UA_Server_triggerEvent(server, eventNodeId, originId, outEventId, deleteEventNode)
-    @ccall libopen62541.UA_Server_triggerEvent(server::Ptr{UA_Server},
-        eventNodeId::UA_NodeId,
-        originId::UA_NodeId,
-        outEventId::Ptr{UA_ByteString},
-        deleteEventNode::UA_Boolean)::UA_StatusCode
+    @ccall libopen62541.UA_Server_triggerEvent(
+        server::Ptr{UA_Server}, eventNodeId::UA_NodeId, originId::UA_NodeId,
+        outEventId::Ptr{UA_ByteString}, deleteEventNode::UA_Boolean)::UA_StatusCode
 end
 
 """
@@ -7154,18 +6993,12 @@ end
 
 Update the Server Certificate at Runtime ----------------------------------------
 """
-function UA_Server_updateCertificate(server,
-        oldCertificate,
-        newCertificate,
-        newPrivateKey,
-        closeSessions,
-        closeSecureChannels)
-    @ccall libopen62541.UA_Server_updateCertificate(server::Ptr{UA_Server},
-        oldCertificate::Ptr{UA_ByteString},
-        newCertificate::Ptr{UA_ByteString},
-        newPrivateKey::Ptr{UA_ByteString},
-        closeSessions::UA_Boolean,
-        closeSecureChannels::UA_Boolean)::UA_StatusCode
+function UA_Server_updateCertificate(server, oldCertificate, newCertificate,
+        newPrivateKey, closeSessions, closeSecureChannels)
+    @ccall libopen62541.UA_Server_updateCertificate(
+        server::Ptr{UA_Server}, oldCertificate::Ptr{UA_ByteString},
+        newCertificate::Ptr{UA_ByteString}, newPrivateKey::Ptr{UA_ByteString},
+        closeSessions::UA_Boolean, closeSecureChannels::UA_Boolean)::UA_StatusCode
 end
 
 """
@@ -7174,31 +7007,30 @@ end
 Utility Functions -----------------
 """
 function UA_Server_findDataType(server, typeId)
-    @ccall libopen62541.UA_Server_findDataType(server::Ptr{UA_Server},
-        typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
+    @ccall libopen62541.UA_Server_findDataType(
+        server::Ptr{UA_Server}, typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
 end
 
 function UA_Server_addNamespace(server, name)
-    @ccall libopen62541.UA_Server_addNamespace(server::Ptr{UA_Server},
-        name::Cstring)::UA_UInt16
+    @ccall libopen62541.UA_Server_addNamespace(
+        server::Ptr{UA_Server}, name::Cstring)::UA_UInt16
 end
 
 function UA_Server_getNamespaceByName(server, namespaceUri, foundIndex)
-    @ccall libopen62541.UA_Server_getNamespaceByName(server::Ptr{UA_Server},
-        namespaceUri::UA_String,
+    @ccall libopen62541.UA_Server_getNamespaceByName(
+        server::Ptr{UA_Server}, namespaceUri::UA_String,
         foundIndex::Ptr{Csize_t})::UA_StatusCode
 end
 
 function UA_Server_getNamespaceByIndex(server, namespaceIndex, foundUri)
-    @ccall libopen62541.UA_Server_getNamespaceByIndex(server::Ptr{UA_Server},
-        namespaceIndex::Csize_t,
+    @ccall libopen62541.UA_Server_getNamespaceByIndex(
+        server::Ptr{UA_Server}, namespaceIndex::Csize_t,
         foundUri::Ptr{UA_String})::UA_StatusCode
 end
 
 function UA_Server_setMethodNodeAsync(server, id, isAsync)
-    @ccall libopen62541.UA_Server_setMethodNodeAsync(server::Ptr{UA_Server},
-        id::UA_NodeId,
-        isAsync::UA_Boolean)::UA_StatusCode
+    @ccall libopen62541.UA_Server_setMethodNodeAsync(
+        server::Ptr{UA_Server}, id::UA_NodeId, isAsync::UA_Boolean)::UA_StatusCode
 end
 
 @cenum UA_AsyncOperationType::UInt32 begin
@@ -7247,16 +7079,15 @@ function Base.setproperty!(x::Ptr{UA_AsyncOperationResponse}, f::Symbol, v)
 end
 
 function UA_Server_getAsyncOperationNonBlocking(server, type, request, context, timeout)
-    @ccall libopen62541.UA_Server_getAsyncOperationNonBlocking(server::Ptr{UA_Server},
-        type::Ptr{UA_AsyncOperationType},
+    @ccall libopen62541.UA_Server_getAsyncOperationNonBlocking(
+        server::Ptr{UA_Server}, type::Ptr{UA_AsyncOperationType},
         request::Ptr{Ptr{UA_AsyncOperationRequest}},
-        context::Ptr{Ptr{Cvoid}},
-        timeout::Ptr{UA_DateTime})::UA_Boolean
+        context::Ptr{Ptr{Cvoid}}, timeout::Ptr{UA_DateTime})::UA_Boolean
 end
 
 function UA_Server_setAsyncOperationResult(server, response, context)
-    @ccall libopen62541.UA_Server_setAsyncOperationResult(server::Ptr{UA_Server},
-        response::Ptr{UA_AsyncOperationResponse},
+    @ccall libopen62541.UA_Server_setAsyncOperationResult(
+        server::Ptr{UA_Server}, response::Ptr{UA_AsyncOperationResponse},
         context::Ptr{Cvoid})::Cvoid
 end
 
@@ -7371,16 +7202,13 @@ function Base.setproperty!(x::Ptr{UA_ClientConfig}, f::Symbol, v)
 end
 
 function UA_Client_newWithConfig(config)
-    @ccall libopen62541.UA_Client_newWithConfig(config::Ptr{
-        UA_ClientConfig,
-    })::Ptr{UA_Client}
+    @ccall libopen62541.UA_Client_newWithConfig(config::Ptr{UA_ClientConfig})::Ptr{UA_Client}
 end
 
 function UA_Client_getState(client, channelState, sessionState, connectStatus)
-    @ccall libopen62541.UA_Client_getState(client::Ptr{UA_Client},
-        channelState::Ptr{UA_SecureChannelState},
-        sessionState::Ptr{UA_SessionState},
-        connectStatus::Ptr{UA_StatusCode})::Cvoid
+    @ccall libopen62541.UA_Client_getState(
+        client::Ptr{UA_Client}, channelState::Ptr{UA_SecureChannelState},
+        sessionState::Ptr{UA_SessionState}, connectStatus::Ptr{UA_StatusCode})::Cvoid
 end
 
 function UA_Client_getConfig(client)
@@ -7392,23 +7220,23 @@ function UA_Client_delete(client)
 end
 
 function UA_Client_connect(client, endpointUrl)
-    @ccall libopen62541.UA_Client_connect(client::Ptr{UA_Client},
-        endpointUrl::Cstring)::UA_StatusCode
+    @ccall libopen62541.UA_Client_connect(
+        client::Ptr{UA_Client}, endpointUrl::Cstring)::UA_StatusCode
 end
 
 function UA_Client_connectAsync(client, endpointUrl)
-    @ccall libopen62541.UA_Client_connectAsync(client::Ptr{UA_Client},
-        endpointUrl::Cstring)::UA_StatusCode
+    @ccall libopen62541.UA_Client_connectAsync(
+        client::Ptr{UA_Client}, endpointUrl::Cstring)::UA_StatusCode
 end
 
 function UA_Client_connectSecureChannel(client, endpointUrl)
-    @ccall libopen62541.UA_Client_connectSecureChannel(client::Ptr{UA_Client},
-        endpointUrl::Cstring)::UA_StatusCode
+    @ccall libopen62541.UA_Client_connectSecureChannel(
+        client::Ptr{UA_Client}, endpointUrl::Cstring)::UA_StatusCode
 end
 
 function UA_Client_connectSecureChannelAsync(client, endpointUrl)
-    @ccall libopen62541.UA_Client_connectSecureChannelAsync(client::Ptr{UA_Client},
-        endpointUrl::Cstring)::UA_StatusCode
+    @ccall libopen62541.UA_Client_connectSecureChannelAsync(
+        client::Ptr{UA_Client}, endpointUrl::Cstring)::UA_StatusCode
 end
 
 function UA_Client_disconnect(client)
@@ -7420,36 +7248,23 @@ function UA_Client_disconnectAsync(client)
 end
 
 function UA_Client_disconnectSecureChannel(client)
-    @ccall libopen62541.UA_Client_disconnectSecureChannel(client::Ptr{
-        UA_Client,
-    })::UA_StatusCode
+    @ccall libopen62541.UA_Client_disconnectSecureChannel(client::Ptr{UA_Client})::UA_StatusCode
 end
 
-function UA_Client_getEndpoints(client,
-        serverUrl,
-        endpointDescriptionsSize,
-        endpointDescriptions)
-    @ccall libopen62541.UA_Client_getEndpoints(client::Ptr{UA_Client},
-        serverUrl::Cstring,
-        endpointDescriptionsSize::Ptr{Csize_t},
+function UA_Client_getEndpoints(
+        client, serverUrl, endpointDescriptionsSize, endpointDescriptions)
+    @ccall libopen62541.UA_Client_getEndpoints(
+        client::Ptr{UA_Client}, serverUrl::Cstring, endpointDescriptionsSize::Ptr{Csize_t},
         endpointDescriptions::Ptr{Ptr{UA_EndpointDescription}})::UA_StatusCode
 end
 
-function UA_Client_findServers(client,
-        serverUrl,
-        serverUrisSize,
-        serverUris,
-        localeIdsSize,
-        localeIds,
-        registeredServersSize,
-        registeredServers)
-    @ccall libopen62541.UA_Client_findServers(client::Ptr{UA_Client},
-        serverUrl::Cstring,
-        serverUrisSize::Csize_t,
-        serverUris::Ptr{UA_String},
-        localeIdsSize::Csize_t,
-        localeIds::Ptr{UA_String},
-        registeredServersSize::Ptr{Csize_t},
+function UA_Client_findServers(
+        client, serverUrl, serverUrisSize, serverUris, localeIdsSize,
+        localeIds, registeredServersSize, registeredServers)
+    @ccall libopen62541.UA_Client_findServers(
+        client::Ptr{UA_Client}, serverUrl::Cstring, serverUrisSize::Csize_t,
+        serverUris::Ptr{UA_String}, localeIdsSize::Csize_t,
+        localeIds::Ptr{UA_String}, registeredServersSize::Ptr{Csize_t},
         registeredServers::Ptr{Ptr{UA_ApplicationDescription}})::UA_StatusCode
 end
 
@@ -7463,11 +7278,9 @@ Services --------
 The raw OPC UA services are exposed to the client. But most of them time, it is better to use the convenience functions from ``ua\\_client\\_highlevel.h`` that wrap the raw services.
 """
 function __UA_Client_Service(client, request, requestType, response, responseType)
-    @ccall libopen62541.__UA_Client_Service(client::Ptr{UA_Client},
-        request::Ptr{Cvoid},
-        requestType::Ptr{UA_DataType},
-        response::Ptr{Cvoid},
-        responseType::Ptr{UA_DataType})::Cvoid
+    @ccall libopen62541.__UA_Client_Service(
+        client::Ptr{UA_Client}, request::Ptr{Cvoid}, requestType::Ptr{UA_DataType},
+        response::Ptr{Cvoid}, responseType::Ptr{UA_DataType})::Cvoid
 end
 
 # typedef void ( * UA_ClientAsyncServiceCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , void * response )
@@ -7482,70 +7295,43 @@ Connection and session management are also performed in [`UA_Client_run_iterate`
 """
 const UA_ClientAsyncServiceCallback = Ptr{Cvoid}
 
-function __UA_Client_AsyncService(client,
-        request,
-        requestType,
-        callback,
-        responseType,
-        userdata,
-        requestId)
-    @ccall libopen62541.__UA_Client_AsyncService(client::Ptr{UA_Client},
-        request::Ptr{Cvoid},
-        requestType::Ptr{UA_DataType},
-        callback::UA_ClientAsyncServiceCallback,
-        responseType::Ptr{UA_DataType},
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+function __UA_Client_AsyncService(
+        client, request, requestType, callback, responseType, userdata, requestId)
+    @ccall libopen62541.__UA_Client_AsyncService(
+        client::Ptr{UA_Client}, request::Ptr{Cvoid}, requestType::Ptr{UA_DataType},
+        callback::UA_ClientAsyncServiceCallback, responseType::Ptr{UA_DataType},
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
-function UA_Client_sendAsyncRequest(client,
-        request,
-        requestType,
-        callback,
-        responseType,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_sendAsyncRequest(client::Ptr{UA_Client},
-        request::Ptr{Cvoid},
-        requestType::Ptr{UA_DataType},
-        callback::UA_ClientAsyncServiceCallback,
-        responseType::Ptr{UA_DataType},
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+function UA_Client_sendAsyncRequest(
+        client, request, requestType, callback, responseType, userdata, requestId)
+    @ccall libopen62541.UA_Client_sendAsyncRequest(
+        client::Ptr{UA_Client}, request::Ptr{Cvoid}, requestType::Ptr{UA_DataType},
+        callback::UA_ClientAsyncServiceCallback, responseType::Ptr{UA_DataType},
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 function UA_Client_modifyAsyncCallback(client, requestId, userdata, callback)
-    @ccall libopen62541.UA_Client_modifyAsyncCallback(client::Ptr{UA_Client},
-        requestId::UA_UInt32,
-        userdata::Ptr{Cvoid},
+    @ccall libopen62541.UA_Client_modifyAsyncCallback(
+        client::Ptr{UA_Client}, requestId::UA_UInt32, userdata::Ptr{Cvoid},
         callback::UA_ClientAsyncServiceCallback)::UA_StatusCode
 end
 
 function UA_Client_run_iterate(client, timeout)
-    @ccall libopen62541.UA_Client_run_iterate(client::Ptr{UA_Client},
-        timeout::UA_UInt32)::UA_StatusCode
+    @ccall libopen62541.UA_Client_run_iterate(
+        client::Ptr{UA_Client}, timeout::UA_UInt32)::UA_StatusCode
 end
 
 function UA_Client_renewSecureChannel(client)
     @ccall libopen62541.UA_Client_renewSecureChannel(client::Ptr{UA_Client})::UA_StatusCode
 end
 
-function __UA_Client_AsyncServiceEx(client,
-        request,
-        requestType,
-        callback,
-        responseType,
-        userdata,
-        requestId,
-        timeout)
-    @ccall libopen62541.__UA_Client_AsyncServiceEx(client::Ptr{UA_Client},
-        request::Ptr{Cvoid},
-        requestType::Ptr{UA_DataType},
-        callback::UA_ClientAsyncServiceCallback,
-        responseType::Ptr{UA_DataType},
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32},
-        timeout::UA_UInt32)::UA_StatusCode
+function __UA_Client_AsyncServiceEx(
+        client, request, requestType, callback, responseType, userdata, requestId, timeout)
+    @ccall libopen62541.__UA_Client_AsyncServiceEx(
+        client::Ptr{UA_Client}, request::Ptr{Cvoid}, requestType::Ptr{UA_DataType},
+        callback::UA_ClientAsyncServiceCallback, responseType::Ptr{UA_DataType},
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32}, timeout::UA_UInt32)::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientCallback ) ( UA_Client * client , void * data )
@@ -7555,30 +7341,26 @@ Timed Callbacks --------------- Repeated callbacks can be attached to a client a
 const UA_ClientCallback = Ptr{Cvoid}
 
 function UA_Client_addTimedCallback(client, callback, data, date, callbackId)
-    @ccall libopen62541.UA_Client_addTimedCallback(client::Ptr{UA_Client},
-        callback::UA_ClientCallback,
-        data::Ptr{Cvoid},
-        date::UA_DateTime,
-        callbackId::Ptr{UA_UInt64})::UA_StatusCode
+    @ccall libopen62541.UA_Client_addTimedCallback(
+        client::Ptr{UA_Client}, callback::UA_ClientCallback, data::Ptr{Cvoid},
+        date::UA_DateTime, callbackId::Ptr{UA_UInt64})::UA_StatusCode
 end
 
 function UA_Client_addRepeatedCallback(client, callback, data, interval_ms, callbackId)
-    @ccall libopen62541.UA_Client_addRepeatedCallback(client::Ptr{UA_Client},
-        callback::UA_ClientCallback,
-        data::Ptr{Cvoid},
-        interval_ms::UA_Double,
-        callbackId::Ptr{UA_UInt64})::UA_StatusCode
+    @ccall libopen62541.UA_Client_addRepeatedCallback(
+        client::Ptr{UA_Client}, callback::UA_ClientCallback, data::Ptr{Cvoid},
+        interval_ms::UA_Double, callbackId::Ptr{UA_UInt64})::UA_StatusCode
 end
 
 function UA_Client_changeRepeatedCallbackInterval(client, callbackId, interval_ms)
-    @ccall libopen62541.UA_Client_changeRepeatedCallbackInterval(client::Ptr{UA_Client},
-        callbackId::UA_UInt64,
+    @ccall libopen62541.UA_Client_changeRepeatedCallbackInterval(
+        client::Ptr{UA_Client}, callbackId::UA_UInt64,
         interval_ms::UA_Double)::UA_StatusCode
 end
 
 function UA_Client_removeCallback(client, callbackId)
-    @ccall libopen62541.UA_Client_removeCallback(client::Ptr{UA_Client},
-        callbackId::UA_UInt64)::Cvoid
+    @ccall libopen62541.UA_Client_removeCallback(
+        client::Ptr{UA_Client}, callbackId::UA_UInt64)::Cvoid
 end
 
 """
@@ -7587,8 +7369,8 @@ end
 Client Utility Functions ------------------------
 """
 function UA_Client_findDataType(client, typeId)
-    @ccall libopen62541.UA_Client_findDataType(client::Ptr{UA_Client},
-        typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
+    @ccall libopen62541.UA_Client_findDataType(
+        client::Ptr{UA_Client}, typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
 end
 
 """
@@ -7603,71 +7385,54 @@ The following definitions are convenience functions making use of the standard O
 Read Attributes ^^^^^^^^^^^^^^^ The following functions can be used to retrieve a single node attribute. Use the regular service to read several attributes at once.
 """
 function __UA_Client_readAttribute(client, nodeId, attributeId, out, outDataType)
-    @ccall libopen62541.__UA_Client_readAttribute(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
-        attributeId::UA_AttributeId,
-        out::Ptr{Cvoid},
-        outDataType::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.__UA_Client_readAttribute(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, attributeId::UA_AttributeId,
+        out::Ptr{Cvoid}, outDataType::Ptr{UA_DataType})::UA_StatusCode
 end
 
-function UA_Client_readArrayDimensionsAttribute(client,
-        nodeId,
-        outArrayDimensionsSize,
-        outArrayDimensions)
-    @ccall libopen62541.UA_Client_readArrayDimensionsAttribute(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
-        outArrayDimensionsSize::Ptr{Csize_t},
+function UA_Client_readArrayDimensionsAttribute(
+        client, nodeId, outArrayDimensionsSize, outArrayDimensions)
+    @ccall libopen62541.UA_Client_readArrayDimensionsAttribute(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId, outArrayDimensionsSize::Ptr{Csize_t},
         outArrayDimensions::Ptr{Ptr{UA_UInt32}})::UA_StatusCode
 end
 
 # typedef UA_Boolean ( * UA_HistoricalIteratorCallback ) ( UA_Client * client , const UA_NodeId * nodeId , UA_Boolean moreDataAvailable , const UA_ExtensionObject * data , void * callbackContext )
 const UA_HistoricalIteratorCallback = Ptr{Cvoid}
 
-function UA_Client_HistoryRead_raw(client,
-        nodeId,
-        callback,
-        startTime,
-        endTime,
-        indexRange,
-        returnBounds,
-        numValuesPerNode,
-        timestampsToReturn,
-        callbackContext)
-    @ccall libopen62541.UA_Client_HistoryRead_raw(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
-        callback::UA_HistoricalIteratorCallback,
-        startTime::UA_DateTime,
-        endTime::UA_DateTime,
-        indexRange::UA_String,
-        returnBounds::UA_Boolean,
-        numValuesPerNode::UA_UInt32,
-        timestampsToReturn::UA_TimestampsToReturn,
+function UA_Client_HistoryRead_raw(
+        client, nodeId, callback, startTime, endTime, indexRange,
+        returnBounds, numValuesPerNode, timestampsToReturn, callbackContext)
+    @ccall libopen62541.UA_Client_HistoryRead_raw(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
+        callback::UA_HistoricalIteratorCallback, startTime::UA_DateTime,
+        endTime::UA_DateTime, indexRange::UA_String, returnBounds::UA_Boolean,
+        numValuesPerNode::UA_UInt32, timestampsToReturn::UA_TimestampsToReturn,
         callbackContext::Ptr{Cvoid})::UA_StatusCode
 end
 
 function UA_Client_HistoryUpdate_insert(client, nodeId, value)
-    @ccall libopen62541.UA_Client_HistoryUpdate_insert(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
+    @ccall libopen62541.UA_Client_HistoryUpdate_insert(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
         value::Ptr{UA_DataValue})::UA_StatusCode
 end
 
 function UA_Client_HistoryUpdate_replace(client, nodeId, value)
-    @ccall libopen62541.UA_Client_HistoryUpdate_replace(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
+    @ccall libopen62541.UA_Client_HistoryUpdate_replace(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
         value::Ptr{UA_DataValue})::UA_StatusCode
 end
 
 function UA_Client_HistoryUpdate_update(client, nodeId, value)
-    @ccall libopen62541.UA_Client_HistoryUpdate_update(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
+    @ccall libopen62541.UA_Client_HistoryUpdate_update(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
         value::Ptr{UA_DataValue})::UA_StatusCode
 end
 
 function UA_Client_HistoryUpdate_deleteRaw(client, nodeId, startTimestamp, endTimestamp)
-    @ccall libopen62541.UA_Client_HistoryUpdate_deleteRaw(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
-        startTimestamp::UA_DateTime,
-        endTimestamp::UA_DateTime)::UA_StatusCode
+    @ccall libopen62541.UA_Client_HistoryUpdate_deleteRaw(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
+        startTimestamp::UA_DateTime, endTimestamp::UA_DateTime)::UA_StatusCode
 end
 
 """
@@ -7678,30 +7443,22 @@ Write Attributes ^^^^^^^^^^^^^^^^
 The following functions can be use to write a single node attribute at a time. Use the regular write service to write several attributes at once.
 """
 function __UA_Client_writeAttribute(client, nodeId, attributeId, in, inDataType)
-    @ccall libopen62541.__UA_Client_writeAttribute(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
-        attributeId::UA_AttributeId,
-        in::Ptr{Cvoid},
-        inDataType::Ptr{UA_DataType})::UA_StatusCode
+    @ccall libopen62541.__UA_Client_writeAttribute(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, attributeId::UA_AttributeId,
+        in::Ptr{Cvoid}, inDataType::Ptr{UA_DataType})::UA_StatusCode
 end
 
-function UA_Client_writeArrayDimensionsAttribute(client,
-        nodeId,
-        newArrayDimensionsSize,
-        newArrayDimensions)
-    @ccall libopen62541.UA_Client_writeArrayDimensionsAttribute(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
-        newArrayDimensionsSize::Csize_t,
+function UA_Client_writeArrayDimensionsAttribute(
+        client, nodeId, newArrayDimensionsSize, newArrayDimensions)
+    @ccall libopen62541.UA_Client_writeArrayDimensionsAttribute(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId, newArrayDimensionsSize::Csize_t,
         newArrayDimensions::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 function UA_Client_call(client, objectId, methodId, inputSize, input, outputSize, output)
-    @ccall libopen62541.UA_Client_call(client::Ptr{UA_Client},
-        objectId::UA_NodeId,
-        methodId::UA_NodeId,
-        inputSize::Csize_t,
-        input::Ptr{UA_Variant},
-        outputSize::Ptr{Csize_t},
+    @ccall libopen62541.UA_Client_call(
+        client::Ptr{UA_Client}, objectId::UA_NodeId, methodId::UA_NodeId,
+        inputSize::Csize_t, input::Ptr{UA_Variant}, outputSize::Ptr{Csize_t},
         output::Ptr{Ptr{UA_Variant}})::UA_StatusCode
 end
 
@@ -7710,75 +7467,47 @@ end
 
 Node Management ^^^^^^^^^^^^^^^ See the section on :ref:`server-side node management <addnodes>`.
 """
-function UA_Client_addReference(client,
-        sourceNodeId,
-        referenceTypeId,
-        isForward,
-        targetServerUri,
-        targetNodeId,
-        targetNodeClass)
-    @ccall libopen62541.UA_Client_addReference(client::Ptr{UA_Client},
-        sourceNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        isForward::UA_Boolean,
-        targetServerUri::UA_String,
-        targetNodeId::UA_ExpandedNodeId,
-        targetNodeClass::UA_NodeClass)::UA_StatusCode
+function UA_Client_addReference(client, sourceNodeId, referenceTypeId, isForward,
+        targetServerUri, targetNodeId, targetNodeClass)
+    @ccall libopen62541.UA_Client_addReference(
+        client::Ptr{UA_Client}, sourceNodeId::UA_NodeId, referenceTypeId::UA_NodeId,
+        isForward::UA_Boolean, targetServerUri::UA_String,
+        targetNodeId::UA_ExpandedNodeId, targetNodeClass::UA_NodeClass)::UA_StatusCode
 end
 
-function UA_Client_deleteReference(client,
-        sourceNodeId,
-        referenceTypeId,
-        isForward,
-        targetNodeId,
-        deleteBidirectional)
-    @ccall libopen62541.UA_Client_deleteReference(client::Ptr{UA_Client},
-        sourceNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        isForward::UA_Boolean,
-        targetNodeId::UA_ExpandedNodeId,
+function UA_Client_deleteReference(
+        client, sourceNodeId, referenceTypeId, isForward, targetNodeId, deleteBidirectional)
+    @ccall libopen62541.UA_Client_deleteReference(
+        client::Ptr{UA_Client}, sourceNodeId::UA_NodeId, referenceTypeId::UA_NodeId,
+        isForward::UA_Boolean, targetNodeId::UA_ExpandedNodeId,
         deleteBidirectional::UA_Boolean)::UA_StatusCode
 end
 
 function UA_Client_deleteNode(client, nodeId, deleteTargetReferences)
-    @ccall libopen62541.UA_Client_deleteNode(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Client_deleteNode(client::Ptr{UA_Client}, nodeId::UA_NodeId,
         deleteTargetReferences::UA_Boolean)::UA_StatusCode
 end
 
-function __UA_Client_addNode(client,
-        nodeClass,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attr,
-        attributeType,
-        outNewNodeId)
-    @ccall libopen62541.__UA_Client_addNode(client::Ptr{UA_Client},
-        nodeClass::UA_NodeClass,
-        requestedNewNodeId::UA_NodeId,
-        parentNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        browseName::UA_QualifiedName,
-        typeDefinition::UA_NodeId,
-        attr::Ptr{UA_NodeAttributes},
-        attributeType::Ptr{UA_DataType},
-        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+function __UA_Client_addNode(
+        client, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId,
+        browseName, typeDefinition, attr, attributeType, outNewNodeId)
+    @ccall libopen62541.__UA_Client_addNode(
+        client::Ptr{UA_Client}, nodeClass::UA_NodeClass, requestedNewNodeId::UA_NodeId,
+        parentNodeId::UA_NodeId, referenceTypeId::UA_NodeId, browseName::UA_QualifiedName,
+        typeDefinition::UA_NodeId, attr::Ptr{UA_NodeAttributes},
+        attributeType::Ptr{UA_DataType}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
 function UA_Client_NamespaceGetIndex(client, namespaceUri, namespaceIndex)
-    @ccall libopen62541.UA_Client_NamespaceGetIndex(client::Ptr{UA_Client},
-        namespaceUri::Ptr{UA_String},
+    @ccall libopen62541.UA_Client_NamespaceGetIndex(
+        client::Ptr{UA_Client}, namespaceUri::Ptr{UA_String},
         namespaceIndex::Ptr{UA_UInt16})::UA_StatusCode
 end
 
 function UA_Client_forEachChildNodeCall(client, parentNodeId, callback, handle)
-    @ccall libopen62541.UA_Client_forEachChildNodeCall(client::Ptr{UA_Client},
-        parentNodeId::UA_NodeId,
-        callback::UA_NodeIteratorCallback,
-        handle::Ptr{Cvoid})::UA_StatusCode
+    @ccall libopen62541.UA_Client_forEachChildNodeCall(
+        client::Ptr{UA_Client}, parentNodeId::UA_NodeId,
+        callback::UA_NodeIteratorCallback, handle::Ptr{Cvoid})::UA_StatusCode
 end
 
 # typedef void ( * UA_Client_DeleteSubscriptionCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext )
@@ -7798,11 +7527,8 @@ const UA_Client_DeleteSubscriptionCallback = Ptr{Cvoid}
 # typedef void ( * UA_Client_StatusChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_StatusChangeNotification * notification )
 const UA_Client_StatusChangeNotificationCallback = Ptr{Cvoid}
 
-function UA_Client_Subscriptions_create(client,
-        request,
-        subscriptionContext,
-        statusChangeCallback,
-        deleteCallback)
+function UA_Client_Subscriptions_create(
+        client, request, subscriptionContext, statusChangeCallback, deleteCallback)
     @ccall libopen62541.UA_Client_Subscriptions_create(client::Ptr{UA_Client},
         request::UA_CreateSubscriptionRequest,
         subscriptionContext::Ptr{Cvoid},
@@ -7810,22 +7536,16 @@ function UA_Client_Subscriptions_create(client,
         deleteCallback::UA_Client_DeleteSubscriptionCallback)::UA_CreateSubscriptionResponse
 end
 
-function UA_Client_Subscriptions_create_async(client,
-        request,
-        subscriptionContext,
-        statusChangeCallback,
-        deleteCallback,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_Subscriptions_create_async(client::Ptr{UA_Client},
-        request::UA_CreateSubscriptionRequest,
+function UA_Client_Subscriptions_create_async(
+        client, request, subscriptionContext, statusChangeCallback,
+        deleteCallback, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_Subscriptions_create_async(
+        client::Ptr{UA_Client}, request::UA_CreateSubscriptionRequest,
         subscriptionContext::Ptr{Cvoid},
         statusChangeCallback::UA_Client_StatusChangeNotificationCallback,
         deleteCallback::UA_Client_DeleteSubscriptionCallback,
         callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 function UA_Client_Subscriptions_modify(client, request)
@@ -7833,15 +7553,11 @@ function UA_Client_Subscriptions_modify(client, request)
         request::UA_ModifySubscriptionRequest)::UA_ModifySubscriptionResponse
 end
 
-function UA_Client_Subscriptions_modify_async(client,
-        request,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_Subscriptions_modify_async(client::Ptr{UA_Client},
-        request::UA_ModifySubscriptionRequest,
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
+function UA_Client_Subscriptions_modify_async(
+        client, request, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_Subscriptions_modify_async(
+        client::Ptr{UA_Client}, request::UA_ModifySubscriptionRequest,
+        callback::UA_ClientAsyncServiceCallback, userdata::Ptr{Cvoid},
         requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
@@ -7850,23 +7566,28 @@ function UA_Client_Subscriptions_delete(client, request)
         request::UA_DeleteSubscriptionsRequest)::UA_DeleteSubscriptionsResponse
 end
 
-function UA_Client_Subscriptions_delete_async(client,
-        request,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_Subscriptions_delete_async(client::Ptr{UA_Client},
-        request::UA_DeleteSubscriptionsRequest,
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
+function UA_Client_Subscriptions_delete_async(
+        client, request, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_Subscriptions_delete_async(
+        client::Ptr{UA_Client}, request::UA_DeleteSubscriptionsRequest,
+        callback::UA_ClientAsyncServiceCallback, userdata::Ptr{Cvoid},
         requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 function UA_Client_Subscriptions_deleteSingle(client, subscriptionId)
-    @ccall libopen62541.UA_Client_Subscriptions_deleteSingle(client::Ptr{UA_Client},
-        subscriptionId::UA_UInt32)::UA_StatusCode
+    @ccall libopen62541.UA_Client_Subscriptions_deleteSingle(
+        client::Ptr{UA_Client}, subscriptionId::UA_UInt32)::UA_StatusCode
 end
 
+"""
+    UA_MonitoredItemCreateRequest_default(nodeId)
+
+MonitoredItems --------------
+
+MonitoredItems for Events indicate the ``EventNotifier`` attribute. This indicates to the server not to monitor changes of the attribute, but to forward Event notifications from that node.
+
+During the creation of a MonitoredItem, the server may return changed adjusted parameters. Check the returned `[`UA_CreateMonitoredItemsResponse`](@ref)` to get the current parameters.
+"""
 # typedef void ( * UA_Client_DeleteMonitoredItemCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext )
 """
 The clientHandle parameter cannot be set by the user, any value will be replaced by the client before sending the request to the server.
@@ -7879,11 +7600,8 @@ const UA_Client_DataChangeNotificationCallback = Ptr{Cvoid}
 # typedef void ( * UA_Client_EventNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , size_t nEventFields , UA_Variant * eventFields )
 const UA_Client_EventNotificationCallback = Ptr{Cvoid}
 
-function UA_Client_MonitoredItems_createDataChanges(client,
-        request,
-        contexts,
-        callbacks,
-        deleteCallbacks)
+function UA_Client_MonitoredItems_createDataChanges(
+        client, request, contexts, callbacks, deleteCallbacks)
     @ccall libopen62541.UA_Client_MonitoredItems_createDataChanges(client::Ptr{UA_Client},
         request::UA_CreateMonitoredItemsRequest,
         contexts::Ptr{Ptr{Cvoid}},
@@ -7891,33 +7609,20 @@ function UA_Client_MonitoredItems_createDataChanges(client,
         deleteCallbacks::Ptr{UA_Client_DeleteMonitoredItemCallback})::UA_CreateMonitoredItemsResponse
 end
 
-function UA_Client_MonitoredItems_createDataChanges_async(client,
-        request,
-        contexts,
-        callbacks,
-        deleteCallbacks,
-        createCallback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_MonitoredItems_createDataChanges_async(client::Ptr{
-            UA_Client,
-        },
-        request::UA_CreateMonitoredItemsRequest,
+function UA_Client_MonitoredItems_createDataChanges_async(
+        client, request, contexts, callbacks,
+        deleteCallbacks, createCallback, userdata, requestId)
+    @ccall libopen62541.UA_Client_MonitoredItems_createDataChanges_async(
+        client::Ptr{UA_Client}, request::UA_CreateMonitoredItemsRequest,
         contexts::Ptr{Ptr{Cvoid}},
         callbacks::Ptr{UA_Client_DataChangeNotificationCallback},
         deleteCallbacks::Ptr{UA_Client_DeleteMonitoredItemCallback},
         createCallback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
-function UA_Client_MonitoredItems_createDataChange(client,
-        subscriptionId,
-        timestampsToReturn,
-        item,
-        context,
-        callback,
-        deleteCallback)
+function UA_Client_MonitoredItems_createDataChange(
+        client, subscriptionId, timestampsToReturn, item, context, callback, deleteCallback)
     @ccall libopen62541.UA_Client_MonitoredItems_createDataChange(client::Ptr{UA_Client},
         subscriptionId::UA_UInt32,
         timestampsToReturn::UA_TimestampsToReturn,
@@ -7927,11 +7632,8 @@ function UA_Client_MonitoredItems_createDataChange(client,
         deleteCallback::UA_Client_DeleteMonitoredItemCallback)::UA_MonitoredItemCreateResult
 end
 
-function UA_Client_MonitoredItems_createEvents(client,
-        request,
-        contexts,
-        callback,
-        deleteCallback)
+function UA_Client_MonitoredItems_createEvents(
+        client, request, contexts, callback, deleteCallback)
     @ccall libopen62541.UA_Client_MonitoredItems_createEvents(client::Ptr{UA_Client},
         request::UA_CreateMonitoredItemsRequest,
         contexts::Ptr{Ptr{Cvoid}},
@@ -7939,31 +7641,18 @@ function UA_Client_MonitoredItems_createEvents(client,
         deleteCallback::Ptr{UA_Client_DeleteMonitoredItemCallback})::UA_CreateMonitoredItemsResponse
 end
 
-function UA_Client_MonitoredItems_createEvents_async(client,
-        request,
-        contexts,
-        callbacks,
-        deleteCallbacks,
-        createCallback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_MonitoredItems_createEvents_async(client::Ptr{UA_Client},
-        request::UA_CreateMonitoredItemsRequest,
-        contexts::Ptr{Ptr{Cvoid}},
-        callbacks::Ptr{UA_Client_EventNotificationCallback},
+function UA_Client_MonitoredItems_createEvents_async(client, request, contexts, callbacks,
+        deleteCallbacks, createCallback, userdata, requestId)
+    @ccall libopen62541.UA_Client_MonitoredItems_createEvents_async(
+        client::Ptr{UA_Client}, request::UA_CreateMonitoredItemsRequest,
+        contexts::Ptr{Ptr{Cvoid}}, callbacks::Ptr{UA_Client_EventNotificationCallback},
         deleteCallbacks::Ptr{UA_Client_DeleteMonitoredItemCallback},
         createCallback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
-function UA_Client_MonitoredItems_createEvent(client,
-        subscriptionId,
-        timestampsToReturn,
-        item,
-        context,
-        callback,
-        deleteCallback)
+function UA_Client_MonitoredItems_createEvent(
+        client, subscriptionId, timestampsToReturn, item, context, callback, deleteCallback)
     @ccall libopen62541.UA_Client_MonitoredItems_createEvent(client::Ptr{UA_Client},
         subscriptionId::UA_UInt32,
         timestampsToReturn::UA_TimestampsToReturn,
@@ -7978,21 +7667,17 @@ function UA_Client_MonitoredItems_delete(client, arg2)
         arg2::UA_DeleteMonitoredItemsRequest)::UA_DeleteMonitoredItemsResponse
 end
 
-function UA_Client_MonitoredItems_delete_async(client,
-        request,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_MonitoredItems_delete_async(client::Ptr{UA_Client},
-        request::UA_DeleteMonitoredItemsRequest,
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
+function UA_Client_MonitoredItems_delete_async(
+        client, request, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_MonitoredItems_delete_async(
+        client::Ptr{UA_Client}, request::UA_DeleteMonitoredItemsRequest,
+        callback::UA_ClientAsyncServiceCallback, userdata::Ptr{Cvoid},
         requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 function UA_Client_MonitoredItems_deleteSingle(client, subscriptionId, monitoredItemId)
-    @ccall libopen62541.UA_Client_MonitoredItems_deleteSingle(client::Ptr{UA_Client},
-        subscriptionId::UA_UInt32,
+    @ccall libopen62541.UA_Client_MonitoredItems_deleteSingle(
+        client::Ptr{UA_Client}, subscriptionId::UA_UInt32,
         monitoredItemId::UA_UInt32)::UA_StatusCode
 end
 
@@ -8001,6 +7686,11 @@ function UA_Client_MonitoredItems_modify(client, request)
         request::UA_ModifyMonitoredItemsRequest)::UA_ModifyMonitoredItemsResponse
 end
 
+"""
+    UA_Client_MonitoredItems_setMonitoringMode(client, request)
+
+The following service calls go directly to the server. The MonitoredItem settings are not stored in the client.
+"""
 # typedef void ( * UA_ClientAsyncReadCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_ReadResponse * rr )
 """
 Async Services ^^^^^^^^^^^^^^
@@ -8035,331 +7725,243 @@ Note that the last argument (value pointer) of the callbacks can be NULL if the 
 """
 const UA_ClientAsyncReadAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readAttribute_async(client,
-        rvi,
-        timestampsToReturn,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readAttribute_async(client::Ptr{UA_Client},
-        rvi::Ptr{UA_ReadValueId},
+function UA_Client_readAttribute_async(
+        client, rvi, timestampsToReturn, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readAttribute_async(
+        client::Ptr{UA_Client}, rvi::Ptr{UA_ReadValueId},
         timestampsToReturn::UA_TimestampsToReturn,
         callback::UA_ClientAsyncReadAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadValueAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_DataValue * value )
 const UA_ClientAsyncReadValueAttributeCallback = Ptr{Cvoid}
 
 function UA_Client_readValueAttribute_async(client, nodeId, callback, userdata, requestId)
-    @ccall libopen62541.UA_Client_readValueAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+    @ccall libopen62541.UA_Client_readValueAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadValueAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadDataTypeAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_NodeId * dataType )
 const UA_ClientAsyncReadDataTypeAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readDataTypeAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readDataTypeAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readDataTypeAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readDataTypeAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadDataTypeAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientReadArrayDimensionsAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Variant * arrayDimensions )
 const UA_ClientReadArrayDimensionsAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readArrayDimensionsAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readArrayDimensionsAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readArrayDimensionsAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readArrayDimensionsAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientReadArrayDimensionsAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadNodeClassAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_NodeClass * nodeClass )
 const UA_ClientAsyncReadNodeClassAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readNodeClassAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readNodeClassAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readNodeClassAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readNodeClassAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadNodeClassAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadBrowseNameAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_QualifiedName * browseName )
 const UA_ClientAsyncReadBrowseNameAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readBrowseNameAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readBrowseNameAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readBrowseNameAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readBrowseNameAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadBrowseNameAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadDisplayNameAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_LocalizedText * displayName )
 const UA_ClientAsyncReadDisplayNameAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readDisplayNameAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readDisplayNameAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readDisplayNameAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readDisplayNameAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadDisplayNameAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadDescriptionAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_LocalizedText * description )
 const UA_ClientAsyncReadDescriptionAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readDescriptionAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readDescriptionAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readDescriptionAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readDescriptionAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadDescriptionAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadWriteMaskAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_UInt32 * writeMask )
 const UA_ClientAsyncReadWriteMaskAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readWriteMaskAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readWriteMaskAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readWriteMaskAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readWriteMaskAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadWriteMaskAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadUserWriteMaskAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_UInt32 * writeMask )
 const UA_ClientAsyncReadUserWriteMaskAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readUserWriteMaskAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readUserWriteMaskAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readUserWriteMaskAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readUserWriteMaskAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadUserWriteMaskAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadIsAbstractAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * isAbstract )
 const UA_ClientAsyncReadIsAbstractAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readIsAbstractAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readIsAbstractAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readIsAbstractAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readIsAbstractAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadIsAbstractAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadSymmetricAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * symmetric )
 const UA_ClientAsyncReadSymmetricAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readSymmetricAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readSymmetricAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readSymmetricAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readSymmetricAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadSymmetricAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadInverseNameAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_LocalizedText * inverseName )
 const UA_ClientAsyncReadInverseNameAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readInverseNameAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readInverseNameAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readInverseNameAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readInverseNameAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadInverseNameAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadContainsNoLoopsAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * containsNoLoops )
 const UA_ClientAsyncReadContainsNoLoopsAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readContainsNoLoopsAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readContainsNoLoopsAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readContainsNoLoopsAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readContainsNoLoopsAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadContainsNoLoopsAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadEventNotifierAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Byte * eventNotifier )
 const UA_ClientAsyncReadEventNotifierAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readEventNotifierAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readEventNotifierAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readEventNotifierAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readEventNotifierAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadEventNotifierAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadValueRankAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Int32 * valueRank )
 const UA_ClientAsyncReadValueRankAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readValueRankAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readValueRankAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readValueRankAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readValueRankAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadValueRankAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadAccessLevelAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Byte * accessLevel )
 const UA_ClientAsyncReadAccessLevelAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readAccessLevelAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readAccessLevelAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readAccessLevelAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readAccessLevelAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadAccessLevelAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadUserAccessLevelAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Byte * userAccessLevel )
 const UA_ClientAsyncReadUserAccessLevelAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readUserAccessLevelAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readUserAccessLevelAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readUserAccessLevelAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readUserAccessLevelAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadUserAccessLevelAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadMinimumSamplingIntervalAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Double * minimumSamplingInterval )
 const UA_ClientAsyncReadMinimumSamplingIntervalAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readMinimumSamplingIntervalAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readMinimumSamplingIntervalAttribute_async(client::Ptr{
-            UA_Client,
-        },
-        nodeId::UA_NodeId,
+function UA_Client_readMinimumSamplingIntervalAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readMinimumSamplingIntervalAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadMinimumSamplingIntervalAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadHistorizingAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * historizing )
 const UA_ClientAsyncReadHistorizingAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readHistorizingAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readHistorizingAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readHistorizingAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readHistorizingAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadHistorizingAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadExecutableAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * executable )
 const UA_ClientAsyncReadExecutableAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readExecutableAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readExecutableAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readExecutableAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readExecutableAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadExecutableAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncReadUserExecutableAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_Boolean * userExecutable )
 const UA_ClientAsyncReadUserExecutableAttributeCallback = Ptr{Cvoid}
 
-function UA_Client_readUserExecutableAttribute_async(client,
-        nodeId,
-        callback,
-        userdata,
-        requestId)
-    @ccall libopen62541.UA_Client_readUserExecutableAttribute_async(client::Ptr{UA_Client},
-        nodeId::UA_NodeId,
+function UA_Client_readUserExecutableAttribute_async(
+        client, nodeId, callback, userdata, requestId)
+    @ccall libopen62541.UA_Client_readUserExecutableAttribute_async(
+        client::Ptr{UA_Client}, nodeId::UA_NodeId,
         callback::UA_ClientAsyncReadUserExecutableAttributeCallback,
-        userdata::Ptr{Cvoid},
-        requestId::Ptr{UA_UInt32})::UA_StatusCode
+        userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 """
@@ -8367,40 +7969,21 @@ end
 
 Write Attribute ^^^^^^^^^^^^^^^
 """
-function __UA_Client_writeAttribute_async(client,
-        nodeId,
-        attributeId,
-        in,
-        inDataType,
-        callback,
-        userdata,
-        reqId)
-    @ccall libopen62541.__UA_Client_writeAttribute_async(client::Ptr{UA_Client},
-        nodeId::Ptr{UA_NodeId},
-        attributeId::UA_AttributeId,
-        in::Ptr{Cvoid},
-        inDataType::Ptr{UA_DataType},
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        reqId::Ptr{UA_UInt32})::UA_StatusCode
+function __UA_Client_writeAttribute_async(
+        client, nodeId, attributeId, in, inDataType, callback, userdata, reqId)
+    @ccall libopen62541.__UA_Client_writeAttribute_async(
+        client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
+        attributeId::UA_AttributeId, in::Ptr{Cvoid},
+        inDataType::Ptr{UA_DataType}, callback::UA_ClientAsyncServiceCallback,
+        userdata::Ptr{Cvoid}, reqId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
-function __UA_Client_call_async(client,
-        objectId,
-        methodId,
-        inputSize,
-        input,
-        callback,
-        userdata,
-        reqId)
-    @ccall libopen62541.__UA_Client_call_async(client::Ptr{UA_Client},
-        objectId::UA_NodeId,
-        methodId::UA_NodeId,
-        inputSize::Csize_t,
-        input::Ptr{UA_Variant},
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        reqId::Ptr{UA_UInt32})::UA_StatusCode
+function __UA_Client_call_async(
+        client, objectId, methodId, inputSize, input, callback, userdata, reqId)
+    @ccall libopen62541.__UA_Client_call_async(client::Ptr{UA_Client}, objectId::UA_NodeId,
+        methodId::UA_NodeId, inputSize::Csize_t,
+        input::Ptr{UA_Variant}, callback::UA_ClientAsyncServiceCallback,
+        userdata::Ptr{Cvoid}, reqId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 # typedef void ( * UA_ClientAsyncCallCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_CallResponse * cr )
@@ -8412,32 +7995,16 @@ Node Management ^^^^^^^^^^^^^^^
 """
 const UA_ClientAsyncAddNodesCallback = Ptr{Cvoid}
 
-function __UA_Client_addNode_async(client,
-        nodeClass,
-        requestedNewNodeId,
-        parentNodeId,
-        referenceTypeId,
-        browseName,
-        typeDefinition,
-        attr,
-        attributeType,
-        outNewNodeId,
-        callback,
-        userdata,
-        reqId)
-    @ccall libopen62541.__UA_Client_addNode_async(client::Ptr{UA_Client},
-        nodeClass::UA_NodeClass,
-        requestedNewNodeId::UA_NodeId,
-        parentNodeId::UA_NodeId,
-        referenceTypeId::UA_NodeId,
-        browseName::UA_QualifiedName,
-        typeDefinition::UA_NodeId,
-        attr::Ptr{UA_NodeAttributes},
-        attributeType::Ptr{UA_DataType},
-        outNewNodeId::Ptr{UA_NodeId},
-        callback::UA_ClientAsyncServiceCallback,
-        userdata::Ptr{Cvoid},
-        reqId::Ptr{UA_UInt32})::UA_StatusCode
+function __UA_Client_addNode_async(
+        client, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId, browseName,
+        typeDefinition, attr, attributeType, outNewNodeId, callback, userdata, reqId)
+    @ccall libopen62541.__UA_Client_addNode_async(
+        client::Ptr{UA_Client}, nodeClass::UA_NodeClass, requestedNewNodeId::UA_NodeId,
+        parentNodeId::UA_NodeId, referenceTypeId::UA_NodeId,
+        browseName::UA_QualifiedName, typeDefinition::UA_NodeId,
+        attr::Ptr{UA_NodeAttributes}, attributeType::Ptr{UA_DataType},
+        outNewNodeId::Ptr{UA_NodeId}, callback::UA_ClientAsyncServiceCallback,
+        userdata::Ptr{Cvoid}, reqId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
 """
@@ -8453,35 +8020,22 @@ end
 # typedef UA_StatusCode ( * UA_UsernamePasswordLoginCallback ) ( const UA_String * userName , const UA_ByteString * password , size_t usernamePasswordLoginSize , const UA_UsernamePasswordLogin * usernamePasswordLogin , void * * sessionContext , void * loginContext )
 const UA_UsernamePasswordLoginCallback = Ptr{Cvoid}
 
-function UA_AccessControl_default(config,
-        allowAnonymous,
-        verifyX509,
-        userTokenPolicyUri,
-        usernamePasswordLoginSize,
-        usernamePasswordLogin)
-    @ccall libopen62541.UA_AccessControl_default(config::Ptr{UA_ServerConfig},
-        allowAnonymous::UA_Boolean,
+function UA_AccessControl_default(config, allowAnonymous, verifyX509, userTokenPolicyUri,
+        usernamePasswordLoginSize, usernamePasswordLogin)
+    @ccall libopen62541.UA_AccessControl_default(
+        config::Ptr{UA_ServerConfig}, allowAnonymous::UA_Boolean,
         verifyX509::Ptr{UA_CertificateVerification},
-        userTokenPolicyUri::Ptr{UA_ByteString},
-        usernamePasswordLoginSize::Csize_t,
+        userTokenPolicyUri::Ptr{UA_ByteString}, usernamePasswordLoginSize::Csize_t,
         usernamePasswordLogin::Ptr{UA_UsernamePasswordLogin})::UA_StatusCode
 end
 
-function UA_AccessControl_defaultWithLoginCallback(config,
-        allowAnonymous,
-        verifyX509,
-        userTokenPolicyUri,
-        usernamePasswordLoginSize,
-        usernamePasswordLogin,
-        loginCallback,
-        loginContext)
-    @ccall libopen62541.UA_AccessControl_defaultWithLoginCallback(config::Ptr{
-            UA_ServerConfig,
-        },
-        allowAnonymous::UA_Boolean,
+function UA_AccessControl_defaultWithLoginCallback(
+        config, allowAnonymous, verifyX509, userTokenPolicyUri,
+        usernamePasswordLoginSize, usernamePasswordLogin, loginCallback, loginContext)
+    @ccall libopen62541.UA_AccessControl_defaultWithLoginCallback(
+        config::Ptr{UA_ServerConfig}, allowAnonymous::UA_Boolean,
         verifyX509::Ptr{UA_CertificateVerification},
-        userTokenPolicyUri::Ptr{UA_ByteString},
-        usernamePasswordLoginSize::Csize_t,
+        userTokenPolicyUri::Ptr{UA_ByteString}, usernamePasswordLoginSize::Csize_t,
         usernamePasswordLogin::Ptr{UA_UsernamePasswordLogin},
         loginCallback::UA_UsernamePasswordLoginCallback,
         loginContext::Ptr{Cvoid})::UA_StatusCode
@@ -8493,9 +8047,7 @@ end
 ** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/pki\\_default.h" ***
 """
 function UA_CertificateVerification_AcceptAll(cv)
-    @ccall libopen62541.UA_CertificateVerification_AcceptAll(cv::Ptr{
-        UA_CertificateVerification,
-    })::Cvoid
+    @ccall libopen62541.UA_CertificateVerification_AcceptAll(cv::Ptr{UA_CertificateVerification})::Cvoid
 end
 
 function UA_Log_Stdout_withLevel(minlevel)
@@ -8524,15 +8076,11 @@ function UA_Server_new()
     @ccall libopen62541.UA_Server_new()::Ptr{UA_Server}
 end
 
-function UA_ServerConfig_setMinimalCustomBuffer(config,
-        portNumber,
-        certificate,
-        sendBufferSize,
-        recvBufferSize)
-    @ccall libopen62541.UA_ServerConfig_setMinimalCustomBuffer(config::Ptr{UA_ServerConfig},
-        portNumber::UA_UInt16,
-        certificate::Ptr{UA_ByteString},
-        sendBufferSize::UA_UInt32,
+function UA_ServerConfig_setMinimalCustomBuffer(
+        config, portNumber, certificate, sendBufferSize, recvBufferSize)
+    @ccall libopen62541.UA_ServerConfig_setMinimalCustomBuffer(
+        config::Ptr{UA_ServerConfig}, portNumber::UA_UInt16,
+        certificate::Ptr{UA_ByteString}, sendBufferSize::UA_UInt32,
         recvBufferSize::UA_UInt32)::UA_StatusCode
 end
 
@@ -8540,31 +8088,26 @@ function UA_ServerConfig_setBasics(conf)
     @ccall libopen62541.UA_ServerConfig_setBasics(conf::Ptr{UA_ServerConfig})::UA_StatusCode
 end
 
-function UA_ServerConfig_addNetworkLayerTCP(conf,
-        portNumber,
-        sendBufferSize,
-        recvBufferSize)
-    @ccall libopen62541.UA_ServerConfig_addNetworkLayerTCP(conf::Ptr{UA_ServerConfig},
-        portNumber::UA_UInt16,
-        sendBufferSize::UA_UInt32,
-        recvBufferSize::UA_UInt32)::UA_StatusCode
+function UA_ServerConfig_addNetworkLayerTCP(
+        conf, portNumber, sendBufferSize, recvBufferSize)
+    @ccall libopen62541.UA_ServerConfig_addNetworkLayerTCP(
+        conf::Ptr{UA_ServerConfig}, portNumber::UA_UInt16,
+        sendBufferSize::UA_UInt32, recvBufferSize::UA_UInt32)::UA_StatusCode
 end
 
 function UA_ServerConfig_addSecurityPolicyNone(config, certificate)
-    @ccall libopen62541.UA_ServerConfig_addSecurityPolicyNone(config::Ptr{UA_ServerConfig},
-        certificate::Ptr{UA_ByteString})::UA_StatusCode
+    @ccall libopen62541.UA_ServerConfig_addSecurityPolicyNone(
+        config::Ptr{UA_ServerConfig}, certificate::Ptr{UA_ByteString})::UA_StatusCode
 end
 
 function UA_ServerConfig_addEndpoint(config, securityPolicyUri, securityMode)
-    @ccall libopen62541.UA_ServerConfig_addEndpoint(config::Ptr{UA_ServerConfig},
-        securityPolicyUri::UA_String,
+    @ccall libopen62541.UA_ServerConfig_addEndpoint(
+        config::Ptr{UA_ServerConfig}, securityPolicyUri::UA_String,
         securityMode::UA_MessageSecurityMode)::UA_StatusCode
 end
 
 function UA_ServerConfig_addAllEndpoints(config)
-    @ccall libopen62541.UA_ServerConfig_addAllEndpoints(config::Ptr{
-        UA_ServerConfig,
-    })::UA_StatusCode
+    @ccall libopen62541.UA_ServerConfig_addAllEndpoints(config::Ptr{UA_ServerConfig})::UA_StatusCode
 end
 
 """
@@ -8577,9 +8120,7 @@ function UA_Client_new()
 end
 
 function UA_ClientConfig_setDefault(config)
-    @ccall libopen62541.UA_ClientConfig_setDefault(config::Ptr{
-        UA_ClientConfig,
-    })::UA_StatusCode
+    @ccall libopen62541.UA_ClientConfig_setDefault(config::Ptr{UA_ClientConfig})::UA_StatusCode
 end
 
 """
@@ -8588,8 +8129,8 @@ end
 ** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/securitypolicy\\_default.h" ***
 """
 function UA_SecurityPolicy_None(policy, localCertificate, logger)
-    @ccall libopen62541.UA_SecurityPolicy_None(policy::Ptr{UA_SecurityPolicy},
-        localCertificate::UA_ByteString,
+    @ccall libopen62541.UA_SecurityPolicy_None(
+        policy::Ptr{UA_SecurityPolicy}, localCertificate::UA_ByteString,
         logger::Ptr{UA_Logger})::UA_StatusCode
 end
 
@@ -8660,27 +8201,24 @@ function UA_HistoryDataBackend_Memory(initialNodeIdStoreSize, initialDataStoreSi
 end
 
 function UA_HistoryDataBackend_Memory_clear(backend)
-    @ccall libopen62541.UA_HistoryDataBackend_Memory_clear(backend::Ptr{
-        UA_HistoryDataBackend,
-    })::Cvoid
+    @ccall libopen62541.UA_HistoryDataBackend_Memory_clear(backend::Ptr{UA_HistoryDataBackend})::Cvoid
 end
 
 function UA_ServerNetworkLayerTCP(config, port, maxConnections)
-    @ccall libopen62541.UA_ServerNetworkLayerTCP(config::UA_ConnectionConfig,
-        port::UA_UInt16,
+    @ccall libopen62541.UA_ServerNetworkLayerTCP(
+        config::UA_ConnectionConfig, port::UA_UInt16,
         maxConnections::UA_UInt16)::UA_ServerNetworkLayer
 end
 
 function UA_ClientConnectionTCP_init(config, endpointUrl, timeout, logger)
-    @ccall libopen62541.UA_ClientConnectionTCP_init(config::UA_ConnectionConfig,
-        endpointUrl::UA_String,
-        timeout::UA_UInt32,
-        logger::Ptr{UA_Logger})::UA_Connection
+    @ccall libopen62541.UA_ClientConnectionTCP_init(
+        config::UA_ConnectionConfig, endpointUrl::UA_String,
+        timeout::UA_UInt32, logger::Ptr{UA_Logger})::UA_Connection
 end
 
 function UA_ClientConnectionTCP_poll(connection, timeout, logger)
-    @ccall libopen62541.UA_ClientConnectionTCP_poll(connection::Ptr{UA_Connection},
-        timeout::UA_UInt32,
+    @ccall libopen62541.UA_ClientConnectionTCP_poll(
+        connection::Ptr{UA_Connection}, timeout::UA_UInt32,
         logger::Ptr{UA_Logger})::UA_StatusCode
 end
 
@@ -8700,150 +8238,150 @@ function UA_deinitialize_architecture_network()
     @ccall libopen62541.UA_deinitialize_architecture_network()::Cvoid
 end
 
-struct __JL_Ctag_396
-    typeId::UA_NodeId
-    body::UA_ByteString
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_396}, f::Symbol)
-    f === :typeId && return Ptr{UA_NodeId}(x + 0)
-    f === :body && return Ptr{UA_ByteString}(x + 24)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_396, f::Symbol)
-    r = Ref{__JL_Ctag_396}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_396}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_396}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_397
-    type::Ptr{UA_DataType}
-    data::Ptr{Cvoid}
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_397}, f::Symbol)
-    f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
-    f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_397, f::Symbol)
-    r = Ref{__JL_Ctag_397}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_397}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_397}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_399
+struct __JL_Ctag_418
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_399}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_418}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_399, f::Symbol)
-    r = Ref{__JL_Ctag_399}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_399}, r)
+function Base.getproperty(x::__JL_Ctag_418, f::Symbol)
+    r = Ref{__JL_Ctag_418}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_418}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_399}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_418}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_401
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_401}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_401, f::Symbol)
-    r = Ref{__JL_Ctag_401}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_401}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_401}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_404
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_404}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_404, f::Symbol)
-    r = Ref{__JL_Ctag_404}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_404}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_404}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_405
+struct __JL_Ctag_419
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_405}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_419}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_405, f::Symbol)
-    r = Ref{__JL_Ctag_405}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_405}, r)
+function Base.getproperty(x::__JL_Ctag_419, f::Symbol)
+    r = Ref{__JL_Ctag_419}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_419}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_405}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_419}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_407
+struct __JL_Ctag_421
+    typeId::UA_NodeId
+    body::UA_ByteString
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_421}, f::Symbol)
+    f === :typeId && return Ptr{UA_NodeId}(x + 0)
+    f === :body && return Ptr{UA_ByteString}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_421, f::Symbol)
+    r = Ref{__JL_Ctag_421}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_421}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_421}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_422
+    type::Ptr{UA_DataType}
+    data::Ptr{Cvoid}
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_422}, f::Symbol)
+    f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
+    f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_422, f::Symbol)
+    r = Ref{__JL_Ctag_422}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_422}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_422}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_424
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_424}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_424, f::Symbol)
+    r = Ref{__JL_Ctag_424}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_424}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_424}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_427
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_427}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_427, f::Symbol)
+    r = Ref{__JL_Ctag_427}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_427}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_427}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_429
     idTreeRoot::Ptr{aa_entry}
     nameTreeRoot::Ptr{aa_entry}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_407}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_429}, f::Symbol)
     f === :idTreeRoot && return Ptr{Ptr{aa_entry}}(x + 0)
     f === :nameTreeRoot && return Ptr{Ptr{aa_entry}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_407, f::Symbol)
-    r = Ref{__JL_Ctag_407}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_407}, r)
+function Base.getproperty(x::__JL_Ctag_429, f::Symbol)
+    r = Ref{__JL_Ctag_429}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_429}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_407}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_429}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -20574,8 +20112,8 @@ const UA_REFERENCETYPESET_MAX = 128
 const INITIAL_MEMORY_STORE_SIZE = 1000
 
 const UA_STRING_NULL = UA_String(0, C_NULL)
-const UA_GUID_NULL = UA_Guid(0, 0, 0, tuple(zeros(UA_Byte, 8)...))
-const UA_NODEID_NULL = UA_NodeId(tuple(zeros(UA_Byte, 24)...))
+const UA_GUID_NULL = UA_Guid(0, 0, 0, Tuple(zeros(UA_Byte, 8)))
+const UA_NODEID_NULL = UA_NodeId(Tuple(zeros(UA_Byte, 24)))
 const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL, 0)
 
 include("generated_defs.jl")
@@ -20591,7 +20129,6 @@ include("init.jl")
 
 # exports
 const PREFIXES = ["UA_", "JUA_"]
-#const PREFIXES = ["JUA_"]
 for name in names(@__MODULE__; all = true), prefix in PREFIXES
     if startswith(string(name), prefix)
         @eval export $name

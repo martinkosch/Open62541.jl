@@ -1,3 +1,5 @@
+#TODO: all of this needs docstrings of course.
+
 #Preliminary definitions
 abstract type AbstractOpen62541Wrapper end
 
@@ -137,6 +139,19 @@ end
 
 Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpointer(x))
 
+#VariableAttributes - TODO: complete
+# mutable struct JUA_VariableAttributes <: AbstractOpen62541Wrapper
+#     ptr::Ptr{UA_VariableAttributes}
+#     function JUA_VariableAttributes(kwargs...)
+#         obj = new(UA_VariableAttributes_generate(kwargs...))
+#         finalizer(release_handle, obj)
+#         return obj
+#     end
+# end
+
+# function release_handle(obj::JUA_VariableAttributes)
+#     UA_QualifiedName_delete(Jpointer(obj))
+# end
 
 #TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
 # mutable struct JUA_Variant{T} <: AbstractOpen62541Wrapper

@@ -11,11 +11,11 @@ makedocs(;
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://martinkosch.github.io/open62541.jl",
-        assets = String[],),
+        assets = String[]),
     pages = [
-        "Home" => "index.md",
-    ],)
+        "Home" => "index.md"
+    ])
 
 deploydocs(;
     repo = "github.com/martinkosch/open62541.jl",
-    devbranch = "main",)
+    devbranch = "main")

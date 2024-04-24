@@ -624,9 +624,10 @@ function UA_EXPANDEDNODEID_STRING_GUID(guid::Union{Ptr{UA_Guid}, AbstractString}
 end
 
 #NOTE: not part of official open62541 interface, but convenient to define
-function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(identifier::Union{
+function UA_EXPANDEDNODEID_BYTESTRING_ALLOC(
+        identifier::Union{
             Ptr{UA_String},
-            AbstractString,
+            AbstractString
         },
         ns_uri::AbstractString,
         server_ind::Integer)
@@ -755,7 +756,8 @@ function UA_Variant_new_copy(value::AbstractArray{T, N},
 end
 
 function UA_Variant_new_copy(value::Ref{T},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
+        AbstractFloat, Integer}}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
@@ -767,7 +769,8 @@ function UA_Variant_new_copy(value::Ref{T},
 end
 
 function UA_Variant_new_copy(value::T,
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, Integer}}
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
+        AbstractFloat, Integer}}
     return UA_Variant_new_copy(Ref(value), type_ptr)
 end
 

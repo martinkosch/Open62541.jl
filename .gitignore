@@ -5,3 +5,4 @@
 /docs/build/
 gen/Manifest.toml
 gen/Manifest.toml
+.vscode/settings.json

@@ -147,7 +147,8 @@ parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
 referencetypeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
 browsename = UA_QUALIFIEDNAME(1, displayname)
 typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE)
-retval7 = UA_Server_addObjectNode(server, requestednewnodeid, parentnodeid, referencetypeid,
+retval7 = UA_Server_addObjectNode(
+    server, requestednewnodeid, parentnodeid, referencetypeid,
     browsename, typedefinition, oAttr, C_NULL, pumpid)
 
 @test retval6 == UA_STATUSCODE_GOOD
@@ -362,7 +363,7 @@ browsename = JUA_QualifiedName(1, "scalar variable")
 nodecontext = C_NULL
 outnewnodeid = C_NULL
 retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
-    parentreferencenodeid, browsename, attr, nodecontext, 
+    parentreferencenodeid, browsename, attr, nodecontext,
     outnewnodeid, typedefinition)
 @test retvalj1 == UA_STATUSCODE_GOOD
 
@@ -376,6 +377,6 @@ parentnodeid = JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE)
 parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASSUBTYPE)
 browsename = JUA_QualifiedName(1, "DeviceType")
 retvalj2 = JUA_Server_addNode(server2, JUA_NodeId(), parentnodeid,
-    parentreferencenodeid, browsename, attr, C_NULL, 
+    parentreferencenodeid, browsename, attr, C_NULL,
     outnewnodeid)
 @test retvalj2 == UA_STATUSCODE_GOOD

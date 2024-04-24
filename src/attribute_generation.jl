@@ -306,7 +306,8 @@ function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) where {T <: Union{AbstractFloat, Integer}}
+        isabstract::Union{Nothing, Bool} = nothing) where {T <:
+                                                           Union{AbstractFloat, Integer}}
     attr = __generate_variabletype_attributes(value, displayname, description,
         localization, writemask, userwritemask, valuerank, isabstract)
     return attr

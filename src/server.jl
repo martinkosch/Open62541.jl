@@ -25,6 +25,22 @@ function UA_ServerConfig_setDefault(config)
 end
 
 ## Add node Functions
+"""
+```
+UA_Server_addMethodNode(server::Ptr{UA_Server}, requestednewnodeid::Ptr{UA_NodeId}, 
+        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+        browseName::Ptr{UA_QualifiedName}, attr::Ptr{UA_MethodAttributes}, 
+        method::Function, inputArgumentsSize::Csize_t, inputArguments::Union{UA_Argument, AbstractArray{UA_Argument}}, 
+        outputArgumentsSize::Csize_t, outputArguments::Union{UA_Argument, AbstractArray{UA_Argument}}, 
+        nodeContext::Ptr{UA_NodeId}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+```
+
+uses the server API to add a method node with the callback `method` to the `server`.
+`UA_MethodCallback_generate` is internally called on the `method` supplied and thus
+its function signature must match its requirements.
+
+See `UA_MethodAttributes_generate` on how to define valid method attributes.
+"""
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, attr, method::Function,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
@@ -40,24 +56,39 @@ function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
 end
 
-#TODO: would need a JUA_Server_addNode version of this as well.
+#TODO: Add docstring
+function JUA_Server_addNode(server, requestedNewNodeId,
+        parentNodeId, referenceTypeId, browseName,
+        attributes::Ptr{UA_MethodAttributes}, outNewNodeId, nodeContext,
+        method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
+    return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
+        referenceTypeId, browseName, attr, method,
+        inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId)
+end
 
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
         nodeclass_sym = Symbol(nodeclass)
-        funname_sym = Symbol(replace("UA_Server_add" *
-                                     titlecase(string(nodeclass_sym)[14:end]) *
-                                     "Node", "type" => "Type"))
+        funname_sym = Symbol(replace(
+            "UA_Server_add" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Node",
+            "type" => "Type"))
         attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
                                             "ATTRIBUTES"))
-        attributetype_sym = Symbol(replace("UA_" *
-                                           titlecase(string(nodeclass_sym)[14:end]) *
-                                           "Attributes", "type" => "Type"))
+        attributetype_sym = Symbol(replace(
+            "UA_" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Attributes",
+            "type" => "Type"))
         if funname_sym == :UA_Server_addVariableNode ||
            funname_sym == :UA_Server_addVariableTypeNode ||
            funname_sym == :UA_Server_addObjectNode
             @eval begin
-                # emit specific add node functions                 
+                # emit specific add node functions            
+                #TODO: add docstring     
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, typeDefinition, attributes,
                         nodeContext, outNewNodeId)
@@ -68,6 +99,7 @@ for nodeclass in instances(UA_NodeClass)
                 end
 
                 #higher level function using dispatch
+                #TODO: add docstring     
                 function JUA_Server_addNode(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         attributes::Ptr{$(attributetype_sym)},
@@ -80,6 +112,7 @@ for nodeclass in instances(UA_NodeClass)
         elseif funname_sym != :UA_Server_addMethodNode
             @eval begin
                 # emit specific add node functions
+                #TODO: add docstring
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, attributes, nodeContext,
                         outNewNodeId)
@@ -92,6 +125,7 @@ for nodeclass in instances(UA_NodeClass)
                 end
 
                 #higher level function using dispatch
+                #TODO: add docstring
                 function JUA_Server_addNode(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         attributes::Ptr{$(attributetype_sym)},
@@ -118,10 +152,9 @@ for att in attributes_UA_Server_read
         ```
         $($(fun_name))(server, nodeId, out = $($(String(ret_type)))())
         ```
-
-        Uses the Server API to read the value of the attribute $($(String(attr_name))) from the NodeId `nodeId` located on server `server`.
-        The result is saved into the buffer `out`.
-
+        Uses the Server API to read the value of the attribute $($(String(attr_name))) 
+        from the NodeId `nodeId` located on server `server`. The result is saved 
+        into the buffer `out`.
         """
         function $(fun_name)(server, nodeId, out = $(ret_type)())
             statuscode = __UA_Server_read(server, nodeId, $(ua_attr_name), out)
@@ -152,9 +185,8 @@ for att in attributes_UA_Server_write
         ```
         $($(fun_name))(server, nodeId, new_val)
         ```
-
-        Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) of the NodeId `nodeId` located on server `server`. 
-
+        Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) 
+        of the NodeId `nodeId` located on server `server`. 
         """
         function $(fun_name)(server, nodeId, new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
@@ -174,8 +206,16 @@ for att in attributes_UA_Server_write
     end
 end
 
+"""
+```
+UA_Server_call(server::Ptr{UA_Server}, request::Ptr{UA_CallMethodRequest}, result::Ptr{UA_CallMethodResult})::Nothing
+```
+
+uses the server API to process the method call request `request` on the `server`.
+Note that `result` is mutated.
+"""
 function UA_Server_call(server, request, result)
-    r = UA_Server_call(server, request)
+    r = UA_Server_call(server, request) #TODO: introduce memory leak test to check whether r is correctly GC-ed or not.
     UA_CallMethodResult_copy(r, result)
-    return result
+    return nothing
 end

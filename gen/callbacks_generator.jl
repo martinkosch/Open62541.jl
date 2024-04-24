@@ -32,11 +32,11 @@ const client_async_read_callbacks = [
     [
         "UA_ClientAsyncReadMinimumSamplingIntervalAttributeCallback",
         "UA_Double",
-        "minimumsamplinginterval",
+        "minimumsamplinginterval"
     ],
     ["UA_ClientAsyncReadHistorizingAttributeCallback", "UA_Boolean", "historizing"],
     ["UA_ClientAsyncReadExecutableAttributeCallback", "UA_Boolean", "executable"],
-    ["UA_ClientAsyncReadUserExecutableAttributeCallback", "UA_Boolean", "userexecutable"],
+    ["UA_ClientAsyncReadUserExecutableAttributeCallback", "UA_Boolean", "userexecutable"]
 ]
 
 fn = joinpath(@__DIR__, "./src/callbacks.jl")
