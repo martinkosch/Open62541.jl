@@ -39,7 +39,7 @@ uses the server API to add a method node with the callback `method` to the `serv
 `UA_MethodCallback_generate` is internally called on the `method` supplied and thus
 its function signature must match its requirements.
 
-See `UA_MethodAttributes_generate` on how to define valid method attributes.
+See `UA_MethodAttributes_generate` on how to define valid attributes.
 """
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, attr, method::Function,
@@ -63,7 +63,7 @@ function JUA_Server_addNode(server, requestedNewNodeId,
         method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, attr, method,
+        referenceTypeId, browseName, attributes, method,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments, nodeContext, outNewNodeId)
 end
@@ -88,7 +88,19 @@ for nodeclass in instances(UA_NodeClass)
            funname_sym == :UA_Server_addObjectNode
             @eval begin
                 # emit specific add node functions            
-                #TODO: add docstring     
+                """
+                ```
+                $($(funname_sym))(server::Ptr{UA_Server}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, typedefinition::Ptr{UA_NodeId},
+                        attr::Ptr{$($(attributetype_sym))}, nodeContext::Ptr{UA_NodeId}, 
+                        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
+
+                uses the server API to add a $(lowercase(string($nodeclass_sym)[14:end])) node to the `server`.
+
+                See `$($(attributetype_sym))_generate` on how to define valid attributes.
+                """
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, typeDefinition, attributes,
                         nodeContext, outNewNodeId)
@@ -112,7 +124,19 @@ for nodeclass in instances(UA_NodeClass)
         elseif funname_sym != :UA_Server_addMethodNode
             @eval begin
                 # emit specific add node functions
-                #TODO: add docstring
+                """
+                ```
+                $($(funname_sym))(server::Ptr{UA_Server}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, typedefinition::Ptr{UA_NodeId},
+                        attr::Ptr{$($(attributetype_sym))}, nodeContext::Ptr{UA_NodeId}, 
+                        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
+
+                uses the server API to add a $(lowercase(string($nodeclass_sym)[14:end])) node to the `server`.
+
+                See `$($(attributetype_sym))_generate` on how to define valid attributes.
+                """
                 function $(funname_sym)(server, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, attributes, nodeContext,
                         outNewNodeId)
