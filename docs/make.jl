@@ -14,7 +14,9 @@ makedocs(;
         assets = String[]),
     pages = [
         "Home" => "index.md"
-    ])
+    ],
+    strict = false,
+)
 
 deploydocs(;
     repo = "github.com/martinkosch/open62541.jl",
