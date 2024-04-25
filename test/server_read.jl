@@ -1,9 +1,9 @@
-# Purpose: This testset checks whether the UA_Server_readXXXAttribute(...) functions 
-#are usable. This is currently only implemented for nodes of "variable" type. For the attributes
-#contained in such nodes we check whether the respective read function returns the right type of 
-#variable. For functions not defined for a variable node, we check that they throw the appropriate exception. 
-
-#TODO: implement other node types, so that we can check the remaining functions.
+# Purpose: This testset checks whether the UA_Server_readXXXAttribute(...) 
+# functions are usable. This is currently only implemented for nodes of 
+# "variable" and "variabletype" type. For the attributes contained in such nodes 
+# we check whether the respective read function returns the right type of variable. 
+# For functions not defined for a variable node, we check that they throw the 
+# appropriate exception. 
 
 using open62541
 using Test
