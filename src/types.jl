@@ -141,7 +141,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_clear"(x::Ptr{$($(type_name))})
+        $($(type_name))_clear(x::Ptr{$($(type_name))})
         ```
         deletes the dynamically allocated content of the object `x` and calls `$($(type_name))_init(x)` to reset the type and its memory. 
         """

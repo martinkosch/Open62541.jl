@@ -56,6 +56,10 @@ end
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
+@testset "Client read functions" begin
+    include("client_read.jl")
+end
+
 @testset "Simple Server/Client" begin
     include("simple_server_client.jl")
 end

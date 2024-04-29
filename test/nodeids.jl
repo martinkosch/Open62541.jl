@@ -137,7 +137,7 @@ UA_NodeId_delete(nodeid)
 @test UA_ExpandedNodeId_equal(n29, n30)
 @test UA_ExpandedNodeId_equal(n32, n33)
 
-#tidy up
+#clean up
 for i in 1:12
     @eval UA_NodeId_delete($(Symbol("n" * string(i))))
 end
@@ -161,8 +161,4 @@ j6 = JUA_NodeId(1, guid2)
 @test isa(j4, JUA_NodeId)
 @test isa(j5, JUA_NodeId)
 @test isa(j6, JUA_NodeId)
-guid1 = 0 #this should trigger that the GC collects the object
-guid2 = 0 #this should trigger that the GC collects the object
-j6 = 0 #this should trigger that the GC collects the object
-GC.gc()
 @test JUA_NodeId_equal(j2, j3)

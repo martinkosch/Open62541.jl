@@ -320,8 +320,6 @@ retval = UA_Server_addMethodNode(server, methodid,
 
 @test retval == UA_STATUSCODE_GOOD
 
-#UA_Server_run(server, Ref(true)) - checking server in uaexpert shows that the 
-#hello world method is there and that it produces the correct results when called
 inputArguments = UA_Variant_new()
 ua_s = UA_STRING("Peter")
 UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
