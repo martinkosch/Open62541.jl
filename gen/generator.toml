@@ -12,7 +12,7 @@ library_name = "libopen62541"
 library_names = {}
 
 # output file path relative to the working directory
-output_file_path = "../src/open62541_new.jl"
+output_file_path = "../src/open62541.jl"
 
 # if these are set, common file (types and constants) and API file (functions) will be separated
 # this is for compatibility, so prologue and epilogue are not supported.
