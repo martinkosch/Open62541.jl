@@ -24,6 +24,7 @@ end
 
 # ## UA_Array
 # Julia wrapper for C array types
+#TODO: move this to wrappers.jl in the long term; think about interface some more.
 struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     ptr::T
     length::Int64
@@ -362,7 +363,7 @@ UA_NODEID(s::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID(s::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by parsing `s` (which can be a string or UA_String).
+creates a `UA_NodeId` object by parsing `s` (which can be a `String` or `Ptr{UA_String}`).
 
 Example:
 
@@ -407,8 +408,11 @@ UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_Nod
 UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier 
+`identifier`.
+
+Memory is allocated by C and needs to be cleaned up using 
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -431,8 +435,11 @@ UA_NODEID_STRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_STRING(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier 
+`identifier`.
+
+Memory is allocated by C and needs to be cleaned up using 
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
@@ -445,8 +452,11 @@ UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA
 UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring 
+identifier `identifier` (which can be a string or UA_ByteString).
+
+Memory is allocated by C and needs to be cleaned up using 
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -469,8 +479,11 @@ UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeI
 UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring 
+identifier `identifier` (which can be a string or UA_ByteString).
+
+Memory is allocated by C and needs to be cleaned up using 
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
@@ -483,9 +496,12 @@ UA_NODEID_GUID(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_GUID(nsIndex::Integer, identifier::Ptr{UA_Guid})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier `identifier` based on a globally unique id (`UA_Guid`)
-that can be supplied as a string (which will be parsed) or as a valid `Ptr{UA_Guid}`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier 
+`identifier` based on a globally unique id (`UA_Guid`) that can be supplied as a 
+string (which will be parsed) or as a valid `Ptr{UA_Guid}`.
+
+Memory is allocated by C and needs to be cleaned up using 
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_GUID(nsIndex, guid::Ptr{UA_Guid})
     nodeid = UA_NodeId_new()
@@ -514,6 +530,25 @@ function UA_NodeId_equal(n1, n2)
 end
 
 ## ExpandedNodeId
+"""
+```
+UA_EXPANDEDNODEID(s::AbstractString)::Ptr{UA_ExpandedNodeId}
+UA_EXPANDEDNODEID(s::Ptr{UA_String})::Ptr{UA_ExpandedNodeId}
+```
+
+creates a `UA_ExpandedNodeId` object by parsing `s`. Memory is allocated by C and 
+needs to be cleaned up using `UA_ExpandedNodeId_delete(x::Ptr{UA_ExpandedNodeId})` 
+after the object is not used anymore.
+
+See also: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part6/v105/docs/5.2.2.10)
+
+Example:
+
+```
+UA_EXPANDEDNODEID("svr=1;nsu=http://example.com;i=1234") #generates UA_ExpandedNodeId with numeric identifier
+UA_EXPANDEDNODEID("svr=1;nsu=http://example.com;s=test") #generates UA_ExpandedNodeId with string identifier
+```
+"""
 function UA_EXPANDEDNODEID(s::AbstractString)
     ua_s = UA_STRING(s)
     nodeid = UA_EXPANDEDNODEID(ua_s)
@@ -658,7 +693,6 @@ function UA_ExpandedNodeId_equal(n1, n2)
 end
 
 ## QualifiedName
-
 function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::AbstractString)
     ua_s = UA_STRING(s)
     qn = UA_QUALIFIEDNAME_ALLOC(nsIndex, ua_s)

@@ -86,7 +86,71 @@ const JUA_ServerConfig_clean = UA_ServerConfig_clean
 const JUA_AccessControl_default = UA_AccessControl_default
 const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
 
+function JUA_Server_runUntilInterrupt(server::JUA_Server)
+    running = Ref(true)
+    try         
+        Base.exit_on_sigint(false)
+        UA_Server_run(server, running)
+    catch err
+        running[] = false
+        println("Shutting down server.") 
+        Base.exit_on_sigint(false)
+    end
+    return nothing
+end
+
+
 ## NodeIds
+"""
+```
+JUA_NodeId
+```
+
+creates a `JUA_NodeId` object - the equivalent of a `UA_NodeId`, but with memory 
+managed by Julia rather than C.
+
+The following methods are defined:
+```
+JUA_NodeId()
+```
+creates a `JUA_NodeId` with namespaceIndex = 0, numeric identifierType and 
+identifier = 0
+
+```
+JUA_NodeId(s::Union{AbstractString, JUA_String})
+```
+creates a `JUA_NodeId` based on String `s` that is parsed into the relevant 
+properties. 
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::Integer)
+```
+creates a `JUA_NodeId` with namespace index `nsIndex` and numerical identifier 
+`identifier`.
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString, JUA_String})
+```
+creates a `JUA_NodeId` with namespace index `nsIndex` and string identifier 
+`identifier`.
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::JUA_Guid)
+```
+creates a `JUA_NodeId` with namespace index `nsIndex` and global unique id identifier 
+`identifier`.
+
+Examples:
+```
+j = JUA_NodeId()
+j = JUA_NodeId("ns=1;i=1234")
+j = JUA_NodeId("ns=1;s=example")
+j = JUA_NodeId(1, 1234)
+j = JUA_NodeId(1, "example")
+j = JUA_NodeId(1, JUA_Guid("C496578A-0DFE-4B8F-870A-745238C6AEAE"))
+```
+
+"""
 mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_NodeId}
 
@@ -95,8 +159,8 @@ mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
         finalizer(release_handle, obj)
         return obj
     end
-    function JUA_NodeId(identifier::Union{AbstractString, JUA_String})
-        obj = new(UA_NODEID(identifier))
+    function JUA_NodeId(s::Union{AbstractString, JUA_String})
+        obj = new(UA_NODEID(s))
         finalizer(release_handle, obj)
         return obj
     end
@@ -121,6 +185,13 @@ function release_handle(obj::JUA_NodeId)
     UA_NodeId_delete(Jpointer(obj))
 end
 
+"""
+```
+JUA_NodeId_equal(j1::JUA_NodeId, n2::JUA_NodeId)::Bool
+```
+
+returns `true` if `j1` and `j2` are `JUA_NodeId`s with identical content.
+"""
 JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
 
 #QualifiedName

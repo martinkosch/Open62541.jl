@@ -17,7 +17,8 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
-        "Manual" => [                
+        "Manual" => [
+                "manual/nodeid.md",                
                 "manual/attributegeneration.md",
                 "manual/server.md",
                 "manual/client.md",
@@ -34,7 +35,7 @@ makedocs(;
         :linkcheck_remotes, 
         :linkcheck, 
         :meta_block, 
-        :missing_docs, 
+        #:missing_docs, 
         :parse_error, 
         :setup_block
     ),
