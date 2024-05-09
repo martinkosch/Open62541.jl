@@ -207,7 +207,7 @@ for att in attributes_UA_Server_write
     @eval begin
         """
         ```
-        $($(fun_name))(server, nodeId, new_val)
+        $($(fun_name))(server::Ptr{UA_Server}, nodeId::Ptr{UA_NodeId}, new_val::Ptr{$($(String(attr_type)))})
         ```
         Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) 
         of the NodeId `nodeId` located on the `server`. 

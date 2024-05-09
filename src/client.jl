@@ -234,12 +234,9 @@ for att in attributes_UA_Client_read
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        #TODO: check whether function signature is correct here; decision on whether carrying wrap-ref signature is desirable.
         """
         ```
-        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
-                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
-                       out::Ptr{$($(att[3]))} = $($(String(returnobject)))())
+        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, out::Ptr{$($(att[3]))} = $($(String(returnobject)))())
         ```
 
         Uses the UA Client API to read the value of attribute $($(String(attr_name))) from the NodeId `nodeId` accessed through the client `client`. 
@@ -280,17 +277,13 @@ for att in attributes_UA_Client_write
     @eval begin
         """
         ```
-        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
-                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
-                       new_val::Union{Ref{$($(String(attr_type)))},Ptr{$($(String(attr_type)))}, $($(String(attr_type)))})
+        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, new_val::Ptr{$($(String(attr_type)))})
         ```
 
         Uses the UA Client API to write the value `new_val` to the attribute $($(String(attr_name))) of the NodeId `nodeId` accessed through the client `client`. 
 
         """
-        function $(fun_name)(client::Ref{UA_Client},
-                nodeId::Ref{UA_NodeId},
-                new_attr::Ref{$attr_type})
+        function $(fun_name)(client, nodeId, new_attr)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             statuscode = __UA_Client_writeAttribute(client,
                 nodeId,
@@ -310,12 +303,6 @@ for att in attributes_UA_Client_write
                     statuscode)
                 throw(err)
             end
-        end
-        #function fallback that wraps any non-ref arguments into refs:
-        function $(fun_name)(client, nodeId, new_attr)
-            return ($fun_name)(wrap_ref(client),
-                wrap_ref(nodeId),
-                wrap_ref(new_attr))
         end
     end
 end
@@ -512,6 +499,7 @@ for att in attributes_UA_Client_write_async
             end
         end
         #function fallback that wraps any non-ref arguments into refs:
+        #TODO: check whether we still need this or whether we have in the meantime managed to organize things well.
         function $(fun_name)(client, nodeId, out, callback, userdata, reqId)
             return $(fun_name)(wrap_ref(client),
                 wrap_ref(nodeId),

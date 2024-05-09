@@ -9,17 +9,17 @@ end
 
 # Create a new server running at a worker process
 Distributed.@spawnat Distributed.workers()[end] begin
-    server = UA_Server_new()
-    retval1 = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
+    server = JUA_Server()
+    retval1 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_ServerConfig(server),
         4842, C_NULL, 0, 0)
     @test retval1 == UA_STATUSCODE_GOOD
-    @test isa(server, Ptr{UA_Server})
-    UA_Server_run(server, Ref(true))
+    @test isa(server, JUA_Server)
+    JUA_Server_runUntilInterrupt(server)
 end
 
 # Specify client and connect to server after server startup
-client = UA_Client_new()
-UA_ClientConfig_setDefault(UA_Client_getConfig(client))
+client = JUA_Client()
+JUA_ClientConfig_setDefault(JUA_ClientConfig(client))
 max_duration = 30.0 # Maximum waiting time for server startup 
 sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
@@ -37,11 +37,10 @@ let trial
 end
 
 # nodeid containing software version running on server
-nodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)
+nodeid = JUA_NodeId(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)
 
 # Read nodeid from server
-raw_version = UA_Client_readValueAttribute(client, nodeid)
-open62541_version_server = unsafe_string(unsafe_wrap(raw_version))
+open62541_version_server = JUA_Client_readValueAttribute(client, nodeid)
 
 # Do version numbers agree?
 vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
@@ -59,8 +58,7 @@ open62541_version_julia = vn2string(open62541_version_julia)
 @test open62541_version_server == open62541_version_julia
 
 # Disconnect client
-UA_Client_disconnect(client)
-UA_Client_delete(client)
+JUA_Client_disconnect(client)
 
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])

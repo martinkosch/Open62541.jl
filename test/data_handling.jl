@@ -52,7 +52,7 @@ UA_NodeId_delete(id3)
 
 # Variants
 # Set a scalar value 
-v = UA_Variant_new_copy(Int32(42))
+v = UA_Variant_new(Int32(42))
 
 # Make a copy 
 v2 = UA_Variant_new()
@@ -67,7 +67,7 @@ UA_Variant_delete(v2)
 
 # Set an array value
 d = Float64[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
-v3 = UA_Variant_new_copy(d)
+v3 = UA_Variant_new(d)
 Base.promote_rule(::Type{T}, ::Type{UA_Double}) where {T <: AbstractFloat} = Float64
 @test all(isapprox.(d, unsafe_wrap(v3)))
 

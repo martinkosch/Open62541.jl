@@ -65,7 +65,7 @@ end
 function UA_Array_new(v::AbstractArray{T},
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
-    arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
+    arr_ptr = convert(Ptr{juliadatatype(type_ptr)}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed arr_ptr unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
     return UA_Array(arr_ptr, length(v))
 end
@@ -98,6 +98,7 @@ for (i, type_name) in enumerate(type_names)
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
         if !(type_names[$(i)] in types_ambiguous_ignorelist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
+            ua_data_type_ptr_default(::Type{Ptr{$julia_type}}) = ua_data_type_ptr_default($julia_type)
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
         end
 
@@ -281,10 +282,16 @@ function UA_STRING(s::AbstractString)
     return UA_STRING_ALLOC(s)
 end
 
-#TODO: think whether this can be cleaned up further
-Base.unsafe_string(s::UA_String) = unsafe_string(s.data, s.length)
-Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
-Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
+function Base.unsafe_string(s::UA_String) 
+    if s.length == 0 #catch NullString
+        u = ""
+    else 
+        u = unsafe_string(s.data, s.length)
+    end
+    return u
+end
+Base.unsafe_string(s::Ptr{UA_String}) = Base.unsafe_string(unsafe_load(s))
+
 
 ## UA_BYTESTRING
 """
@@ -777,39 +784,42 @@ unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
 
-function UA_Variant_new_copy(value::AbstractArray{T, N},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T, N}
+function UA_Variant_new(value::AbstractArray{T, N},
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, UA_String, Integer}, N}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
     var.arrayLength = length(value)
+    ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
+    UA_Variant_setArray(var, ua_arr, length(value), type_ptr)
     var.arrayDimensionsSize = length(size(value))
-    var.data = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr)
     var.arrayDimensions = UA_UInt32_Array_new(reverse(size(value)))
     return var
 end
 
-function UA_Variant_new_copy(value::Ref{T},
+function UA_Variant_new(value::T,
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer}}
+        AbstractFloat, Integer, Ptr{UA_String}}}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
-    var.arrayLength = 0
-    var.arrayDimensionsSize = length(size(value))
-    UA_Variant_setScalarCopy(var, value, type_ptr)
-    var.arrayDimensions = C_NULL
+    UA_Variant_setScalarCopy(var, wrap_ref(value), type_ptr)
     return var
 end
 
-function UA_Variant_new_copy(value::T,
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer}}
-    return UA_Variant_new_copy(Ref(value), type_ptr)
+function UA_Variant_new(value::AbstractString)
+    ua_s = UA_STRING(value)
+    v = UA_Variant_new(ua_s)
+    UA_String_delete(ua_s)
+    return v
 end
 
-function UA_Variant_new_copy(value, type_sym::Symbol)
-    UA_Variant_new_copy(value, ua_data_type_ptr(Val(type_sym)))
+function UA_Variant_new(value::AbstractArray{<:AbstractString})
+    a = similar(value, UA_String)
+    for i in eachindex(a)
+        a[i] = UA_String_fromChars(value[i])
+    end    
+    return UA_Variant_new(a)
 end
 
 function Base.unsafe_wrap(v::UA_Variant)
@@ -824,11 +834,11 @@ function Base.unsafe_wrap(v::UA_Variant)
     end
 end
 
-Base.unsafe_wrap(p::Ref{UA_Variant}) = unsafe_wrap(unsafe_load(p))
+Base.unsafe_wrap(p::Ptr{UA_Variant}) = unsafe_wrap(unsafe_load(p))
 UA_Variant_isEmpty(v::UA_Variant) = v.type == C_NULL
-UA_Variant_isEmpty(p::Ref{UA_Variant}) = UA_Variant_isEmpty(unsafe_load(p))
-UA_Variant_isScalar(v::UA_Variant) = v.arrayLength == 0 && v.data > UA_EMPTY_ARRAY_SENTINEL
-UA_Variant_isScalar(p::Ref{UA_Variant}) = UA_Variant_isScalar(unsafe_load(p))
+UA_Variant_isEmpty(p::Ptr{UA_Variant}) = UA_Variant_isEmpty(unsafe_load(p))
+UA_Variant_isScalar(v::UA_Variant) = v.arrayLength == 0 #TODO: this fails when strings are present in the variant, why? && v.data > UA_EMPTY_ARRAY_SENTINEL
+UA_Variant_isScalar(p::Ptr{UA_Variant}) = UA_Variant_isScalar(unsafe_load(p))
 
 function UA_Variant_hasScalarType(v::UA_Variant, type::Ref{UA_DataType})
     return UA_Variant_isScalar(v) && type == v.type

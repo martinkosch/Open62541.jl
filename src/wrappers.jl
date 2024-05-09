@@ -69,10 +69,6 @@ mutable struct JUA_ServerConfig <: AbstractOpen62541Wrapper
     end
 end
 
-function JUA_Server_getConfig(server::JUA_Server)
-    return JUA_ServerConfig(server)
-end
-
 #aliasing functions that interact with server and serverconfig
 const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer
 const JUA_ServerConfig_setMinimal = UA_ServerConfig_setMinimal
@@ -92,12 +88,39 @@ function JUA_Server_runUntilInterrupt(server::JUA_Server)
         Base.exit_on_sigint(false)
         UA_Server_run(server, running)
     catch err
-        running[] = false
+        UA_Server_run_shutdown(server)
         println("Shutting down server.") 
-        Base.exit_on_sigint(false)
+        Base.exit_on_sigint(true)
     end
     return nothing
 end
+
+## Client and client config
+mutable struct JUA_Client <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_Client}
+    function JUA_Client()
+        obj = new(UA_Client_new())
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_Client)
+    UA_Client_delete(Jpointer(obj))
+end
+
+mutable struct JUA_ClientConfig <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_ClientConfig}
+    function JUA_ClientConfig(client::JUA_Client)
+        #no finalizer, because the config object lives and dies with the client itself
+        obj = new(UA_Client_getConfig(client))
+        return obj
+    end
+end
+
+const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
+const JUA_Client_connect = UA_Client_connect
+const JUA_Client_disconnect = UA_Client_disconnect
 
 
 ## NodeIds
@@ -221,23 +244,53 @@ Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpoin
 # end
 
 # function release_handle(obj::JUA_VariableAttributes)
-#     UA_QualifiedName_delete(Jpointer(obj))
+#     UA_VariableAttributes_delete(Jpointer(obj))
 # end
 
 #TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
-# mutable struct JUA_Variant{T} <: AbstractOpen62541Wrapper
-#     ptr::Ptr{UA_Variant}
-#     v::T
+mutable struct JUA_Variant <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_Variant}
+    function JUA_Variant()
+        obj = new(UA_Variant_new())
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
 
-#     function JUA_Variant()
-#         obj = new(UA_Variant_new())
-#         finalizer(release_handle, obj)
-#         return obj
-#     end
-# end
+function release_handle(obj::JUA_Variant)
+    UA_Variant_delete(Jpointer(obj))
+end
 
-# function release_handle(obj::JUA_Variant)
-#     UA_Variant_delete(Jpointer(obj))
-# end
+function JUA_Client_readValueAttribute(client, nodeId) 
+    #TODO: Is there a way of making this typestable? 
+    #(it's not really known what kind of data is stored inside a nodeid unless 
+    #one checks the datatype beforehand)
+    v = UA_Variant_new()
+    UA_Client_readValueAttribute(client, nodeId, v)
+    r = __get_juliavalues_from_variant(v)
+    UA_Variant_delete(v)
+    return r
+end
 
-#function JUA_Client_readValueAttribute(client, nodeId, out =  JUA_Variant())
+function JUA_Server_readValue(client, nodeId) 
+    #TODO: Is there a way of making this typestable? 
+    #(it's not really known what kind of data is stored inside a nodeid unless 
+    #one checks the datatype beforehand)
+    v = UA_Variant_new()
+    UA_Server_readValue(client, nodeId, v)
+    r = __get_juliavalues_from_variant(v)
+    UA_Variant_delete(v)
+    return r
+end
+
+function __get_juliavalues_from_variant(v)
+    wrapped = unsafe_wrap(v)
+    if typeof(wrapped) <: Array && eltype(wrapped) == UA_String
+        r = unsafe_string.(wrapped)
+    elseif typeof(wrapped) == UA_String
+        r = unsafe_string(wrapped)
+    else
+        r = deepcopy(wrapped)
+    end
+    return r
+end

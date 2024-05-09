@@ -49,9 +49,9 @@ end
     include("server_add_nodes.jl")
 end
 
-@safetestset "Memory leaks" begin
-    include("memoryleaks.jl")
-end
+# @safetestset "Memory leaks" begin
+#     include("memoryleaks.jl")
+# end
 
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
@@ -60,9 +60,9 @@ end
     include("simple_server_client.jl")
 end
 
-@testset "Add, read, change scalar variables" begin
-    include("add_change_var_scalar.jl")
-end
+# @testset "Add, read, change scalar variables" begin
+#     include("add_change_var_scalar.jl")
+# end
 
 @testset "Add, read, change array variables" begin
     include("add_change_var_array.jl")

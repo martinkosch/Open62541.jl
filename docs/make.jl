@@ -22,7 +22,11 @@ makedocs(;
                 "manual/attributegeneration.md",
                 "manual/server.md",
                 "manual/client.md",
-                ]
+                ],
+        "Tutorials" => [
+                "tutorials/server_first_steps.md",
+                "tutorials/client_first_steps.md"
+        ]
     ],
     warnonly = Documenter.except(
         :autodocs_block, 

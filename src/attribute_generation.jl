@@ -195,7 +195,7 @@ function __set_generic_attributes!(attr,
 end
 
 function __set_scalar_attributes!(attr, value::T,
-        valuerank) where {T <: Union{AbstractFloat, Integer}}
+        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String}}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
@@ -204,15 +204,22 @@ end
 
 function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
     ua_s = UA_STRING(value)
-    type_ptr = ua_data_type_ptr_default(UA_String)
-    attr.valueRank = valuerank
-    UA_Variant_setScalarCopy(attr.value, ua_s, type_ptr)
+    __set_scalar_attributes!(attr, ua_s, valuerank)
     UA_String_delete(ua_s)
     return nothing
 end
 
+function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, valuerank)
+    a = similar(value, UA_String)
+    for i in eachindex(a)
+        a[i] = UA_String_fromChars(value[i])
+    end
+    __set_array_attributes!(attr, a, valuerank)
+    return nothing
+end
+
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
-        valuerank) where {T, N}
+        valuerank) where {T <: Union{AbstractFloat, Integer, UA_String}, N}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     #Note: need array dims twice, once to put into the variant, i.e., attr.value 
@@ -224,10 +231,7 @@ function __set_array_attributes!(attr, value::AbstractArray{T, N},
     attr.arrayDimensions = arraydims_attr
     attr.arrayDimensionsSize = length(arraydims_attr)
     ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
-    UA_Variant_setArray(attr.value,
-        ua_arr,
-        length(value),
-        type_ptr)
+    UA_Variant_setArray(attr.value, ua_arr, length(value), type_ptr)
     attr.value.arrayDimensions = arraydims_variant
     attr.value.arrayDimensionsSize = length(arraydims_variant)
     return nothing

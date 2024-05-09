@@ -47,6 +47,7 @@ you can install by executing:
 Starting up a server with a default configuration in open62541.jl is very simple.
 Just execute the following code in the REPL or as a script:
 ```julia
+    using open62541
     server = JUA_Server()
     config = JUA_ServerConfig(server)
     JUA_ServerConfig_setDefault(config)
@@ -55,10 +56,40 @@ Just execute the following code in the REPL or as a script:
 This will configure a server with the default configuration (address: opc.tcp://localhost:4840/)
  and start it. The server can be shut down by pressing CTRL+C multiple times.
 
-While running the server it can be accessed, for example, either via the Client 
-API of open62541.jl or it can be browsed and accessed with a graphical client, 
-such as [UA Expert website](https://www.unified-automation.com/products/development-tools/uaexpert.html).
+While the server is running, it can be accessed via the Client API of open62541.jl 
+or it can be browsed and accessed with a graphical client, such as [UA Expert](https://www.unified-automation.com/products/development-tools/uaexpert.html).
 
 ## Basic client example
+In order to showcase the Client API functionality, we will use the above server 
+and read some basic information from it, namely the software version number and 
+the current time. Note that this information should be contained in all OPC UA 
+servers, so you could also connect to a different server that you know is running.
 
+```julia
+    using open62541
+    using Printf
 
+    #initiate client, configure it and connect to server
+    client = JUA_Client()
+    config = JUA_ClientConfig(client)
+    JUA_ClientConfig_setDefault(config)
+    JUA_Client_connect(client, "opc.tcp://localhost:4840")
+
+    #define nodeids that we are interested in 
+    nodeid_currenttime = JUA_NodeId(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME)
+    nodeid_version = JUA_NodeId(0, UA_NS0ID_SERVER_SERVERSTATUS_BUILDINFO_SOFTWAREVERSION)
+    
+    #read data from nodeids
+    currenttime = JUA_Client_readValueAttribute(client, nodeid_currenttime) #Int64 which represents the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+    version = JUA_Client_readValueAttribute(client, nodeid_version) #String containing open62541 version number
+    
+    #Convert current time into human understandable format
+    dts = UA_DateTime_toStruct(currenttime)
+
+    #Print results to terminal
+    Printf.@printf("current date and time (UTC) is: %u-%u-%u %u:%u:%u.%03u\n", dts.day, dts.month, dts.year, dts.hour, dts.min, dts.sec, dts.milliSec)
+    Printf.@printf("The server is running open62541 version %s.", version)
+
+    #disconnect the client (good housekeeping practice)
+    JUA_Client_disconnect(client)
+```

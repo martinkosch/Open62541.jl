@@ -344,7 +344,7 @@ UA_CallMethodResult_delete(answer)
 #Now test with the higher level JUA interface as well
 #configure server
 server2 = JUA_Server()
-retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_Server_getConfig(server2),
+retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_ServerConfig(server2),
     4842, C_NULL, 0, 0)
 @test retvalj0 == UA_STATUSCODE_GOOD
 
