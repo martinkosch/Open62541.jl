@@ -1,7 +1,11 @@
-# Purpose: This testset checks whether variable nodes containing arrays (1, 2, 3, 4 dimensions) of
-# different types can be created on a server, read, changed and read again (using the server commands and client commands)
-# We also check that setting a variable node with one type cannot be set to another type (e.g., integer variable node cannot be
-# set to float64.)
+# Purpose: This testset checks whether variable nodes containing an array of
+# different types can be created on a server, read, changed and read again 
+# (using the server and client APIs)
+# We also check that setting a variable node with one type cannot be set to 
+# another type (e.g., integer variable node cannot be set to float64.)
+
+#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String
+
 
 #TODO: Improve memory management, also test with high level interface.
 
@@ -9,15 +13,13 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
-    using open62541
-    using Test
-    using Random
+    using open62541, Test, Random
 
     # What types and sizes we are testing for: 
     types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String]
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
-    # Generate random default node values and ids
+    # Generate random input values and generate nodeid names
     input_data = Tuple(Tuple( type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...) for array_size in array_sizes) for type in types)
     varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable"
                    for type in types, array_size in array_sizes]
@@ -44,7 +46,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
             parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
             parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
             typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-            browsename = UA_QUALIFIEDNAME_ALLOC(1, varnode_ids[type_ind, array_size_ind])
+            browsename = JUA_QualifiedName(1, varnode_ids[type_ind, array_size_ind])
             nodecontext = C_NULL
             outnewnodeid = C_NULL
             retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
@@ -65,7 +67,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
     println("Starting up the server...")
-    UA_Server_run(server, Ref(true))
+    JUA_Server_runUntilInterrupt(server)
 end
 
 # Specify client and connect to server after server startup

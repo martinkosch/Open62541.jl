@@ -18,6 +18,7 @@ makedocs(;
     pages = [
         "Home" => "index.md",
         "Manual" => [
+                "manual/numbertypes.md",
                 "manual/nodeid.md",                
                 "manual/attributegeneration.md",
                 "manual/server.md",
