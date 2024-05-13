@@ -22,7 +22,7 @@ Distributed.@everywhere begin
     # Generate random input values and generate nodeid names
     input_data = Tuple(Tuple(type != String ? rand(type, array_size) :
                              reshape(
-                                 [randstring(Int64(rand(UInt8)))
+                                 [randstring(rand(1:10))
                                   for i in 1:prod(array_size)],
                                  array_size...) for array_size in array_sizes)
     for type in types)
@@ -113,7 +113,7 @@ for (type_ind, type) in enumerate(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
         new_input = type != String ? rand(type, array_size) :
                     reshape(
-            [randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...)
+            [randstring(rand(1:10)) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
         @test retval == UA_STATUSCODE_GOOD
@@ -138,7 +138,7 @@ for type_ind in eachindex(types)
         end
         new_input = type != String ? rand(type, array_size) :
                     reshape(
-            [randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...)
+            [randstring(rand(1:10)) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(
             client, varnodeid, new_input)

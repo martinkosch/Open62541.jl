@@ -19,7 +19,7 @@ Distributed.@everywhere begin
         UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
 
     # Generate random input values and generate nodeid names
-    input_data = Tuple(type != String ? rand(type) : randstring(Int64(rand(UInt8)))
+    input_data = Tuple(type != String ? rand(type) : randstring(rand(1:10))
     for type in types)
     varnode_ids = ["$(Symbol(type)) scalar variable" for type in types]
 end
@@ -99,7 +99,7 @@ end
 
 # Write new data 
 for (type_ind, type) in enumerate(types)
-    new_input = type != String ? rand(type) : randstring(Int64(rand(UInt8)))
+    new_input = type != String ? rand(type) : randstring(rand(1:10))
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
     @test retval == UA_STATUSCODE_GOOD
@@ -114,7 +114,7 @@ end
 # Test wrong data type write errors 
 for type_ind in eachindex(types)
     type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
-    new_input = type != String ? rand(type) : randstring(Int64(rand(UInt8)))
+    new_input = type != String ? rand(type) : randstring(rand(1:10))
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(client,
         varnodeid, new_input)
