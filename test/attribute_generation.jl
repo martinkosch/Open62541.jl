@@ -11,7 +11,7 @@ using Random
 @test UA_VALUERANK(-2) == -2
 
 #UA_ACCESSLEVEL
-@test UA_ACCESSLEVEL() == 0 
+@test UA_ACCESSLEVEL() == 0
 @test UA_ACCESSLEVEL(write = true) == UA_ACCESSLEVELMASK_WRITE
 @test UA_ACCESSLEVEL(write = true, read = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
@@ -23,11 +23,12 @@ using Random
       UA_ACCESSLEVELMASK_TIMESTAMPWRITE
 
 #UA_USERACCESSLEVEL
-@test UA_USERACCESSLEVEL() == 0 
+@test UA_USERACCESSLEVEL() == 0
 @test UA_USERACCESSLEVEL(write = true) == UA_ACCESSLEVELMASK_WRITE
 @test UA_USERACCESSLEVEL(write = true, read = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE
-@test UA_USERACCESSLEVEL(read = true, write = true, historyread = true, historywrite = true,
+@test UA_USERACCESSLEVEL(
+    read = true, write = true, historyread = true, historywrite = true,
     semanticchange = true, timestampwrite = true, statuswrite = true) ==
       UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE |
       UA_ACCESSLEVELMASK_HISTORYREAD | UA_ACCESSLEVELMASK_HISTORYWRITE |
@@ -76,7 +77,6 @@ using Random
       UA_WRITEMASK_USERWRITEMASK | UA_WRITEMASK_VALUERANK | UA_WRITEMASK_WRITEMASK |
       UA_WRITEMASK_VALUEFORVARIABLETYPE
 
-
 #UA_EVENTNOTIFIER
 @test UA_EVENTNOTIFIER() == 0
 @test UA_EVENTNOTIFIER(subscribetoevent = true, historyread = true, historywrite = true) ==
@@ -86,8 +86,11 @@ using Random
 #UA_VariableAttributes_generate
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
-types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
-inputs = Tuple(Tuple( type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...) for array_size in array_sizes) for type in types)
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
+    UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+inputs = Tuple(Tuple(type != String ? rand(type, array_size) :
+                     reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)],
+                         array_size...) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -145,8 +148,11 @@ end
 #UA_VariableTypeAttributes_generate
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
-types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
-inputs = Tuple(Tuple( type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...) for array_size in array_sizes) for type in types)
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
+    UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+inputs = Tuple(Tuple(type != String ? rand(type, array_size) :
+                     reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)],
+                         array_size...) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -180,7 +186,7 @@ for i in eachindex(array_sizes)
             @test all(out == v)
         end
         UA_VariableTypeAttributes_delete(attr)
-        
+
         #high level interface
         j = JUA_VariableTypeAttributes(value = v, displayname = displayname,
             description = description, localization = localization,
@@ -195,7 +201,7 @@ def = UA_VariableTypeAttributes_default[]
 
 ## use only mandatory keywords
 attr = UA_VariableTypeAttributes_generate(displayname = displayname,
-            description = description, localization = localization)
+    description = description, localization = localization)
 @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
 @test unsafe_string(unsafe_load(attr.description.text)) == description
@@ -203,15 +209,15 @@ attr = UA_VariableTypeAttributes_generate(displayname = displayname,
 @test unsafe_load(attr.writeMask) == def.writeMask
 @test unsafe_load(attr.userWriteMask) == def.userWriteMask
 @test unsafe_load(attr.valueRank) == def.valueRank
-@test unsafe_load(attr.isAbstract) == def.isAbstract 
+@test unsafe_load(attr.isAbstract) == def.isAbstract
 UA_VariableTypeAttributes_delete(attr)
 
 ## use optional keywords as well
 valuerank = 1
 attr = UA_VariableTypeAttributes_generate(displayname = displayname,
-            description = description, localization = localization,
-            writemask = writemask, userwritemask = userwritemask,
-            isabstract = isabstract, valuerank = valuerank)
+    description = description, localization = localization,
+    writemask = writemask, userwritemask = userwritemask,
+    isabstract = isabstract, valuerank = valuerank)
 
 @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
 @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization

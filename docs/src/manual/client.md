@@ -3,6 +3,7 @@
 This page lists docstrings relevant to the client API.
 
 ## Adding different types of nodes:
+
 ```@docs
 UA_Client_addVariableNode
 UA_Client_addObjectNode 
@@ -15,6 +16,7 @@ UA_Client_addMethodNode
 ```
 
 ## Reading from nodes:
+
 ```@docs
 UA_Client_readAccessLevelAttribute
 UA_Client_readBrowseNameAttribute
@@ -40,6 +42,7 @@ UA_Client_readWriteMaskAttribute
 ```
 
 ## Writing to nodes:
+
 ```@docs
 UA_Client_writeAccessLevelAttribute
 UA_Client_writeBrowseNameAttribute

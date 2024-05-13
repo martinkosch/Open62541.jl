@@ -6,7 +6,7 @@
 UA_VALUERANK(N::Integer)::Integer
 ```
 
-returns the valuerank based on the dimensionality of an array `N`. For special 
+returns the valuerank based on the dimensionality of an array `N`. For special
 cases see here: [Unified Automation Website](https://documentation.unified-automation.com/uasdknet/2.5.7/html/classUnifiedAutomation_1_1UaBase_1_1ValueRanks.html#details)
 """
 function UA_VALUERANK(N::Integer)
@@ -27,10 +27,10 @@ calculates a `UInt8` number expressing how the value of a variable can be access
 Default is to disallow all operations. The meaning of the keywords is explained
 here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
-function UA_ACCESSLEVEL(; read::Bool = false, write::Bool = false, 
-    historyread::Bool = false, historywrite::Bool = false, 
-    semanticchange::Bool = false, statuswrite::Bool = false,
-    timestampwrite::Bool = false)
+function UA_ACCESSLEVEL(; read::Bool = false, write::Bool = false,
+        historyread::Bool = false, historywrite::Bool = false,
+        semanticchange::Bool = false, statuswrite::Bool = false,
+        timestampwrite::Bool = false)
     al = UA_Byte(0)
     al = read ? al | UA_ACCESSLEVELMASK_READ : al
     al = write ? al | UA_ACCESSLEVELMASK_WRITE : al
@@ -53,12 +53,12 @@ calculates a `UInt8` number expressing how the value of a variable can be access
 Default is to disallow all operations. The meaning of the keywords is explained
 here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
-function UA_USERACCESSLEVEL(; read::Bool = false, write::Bool = false, 
-        historyread::Bool = false, historywrite::Bool = false, 
+function UA_USERACCESSLEVEL(; read::Bool = false, write::Bool = false,
+        historyread::Bool = false, historywrite::Bool = false,
         semanticchange::Bool = false, statuswrite::Bool = false,
         timestampwrite::Bool = false)
-    UA_ACCESSLEVEL(; read = read, write = write, historyread = historyread, 
-        historywrite = historywrite, semanticchange = semanticchange, 
+    UA_ACCESSLEVEL(; read = read, write = write, historyread = historyread,
+        historywrite = historywrite, semanticchange = semanticchange,
         statuswrite = statuswrite, timestampwrite = timestampwrite)
 end
 
@@ -141,13 +141,13 @@ function UA_USERWRITEMASK(; accesslevel::Bool = false, arraydimensions::Bool = f
         userexecutable::Bool = false, userwritemask::Bool = false, valuerank::Bool = false,
         writemask::Bool = false, valueforvariabletype::Bool = false)
     UA_WRITEMASK(; accesslevel = accesslevel, arraydimensions = arraydimensions,
-    browsename = browsename, containsnoloops = containsnoloops, datatype = datatype,
-    description = description , displayname = displayname , eventnotifier = eventnotifier,
-    executable = executable, historizing = historizing, inversename = inversename,
-    isabstract = isabstract, minimumsamplinginterval = minimumsamplinginterval, nodeclass = nodeclass,
-    nodeid = nodeid, symmetric = symmetric, useraccesslevel = useraccesslevel,
-    userexecutable = userexecutable, userwritemask = userwritemask, valuerank = valuerank,
-    writemask = writemask, valueforvariabletype = valueforvariabletype)
+        browsename = browsename, containsnoloops = containsnoloops, datatype = datatype,
+        description = description, displayname = displayname, eventnotifier = eventnotifier,
+        executable = executable, historizing = historizing, inversename = inversename,
+        isabstract = isabstract, minimumsamplinginterval = minimumsamplinginterval, nodeclass = nodeclass,
+        nodeid = nodeid, symmetric = symmetric, useraccesslevel = useraccesslevel,
+        userexecutable = userexecutable, userwritemask = userwritemask, valuerank = valuerank,
+        writemask = writemask, valueforvariabletype = valueforvariabletype)
 end
 
 """
@@ -195,7 +195,8 @@ function __set_generic_attributes!(attr,
 end
 
 function __set_scalar_attributes!(attr, value::T,
-        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
+        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String},
+        UA_ComplexNumberType, UA_DoubleComplexNumberType}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
@@ -209,7 +210,8 @@ function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
     return nothing
 end
 
-function __set_scalar_attributes!(attr, value::Complex{T}, valuerank) where T <: Union{Float32, Float64}
+function __set_scalar_attributes!(
+        attr, value::Complex{T}, valuerank) where {T <: Union{Float32, Float64}}
     f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
     ua_c = f(reim(value)...)
     __set_scalar_attributes!(attr, ua_c, valuerank)
@@ -225,7 +227,8 @@ function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, v
     return nothing
 end
 
-function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}}, valuerank) where T <: Union{Float32, Float64}
+function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}},
+        valuerank) where {T <: Union{Float32, Float64}}
     f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
     a = similar(value, f)
     for i in eachindex(a)
@@ -236,7 +239,10 @@ function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}}, value
 end
 
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
-        valuerank) where {T <: Union{AbstractFloat, Integer, UA_String, UA_ComplexNumberType, UA_DoubleComplexNumberType}, N}
+        valuerank) where {
+        T <: Union{AbstractFloat, Integer, UA_String,
+            UA_ComplexNumberType, UA_DoubleComplexNumberType},
+        N}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     #Note: need array dims twice, once to put into the variant, i.e., attr.value 
@@ -376,21 +382,25 @@ by C and needs to be cleaned up by calling `UA_VariableTypeAttributes_delete(x)`
 after usage.
 
 For keywords given as `nothing`, the respective default value is used, see `UA_VariableTypeAttributes_default[]`.
-If a default `value` is specified for the variabletype and nothing is given for 
-keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR` (if `value` 
-is a scalar), or to the dimensionality of the supplied array (i.e., `N` for an 
+If a default `value` is specified for the variabletype and nothing is given for
+keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR` (if `value`
+is a scalar), or to the dimensionality of the supplied array (i.e., `N` for an
 AbstractArray{T,N}).
 
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
-function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{<:Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}, Union{Nothing, AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}} = nothing,
+function UA_VariableTypeAttributes_generate(;
+        value::Union{
+            AbstractArray{<:Union{
+                AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}},
+            Union{Nothing, AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}} = nothing,
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) 
+        isabstract::Union{Nothing, Bool} = nothing)
     attr = __generate_variabletype_attributes(value, displayname, description,
         localization, writemask, userwritemask, valuerank, isabstract)
     return attr
@@ -398,7 +408,8 @@ end
 
 function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}, N}
+        isabstract) where {
+        T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}, N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
@@ -410,7 +421,8 @@ end
 
 function __generate_variabletype_attributes(value::T, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}
+        isabstract) where {T <: Union{
+        AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end

@@ -15,10 +15,12 @@ Distributed.@everywhere begin
     using open62541, Test, Random
 
     # What types we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
-    
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
+        UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+
     # Generate random input values and generate nodeid names
-    input_data = Tuple(type != String ? rand(type) : randstring(Int64(rand(UInt8))) for type in types)
+    input_data = Tuple(type != String ? rand(type) : randstring(Int64(rand(UInt8)))
+    for type in types)
     varnode_ids = ["$(Symbol(type)) scalar variable" for type in types]
 end
 
@@ -43,7 +45,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
         typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
         browsename = JUA_QualifiedName(1, varnode_ids[type_ind])
         nodecontext = JUA_NodeId()
-        outnewnodeid = JUA_Nodeid()
+        outnewnodeid = JUA_NodeId()
         retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
             parentreferencenodeid,
             browsename, typedefinition, attr, nodecontext, outnewnodeid)

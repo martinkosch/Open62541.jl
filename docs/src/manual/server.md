@@ -3,6 +3,7 @@
 This page lists docstrings relevant to the server API.
 
 ## Adding different types of nodes:
+
 ```@docs
 UA_Server_addVariableNode
 UA_Server_addObjectNode 
@@ -13,7 +14,9 @@ UA_Server_addReferenceTypeNode
 UA_Server_addDataTypeNode
 UA_Server_addMethodNode
 ```
+
 ## Reading from nodes:
+
 ```@docs
 UA_Server_readAccessLevel
 UA_Server_readArrayDimensions
@@ -37,6 +40,7 @@ UA_Server_readWriteMask
 ```
 
 ## Writing to nodes:
+
 ```@docs
 UA_Server_writeAccessLevel
 UA_Server_writeArrayDimensions

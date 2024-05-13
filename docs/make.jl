@@ -12,38 +12,38 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://martinkosch.github.io/open62541.jl",
         assets = String[],
-        size_threshold=8000 * 2^10,
-        repolink = "https://github.com/martinkosch/open62541.jl",
+        size_threshold = 8000 * 2^10,
+        repolink = "https://github.com/martinkosch/open62541.jl"
     ),
     pages = [
         "Home" => "index.md",
         "Manual" => [
-                "manual/numbertypes.md",
-                "manual/nodeid.md",                
-                "manual/attributegeneration.md",
-                "manual/server.md",
-                "manual/client.md",
-                ],
+            "manual/numbertypes.md",
+            "manual/nodeid.md",
+            "manual/attributegeneration.md",
+            "manual/server.md",
+            "manual/client.md"
+        ],
         "Tutorials" => [
-                "tutorials/server_first_steps.md",
-                "tutorials/client_first_steps.md"
+            "tutorials/server_first_steps.md",
+            "tutorials/client_first_steps.md"
         ]
     ],
     warnonly = Documenter.except(
-        :autodocs_block, 
+        :autodocs_block,
         # :cross_references, 
-        :docs_block, 
-        :doctest, 
-        :eval_block, 
-        :example_block, 
-        :footnote, 
-        :linkcheck_remotes, 
-        :linkcheck, 
-        :meta_block, 
+        :docs_block,
+        :doctest,
+        :eval_block,
+        :example_block,
+        :footnote,
+        :linkcheck_remotes,
+        :linkcheck,
+        :meta_block,
         #:missing_docs, 
-        :parse_error, 
+        :parse_error,
         :setup_block
-    ),
+    )
 )
 
 deploydocs(;

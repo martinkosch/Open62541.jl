@@ -3,6 +3,7 @@
 This page lists docstrings of functions used for convenient attribute generation.
 
 Convenience functions that allow setting values for specific attributes:
+
 ```@docs
 UA_VALUERANK
 UA_ACCESSLEVEL
@@ -13,6 +14,7 @@ UA_EVENTNOTIFIER
 ```
 
 Generators for attribute blocks:
+
 ```@docs
 UA_VariableAttributes_generate
 UA_VariableTypeAttributes_generate

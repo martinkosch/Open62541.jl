@@ -84,12 +84,12 @@ const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithL
 
 function JUA_Server_runUntilInterrupt(server::JUA_Server)
     running = Ref(true)
-    try         
+    try
         Base.exit_on_sigint(false)
         UA_Server_run(server, running)
     catch err
         UA_Server_run_shutdown(server)
-        println("Shutting down server.") 
+        println("Shutting down server.")
         Base.exit_on_sigint(true)
     end
     return nothing
@@ -122,48 +122,54 @@ const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
 const JUA_Client_connect = UA_Client_connect
 const JUA_Client_disconnect = UA_Client_disconnect
 
-
 ## NodeIds
 """
 ```
 JUA_NodeId
 ```
 
-creates a `JUA_NodeId` object - the equivalent of a `UA_NodeId`, but with memory 
+creates a `JUA_NodeId` object - the equivalent of a `UA_NodeId`, but with memory
 managed by Julia rather than C.
 
 The following methods are defined:
+
 ```
 JUA_NodeId()
 ```
-creates a `JUA_NodeId` with namespaceIndex = 0, numeric identifierType and 
+
+creates a `JUA_NodeId` with namespaceIndex = 0, numeric identifierType and
 identifier = 0
 
 ```
 JUA_NodeId(s::Union{AbstractString, JUA_String})
 ```
-creates a `JUA_NodeId` based on String `s` that is parsed into the relevant 
-properties. 
+
+creates a `JUA_NodeId` based on String `s` that is parsed into the relevant
+properties.
 
 ```
 JUA_NodeId(nsIndex::Integer, identifier::Integer)
 ```
-creates a `JUA_NodeId` with namespace index `nsIndex` and numerical identifier 
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and numerical identifier
 `identifier`.
 
 ```
 JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString, JUA_String})
 ```
-creates a `JUA_NodeId` with namespace index `nsIndex` and string identifier 
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and string identifier
 `identifier`.
 
 ```
 JUA_NodeId(nsIndex::Integer, identifier::JUA_Guid)
 ```
-creates a `JUA_NodeId` with namespace index `nsIndex` and global unique id identifier 
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and global unique id identifier
 `identifier`.
 
 Examples:
+
 ```
 j = JUA_NodeId()
 j = JUA_NodeId("ns=1;i=1234")
@@ -172,7 +178,6 @@ j = JUA_NodeId(1, 1234)
 j = JUA_NodeId(1, "example")
 j = JUA_NodeId(1, JUA_Guid("C496578A-0DFE-4B8F-870A-745238C6AEAE"))
 ```
-
 """
 mutable struct JUA_NodeId <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_NodeId}
@@ -274,7 +279,7 @@ function release_handle(obj::JUA_Variant)
     UA_Variant_delete(Jpointer(obj))
 end
 
-function JUA_Client_readValueAttribute(client, nodeId) 
+function JUA_Client_readValueAttribute(client, nodeId)
     #TODO: Is there a way of making this typestable? 
     #(it's not really known what kind of data is stored inside a nodeid unless 
     #one checks the datatype beforehand)
@@ -292,7 +297,7 @@ function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
     return statuscode
 end
 
-function JUA_Server_readValue(client, nodeId) 
+function JUA_Server_readValue(client, nodeId)
     #TODO: Is there a way of making this typestable? 
     #(it's not really known what kind of data is stored inside a nodeid unless 
     #one checks the datatype beforehand)
@@ -316,7 +321,7 @@ end
 
 function __get_juliavalues_from_variant(v)
     wrapped = unsafe_wrap(v)
-    if typeof(wrapped) == UA_ExtensionObject 
+    if typeof(wrapped) == UA_ExtensionObject
         wrapped = __extract_ExtensionObject.(wrapped)
     elseif typeof(wrapped) <: Array && eltype(wrapped) == UA_ExtensionObject
         wrapped = __extract_ExtensionObject.(wrapped)
@@ -325,7 +330,8 @@ function __get_juliavalues_from_variant(v)
     #now deal with special types
     if typeof(wrapped) <: Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}
         r = complex(wrapped)
-    elseif typeof(wrapped) <: Array && eltype(wrapped) <: Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}
+    elseif typeof(wrapped) <: Array &&
+           eltype(wrapped) <: Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}
         r = complex.(wrapped)
     elseif typeof(wrapped) == UA_String
         r = unsafe_string(wrapped)
