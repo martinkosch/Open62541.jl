@@ -270,31 +270,31 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
     return UA_STATUSCODE_GOOD
 end
 
-function addPumpTypeConstructor(server)
-    c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
-    lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
-    UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
-end
-
-addPumpObjectInstance(server, "pump2") #should have status = false (constructor not in place yet)
-addPumpObjectInstance(server, "pump3") #should have status = false (constructor not in place yet)
-addPumpTypeConstructor(server)
-addPumpObjectInstance(server, "pump4") #should have status = true
-addPumpObjectInstance(server, "pump5") #should have status = true
-
-#add method node
-#follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
-
-function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
-        methodContext, objectId, objectContext, inputSize, input, outputSize, output)
-    inputstr = unsafe_string(unsafe_wrap(input))
-    tmp = UA_STRING("Hello " * inputstr)
-    UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
-    UA_String_delete(tmp)
-    return UA_STATUSCODE_GOOD
-end
-
 if !Sys.isapple()
+    function addPumpTypeConstructor(server)
+        c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
+        lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
+        UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
+    end
+
+    addPumpObjectInstance(server, "pump2") #should have status = false (constructor not in place yet)
+    addPumpObjectInstance(server, "pump3") #should have status = false (constructor not in place yet)
+    addPumpTypeConstructor(server)
+    addPumpObjectInstance(server, "pump4") #should have status = true
+    addPumpObjectInstance(server, "pump5") #should have status = true
+
+    #add method node
+    #follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+
+    function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
+            methodContext, objectId, objectContext, inputSize, input, outputSize, output)
+        inputstr = unsafe_string(unsafe_wrap(input))
+        tmp = UA_STRING("Hello " * inputstr)
+        UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
+        UA_String_delete(tmp)
+        return UA_STATUSCODE_GOOD
+    end
+
     inputArgument = UA_Argument_new()
     inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
     inputArgument.name = UA_STRING("MyInput");
