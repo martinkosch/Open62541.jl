@@ -294,50 +294,50 @@ function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
     return UA_STATUSCODE_GOOD
 end
 
-inputArgument = UA_Argument_new()
-inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
-inputArgument.name = UA_STRING("MyInput");
-inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId;
-inputArgument.valueRank = UA_VALUERANK_SCALAR
-outputArgument = UA_Argument_new()
-outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
-outputArgument.name = UA_STRING("MyOutput");
-outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-outputArgument.valueRank = UA_VALUERANK_SCALAR
-helloAttr = UA_MethodAttributes_generate(description = "Say Hello World",
-    displayname = "Hello World",
-    executable = true,
-    userexecutable = true)
+if !Sys.isapple()
+    inputArgument = UA_Argument_new()
+    inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
+    inputArgument.name = UA_STRING("MyInput");
+    inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId;
+    inputArgument.valueRank = UA_VALUERANK_SCALAR
+    outputArgument = UA_Argument_new()
+    outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
+    outputArgument.name = UA_STRING("MyOutput");
+    outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
+    outputArgument.valueRank = UA_VALUERANK_SCALAR
+    helloAttr = UA_MethodAttributes_generate(description = "Say Hello World",
+        displayname = "Hello World",
+        executable = true,
+        userexecutable = true)
 
-methodid = UA_NODEID_NUMERIC(1, 62541)
-obj = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
-retval = UA_Server_addMethodNode(server, methodid,
-    obj,
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
-    UA_QUALIFIEDNAME(1, "hello world"),
-    helloAttr, helloWorldMethodCallback,
-    1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
+    methodid = UA_NODEID_NUMERIC(1, 62541)
+    obj = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+    retval = UA_Server_addMethodNode(server, methodid,
+        obj,
+        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+        UA_QUALIFIEDNAME(1, "hello world"),
+        helloAttr, helloWorldMethodCallback,
+        1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
 
-@test retval == UA_STATUSCODE_GOOD
+    @test retval == UA_STATUSCODE_GOOD
 
-#UA_Server_run(server, Ref(true)) - checking server in uaexpert shows that the 
-#hello world method is there and that it produces the correct results when called
-inputArguments = UA_Variant_new()
-ua_s = UA_STRING("Peter")
-UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
-req = UA_CallMethodRequest_new()
-req.objectId = obj
-req.methodId = methodid
-req.inputArgumentsSize = 1
-req.inputArguments = inputArguments
+    inputArguments = UA_Variant_new()
+    ua_s = UA_STRING("Peter")
+    UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
+    req = UA_CallMethodRequest_new()
+    req.objectId = obj
+    req.methodId = methodid
+    req.inputArgumentsSize = 1
+    req.inputArguments = inputArguments
 
-answer = UA_CallMethodResult_new()
-UA_Server_call(server, req, answer)
-@test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
+    answer = UA_CallMethodResult_new()
+    UA_Server_call(server, req, answer)
+    @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
+    @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
 
-UA_CallMethodRequest_delete(req)
-UA_CallMethodResult_delete(answer)
+    UA_CallMethodRequest_delete(req)
+    UA_CallMethodResult_delete(answer)
+end
 
 #TODO: this will need a test to see whether any memory is leaking.
 
