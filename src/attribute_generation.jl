@@ -195,7 +195,7 @@ function __set_generic_attributes!(attr,
 end
 
 function __set_scalar_attributes!(attr, value::T,
-        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String}}}
+        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
@@ -209,6 +209,13 @@ function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
     return nothing
 end
 
+function __set_scalar_attributes!(attr, value::Complex{T}, valuerank) where T <: Union{Float32, Float64}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    ua_c = f(reim(value)...)
+    __set_scalar_attributes!(attr, ua_c, valuerank)
+    return nothing
+end
+
 function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, valuerank)
     a = similar(value, UA_String)
     for i in eachindex(a)
@@ -218,8 +225,18 @@ function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, v
     return nothing
 end
 
+function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}}, valuerank) where T <: Union{Float32, Float64}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    a = similar(value, f)
+    for i in eachindex(a)
+        a[i] = f(reim(value[i])...)
+    end
+    __set_array_attributes!(attr, a, valuerank)
+    return nothing
+end
+
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
-        valuerank) where {T <: Union{AbstractFloat, Integer, UA_String}, N}
+        valuerank) where {T <: Union{AbstractFloat, Integer, UA_String, UA_ComplexNumberType, UA_DoubleComplexNumberType}, N}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     #Note: need array dims twice, once to put into the variant, i.e., attr.value 
@@ -274,7 +291,7 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
         valuerank::Union{Nothing, Integer} = nothing) where
-        {T <: Union{AbstractFloat, Integer, AbstractString}} #TODO: implement array of strings
+        {T <: Union{Complex, AbstractFloat, Integer, AbstractString}}
     attr = __generate_variable_attributes(value, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, valuerank)
@@ -329,6 +346,10 @@ function __generic_variable_attributes(displayname, description, localization,
         end
         if type <: AbstractString
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
+        elseif type == ComplexF64
+            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
+        elseif type == ComplexF32
+            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
         else
             attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
         end

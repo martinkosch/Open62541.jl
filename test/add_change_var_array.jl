@@ -4,7 +4,7 @@
 # We also check that setting a variable node with one type cannot be set to 
 # another type (e.g., integer variable node cannot be set to float64.)
 
-#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String
+#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
 
 
 #TODO: Improve memory management, also test with high level interface.
@@ -16,7 +16,7 @@ Distributed.@everywhere begin
     using open62541, Test, Random
 
     # What types and sizes we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String]
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
     # Generate random input values and generate nodeid names
@@ -95,7 +95,7 @@ for (type_ind, type) in enumerate(types)
         input = input_data[type_ind][array_size_ind]
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         output_client = JUA_Client_readValueAttribute(client, varnodeid)
-        if type <: AbstractFloat
+        if type <: Union{AbstractFloat, Complex}
             @test all(isapprox.(input, output_client))
         else
             @test all(input .== output_client)
@@ -124,7 +124,13 @@ end
 # Test wrong data type write errors 
 for type_ind in eachindex(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
-        type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
+        if types[type_ind] == ComplexF64 || types[type_ind]  == ComplexF32
+            type = Float64
+        elseif types[type_ind] == String #XXX: This is likely a bug in open62541 (can write complex numbers to string type variable, probably, because extension objects are not recognized properly)
+            type = Float64
+        else
+            type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
+        end
         new_input = type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         new_v = UA_Variant_new(new_input)

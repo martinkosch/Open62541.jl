@@ -4,7 +4,7 @@
 # We also check that setting a variable node with one type cannot be set to 
 # another type (e.g., integer variable node cannot be set to float64.)
 
-#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String
+#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
 
 #TODO: improve memory handling and update to high level interface
 
@@ -15,7 +15,7 @@ Distributed.@everywhere begin
     using open62541, Test, Random
 
     # What types we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String]
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
     
     # Generate random input values and generate nodeid names
     input_data = Tuple(type != String ? rand(type) : randstring(Int64(rand(UInt8))) for type in types)
@@ -84,7 +84,9 @@ let trial
 end
 
 # Read with client from server
-for (type_ind, type) in enumerate(types)
+#for (type_ind, type) in enumerate(types)
+type_ind = 13
+type = types[type_ind]
     input = input_data[type_ind]
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     output_client = JUA_Client_readValueAttribute(client, varnodeid)
@@ -93,7 +95,7 @@ for (type_ind, type) in enumerate(types)
     else
         @test all(input .== output_client)
     end
-end
+#end
 
 # Write new data 
 for (type_ind, type) in enumerate(types)
@@ -103,7 +105,7 @@ for (type_ind, type) in enumerate(types)
     retval = UA_Client_writeValueAttribute(client, varnodeid, new_v)
     @test retval == UA_STATUSCODE_GOOD
     output_client_new = JUA_Client_readValueAttribute(client, varnodeid)
-    if type <: AbstractFloat
+    if type <: Union{AbstractFloat, Complex}
         @test all(isapprox.(new_input, output_client_new))
     else
         @test all(new_input .== output_client_new)

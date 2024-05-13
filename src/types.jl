@@ -292,6 +292,9 @@ function Base.unsafe_string(s::UA_String)
 end
 Base.unsafe_string(s::Ptr{UA_String}) = Base.unsafe_string(unsafe_load(s))
 
+#adapt base complex method for interoperability between ua complex numbers and julia complex numbers
+Base.complex(x::T) where T <: Union{UA_ComplexNumberType, UA_DoubleComplexNumberType} = Complex(x.real, x.imaginary)
+
 
 ## UA_BYTESTRING
 """
@@ -785,7 +788,7 @@ Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
 
 function UA_Variant_new(value::AbstractArray{T, N},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, UA_String, Integer}, N}
+        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{AbstractFloat, UA_String, Integer, UA_ComplexNumberType, UA_DoubleComplexNumberType}, N}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
@@ -799,7 +802,7 @@ end
 
 function UA_Variant_new(value::T,
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer, Ptr{UA_String}}}
+        AbstractFloat, Integer, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
     var = UA_Variant_new()
     var.type = type_ptr
     var.storageType = UA_VARIANT_DATA
@@ -814,11 +817,27 @@ function UA_Variant_new(value::AbstractString)
     return v
 end
 
+function UA_Variant_new(value::Complex{T}) where T <: Union{Float32, Float64}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    ua_c = f(reim(value)...)
+    v = UA_Variant_new(ua_c)
+    return v
+end
+
 function UA_Variant_new(value::AbstractArray{<:AbstractString})
     a = similar(value, UA_String)
     for i in eachindex(a)
         a[i] = UA_String_fromChars(value[i])
     end    
+    return UA_Variant_new(a)
+end
+
+function UA_Variant_new(value::AbstractArray{<:Complex{T}}) where T <: Union{Float32, Float64}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    a = similar(value, f)
+    for i in eachindex(a)
+        a[i] = f(reim(value[i])...)
+    end
     return UA_Variant_new(a)
 end
 
