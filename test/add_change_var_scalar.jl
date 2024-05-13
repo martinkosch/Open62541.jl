@@ -6,7 +6,7 @@
 
 #Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
 
-#TODO: improve memory handling and update to high level interface
+#TODO: introduce final high level functions
 
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
@@ -33,7 +33,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     for (type_ind, type) in enumerate(types)
         accesslevel = UA_ACCESSLEVEL(read = true, write = true)
         input = input_data[type_ind]
-        attr = UA_VariableAttributes_generate(value = input,
+        attr = JUA_VariableAttributes(value = input,
             displayname = varnode_ids[type_ind],
             description = "this is a $(Symbol(type)) scalar variable",
             accesslevel = accesslevel)
@@ -42,8 +42,8 @@ Distributed.@spawnat Distributed.workers()[end] begin
         parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
         typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
         browsename = JUA_QualifiedName(1, varnode_ids[type_ind])
-        nodecontext = C_NULL
-        outnewnodeid = C_NULL
+        nodecontext = JUA_NodeId()
+        outnewnodeid = JUA_Nodeid()
         retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
             parentreferencenodeid,
             browsename, typedefinition, attr, nodecontext, outnewnodeid)
@@ -84,9 +84,7 @@ let trial
 end
 
 # Read with client from server
-#for (type_ind, type) in enumerate(types)
-type_ind = 13
-type = types[type_ind]
+for (type_ind, type) in enumerate(types)
     input = input_data[type_ind]
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     output_client = JUA_Client_readValueAttribute(client, varnodeid)
@@ -95,14 +93,13 @@ type = types[type_ind]
     else
         @test all(input .== output_client)
     end
-#end
+end
 
 # Write new data 
 for (type_ind, type) in enumerate(types)
     new_input = type != String ? rand(type) : randstring(Int64(rand(UInt8)))
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
-    new_v = UA_Variant_new(new_input)
-    retval = UA_Client_writeValueAttribute(client, varnodeid, new_v)
+    retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
     @test retval == UA_STATUSCODE_GOOD
     output_client_new = JUA_Client_readValueAttribute(client, varnodeid)
     if type <: Union{AbstractFloat, Complex}
@@ -110,7 +107,6 @@ for (type_ind, type) in enumerate(types)
     else
         @test all(new_input .== output_client_new)
     end
-    UA_Variant_delete(new_v)
 end
 
 # Test wrong data type write errors 
@@ -118,10 +114,8 @@ for type_ind in eachindex(types)
     type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
     new_input = type != String ? rand(type) : randstring(Int64(rand(UInt8)))
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
-    new_v = UA_Variant_new(new_input)
-    @test_throws open62541.AttributeReadWriteError UA_Client_writeValueAttribute(client,
-        varnodeid, new_v)
-    UA_Variant_delete(new_v)
+    @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(client,
+        varnodeid, new_input)
 end
 
 # Disconnect client

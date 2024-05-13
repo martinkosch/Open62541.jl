@@ -362,7 +362,7 @@ end
 
 """
 ```
-UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
+UA_VariableTypeAttributes_generate(; value::Union{Nothing, AbstractArray{T}, T} = nothing,
     displayname::AbstractString, description::AbstractString,
     localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
@@ -372,25 +372,25 @@ UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
 ```
 
 generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated
-by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)`
+by C and needs to be cleaned up by calling `UA_VariableTypeAttributes_delete(x)`
 after usage.
 
-For keywords given as `nothing`, the respective default value is used, see `UA_VariableAttributes_default[]`.
-If nothing is given for keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR`
-(if `value` is a scalar), or to the dimensionality of the supplied array
-(i.e., `N` for an AbstractArray{T,N}).
+For keywords given as `nothing`, the respective default value is used, see `UA_VariableTypeAttributes_default[]`.
+If a default `value` is specified for the variabletype and nothing is given for 
+keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR` (if `value` 
+is a scalar), or to the dimensionality of the supplied array (i.e., `N` for an 
+AbstractArray{T,N}).
 
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
-function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
+function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{<:Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}, Union{Nothing, AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}} = nothing,
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) where {T <:
-                                                           Union{AbstractFloat, Integer}}
+        isabstract::Union{Nothing, Bool} = nothing) 
     attr = __generate_variabletype_attributes(value, displayname, description,
         localization, writemask, userwritemask, valuerank, isabstract)
     return attr
@@ -398,7 +398,7 @@ end
 
 function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T, N}
+        isabstract) where {T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}, N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
@@ -410,13 +410,23 @@ end
 
 function __generate_variabletype_attributes(value::T, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T}
+        isabstract) where {T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
     attr = __generic_variabletype_attributes(displayname, description, localization,
         writemask, userwritemask, isabstract, T)
     __set_scalar_attributes!(attr, value, valuerank)
+    return attr
+end
+
+function __generate_variabletype_attributes(value::Nothing, displayname,
+        description, localization, writemask, userwritemask, valuerank, isabstract)
+    attr = __generic_variabletype_attributes(displayname, description, localization,
+        writemask, userwritemask, isabstract, value)
+    if !isnothing(valuerank)
+        attr.valueRank = valuerank
+    end
     return attr
 end
 
@@ -430,7 +440,17 @@ function __generic_variabletype_attributes(displayname, description, localizatio
         if !isnothing(isabstract)
             attr.isAbstract = isabstract
         end
-        attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+        if !isnothing(type)
+            if type <: AbstractString
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
+            elseif type == ComplexF64
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
+            elseif type == ComplexF32
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
+            else
+                attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+            end
+        end
         return attr
     else
         err = AttributeCopyError(statuscode)

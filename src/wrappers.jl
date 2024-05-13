@@ -233,21 +233,34 @@ end
 
 Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpointer(x))
 
-#VariableAttributes - TODO: complete
-# mutable struct JUA_VariableAttributes <: AbstractOpen62541Wrapper
-#     ptr::Ptr{UA_VariableAttributes}
-#     function JUA_VariableAttributes(kwargs...)
-#         obj = new(UA_VariableAttributes_generate(kwargs...))
-#         finalizer(release_handle, obj)
-#         return obj
-#     end
-# end
+#VariableAttributes
+mutable struct JUA_VariableAttributes <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_VariableAttributes}
+    function JUA_VariableAttributes(; kwargs...)
+        obj = new(UA_VariableAttributes_generate(; kwargs...))
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
 
-# function release_handle(obj::JUA_VariableAttributes)
-#     UA_VariableAttributes_delete(Jpointer(obj))
-# end
+function release_handle(obj::JUA_VariableAttributes)
+    UA_VariableAttributes_delete(Jpointer(obj))
+end
 
-#TODO: here we can do automatic unsafe_wrap on the content, so that the user doesn't have to do it.
+#VariableTypeAttributes
+mutable struct JUA_VariableTypeAttributes <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_VariableTypeAttributes}
+    function JUA_VariableTypeAttributes(; kwargs...)
+        obj = new(UA_VariableTypeAttributes_generate(; kwargs...))
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_VariableTypeAttributes)
+    UA_VariableTypeAttributes_delete(Jpointer(obj))
+end
+
 mutable struct JUA_Variant <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Variant}
     function JUA_Variant()
@@ -270,6 +283,13 @@ function JUA_Client_readValueAttribute(client, nodeId)
     r = __get_juliavalues_from_variant(v)
     UA_Variant_delete(v)
     return r
+end
+
+function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
+    newvariant = UA_Variant_new(newvalue)
+    statuscode = UA_Client_writeValueAttribute(client, nodeId, newvariant)
+    UA_Variant_delete(newvariant)
+    return statuscode
 end
 
 function JUA_Server_readValue(client, nodeId) 

@@ -6,8 +6,7 @@
 
 #Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
 
-
-#TODO: Improve memory management, also test with high level interface.
+#TODO: introduce final high level functions
 
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
@@ -38,7 +37,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
             # Generate a UA_Server with standard config
             input = input_data[type_ind][array_size_ind]
             accesslevel = UA_ACCESSLEVEL(read = true, write = true)
-            attr = UA_VariableAttributes_generate(value = input,
+            attr = JUA_VariableAttributes(value = input,
                 displayname = varnode_ids[type_ind, array_size_ind],
                 description = "this is a $(string(array_size)) $(Symbol(type)) array variable",
                 accesslevel = accesslevel)
@@ -47,8 +46,8 @@ Distributed.@spawnat Distributed.workers()[end] begin
             parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
             typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
             browsename = JUA_QualifiedName(1, varnode_ids[type_ind, array_size_ind])
-            nodecontext = C_NULL
-            outnewnodeid = C_NULL
+            nodecontext = JUA_NodeId()
+            outnewnodeid = JUA_NodeId()
             retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
                 parentreferencenodeid,
                 browsename, typedefinition, attr, nodecontext, outnewnodeid)
@@ -108,8 +107,7 @@ for (type_ind, type) in enumerate(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
         new_input = type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
-        new_v = UA_Variant_new(new_input) #TODO: need to come up with a good interface for the write functions as well.
-        retval = UA_Client_writeValueAttribute(client, varnodeid, new_v)
+        retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
         @test retval == UA_STATUSCODE_GOOD
         output_client_new = JUA_Client_readValueAttribute(client, varnodeid)
         if type <: AbstractFloat
@@ -117,7 +115,6 @@ for (type_ind, type) in enumerate(types)
         else
             @test all(new_input .== output_client_new)
         end
-        UA_Variant_delete(new_v)
     end
 end
 
@@ -133,10 +130,8 @@ for type_ind in eachindex(types)
         end
         new_input = type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
-        new_v = UA_Variant_new(new_input)
-        @test_throws open62541.AttributeReadWriteError UA_Client_writeValueAttribute(
-            client, varnodeid, new_v)
-        UA_Variant_delete(new_v)
+        @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(
+            client, varnodeid, new_input)
     end
 end
 

@@ -1,6 +1,7 @@
 #Purpose: Tests attribute generation functionality and associated functions
 using open62541
 using Test
+using Random
 
 #UA_VALUERANK
 @test UA_VALUERANK(1) == UA_VALUERANK_ONE_DIMENSION
@@ -84,7 +85,9 @@ using Test
 
 #UA_VariableAttributes_generate
 #define different sized input cases to test both scalar and array codes
-inputs = (rand(), rand(2), rand(2, 3), rand(2, 3, 4))
+array_sizes = [1, 2, (2, 3), (2, 3, 4)]
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+inputs = Tuple(Tuple( type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -95,30 +98,55 @@ accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 useraccesslevel = UA_ACCESSLEVEL(read = true, historyread = true)
 minimumsamplinginterval = rand()
 historizing = true
-for i in 1:length(inputs)
-    attr = UA_VariableAttributes_generate(value = inputs[i], displayname = displayname,
-        description = description, localization = localization,
-        writemask = writemask, userwritemask = userwritemask,
-        accesslevel = accesslevel, useraccesslevel = useraccesslevel,
-        minimumsamplinginterval = minimumsamplinginterval,
-        historizing = historizing)
-    @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
-    @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
-    @test unsafe_string(unsafe_load(attr.description.text)) == description
-    @test unsafe_string(unsafe_load(attr.description.locale)) == localization
-    @test unsafe_load(attr.writeMask) == writemask
-    @test unsafe_load(attr.userWriteMask) == userwritemask
-    @test unsafe_load(attr.accessLevel) == accesslevel
-    @test unsafe_load(attr.userAccessLevel) == useraccesslevel
-    @test unsafe_load(attr.minimumSamplingInterval) == minimumsamplinginterval
-    @test unsafe_load(attr.valueRank) == valueranks[i]
-    @test unsafe_load(attr.historizing) == historizing
-    UA_VariableAttributes_delete(attr)
+for i in eachindex(array_sizes)
+    for j in eachindex(types)
+        if length(inputs[j][i]) == 1
+            v = inputs[j][i][1]
+        else
+            v = inputs[j][i]
+        end
+        attr = UA_VariableAttributes_generate(value = v, displayname = displayname,
+            description = description, localization = localization,
+            writemask = writemask, userwritemask = userwritemask,
+            accesslevel = accesslevel, useraccesslevel = useraccesslevel,
+            minimumsamplinginterval = minimumsamplinginterval,
+            historizing = historizing)
+        @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
+        @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
+        @test unsafe_string(unsafe_load(attr.description.text)) == description
+        @test unsafe_string(unsafe_load(attr.description.locale)) == localization
+        @test unsafe_load(attr.writeMask) == writemask
+        @test unsafe_load(attr.userWriteMask) == userwritemask
+        @test unsafe_load(attr.accessLevel) == accesslevel
+        @test unsafe_load(attr.userAccessLevel) == useraccesslevel
+        @test unsafe_load(attr.minimumSamplingInterval) == minimumsamplinginterval
+        @test unsafe_load(attr.valueRank) == valueranks[i]
+        @test unsafe_load(attr.historizing) == historizing
+        #TODO: add test that checks dataType being correctly set.
+        out = open62541.__get_juliavalues_from_variant(attr.value)
+        if types[j] <: Union{AbstractFloat, Complex}
+            @test all(out .≈ v)
+        else
+            @test all(out == v)
+        end
+        UA_VariableAttributes_delete(attr)
+
+        #now a test with the high level interface as well
+        j = JUA_VariableAttributes(value = v, displayname = displayname,
+            description = description, localization = localization,
+            writemask = writemask, userwritemask = userwritemask,
+            accesslevel = accesslevel, useraccesslevel = useraccesslevel,
+            minimumsamplinginterval = minimumsamplinginterval,
+            historizing = historizing)
+        @test j isa JUA_VariableAttributes
+    end
 end
 
 #UA_VariableTypeAttributes_generate
 #define different sized input cases to test both scalar and array codes
-inputs = (rand(), rand(2), rand(2, 3), rand(2, 3, 4))
+array_sizes = [1, 2, (2, 3), (2, 3, 4)]
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+inputs = Tuple(Tuple( type != String ? rand(type, array_size) : reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)], array_size...) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -126,21 +154,74 @@ localization = "en-GB"
 writemask = UA_WRITEMASK(accesslevel = true, valuerank = true, writemask = true)
 userwritemask = UA_WRITEMASK(accesslevel = true, valuerank = false, writemask = true)
 isabstract = true
-for i in 1:length(inputs)
-    attr = UA_VariableTypeAttributes_generate(value = inputs[i], displayname = displayname,
-        description = description, localization = localization,
-        writemask = writemask, userwritemask = userwritemask,
-        isabstract = isabstract)
-    @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
-    @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
-    @test unsafe_string(unsafe_load(attr.description.text)) == description
-    @test unsafe_string(unsafe_load(attr.description.locale)) == localization
-    @test unsafe_load(attr.writeMask) == writemask
-    @test unsafe_load(attr.userWriteMask) == userwritemask
-    @test unsafe_load(attr.valueRank) == valueranks[i]
-    @test unsafe_load(attr.isAbstract) == isabstract
-    UA_VariableTypeAttributes_delete(attr)
+for i in eachindex(array_sizes)
+    for j in eachindex(types)
+        if length(inputs[j][i]) == 1
+            v = inputs[j][i][1]
+        else
+            v = inputs[j][i]
+        end
+        attr = UA_VariableTypeAttributes_generate(value = v, displayname = displayname,
+            description = description, localization = localization,
+            writemask = writemask, userwritemask = userwritemask,
+            isabstract = isabstract)
+        @test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
+        @test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
+        @test unsafe_string(unsafe_load(attr.description.text)) == description
+        @test unsafe_string(unsafe_load(attr.description.locale)) == localization
+        @test unsafe_load(attr.writeMask) == writemask
+        @test unsafe_load(attr.userWriteMask) == userwritemask
+        @test unsafe_load(attr.valueRank) == valueranks[i]
+        @test unsafe_load(attr.isAbstract) == isabstract
+        out = open62541.__get_juliavalues_from_variant(attr.value)
+        if types[j] <: Union{AbstractFloat, Complex}
+            @test all(out .≈ v)
+        else
+            @test all(out == v)
+        end
+        UA_VariableTypeAttributes_delete(attr)
+        
+        #high level interface
+        j = JUA_VariableTypeAttributes(value = v, displayname = displayname,
+            description = description, localization = localization,
+            writemask = writemask, userwritemask = userwritemask,
+            isabstract = isabstract)
+        @test j isa JUA_VariableTypeAttributes
+    end
 end
+
+#now test case with no value specified (tests different branches)
+def = UA_VariableTypeAttributes_default[]
+
+## use only mandatory keywords
+attr = UA_VariableTypeAttributes_generate(displayname = displayname,
+            description = description, localization = localization)
+@test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
+@test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
+@test unsafe_string(unsafe_load(attr.description.text)) == description
+@test unsafe_string(unsafe_load(attr.description.locale)) == localization
+@test unsafe_load(attr.writeMask) == def.writeMask
+@test unsafe_load(attr.userWriteMask) == def.userWriteMask
+@test unsafe_load(attr.valueRank) == def.valueRank
+@test unsafe_load(attr.isAbstract) == def.isAbstract 
+UA_VariableTypeAttributes_delete(attr)
+
+## use optional keywords as well
+valuerank = 1
+attr = UA_VariableTypeAttributes_generate(displayname = displayname,
+            description = description, localization = localization,
+            writemask = writemask, userwritemask = userwritemask,
+            isabstract = isabstract, valuerank = valuerank)
+
+@test unsafe_string(unsafe_load(attr.displayName.text)) == displayname
+@test unsafe_string(unsafe_load(attr.displayName.locale)) == localization
+@test unsafe_string(unsafe_load(attr.description.text)) == description
+@test unsafe_string(unsafe_load(attr.description.locale)) == localization
+@test unsafe_load(attr.writeMask) == writemask
+@test unsafe_load(attr.userWriteMask) == userwritemask
+@test unsafe_load(attr.valueRank) == valuerank
+@test unsafe_load(attr.isAbstract) == isabstract
+UA_VariableTypeAttributes_delete(attr)
 
 #UA_ObjectAttributes_generate
 displayname = "whatever"

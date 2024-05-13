@@ -25,7 +25,7 @@ sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
-        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        retval = JUA_Client_connect(client, "opc.tcp://localhost:4842")
         if retval == UA_STATUSCODE_GOOD
             println("Connection established.")
             break
