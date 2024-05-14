@@ -236,13 +236,13 @@ for att in attributes_UA_Client_read
     @eval begin
         """
         ```
-        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, out::Ptr{$($(att[3]))} = $($(String(returnobject)))())
+        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, out::Ptr{$($(att[3]))})
         ```
 
         Uses the UA Client API to read the value of attribute $($(String(attr_name))) from the NodeId `nodeId` accessed through the client `client`. 
 
         """
-        function $(fun_name)(client, nodeId, out = $returnobject())
+        function $(fun_name)(client, nodeId, out)
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
             statuscode = __UA_Client_readAttribute(client,
                 nodeId,
@@ -250,7 +250,7 @@ for att in attributes_UA_Client_read
                 out,
                 data_type_ptr)
             if statuscode == UA_STATUSCODE_GOOD
-                return out
+                return statuscode
             else
                 action = "Reading"
                 side = "Client"

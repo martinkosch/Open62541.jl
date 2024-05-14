@@ -50,23 +50,31 @@ retval = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 @test retval == UA_STATUSCODE_GOOD
 
 #gather the previously defined nodes
+#TODO: add more node types
 nodes = (variablenodeid, variabletypenodeid)
 
 for node in nodes
-    nodeclass = unsafe_load(UA_Server_readNodeClass(server, node))
+    out1 = UA_NodeClass_new()
+    UA_Server_readNodeClass(server, node, out1)
+    nodeclass = unsafe_load(out1)
     if nodeclass == UA_NODECLASS_VARIABLE
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end #TODO: add more node types once implemented
+    end 
     for att in open62541.attributes_UA_Server_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
+        generator = Symbol(att[3]*"_new")
+        cleaner = Symbol(att[3]*"_delete")
+        out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-            @test isa(eval(fun_name)(server, node), Ptr{eval(attr_type)})
+            @test isa(eval(fun_name)(server, node, out2), UA_StatusCode)
         else
-            @test_throws open62541.AttributeReadWriteError eval(fun_name)(server, node)
+            @test_throws open62541.AttributeReadWriteError eval(fun_name)(server, node, out2)
         end
+        eval(cleaner)(out2)
     end
+    UA_NodeClass_delete(out1)
 end

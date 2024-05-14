@@ -37,8 +37,19 @@ retval1 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
 #test whether adding node to the server worked    
 @test retval1 == UA_STATUSCODE_GOOD
 # Test whether the correct array is within the server (read from server)
-output_server = unsafe_wrap(UA_Server_readValue(server, varnodeid))
+out = UA_Variant_new()
+UA_Server_readValue(server, varnodeid, out)
+output_server = unsafe_wrap(out)
 @test all(isapprox(input, output_server))
+
+#clean up memory for this part of the code
+UA_VariableAttributes_delete(attr)
+UA_NodeId_delete(varnodeid)
+UA_NodeId_delete(parentnodeid)
+UA_NodeId_delete(parentreferencenodeid)
+UA_NodeId_delete(typedefinition)
+UA_QualifiedName_delete(browsename)
+UA_Variant_delete(out)
 
 #Variable node: array
 input = rand(Float64, 2, 3, 4)
@@ -60,6 +71,20 @@ retval2 = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
     browsename, typedefinition, attr, nodecontext, outnewnodeid)
 # Test whether adding node to the server worked
 @test retval2 == UA_STATUSCODE_GOOD
+# Test whether the correct array is within the server (read from server)
+out = UA_Variant_new()
+UA_Server_readValue(server, varnodeid, out)
+output_server = unsafe_wrap(out)
+@test all(isapprox(input, output_server))
+
+#clean up memory for this part of the code
+UA_VariableAttributes_delete(attr)
+UA_NodeId_delete(varnodeid)
+UA_NodeId_delete(parentnodeid)
+UA_NodeId_delete(parentreferencenodeid)
+UA_NodeId_delete(typedefinition)
+UA_QualifiedName_delete(browsename)
+UA_Variant_delete(out)
 
 ## VariableTypeNode - array
 input = zeros(2)
@@ -351,7 +376,7 @@ retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_ServerConfig(server2),
 #Variable node: scalar
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
-attr = UA_VariableAttributes_generate(value = input,
+attr = JUA_VariableAttributes(value = input,
     displayname = "scalar variable",
     description = "this is a scalar variable",
     accesslevel = accesslevel)
@@ -360,8 +385,8 @@ parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
 typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 browsename = JUA_QualifiedName(1, "scalar variable")
-nodecontext = C_NULL
-outnewnodeid = C_NULL
+nodecontext = JUA_NodeId()
+outnewnodeid = JUA_NodeId()
 retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
     parentreferencenodeid, browsename, attr, nodecontext,
     outnewnodeid, typedefinition)
@@ -371,12 +396,12 @@ retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
 pumpTypeId = JUA_NodeId(1, 1001)
 #Define the object type for "Device"
 deviceTypeId = JUA_NodeId()
-attr = UA_ObjectTypeAttributes_generate(displayname = "DeviceType",
+attr = JUA_ObjectTypeAttributes(displayname = "DeviceType",
     description = "Object type for a device")
 parentnodeid = JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE)
 parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASSUBTYPE)
 browsename = JUA_QualifiedName(1, "DeviceType")
 retvalj2 = JUA_Server_addNode(server2, JUA_NodeId(), parentnodeid,
-    parentreferencenodeid, browsename, attr, C_NULL,
+    parentreferencenodeid, browsename, attr, JUA_NodeId(),
     outnewnodeid)
 @test retvalj2 == UA_STATUSCODE_GOOD

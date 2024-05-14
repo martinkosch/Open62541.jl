@@ -54,25 +54,34 @@ retval = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
+#TODO: add more node types 
 nodes = (varnodeid, variabletypenodeid)
 for node in nodes
-    nodeclass = unsafe_load(UA_Server_readNodeClass(server, node))
+    out1 = UA_NodeClass_new()
+    UA_Server_readNodeClass(server, node, out1)
+    nodeclass = unsafe_load(out1)
     if nodeclass == UA_NODECLASS_VARIABLE
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end #TODO: add more node types once implemented
+    end 
     for att in open62541.attributes_UA_Server_write
         fun_write = Symbol(att[1])
         fun_read = Symbol(replace(att[1], "write" => "read"))
         attr_name = Symbol(att[2])
+        generator = Symbol(att[3]*"_new")
+        cleaner = Symbol(att[3]*"_delete")
+        out2 = eval(generator)()
         if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
             if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
                in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-                read_value = eval(fun_read)(server, node) #read
-                statuscode = eval(fun_write)(server, node, read_value) #write read value back...
-                @test statuscode == UA_STATUSCODE_GOOD
+                statuscode1 = eval(fun_read)(server, node, out2) #read
+                statuscode2 = eval(fun_write)(server, node, out2) #write read value back...
+                @test statuscode1 == UA_STATUSCODE_GOOD
+                @test statuscode2 == UA_STATUSCODE_GOOD
             end
         end
+        eval(cleaner)(out2)
     end
+    UA_NodeClass_delete(out1)
 end

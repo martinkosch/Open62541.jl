@@ -1,4 +1,4 @@
-#tests custom exceptions
+#Tests custom exceptions
 
 using open62541
 using Test
@@ -36,14 +36,16 @@ UA_ClientConfig_setDefault(UA_Client_getConfig(client))
 bogusid = UA_NODEID_STRING_ALLOC(1, "bogusid")
 
 #AttributeReadWriteError - UA_Server_readX function 
-@test_throws open62541.AttributeReadWriteError UA_Server_readValue(server, bogusid)
+out1 = UA_Variant_new()
+@test_throws open62541.AttributeReadWriteError UA_Server_readValue(server, bogusid, out1)
 
 #AttributeReadWriteError - UA_Server_writeX function 
 var1 = UA_Variant_new()
 @test_throws open62541.AttributeReadWriteError UA_Server_writeValue(server, bogusid, var1)
 
 #AttributeReadWriteError - UA_Client_readX function 
-@test_throws open62541.AttributeReadWriteError UA_Client_readValueAttribute(client, bogusid)
+out2 = UA_Variant_new()
+@test_throws open62541.AttributeReadWriteError UA_Client_readValueAttribute(client, bogusid, out2)
 
 #AttributeReadWriteError - UA_Client_readX function 
 var2 = UA_Variant_new()
@@ -57,3 +59,5 @@ UA_Client_delete(client)
 UA_Variant_delete(var1)
 UA_Variant_delete(var2)
 UA_NodeId_delete(bogusid)
+UA_Variant_delete(out1)
+UA_Variant_delete(out2)
