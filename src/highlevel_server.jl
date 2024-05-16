@@ -110,7 +110,7 @@ for nodeclass in instances(UA_NodeClass)
                 function JUA_Server_addNode(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         attributes::$(attributetype_sym_J),
-                        outNewNodeId, nodeContext, typeDefinition)
+                        nodeContext, outNewNodeId, typeDefinition)
                     return $(funname_sym)(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         typeDefinition, attributes, nodeContext, outNewNodeId)
@@ -123,7 +123,7 @@ for nodeclass in instances(UA_NodeClass)
                 function JUA_Server_addNode(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
                         attributes::$(attributetype_sym_J),
-                        outNewNodeId, nodeContext)
+                        nodeContext, outNewNodeId)
                     return $(funname_sym)(server, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName, attributes,
                         nodeContext, outNewNodeId)

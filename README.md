@@ -9,7 +9,7 @@ open62541.jl is a [Julia](https://julialang.org) package that interfaces with th
 library written in C ([source](https://github.com/open62541/open62541)).
 
 As such, it provides functionality following the [OPC Unified Architecture (OPC UA) standard](https://en.wikipedia.org/wiki/OPC_Unified_Architecture)
-for data exchange from sensors to cloud applications developed by the [OPC Foundation]().
+for data exchange from sensors to cloud applications developed by the [OPC Foundation](https://opcfoundation.org/).
 
 In short, it provides the ability to create OPC servers that make data from different
 sources available to clients and, naturally, also a client functionality that allows

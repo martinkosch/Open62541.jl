@@ -90,7 +90,6 @@ for (type_ind, type) in enumerate(types)
     input = input_data[type_ind]
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     output_client = JUA_Client_readValueAttribute(client, varnodeid)
-    @show output_client, input
     if type <: AbstractFloat
         @test all(isapprox.(input, output_client))
     else

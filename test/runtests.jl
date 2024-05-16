@@ -49,6 +49,10 @@ end
     include("server_add_nodes.jl")
 end
 
+@safetestset "Server Add Nodes Highlevel Interface" begin
+    include("server_add_nodes_highlevelinterface.jl")
+end
+
 # @safetestset "Memory leaks" begin
 #     include("memoryleaks.jl")
 # end

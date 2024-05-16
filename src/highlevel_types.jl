@@ -29,9 +29,6 @@ function release_handle(obj::JUA_String)
     UA_String_delete(Jpointer(obj))
 end
 
-ua_data_type_ptr_default(::Type{JUA_String}) = ua_data_type_ptr_default(UA_String)
-Base.convert(::Type{UA_String}, x::JUA_String) = unsafe_load(Jpointer(x))
-
 #Guid
 mutable struct JUA_Guid <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Guid}
