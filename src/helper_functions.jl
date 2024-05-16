@@ -13,8 +13,8 @@ function __extract_ExtensionObject(eo::UA_ExtensionObject)
     end
 end
 
-function __get_juliavalues_from_variant(v)
-    wrapped = unsafe_wrap(v)
+function __get_juliavalues_from_variant(v, type)
+    wrapped = unsafe_wrap(v)::type
     if typeof(wrapped) == UA_ExtensionObject
         wrapped = __extract_ExtensionObject.(wrapped)
     elseif typeof(wrapped) <: Array && eltype(wrapped) == UA_ExtensionObject
@@ -35,4 +35,4 @@ function __get_juliavalues_from_variant(v)
         r = deepcopy(wrapped) #TODO: do I need to copy here? test for memory safety!
     end
     return r
-end
+end    

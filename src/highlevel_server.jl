@@ -15,6 +15,8 @@ function release_handle(obj::JUA_Server)
     UA_Server_delete(Jpointer(obj))
 end
 
+Base.show(io::IO, ::MIME"text/plain", v::JUA_Server) = print(io, "$(typeof(v))\n")
+
 mutable struct JUA_ServerConfig <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ServerConfig}
     function JUA_ServerConfig(server::JUA_Server)
@@ -132,14 +134,42 @@ for nodeclass in instances(UA_NodeClass)
 end
 
 #Server read and write functions
-#TODO: add docstring
-function JUA_Server_readValue(client, nodeId)
-    #TODO: Is there a way of making this typestable? 
-    #(it's not really known what kind of data is stored inside a nodeid unless 
-    #one checks the datatype beforehand)
+"""
+```
+value = JUA_Server_readValue(server::JUA_Server, nodeId::JUA_NodeId, type = Any)
+```
+
+uses the server API to read the value of `nodeId` from `server`. Output is 
+automatically converted to a Julia type (such as Float64, String, Vector{String}, 
+etc.) if possible. Otherwise, open62541 composite types are returned.
+
+Note: Since it is unknown what type of value is stored within `nodeId` before reading 
+it, this function is inherently type unstable. 
+
+Type stability is improved if the optional argument `type` is provided, for example, 
+if you know that you have stored a Matrix{Float64} in `nodeId`. If the wrong type 
+is specified, the function will throw a TypeError.
+
+"""
+function JUA_Server_readValue(server, nodeId, type = Any)
     v = UA_Variant_new()
-    UA_Server_readValue(client, nodeId, v)
-    r = __get_juliavalues_from_variant(v)
+    UA_Server_readValue(server, nodeId, v)
+    r = __get_juliavalues_from_variant(v, type)
     UA_Variant_delete(v)
     return r
+end
+
+"""
+```
+JUA_Server_writeValue(server::JUA_Server, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
+```
+
+uses the server API to write the value `newvalue` to `nodeId` on `server`. 
+
+"""
+function JUA_Server_writeValue(client, nodeId, newvalue)
+    newvariant = UA_Variant_new(newvalue)
+    statuscode = UA_Server_writeValue(client, nodeId, newvariant)
+    UA_Variant_delete(newvariant)
+    return statuscode
 end

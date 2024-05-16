@@ -69,8 +69,8 @@ end
 # Specify client and connect to server after server startup
 client = JUA_Client()
 JUA_ClientConfig_setDefault(JUA_ClientConfig(client))
-max_duration = 40.0 # Maximum waiting time for server startup 
-sleep_time = 2.0 # Sleep time in seconds between each connection trial
+max_duration = 90.0 # Maximum waiting time for server startup 
+sleep_time = 3.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
@@ -90,6 +90,7 @@ for (type_ind, type) in enumerate(types)
     input = input_data[type_ind]
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     output_client = JUA_Client_readValueAttribute(client, varnodeid)
+    @show output_client, input
     if type <: AbstractFloat
         @test all(isapprox.(input, output_client))
     else

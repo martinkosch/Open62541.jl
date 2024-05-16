@@ -107,9 +107,9 @@ for (i, type_name) in enumerate(type_names)
         # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
         """
         ```
-        $($(type_name))_new"()::Ptr{$($(type_name))}
+        $($(type_name))_new()::Ptr{$($(type_name))}
         ```
-        creates and initializes a `$($(type_name))` object whose memory is allocated by C. After use, it needs to be 
+        creates and initializes ("zeros") a `$($(type_name))` object whose memory is allocated by C. After use, it needs to be 
         cleaned up with `$($(type_name))_delete(x::Ptr{$($(type_name))})`
         """
         function $(Symbol(type_name, "_new"))()
@@ -790,64 +790,6 @@ end
 unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
-
-function UA_Variant_new(value::AbstractArray{T, N},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {
-        T <: Union{AbstractFloat, UA_String, Integer,
-            UA_ComplexNumberType, UA_DoubleComplexNumberType},
-        N}
-    var = UA_Variant_new()
-    var.type = type_ptr
-    var.storageType = UA_VARIANT_DATA
-    var.arrayLength = length(value)
-    ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
-    UA_Variant_setArray(var, ua_arr, length(value), type_ptr)
-    var.arrayDimensionsSize = length(size(value))
-    var.arrayDimensions = UA_UInt32_Array_new(reverse(size(value)))
-    return var
-end
-
-function UA_Variant_new(value::T,
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
-    var = UA_Variant_new()
-    var.type = type_ptr
-    var.storageType = UA_VARIANT_DATA
-    UA_Variant_setScalarCopy(var, wrap_ref(value), type_ptr)
-    return var
-end
-
-function UA_Variant_new(value::AbstractString)
-    ua_s = UA_STRING(value)
-    v = UA_Variant_new(ua_s)
-    UA_String_delete(ua_s)
-    return v
-end
-
-function UA_Variant_new(value::Complex{T}) where {T <: Union{Float32, Float64}}
-    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
-    ua_c = f(reim(value)...)
-    v = UA_Variant_new(ua_c)
-    return v
-end
-
-function UA_Variant_new(value::AbstractArray{<:AbstractString})
-    a = similar(value, UA_String)
-    for i in eachindex(a)
-        a[i] = UA_String_fromChars(value[i])
-    end
-    return UA_Variant_new(a)
-end
-
-function UA_Variant_new(value::AbstractArray{<:Complex{T}}) where {T <:
-                                                                   Union{Float32, Float64}}
-    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
-    a = similar(value, f)
-    for i in eachindex(a)
-        a[i] = f(reim(value[i])...)
-    end
-    return UA_Variant_new(a)
-end
 
 function Base.unsafe_wrap(v::UA_Variant)
     type = juliadatatype(v.type)

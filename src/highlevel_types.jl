@@ -29,6 +29,9 @@ function release_handle(obj::JUA_String)
     UA_String_delete(Jpointer(obj))
 end
 
+ua_data_type_ptr_default(::Type{JUA_String}) = ua_data_type_ptr_default(UA_String)
+Base.convert(::Type{UA_String}, x::JUA_String) = unsafe_load(Jpointer(x))
+
 #Guid
 mutable struct JUA_Guid <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Guid}
@@ -67,7 +70,7 @@ creates a `JUA_NodeId` with namespaceIndex = 0, numeric identifierType and
 identifier = 0
 
 ```
-JUA_NodeId(s::Union{AbstractString, JUA_String})
+JUA_NodeId(s::AbstractString)
 ```
 
 creates a `JUA_NodeId` based on String `s` that is parsed into the relevant
@@ -81,7 +84,7 @@ creates a `JUA_NodeId` with namespace index `nsIndex` and numerical identifier
 `identifier`.
 
 ```
-JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString, JUA_String})
+JUA_NodeId(nsIndex::Integer, identifier::AbstractString)
 ```
 
 creates a `JUA_NodeId` with namespace index `nsIndex` and string identifier
@@ -165,17 +168,127 @@ end
 Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpointer(x))
 
 #Variant
+"""
+```
+JUA_Variant
+```
+
+creates a `JUA_Variant` object - the equivalent of a `UA_Variant`, but with memory
+managed by Julia rather than C (exceptions below).
+
+The following methods are defined:
+
+```
+JUA_Variant()
+```
+
+creates an empty `JUA_Variant`, equivalent to calling `UA_Variant_new()`, but 
+with memory managed by Julia. 
+
+```
+JUA_Variant(value::Union{T, AbstractArray{T}}) where T <: Union{UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64})
+```
+
+creates a `JUA_Variant` containing the  based on String `s` that is parsed into the relevant
+properties.
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::Integer)
+```
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and numerical identifier
+`identifier`.
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::Union{AbstractString, JUA_String})
+```
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and string identifier
+`identifier`.
+
+```
+JUA_NodeId(nsIndex::Integer, identifier::JUA_Guid)
+```
+
+creates a `JUA_NodeId` with namespace index `nsIndex` and global unique id identifier
+`identifier`.
+
+Examples:
+
+```
+j = JUA_Variant()
+j = JUA_Variant("I am a string value")
+j = JUA_Variant(["String1", "String2"])
+j = JUA_Variant(rand(Float32, 2, 3, 4))
+j = JUA_Variant(rand(Int32, 2, 2))
+j = JUA_Variant(rand(ComplexF64, 8))
+```
+"""
 mutable struct JUA_Variant <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Variant}
+
     function JUA_Variant()
         obj = new(UA_Variant_new())
         finalizer(release_handle, obj)
         return obj
     end
-    function JUA_Variant(x)
-        obj = new(UA_Variant_new(x))
+
+    function JUA_Variant(value::AbstractArray{T, N},
+            type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {
+            T <: Union{UA_NUMBER_TYPES, UA_String, UA_ComplexNumberType, UA_DoubleComplexNumberType}, N}
+        var = UA_Variant_new()
+        var.type = type_ptr
+        var.storageType = UA_VARIANT_DATA
+        var.arrayLength = length(value)
+        ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
+        UA_Variant_setArray(var, ua_arr, length(value), type_ptr)
+        var.arrayDimensionsSize = length(size(value))
+        var.arrayDimensions = UA_UInt32_Array_new(reverse(size(value)))
+        obj = new(var)
         finalizer(release_handle, obj)
         return obj
+    end
+
+    function JUA_Variant(value::T,
+            type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{UA_NUMBER_TYPES, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
+        var = UA_Variant_new()
+        var.type = type_ptr
+        var.storageType = UA_VARIANT_DATA
+        UA_Variant_setScalarCopy(var, wrap_ref(value), type_ptr)
+        obj = new(var)
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_Variant(value::AbstractString)
+        ua_s = UA_STRING(value)
+        obj = JUA_Variant(ua_s)
+        UA_String_delete(ua_s)
+        return obj
+    end
+
+    function JUA_Variant(value::Complex{T}) where {T <: Union{Float32, Float64}}
+        f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+        ua_c = f(reim(value)...)
+        return JUA_Variant(ua_c)
+    end
+
+    function JUA_Variant(value::AbstractArray{<:AbstractString})
+        a = similar(value, UA_String)
+        for i in eachindex(a)
+            a[i] = UA_String_fromChars(value[i])
+        end
+        return JUA_Variant(a)
+    end
+
+    function JUA_Variant(value::AbstractArray{<:Complex{T}}) where {T <:
+                                                                   Union{Float32, Float64}}
+        f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+        a = similar(value, f)
+        for i in eachindex(a)
+            a[i] = f(reim(value[i])...)
+        end
+        return JUA_Variant(a)
     end
 end
 

@@ -32,21 +32,36 @@ const JUA_Client_disconnect = UA_Client_disconnect
 
 #Client read and write functions
 #TODO: add docstring
-function JUA_Client_readValueAttribute(client, nodeId)
+function JUA_Client_readValueAttribute(client, nodeId, type::T = Any) where {T}
     #TODO: Is there a way of making this typestable? 
     #(it's not really known what kind of data is stored inside a nodeid unless 
     #one checks the datatype beforehand)
     v = UA_Variant_new()
     UA_Client_readValueAttribute(client, nodeId, v)
-    r = __get_juliavalues_from_variant(v)
+    r = __get_juliavalues_from_variant(v, type)
     UA_Variant_delete(v)
     return r
 end
 
-#TODO: add docstring
+"""
+```
+JUA_Client_writeValueAttribute(server::JUA_Client, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
+```
+
+uses the client API to write the value `newvalue` to `nodeId` on `server`. 
+`new_value` must either be a `JUA_Variant` or a Julia value/array compatible with 
+any of its constructors. 
+
+See also [`JUA_Variant`](@ref)
+
+"""
 function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
-    newvariant = UA_Variant_new(newvalue)
+    newvariant = JUA_Variant(newvalue)
     statuscode = UA_Client_writeValueAttribute(client, nodeId, newvariant)
-    UA_Variant_delete(newvariant)
+    return statuscode
+end
+
+function JUA_Client_writeValueAttribute(client, nodeId, newvalue::JUA_Variant)
+    statuscode = UA_Client_writeValueAttribute(client, nodeId, newvariant)
     return statuscode
 end
