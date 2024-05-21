@@ -119,11 +119,3 @@ client = UA_Client_new()
 context = UA_Client_getContext(client)
 @test isa(context, Ptr{Ptr{Nothing}})
 UA_Client_delete(client)
-
-#Random wrapper tests
-j = JUA_Variant()
-@test j isa JUA_Variant
-j2 = JUA_QualifiedName(1, "test")
-ua_s = UA_STRING("test")
-@test unsafe_string(j2.name) == unsafe_string(ua_s) #tests access of properties in high level struct.
-UA_String_delete(ua_s)

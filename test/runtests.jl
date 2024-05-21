@@ -21,6 +21,10 @@ end
     include("basic_types_and_functions.jl")
 end
 
+@safetestset "High level types" begin
+    include("highlevel_types.jl")
+end
+
 @safetestset "Basic data handling" begin
     include("data_handling.jl")
 end

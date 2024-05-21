@@ -44,7 +44,7 @@ for att in attributes_UA_Client_Service
         if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
             #TODO: add docstring
             #TODO: add tests
-            function $(fun_name)(client::Ref{UA_Client}, request::Ptr{$(req_type)})
+            function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
                 response = Ref{$(resp_type)}()
                 statuscode = __UA_Client_Service(client,
                     request,
@@ -58,8 +58,6 @@ for att in attributes_UA_Client_Service
                 end
             end
         end
-        #function fallback that wraps any non-ref arguments into refs:
-        $(fun_name)(client, request) = $(fun_name)(wrap_ref(client), wrap_ref(request))
     end
 end
 
@@ -135,7 +133,7 @@ for nodeclass in instances(UA_NodeClass)
                         UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
             end
-        else
+        elseif funname_sym != :UA_Client_addMethodNode #can't add method node via client.
             @eval begin
                 """
                 ```

@@ -14,12 +14,51 @@ Base.show(io::IO, ::MIME"text/plain", v::AbstractOpen62541Wrapper) = print(io, "
 
 ## Useful basic types
 #String
+"""
+```
+JUA_String
+```
+
+a mutable struct that defines a string type usable with open62541. It is the equivalent 
+of a `UA_String`, but with memory managed by Julia rather than C.
+
+The following constructor methods are defined:
+
+```
+JUA_String()
+```
+
+creates an empty `JUA_String`, equivalent to calling `UA_String_new()`.
+
+```
+JUA_String(s::AbstractString)
+```
+
+creates a `JUA_String` containing the string `s`. 
+
+```
+JUA_String(ptr::Ptr{UA_String})
+```
+
+creates a `JUA_String` based on the pointer `ptr`. This is a fallback 
+method that can be used to pass `UA_Guid`s generated via the low level interface 
+to the higher level functions. Note that memory management remains on the C side 
+when using this method, i.e., `ptr` needs to be manually cleaned up with 
+`UA_String_delete(ptr)` after the object is not needed anymore. It is up 
+to the user to ensure this.
+
+"""
 mutable struct JUA_String <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_String}
+
     function JUA_String(s::AbstractString)
         obj = new(UA_STRING(s))
         finalizer(release_handle, obj)
         return obj
+    end
+
+    function JUA_String(ptr::Ptr{UA_String})
+        return new(ptr)
     end
 end
 
@@ -51,6 +90,17 @@ JUA_Guid(guidstring::AbstractString)
 creates a `JUA_Guid` by parsing the string `guidstring`. The string should be 
 formatted according to the OPC standard defined in Part 6, 5.1.3. 
 
+```
+JUA_Guid(ptr::Ptr{UA_Guid})
+```
+
+creates a `JUA_Guid` based on the pointer `ptr`. This is a fallback 
+method that can be used to pass `UA_Guid`s generated via the low level interface 
+to the higher level functions. Note that memory management remains on the C side 
+when using this method, i.e., `ptr` needs to be manually cleaned up with 
+`UA_Guid_delete(ptr)` after the object is not needed anymore. It is up 
+to the user to ensure this.
+
 """
 mutable struct JUA_Guid <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Guid}
@@ -63,6 +113,10 @@ mutable struct JUA_Guid <: AbstractOpen62541Wrapper
         obj = new(UA_GUID(guidstring))
         finalizer(release_handle, obj)
         return obj
+    end
+    
+    function JUA_Guid(ptr::Ptr{UA_Guid})
+        return new(ptr)
     end
 end
 
@@ -215,6 +269,17 @@ JUA_QualifiedName(nsIndex::Integer, identifier::AbstractString)
 creates a `JUA_QualifiedName` with namespace index `nsIndex` and text identifier 
 `identifier`.  
 
+```
+JUA_QualifiedName(ptr::Ptr{UA_QualifiedName})
+```
+
+creates a `JUA_QualifiedName` based on the pointer `ptr`. This is a fallback 
+method that can be used to pass `UA_QualifiedName`s generated via the low level 
+interface to the higher level functions. Note that memory management remains on 
+the C side when using this method, i.e., `ptr` needs to be manually cleaned up with 
+`UA_QualifiedName_delete(ptr)` after the object is not needed anymore. It is up 
+to the user to ensure this.
+
 """
 mutable struct JUA_QualifiedName <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_QualifiedName}
@@ -228,6 +293,11 @@ mutable struct JUA_QualifiedName <: AbstractOpen62541Wrapper
     function JUA_QualifiedName(nsIndex::Integer, identifier::AbstractString)
         obj = new(UA_QUALIFIEDNAME_ALLOC(nsIndex, identifier))
         finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_QualifiedName(ptr::Ptr{UA_QualifiedName})
+        obj = new(ptr)
         return obj
     end
 end

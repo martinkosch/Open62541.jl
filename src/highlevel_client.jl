@@ -49,8 +49,8 @@ JUA_Client_addNode(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
         outNewNodeId::JUA_NodeId)::UA_StatusCode
 ```
 
-uses the client API to add a Variable, VariableType, or Object node to the server 
-to which the client is connected to.
+uses the client API to add a ObjectType, ReferenceType, DataType or View node 
+to the server to which the client is connected to.
 
 See [`JUA_ObjectTypeAttributes`](@ref), See [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
 """
@@ -82,7 +82,7 @@ for nodeclass in instances(UA_NodeClass)
                         attributes, outNewNodeId)
                 end
             end
-        else
+        elseif funname_sym != :UA_Client_addMethodNode #can't add method node via client.
             @eval begin
                 function JUA_Client_addNode(client, requestedNewNodeId,
                         parentNodeId, referenceTypeId, browseName,
