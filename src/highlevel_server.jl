@@ -76,6 +76,8 @@ JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
 uses the server API to add a ObjectType, ReferenceType, DataType, or View node to the `server`.
 
 See [`JUA_ObjectTypeAttributes`](@ref), See [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
+
+TODO: Need to add docstring for method node addition once I have thought about the interface.
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
@@ -147,11 +149,11 @@ Note: Since it is unknown what type of value is stored within `nodeId` before re
 it, this function is inherently type unstable. 
 
 Type stability is improved if the optional argument `type` is provided, for example, 
-if you know that you have stored a Matrix{Float64} in `nodeId`. If the wrong type 
-is specified, the function will throw a TypeError.
+if you know that you have stored a Matrix{Float64} in `nodeId`, then you should 
+specify this. If the wrong type is specified, the function will throw a TypeError.
 
 """
-function JUA_Server_readValue(server, nodeId, type = Any)
+function JUA_Server_readValue(server, nodeId, type::T = Any) where {T}
     v = UA_Variant_new()
     UA_Server_readValue(server, nodeId, v)
     r = __get_juliavalues_from_variant(v, type)
@@ -165,11 +167,15 @@ JUA_Server_writeValue(server::JUA_Server, nodeId::JUA_NodeId, newvalue)::UA_Stat
 ```
 
 uses the server API to write the value `newvalue` to `nodeId` on `server`. 
+`new_value` must either be a `JUA_Variant` or a Julia value/array compatible with 
+any of its constructors. 
+
+See also [`JUA_Variant`](@ref)
 
 """
-function JUA_Server_writeValue(client, nodeId, newvalue)
+function JUA_Server_writeValue(server, nodeId, newvalue)
     newvariant = UA_Variant_new(newvalue)
-    statuscode = UA_Server_writeValue(client, nodeId, newvariant)
+    statuscode = UA_Server_writeValue(server, nodeId, newvariant)
     UA_Variant_delete(newvariant)
     return statuscode
 end

@@ -112,17 +112,6 @@ for nodeclass in instances(UA_NodeClass)
         if funname_sym == :UA_Client_addVariableNode ||
            funname_sym == :UA_Client_addObjectNode
             @eval begin
-                # emit specific add node functions
-                #TODO: add tests
-                # Untested: UA_Client_addVariableNode   
-                # Untested: UA_Client_addObjectNode       
-                # Untested: UA_Client_addVariableTypeNode 
-                # Untested: UA_Client_addReferenceTypeNode
-                # Untested: UA_Client_addObjectTypeNode   
-                # Untested: UA_Client_addReferenceTypeNode
-                # Untested: UA_Client_addDataTypeNode      
-                # Untested: UA_Client_addMethodNode (does addmethodnode even make sense? There is no possibility to transfer a callback over?!?!)
-                # --> Tests should go into test/client_add_nodes.jl
                 """
                 ```
                 $($(funname_sym))(::Ptr{UA_Client}, requestednewnodeid::Ptr{UA_NodeId}, 
@@ -137,40 +126,13 @@ for nodeclass in instances(UA_NodeClass)
                 See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
                 attributes.
                 """
-                function $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        typeDefinition,
-                        attributes,
+                function $(funname_sym)(client, requestedNewNodeId, parentNodeId, 
+                        referenceTypeId, browseName, typeDefinition, attributes,
                         outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,
-                        typeDefinition, attributes,
-                        UA_TYPES_PTRS[$(attributeptr_sym)],
-                        outNewNodeId)
-                    #higher level function using dispatch
-                    #TODO: add docstring
-                    #TODO: add tests
-                    function JUA_Client_addNode(client,
-                            requestedNewNodeId,
-                            parentNodeId,
-                            referenceTypeId,
-                            browseName,
-                            attributes::Ptr{$(attributetype_sym)},
-                            outNewNodeId,
-                            typeDefinition)
-                        return $(funname_sym)(client,
-                            requestedNewNodeId,
-                            parentNodeId,
-                            referenceTypeId,
-                            browseName,
-                            typeDefinition,
-                            attributes,
-                            outNewNodeId)
-                    end
+                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        browseName, typeDefinition, attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
             end
         else
@@ -189,36 +151,12 @@ for nodeclass in instances(UA_NodeClass)
                 See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
                 attributes.
                 """
-                function $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes,
-                        outNewNodeId)
+                function $(funname_sym)(client, requestedNewNodeId, parentNodeId,
+                        referenceTypeId, browseName, attributes, outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,
-                        UA_NODEID_NULL, attributes,
-                        UA_TYPES_PTRS[$(attributeptr_sym)],
-                        outNewNodeId)
-                end
-
-                #higher level function using dispatch
-                function JUA_Client_addNode(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes::Ptr{$(attributetype_sym)},
-                        outNewNodeId)
-                    return $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes,
-                        outNewNodeId)
+                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        browseName, UA_NODEID_NULL, attributes, 
+                        UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
             end
         end

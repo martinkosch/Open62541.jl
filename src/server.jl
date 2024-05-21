@@ -183,10 +183,6 @@ for att in attributes_UA_Server_write
         ```
         Uses the Server API to write the value `new_val` to the attribute $($(String(attr_name))) 
         of the NodeId `nodeId` located on the `server`. 
-
-        Note that memory for `new_val` is allocated by C before using this function
-        and needs to be cleaned up via `$($(String(att[3])))_delete(new_val::Ptr{$($(String(att[3])))})`    
-        after its use.
         """
         function $(fun_name)(server, nodeId, new_val)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]

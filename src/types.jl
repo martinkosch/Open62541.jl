@@ -377,7 +377,7 @@ UA_NODEID(s::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID(s::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by parsing `s` (which can be a `String` or `Ptr{UA_String}`).
+creates a `UA_NodeId` object by parsing `s`.
 
 Example:
 
@@ -406,7 +406,8 @@ UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
 creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` 
+after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     nodeid = UA_NodeId_new()
@@ -806,7 +807,7 @@ end
 Base.unsafe_wrap(p::Ptr{UA_Variant}) = unsafe_wrap(unsafe_load(p))
 UA_Variant_isEmpty(v::UA_Variant) = v.type == C_NULL
 UA_Variant_isEmpty(p::Ptr{UA_Variant}) = UA_Variant_isEmpty(unsafe_load(p))
-UA_Variant_isScalar(v::UA_Variant) = v.arrayLength == 0 #TODO: this fails when strings are present in the variant, why? && v.data > UA_EMPTY_ARRAY_SENTINEL
+UA_Variant_isScalar(v::UA_Variant) = v.arrayLength == 0 && v.data > UA_EMPTY_ARRAY_SENTINEL
 UA_Variant_isScalar(p::Ptr{UA_Variant}) = UA_Variant_isScalar(unsafe_load(p))
 
 function UA_Variant_hasScalarType(v::UA_Variant, type::Ref{UA_DataType})

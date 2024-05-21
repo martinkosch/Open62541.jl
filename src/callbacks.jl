@@ -77,7 +77,10 @@ creates a `UA_MethodCallback` that can be attached to a method node using
 `UA_Server_addMethodNode`.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`,   methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
+```f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`, 
+    methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   
+    objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
+    outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},

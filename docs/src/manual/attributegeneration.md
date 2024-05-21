@@ -1,6 +1,8 @@
 # Attribute generation
 
-This page lists docstrings of functions used for convenient attribute generation.
+This page lists docstrings of functions used for the convenient generation of 
+node attribute structures. Their main use is when adding nodes to a server through 
+client API (see [`JUA_Client_addNode`](@ref)) or the server API (see [`JUA_Server_addNode`](@ref)).
 
 Convenience functions that allow setting values for specific attributes:
 
@@ -13,8 +15,19 @@ UA_USERWRITEMASK
 UA_EVENTNOTIFIER
 ```
 
-Generators for attribute blocks:
+High level generators for attribute blocks:
+```@docs
+JUA_VariableAttributes
+JUA_VariableTypeAttributes
+JUA_ObjectAttributes
+JUA_ObjectTypeAttributes
+JUA_MethodAttributes
+JUA_ViewAttributes
+JUA_DataTypeAttributes
+JUA_ReferenceTypeAttributes
+```
 
+Lower level generators for attribute blocks:
 ```@docs
 UA_VariableAttributes_generate
 UA_VariableTypeAttributes_generate

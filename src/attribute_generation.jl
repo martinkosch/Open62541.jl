@@ -392,9 +392,8 @@ how to generate the respective keyword inputs.
 """
 function UA_VariableTypeAttributes_generate(;
         value::Union{
-            AbstractArray{<:Union{
-                AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}},
-            Union{Nothing, AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}} = nothing,
+            AbstractArray{<:Union{UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64}},
+            Union{Nothing, UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64}} = nothing,
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
@@ -560,7 +559,8 @@ UA_MethodAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
-    isabstract::Union{Nothing, Bool} = nothing)::Ptr{UA_MethodAttributes}
+    executable::Union{Nothing, Bool} = nothing,
+    userexecutable::Union{Nothing, Bool} = nothing)::Ptr{UA_MethodAttributes}
 ```
 
 generates a `UA_MethodAttributes` object. Memory for the object is allocated by
