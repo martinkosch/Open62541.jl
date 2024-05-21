@@ -393,18 +393,6 @@ the low level interface to the higher level functions. See also [`UA_VariableAtt
 Note that memory management remains on the C side when using this method, i.e., 
 `ptr` needs to be manually cleaned up with `UA_VariableAttributes_delete(ptr)` 
 after the object is not needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_VariableAttributes(value = "Hello", displayname = "String variable", 
-    description = "This is a variable with a string in it.")
-ptr = UA_VariableAttributes_generate(value = "Hello", displayname = "String variable", 
-    description = "This is a variable with a string in it.")
-j = JUA_VariableAttributes(ptr)
-(... do something with j ...)
-UA_VariableAttributes_delete(ptr)
-```
 """
 mutable struct JUA_VariableAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_VariableAttributes}
@@ -453,18 +441,6 @@ generated via the low level interface to the higher level functions. See also [`
 Note that memory management remains on the C side when using this method, i.e., 
 `ptr` needs to be manually cleaned up with `UA_VariableTypeAttributes_delete(ptr)`  
 after the object is not needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_VariableTypeAttributes(value = [0.0, 0.0], displayname = "2D point type", 
-    description = "This is a variable type representing a 2D point.")
-ptr = UA_VariableTypeAttributes_generate(value = [0.0, 0.0], displayname = "2D point type", 
-    description = "This is a variable type representing a 2D point.")
-j = JUA_VariableTypeAttributes(ptr)
-(... do something with j ...)
-UA_VariableTypeAttributes_delete(ptr)
-```
 """
 mutable struct JUA_VariableTypeAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_VariableTypeAttributes}
@@ -513,18 +489,6 @@ generated via the low level interface to the higher level functions. See also [`
 Note that memory management remains on the C side when using this method, i.e., 
 `ptr` needs to be manually cleaned up with `UA_ObjectAttributes_delete(ptr)` 
 after the object is not needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_ObjectAttributes(displayname = "Pump 1", 
-    description = "This is the first pump.")
-ptr = UA_ObjectAttributes_generate(displayname = "Pump 1", 
-description = "This is the first pump.")
-j = JUA_ObjectAttributes(ptr)
-(... do something with j ...)
-UA_ObjectAttributes_delete(ptr)
-```
 """
 mutable struct JUA_ObjectAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ObjectAttributes}
@@ -573,18 +537,6 @@ the low level interface to the higher level functions. See also [`UA_ObjectTypeA
 Note that memory management remains on the C side when using this method, i.e., 
 `ptr` needs to be manually cleaned up with `UA_ObjectTypeAttributes_delete(ptr)` 
 after the object is not needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_ObjectTypeAttributes(displayname = "Pump Type", 
-description = "This is an object type for a pump.")
-varattrptr = UA_ObjectTypeAttributes_generate(displayname = "Pump Type", 
-    description = "This is an object type for a pump.")
-j = JUA_ObjectTypeAttributes(ptr)
-(... do something with j ...)
-UA_ObjectTypeAttributes_delete(ptr)
-```
 """
 mutable struct JUA_ObjectTypeAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ObjectTypeAttributes}
@@ -634,18 +586,6 @@ Note that memory management remains on the C side when using this method, i.e.,
 `ptr` needs to be manually cleaned up with 
 `UA_ReferenceTypeAttributes_delete(ptr)`  after the object is not 
 needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_ReferenceTypeAttributes(displayname = "My reference type", 
-    description = "This is my reference type definining a relationship between nodes.")
-varattrptr = UA_ReferenceTypeAttributes_generate(displayname = "My reference type", 
-description = "This is my reference type definining a relationship between nodes.")
-j = JUA_ReferenceTypeAttributes(ptr)
-(... do something with j ...)
-UA_ReferenceTypeAttributes_delete(ptr)
-```
 """
 mutable struct JUA_ReferenceTypeAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ReferenceTypeAttributes}
@@ -695,18 +635,6 @@ Note that memory management remains on the C side when using this method, i.e.,
 `ptr` needs to be manually cleaned up with 
 `UA_DataTypeAttributes_delete(ptr)`  after the object is not 
 needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_DataTypeAttributes(displayname = "my special data type", 
-    description = "This is my special data type with some properties.")
-ptr = UA_DataTypeAttributes_generate(displayname = "my special data type", 
-description = "This is my special data type with some properties.")
-j = JUA_DataTypeAttributes(ptr)
-(... do something with j ...)
-UA_DataTypeAttributes_delete(ptr)
-```
 """
 mutable struct JUA_DataTypeAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_DataTypeAttributes}
@@ -755,18 +683,6 @@ generated via the low level interface to the higher level functions. See also [`
 Note that memory management remains on the C side when using this method, i.e., 
 `ptr` needs to be manually cleaned up with `UA_ViewAttributes_delete(ptr)` after 
 the object is not needed anymore. It is up to the user to ensure this.
-
-Examples:
-
-```
-j = JUA_ViewAttributes(displayname = "View 1", 
-    description = "This is a view showing only certain nodes.")
-varattrptr = UA_ViewAttributes_generate(displayname = "View 1", 
-description = "This is a view showing only certain nodes.")
-j = JUA_ViewAttributes(ptr)
-(... do something with j ...)
-UA_ViewAttributes_delete(ptr)
-```
 """
 mutable struct JUA_ViewAttributes <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_ViewAttributes}
@@ -784,4 +700,52 @@ end
 
 function release_handle(obj::JUA_ViewAttributes)
     UA_ViewAttributes_delete(Jpointer(obj))
+end
+
+#MethodAttributes
+"""
+```
+JUA_MethodAttributes
+```
+
+A mutable struct that defines a `JUA_MethodAttributes` object - the equivalent 
+of a `UA_MethodAttributes`, but with memory managed by Julia rather than C (see 
+below for exceptions) 
+
+The following constructor methods are defined:
+
+```
+JUA_MethodAttributes(; kwargs...)
+```
+
+For valid keyword arguments `kwargs` see [`UA_MethodAttributes_generate`](@ref).
+
+```
+JUA_MethodAttributes(ptr::Ptr{UA_MethodAttributes})
+```
+
+creates a `JUA_MethodAttributes` based on the pointer `ptr`. 
+This is a fallback method that can be used to pass `UA_MethodAttributes`s 
+generated via the low level interface to the higher level functions. See also [`UA_MethodAttributes_generate`](@ref).
+
+Note that memory management remains on the C side when using this method, i.e., 
+`ptr` needs to be manually cleaned up with `UA_MethodAttributes_delete(ptr)` 
+after the object is not needed anymore. It is up to the user to ensure this.
+"""
+mutable struct JUA_MethodAttributes <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_MethodAttributes}
+
+    function JUA_MethodAttributes(; kwargs...)
+        obj = new(UA_MethodAttributes_generate(; kwargs...))
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_MethodAttributes(ptr::Ptr{UA_MethodAttributes})
+        return new(ptr) #no finalizer, see docstring
+    end
+end
+
+function release_handle(obj::JUA_MethodAttributes)
+    UA_MethodAttributes_delete(Jpointer(obj))
 end

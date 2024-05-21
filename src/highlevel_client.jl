@@ -28,10 +28,6 @@ const JUA_Client_connect = UA_Client_connect
 const JUA_Client_disconnect = UA_Client_disconnect
 
 #Add node functions
-JUA_Client_addNode(client, requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,
-                        attributes::$(attributetype_sym_J),
-                        outNewNodeId, typeDefinition)
 """
 ```
 JUA_Client_addNode(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
