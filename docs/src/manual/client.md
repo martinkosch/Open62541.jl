@@ -13,7 +13,6 @@ UA_Client_addObjectTypeNode
 UA_Client_addViewNode
 UA_Client_addReferenceTypeNode
 UA_Client_addDataTypeNode
-UA_Client_addMethodNode
 ```
 
 ## Reading from nodes:
