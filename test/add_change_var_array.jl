@@ -25,12 +25,12 @@ Distributed.@everywhere begin
                                  array_size...) for array_size in array_sizes) 
                                  for type in types)
 
-    # input_data2 = Tuple(Tuple(type != String ? rand(type, array_size) :
-    #                          reshape(
-    #                              [randstring(rand(1:10))
-    #                               for i in 1:prod(array_size)],
-    #                              array_size...) for array_size in array_sizes) 
-    #                              for type in types)
+    input_data2 = Tuple(Tuple(type != String ? rand(type, array_size) :
+                             reshape(
+                                 [randstring(rand(1:10))
+                                  for i in 1:prod(array_size)],
+                                 array_size...) for array_size in array_sizes) 
+                                 for type in types)
     varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable"
                    for type in types, array_size in array_sizes]
 end
@@ -72,18 +72,18 @@ Distributed.@spawnat Distributed.workers()[end] begin
                 @test all(input .== output_server)
             end
 
-            # #do a write-read-write cycle on each node #XXX: This fails, no idea why!?
-            # input2 = input_data2[type_ind][array_size_ind]
-            # ret = JUA_Server_writeValue(server, varnodeid, input2)
-            # @test ret == UA_STATUSCODE_GOOD
-            # output_server2 = JUA_Server_readValue(server, varnodeid)
-            # if type <: AbstractFloat
-            #     @test all(isapprox.(input2, output_server2))
-            # else
-            #     @test all(input2 .== output_server2)
-            # end
-            # ret = JUA_Server_writeValue(server, varnodeid, input)
-            # @test ret == UA_STATUSCODE_GOOD
+            #do a write-read-write cycle on each node
+            input2 = input_data2[type_ind][array_size_ind]
+            ret = JUA_Server_writeValue(server, varnodeid, input2)
+            @test ret == UA_STATUSCODE_GOOD
+            output_server2 = JUA_Server_readValue(server, varnodeid)
+            if type <: AbstractFloat
+                @test all(isapprox.(input2, output_server2))
+            else
+                @test all(input2 .== output_server2)
+            end
+            ret = JUA_Server_writeValue(server, varnodeid, input)
+            @test ret == UA_STATUSCODE_GOOD
         end
     end
 

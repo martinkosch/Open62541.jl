@@ -179,6 +179,6 @@ function JUA_Server_writeValue(server, nodeId, newvalue)
 end
 
 function JUA_Server_writeValue(server, nodeId, newvalue::JUA_Variant)
-    statuscode = UA_Server_writeValue(server, nodeId, newvalue)
+    statuscode = UA_Server_writeValue(server, nodeId, unsafe_load(Jpointer(newvalue))) #Yes, this is black magic; necessary due to how the function is defined in open62541
     return statuscode
 end
