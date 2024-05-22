@@ -40,8 +40,10 @@ ua_s = UA_STRING("test")
 UA_String_delete(ua_s)
 u1 = UA_QUALIFIEDNAME(1, "test")
 j2 = JUA_QualifiedName(u1)
+j3 = JUA_QualifiedName()
 @test j1 isa JUA_QualifiedName
 @test j2 isa JUA_QualifiedName
+@test j3 isa JUA_QualifiedName
 UA_QualifiedName_delete(u1)
 
 #Attributes

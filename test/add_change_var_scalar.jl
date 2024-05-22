@@ -6,8 +6,6 @@
 
 #Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
 
-#TODO: introduce final high level functions
-
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 

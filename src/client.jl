@@ -41,7 +41,7 @@ for att in attributes_UA_Client_Service
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
 
     @eval begin
-        if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
+        if @isdefined $(req_type) # Skip functions that use undefined types
             #TODO: add docstring
             #TODO: add tests
             function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
@@ -51,7 +51,7 @@ for att in attributes_UA_Client_Service
                     UA_TYPES_PTRS[$(req_type_ptr)],
                     response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
-                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD
+                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD #TODO: why is isnothing() here? do some open62541 service methods return nothing??
                     return response[]
                 else
                     throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
@@ -63,7 +63,7 @@ end
 
 #TODO: add docstring
 #TODO: add tests
-function UA_Client_MonitoredItems_setMonitoringMode(client, request)
+function UA_Client_MonitoredItems_setMonitoringMode(client, request) #XXX: this leaks memory?
     response = UA_SetMonitoringModeResponse_new()
     __UA_Client_Service(client,
         request, UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODEREQUEST],

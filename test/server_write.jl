@@ -1,11 +1,8 @@
 # Purpose: This testset checks whether the UA_Server_writeXXXAttribute(...) functions 
 #are usable. This is currently only implemented for nodes of "variable" type. For the attributes
 #contained in such nodes we check whether the respective write function is able to write a correct
-#variable type to the node (TODO: also check that the correct value is actually readable from the 
-#node after writing). For functions not defined for a variable node, we check that they throw the 
+#variable type to the node. For functions not defined for a variable node, we check that they throw the 
 #appropriate exception. 
-
-#TODO: implement other node types, so that we can check the remaining functions.
 
 using open62541
 using Test
