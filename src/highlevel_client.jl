@@ -140,13 +140,10 @@ See also [`JUA_Variant`](@ref)
 """
 function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
     newvariant = JUA_Variant(newvalue)
-    statuscode = UA_Client_writeValueAttribute(client, nodeId, newvariant)
-    return statuscode
+    return JUA_Client_writeValueAttribute(client, nodeId, newvariant)
 end
 
 function JUA_Client_writeValueAttribute(client, nodeId, newvalue::JUA_Variant)
-    statuscode = UA_Client_writeValueAttribute(client, nodeId, newvariant)
+    statuscode = UA_Client_writeValueAttribute(client, nodeId, newvalue)
     return statuscode
 end
-
-

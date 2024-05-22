@@ -173,9 +173,12 @@ any of its constructors.
 See also [`JUA_Variant`](@ref)
 
 """
-function JUA_Server_writeValue(server, nodeId, newvalue)
-    newvariant = UA_Variant_new(newvalue)
-    statuscode = UA_Server_writeValue(server, nodeId, newvariant)
-    UA_Variant_delete(newvariant)
+function JUA_Server_writeValueAttribute(server, nodeId, newvalue)
+    newvariant = JUA_Variant(newvalue)
+    return JUA_Server_writeValueAttribute(server, nodeId, newvariant)
+end
+
+function JUA_Server_writeValueAttribute(server, nodeId, newvalue::JUA_Variant)
+    statuscode = UA_Server_writeValueAttribute(server, nodeId, newvalue)
     return statuscode
 end

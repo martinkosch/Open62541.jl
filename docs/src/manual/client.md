@@ -5,6 +5,7 @@ This page lists docstrings relevant to the client API.
 ## Adding different types of nodes:
 
 ```@docs
+JUA_Client_addNode
 UA_Client_addVariableNode
 UA_Client_addObjectNode 
 UA_Client_addVariableTypeNode

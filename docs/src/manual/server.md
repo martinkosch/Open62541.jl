@@ -4,7 +4,9 @@ This page lists docstrings relevant to the server API.
 
 ## Adding different types of nodes:
 
+
 ```@docs
+JUA_Server_addNode
 UA_Server_addVariableNode
 UA_Server_addObjectNode 
 UA_Server_addVariableTypeNode
