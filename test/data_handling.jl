@@ -40,13 +40,15 @@ id1 = UA_NODEID_NUMERIC(ns, i)
 @test unsafe_load(id1.namespaceIndex) == ns
 @test unsafe_load(id1.identifier.numeric) == i
 @test unsafe_load(id1.identifierType) == UA_NODEIDTYPE_NUMERIC
-UA_NodeId_delete(id1)
 
 id2 = UA_NODEID_STRING_ALLOC(1, "testid")
 @test !UA_NodeId_equal(id1, id2)
 
 id3 = UA_NodeId_new()
 UA_NodeId_copy(id2, id3)
+@test UA_NodeId_equal(id2, id3)
+
+UA_NodeId_delete(id1)
 UA_NodeId_delete(id2)
 UA_NodeId_delete(id3)
 

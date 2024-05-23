@@ -74,17 +74,17 @@ function JUA_Server_getConfig(server::JUA_Server)
 end
 
 #aliasing functions that interact with server and serverconfig
-# const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer
-# const JUA_ServerConfig_setMinimal = UA_ServerConfig_setMinimal
-# const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
-# const JUA_ServerConfig_setBasics = UA_ServerConfig_setBasics
-# const JUA_ServerConfig_addNetworkLayerTCP = UA_ServerConfig_addNetworkLayerTCP
-# const JUA_ServerConfig_addSecurityPolicyNone = UA_ServerConfig_addSecurityPolicyNone
-# const JUA_ServerConfig_addEndpoint = UA_ServerConfig_addEndpoint
-# const JUA_ServerConfig_addAllEndpoints = UA_ServerConfig_addAllEndpoints
-# const JUA_ServerConfig_clean = UA_ServerConfig_clean
-# const JUA_AccessControl_default = UA_AccessControl_default
-# const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
+const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer
+const JUA_ServerConfig_setMinimal = UA_ServerConfig_setMinimal
+const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
+const JUA_ServerConfig_setBasics = UA_ServerConfig_setBasics
+const JUA_ServerConfig_addNetworkLayerTCP = UA_ServerConfig_addNetworkLayerTCP
+const JUA_ServerConfig_addSecurityPolicyNone = UA_ServerConfig_addSecurityPolicyNone
+const JUA_ServerConfig_addEndpoint = UA_ServerConfig_addEndpoint
+const JUA_ServerConfig_addAllEndpoints = UA_ServerConfig_addAllEndpoints
+const JUA_ServerConfig_clean = UA_ServerConfig_clean
+const JUA_AccessControl_default = UA_AccessControl_default
+const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
 
 ## NodeIds
 mutable struct JUA_NodeId <: AbstractOpen62541Wrapper

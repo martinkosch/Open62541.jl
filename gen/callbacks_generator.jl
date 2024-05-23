@@ -1,11 +1,10 @@
 #Takes what's written in file callbacks_base.jl and adds callback generators for 
-#the below AsynRead functions (cannot use @eval and interpolate value into the 
+#the below AsyncRead functions (cannot use @eval and interpolate value into the 
 #@cfunction macro at the same time - or at least I couldn't figure it out)
 
 #change dir
 cd(@__DIR__)
-
-fn = joinpath(@__DIR__, "./gen/callbacks_base.jl")
+fn = "callbacks_base.jl"
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
@@ -39,7 +38,7 @@ const client_async_read_callbacks = [
     ["UA_ClientAsyncReadUserExecutableAttributeCallback", "UA_Boolean", "userexecutable"]
 ]
 
-fn = joinpath(@__DIR__, "./src/callbacks.jl")
+fn = joinpath(@__DIR__, "../src/callbacks.jl")
 f = open(fn, "w")
 addedString = ""
 for cb in client_async_read_callbacks
@@ -61,7 +60,7 @@ The callback will be triggered once the read operation has been carried out.
 ```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
     status::UA_StatusCode, $(attr_name))::$(String(attr_type)))::Nothing```
 \"\"\"\n"
-    addedString = addedString * docstring *
+    global addedString = addedString * docstring *
                   "function $(fun_name)(f)
                       argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
                           $attr_type)

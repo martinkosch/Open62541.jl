@@ -10,50 +10,51 @@ using OffsetArrays
 #change dir
 cd(@__DIR__)
 
+# Load options from generator.toml
+options = load_options(joinpath(@__DIR__, "generator.toml"))
+
+# Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
+# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
+# memory requirement
+# append!(options["general"]["output_ignorelist"], extract_inlined_funcs(headers))
+
+# Add compiler flags
+args = get_default_args()
+push!(args, "-Iheaders")
+push!(args, "-std=c99")
+
 include_dir = joinpath(open62541_jll.artifact_dir, "include") |> normpath
-headers = [
-    include_dir .* "\\open62541\\server.h",
-    # include_dir .* "\\open62541\\config.h",
-    # include_dir .* "\\ms_stdint.h",
-    # include_dir .* "\\open62541\\architecture_definitions.h",
-    # include_dir .* "\\open62541\\win32\\ua_architecture.h",
-    # include_dir .* "\\open62541\\statuscodes.h",
-    # include_dir .* "\\open62541\\nodeids.h",
-    # include_dir .* "\\open62541\\common.h",
-    include_dir .* "\\open62541\\types.h",
-    include_dir .* "\\open62541\\types_generated.h",
-    include_dir .* "\\open62541\\types_generated_handling.h",
-    #include_dir.*"\\open62541\\util.h",
-    # include_dir .* "\\open62541\\plugin\\log.h",
-    # include_dir .* "\\open62541\\plugin\\network.h",
-    # include_dir .* "\\open62541\\plugin\\accesscontrol.h",
-    # include_dir .* "\\open62541\\plugin\\pki.h",
-    # include_dir .* "\\open62541\\plugin\\securitypolicy.h",
-    # include_dir .* "\\open62541\\plugin\\pubsub.h",
-    # include_dir .* "\\ziptree.h",
-    # include_dir .* "\\aa_tree.h",
-    # include_dir .* "\\open62541\\plugin\\nodestore.h",
-    # include_dir .* "\\open62541\\plugin\\historydatabase.h",
-    # include_dir .* "\\open62541\\server_pubsub.h",
-    # include_dir .* "\\open62541\\client.h",
-    # include_dir .* "\\open62541\\client_highlevel.h",
-    # include_dir .* "\\open62541\\client_subscriptions.h",
-    # include_dir .* "\\open62541\\client_highlevel_async.h",
-    # include_dir .* "\\open62541\\plugin\\accesscontrol_default.h",
-    # include_dir .* "\\open62541\\plugin\\pki_default.h",
-    # include_dir .* "\\open62541\\plugin\\log_stdout.h",
-    # include_dir .* "\\open62541\\plugin\\nodestore_default.h",
-    include_dir .* "\\open62541\\server_config_default.h",
-    # include_dir .* "\\open62541\\client_config_default.h",
-    # include_dir .* "\\open62541\\plugin\\securitypolicy_default.h",
-    # include_dir .* "\\open62541\\plugin\\historydata\\history_data_backend.h",
-    # include_dir .* "\\open62541\\plugin\\historydata\\history_data_gathering.h",
-    # include_dir .* "\\open62541\\plugin\\historydata\\history_database_default.h",
-    # include_dir .* "\\open62541\\plugin\\historydata\\history_data_gathering_default.h",
-    # include_dir .* "\\open62541\\plugin\\historydata\\history_data_backend_memory.h",
-    # include_dir .* "\\open62541\\network_tcp.h",
-    # include_dir .* "\\open62541\\architecture_functions.h"
-]
+
+#copy header files to new directory
+Base.Filesystem.cptree(include_dir, "headers", force = true)
+headers = String[]
+for (root, dirs, files) in walkdir("headers")
+    for file in files
+        push!(headers, joinpath(root, file)) # path to files
+    end
+end
+headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h files around...
+
+#comment out two lines in util.h; 
+#these caused errors since open62541_jll is compiled without amalgamation (reason not clear to me)
+fn = joinpath(@__DIR__, "./headers/open62541/util.h")
+f = open(fn, "r")
+util_content = read(f, String)
+close(f)
+orig = "struct UA_ServerConfig;
+typedef struct UA_ServerConfig UA_ServerConfig;"
+new = "//struct UA_ServerConfig;
+    //typedef struct UA_ServerConfig UA_ServerConfig;"
+util_content = replace(util_content, orig => new)
+f = open(fn, "w")
+write(f, util_content)
+close(f)
+
+# Create context
+ctx = create_context(headers, args, options)
+
+# Run generator
+build!(ctx)
 
 function write_generated_defs(generated_defs_dir::String,
         headers,
@@ -131,25 +132,6 @@ function extract_header_data(regex::Regex, headers)
     return all_data
 end
 
-# Load options from generator.toml
-options = load_options(joinpath(@__DIR__, "generator.toml"))
-
-# Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
-# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
-# memory requirement
-# append!(options["general"]["output_ignorelist"], extract_inlined_funcs(headers))
-
-# Add compiler flags
-args = get_default_args()
-push!(args, "-I$include_dir")
-push!(args, "-std=c99")
-
-# Create context
-ctx = create_context(headers, args, options)
-
-# Run generator
-build!(ctx)
-
 fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
@@ -157,16 +139,42 @@ close(f)
 
 #remove inlined functions
 inlined_funcs = extract_inlined_funcs(headers)
-for i in eachindex(inlined_funcs)
+for i in eachindex(inlined_funcs) 
     @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
     data = replace(data, r => "")
-end
+end 
+
+#also remove docstrings of functions that we remove here.
+# for i in eachindex(inlined_funcs) 
+#     @show i
+#     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
+#     data = replace(data, r => "")
+# end 
+
+#automatically generated docstrings aren't really informative; removing them all.
+r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
+data = replace(data, r => "")
+
+#replace a specific function to make data handling more transparent
+orig = "function UA_Guid_random()
+    @ccall libopen62541.UA_Guid_random()::UA_Guid
+end"
+new = "function UA_Guid_random()
+guid_dst = UA_Guid_new()
+guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
+UA_Guid_copy(guid_src, guid_dst)
+return guid_dst
+end"
+data = replace(data, orig=>new)
 
 fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
+
+#delete headers directory
+Base.Filesystem.rm("headers", recursive = true)
 
 @show "loading module"
 include("../src/open62541.jl")
@@ -243,5 +251,9 @@ f = open(fn, "w")
 write(f, new_content)
 close(f)
 
+#also run the callbacks_generator
+include("callbacks_generator.jl")
+
 # automated formatting
-format(joinpath(@__DIR__, ".."))
+format(joinpath(@__DIR__, "../src/open62541.jl"))
+format(joinpath(@__DIR__, "../src/callbacks.jl"))
