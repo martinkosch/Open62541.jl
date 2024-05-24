@@ -41,31 +41,29 @@ for att in attributes_UA_Client_Service
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
 
     @eval begin
-        if @isdefined $(req_type) # Skip functions that use undefined types, e.g. deactivated historizing types
+        if @isdefined $(req_type) # Skip functions that use undefined types
             #TODO: add docstring
             #TODO: add tests
-            function $(fun_name)(client::Ref{UA_Client}, request::Ptr{$(req_type)})
+            function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
                 response = Ref{$(resp_type)}()
                 statuscode = __UA_Client_Service(client,
                     request,
                     UA_TYPES_PTRS[$(req_type_ptr)],
                     response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
-                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD
+                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD #TODO: why is isnothing() here? do some open62541 service methods return nothing??
                     return response[]
                 else
                     throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
                 end
             end
         end
-        #function fallback that wraps any non-ref arguments into refs:
-        $(fun_name)(client, request) = $(fun_name)(wrap_ref(client), wrap_ref(request))
     end
 end
 
 #TODO: add docstring
 #TODO: add tests
-function UA_Client_MonitoredItems_setMonitoringMode(client, request)
+function UA_Client_MonitoredItems_setMonitoringMode(client, request) #XXX: this leaks memory?
     response = UA_SetMonitoringModeResponse_new()
     __UA_Client_Service(client,
         request, UA_TYPES_PTRS[UA_TYPES_SETMONITORINGMODEREQUEST],
@@ -112,88 +110,51 @@ for nodeclass in instances(UA_NodeClass)
         if funname_sym == :UA_Client_addVariableNode ||
            funname_sym == :UA_Client_addObjectNode
             @eval begin
-                # emit specific add node functions
-                # original function signatures are the following, note difference in number of arguments.
-                # UA_Client_addVariableNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId)
-                # UA_Client_addObjectNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, *outNewNodeId) 
-                # UA_Client_addVariableTypeNode (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
-                # UA_Client_addObjectTypeNode   (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addViewNode         (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addReferenceTypeNode(*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
-                # UA_Client_addDataTypeNode     (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId) 
-                # UA_Client_addMethodNode       (*client, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, attr, *outNewNodeId)
+                """
+                ```
+                $($(funname_sym))(::Ptr{UA_Client}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, typedefinition::Ptr{UA_NodeId},
+                        attr::Ptr{$($(attributetype_sym))}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
 
-                #TODO: add docstring
-                #TODO: add tests
-                function $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        typeDefinition,
-                        attributes,
+                uses the client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                node to the `client`.
+
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
+                attributes.
+                """
+                function $(funname_sym)(client, requestedNewNodeId, parentNodeId, 
+                        referenceTypeId, browseName, typeDefinition, attributes,
                         outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,
-                        typeDefinition, attributes,
-                        UA_TYPES_PTRS[$(attributeptr_sym)],
-                        outNewNodeId)
-                    #higher level function using dispatch
-                    #TODO: add docstring
-                    #TODO: add tests
-                    function JUA_Client_addNode(client,
-                            requestedNewNodeId,
-                            parentNodeId,
-                            referenceTypeId,
-                            browseName,
-                            attributes::Ptr{$(attributetype_sym)},
-                            outNewNodeId,
-                            typeDefinition)
-                        return $(funname_sym)(client,
-                            requestedNewNodeId,
-                            parentNodeId,
-                            referenceTypeId,
-                            browseName,
-                            typeDefinition,
-                            attributes,
-                            outNewNodeId)
-                    end
+                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        browseName, typeDefinition, attributes,
+                        UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
             end
-        else
+        elseif funname_sym != :UA_Client_addMethodNode #can't add method node via client.
             @eval begin
-                function $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes,
-                        outNewNodeId)
-                    return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,
-                        UA_NODEID_NULL, attributes,
-                        UA_TYPES_PTRS[$(attributeptr_sym)],
-                        outNewNodeId)
-                end
+                """
+                ```
+                $($(funname_sym))(::Ptr{UA_Client}, requestednewnodeid::Ptr{UA_NodeId}, 
+                        parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
+                        browseName::Ptr{UA_QualifiedName}, attr::Ptr{$($(attributetype_sym))}, 
+                        outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
+                ```
 
-                #higher level function using dispatch
-                function JUA_Client_addNode(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes::Ptr{$(attributetype_sym)},
-                        outNewNodeId)
-                    return $(funname_sym)(client,
-                        requestedNewNodeId,
-                        parentNodeId,
-                        referenceTypeId,
-                        browseName,
-                        attributes,
-                        outNewNodeId)
+                uses the client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                node to the `client`.
+
+                See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
+                attributes.
+                """
+                function $(funname_sym)(client, requestedNewNodeId, parentNodeId,
+                        referenceTypeId, browseName, attributes, outNewNodeId)
+                    return __UA_Client_addNode(client, $(nodeclass_sym),
+                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        browseName, UA_NODEID_NULL, attributes, 
+                        UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
             end
         end
@@ -209,18 +170,15 @@ for att in attributes_UA_Client_read
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
 
     @eval begin
-        #TODO: check whether function signature is correct here; decision on whether carrying wrap-ref signature is desirable.
         """
         ```
-        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
-                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
-                       out::Ptr{$($(att[3]))} = $($(String(returnobject)))())
+        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, out::Ptr{$($(att[3]))})
         ```
 
         Uses the UA Client API to read the value of attribute $($(String(attr_name))) from the NodeId `nodeId` accessed through the client `client`. 
 
         """
-        function $(fun_name)(client, nodeId, out = $returnobject())
+        function $(fun_name)(client, nodeId, out)
             data_type_ptr = UA_TYPES_PTRS[$(ret_type_ptr)]
             statuscode = __UA_Client_readAttribute(client,
                 nodeId,
@@ -228,7 +186,7 @@ for att in attributes_UA_Client_read
                 out,
                 data_type_ptr)
             if statuscode == UA_STATUSCODE_GOOD
-                return out
+                return statuscode
             else
                 action = "Reading"
                 side = "Client"
@@ -255,17 +213,13 @@ for att in attributes_UA_Client_write
     @eval begin
         """
         ```
-        $($(fun_name))(client::Union{Ref{UA_Client}, Ptr{UA_Client}, UA_Client}, 
-                       nodeId::Union{Ref{UA_NodeId}, Ptr{UA_NodeId}, UA_NodeId}, 
-                       new_val::Union{Ref{$($(String(attr_type)))},Ptr{$($(String(attr_type)))}, $($(String(attr_type)))})
+        $($(fun_name))(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, new_val::Ptr{$($(String(attr_type)))})
         ```
 
         Uses the UA Client API to write the value `new_val` to the attribute $($(String(attr_name))) of the NodeId `nodeId` accessed through the client `client`. 
 
         """
-        function $(fun_name)(client::Ref{UA_Client},
-                nodeId::Ref{UA_NodeId},
-                new_attr::Ref{$attr_type})
+        function $(fun_name)(client, nodeId, new_attr)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
             statuscode = __UA_Client_writeAttribute(client,
                 nodeId,
@@ -285,12 +239,6 @@ for att in attributes_UA_Client_write
                     statuscode)
                 throw(err)
             end
-        end
-        #function fallback that wraps any non-ref arguments into refs:
-        function $(fun_name)(client, nodeId, new_attr)
-            return ($fun_name)(wrap_ref(client),
-                wrap_ref(nodeId),
-                wrap_ref(new_attr))
         end
     end
 end
@@ -487,6 +435,7 @@ for att in attributes_UA_Client_write_async
             end
         end
         #function fallback that wraps any non-ref arguments into refs:
+        #TODO: check whether we still need this or whether we have in the meantime managed to organize things well.
         function $(fun_name)(client, nodeId, out, callback, userdata, reqId)
             return $(fun_name)(wrap_ref(client),
                 wrap_ref(nodeId),

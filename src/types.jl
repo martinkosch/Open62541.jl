@@ -24,6 +24,7 @@ end
 
 # ## UA_Array
 # Julia wrapper for C array types
+#TODO: move this to wrappers.jl in the long term; think about interface some more.
 struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     ptr::T
     length::Int64
@@ -64,7 +65,7 @@ end
 function UA_Array_new(v::AbstractArray{T},
         type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T}
     v_typed = convert(Vector{juliadatatype(type_ptr)}, vec(v)) # Implicit check if T can be converted to type_ptr
-    arr_ptr = convert(Ptr{T}, UA_Array_new(length(v), type_ptr))
+    arr_ptr = convert(Ptr{juliadatatype(type_ptr)}, UA_Array_new(length(v), type_ptr))
     GC.@preserve v_typed arr_ptr unsafe_copyto!(arr_ptr, pointer(v_typed), length(v))
     return UA_Array(arr_ptr, length(v))
 end
@@ -97,15 +98,18 @@ for (i, type_name) in enumerate(type_names)
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
         if !(type_names[$(i)] in types_ambiguous_ignorelist)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
+            function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
+                ua_data_type_ptr_default($julia_type)
+            end
             Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
         end
 
         # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
         """
         ```
-        $($(type_name))_new"()::Ptr{$($(type_name))}
+        $($(type_name))_new()::Ptr{$($(type_name))}
         ```
-        creates and initializes a `$($(type_name))` object whose memory is allocated by C. After use, it needs to be 
+        creates and initializes ("zeros") a `$($(type_name))` object whose memory is allocated by C. After use, it needs to be 
         cleaned up with `$($(type_name))_delete(x::Ptr{$($(type_name))})`
         """
         function $(Symbol(type_name, "_new"))()
@@ -280,10 +284,21 @@ function UA_STRING(s::AbstractString)
     return UA_STRING_ALLOC(s)
 end
 
-#TODO: think whether this can be cleaned up further
-Base.unsafe_string(s::UA_String) = unsafe_string(s.data, s.length)
-Base.unsafe_string(s::Ref{UA_String}) = unsafe_string(s[])
-Base.unsafe_string(s::Ptr{UA_String}) = unsafe_string(unsafe_load(s))
+function Base.unsafe_string(s::UA_String)
+    if s.length == 0 #catch NullString
+        u = ""
+    else
+        u = unsafe_string(s.data, s.length)
+    end
+    return u
+end
+Base.unsafe_string(s::Ptr{UA_String}) = Base.unsafe_string(unsafe_load(s))
+
+#adapt base complex method for interoperability between ua complex numbers and julia complex numbers
+function Base.complex(x::T) where {T <:
+                                   Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}}
+    Complex(x.real, x.imaginary)
+end
 
 ## UA_BYTESTRING
 """
@@ -362,7 +377,7 @@ UA_NODEID(s::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID(s::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by parsing `s` (which can be a string or UA_String).
+creates a `UA_NodeId` object by parsing `s`.
 
 Example:
 
@@ -391,7 +406,8 @@ UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
 creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` 
+after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
     nodeid = UA_NodeId_new()
@@ -407,8 +423,11 @@ UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_Nod
 UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and string identifier
+`identifier`.
+
+Memory is allocated by C and needs to be cleaned up using
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -431,8 +450,11 @@ UA_NODEID_STRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_STRING(nsIndex::Integer, identifier::Ptr{UA_String})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier `identifier` (which can be a string or UA_String).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object by with namespace index `nsIndex` and string identifier
+`identifier`.
+
+Memory is allocated by C and needs to be cleaned up using
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_STRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
@@ -445,8 +467,11 @@ UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::AbstractString)::Ptr{UA
 UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring
+identifier `identifier` (which can be a string or UA_ByteString).
+
+Memory is allocated by C and needs to be cleaned up using
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING_ALLOC(nsIndex::Integer, identifier::Ptr{UA_String})
     nodeid = UA_NodeId_new()
@@ -469,8 +494,11 @@ UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeI
 UA_NODEID_BYTESTRING(nsIndex::Integer, identifier::Ptr{UA_ByteString})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring identifier `identifier` (which can be a string or UA_ByteString).
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object with namespace index `nsIndex` and bytestring
+identifier `identifier` (which can be a string or UA_ByteString).
+
+Memory is allocated by C and needs to be cleaned up using
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_BYTESTRING(nsIndex::Integer,
         identifier::Union{AbstractString, Ptr{UA_String}})
@@ -483,9 +511,12 @@ UA_NODEID_GUID(nsIndex::Integer, identifier::AbstractString)::Ptr{UA_NodeId}
 UA_NODEID_GUID(nsIndex::Integer, identifier::Ptr{UA_Guid})::Ptr{UA_NodeId}
 ```
 
-creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier `identifier` based on a globally unique id (`UA_Guid`)
-that can be supplied as a string (which will be parsed) or as a valid `Ptr{UA_Guid}`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
+creates a `UA_NodeId` object by with namespace index `nsIndex` and an identifier
+`identifier` based on a globally unique id (`UA_Guid`) that can be supplied as a
+string (which will be parsed) or as a valid `Ptr{UA_Guid}`.
+
+Memory is allocated by C and needs to be cleaned up using
+`UA_NodeId_delete(x::Ptr{UA_NodeId})` after the object is not used anymore.
 """
 function UA_NODEID_GUID(nsIndex, guid::Ptr{UA_Guid})
     nodeid = UA_NodeId_new()
@@ -514,6 +545,25 @@ function UA_NodeId_equal(n1, n2)
 end
 
 ## ExpandedNodeId
+"""
+```
+UA_EXPANDEDNODEID(s::AbstractString)::Ptr{UA_ExpandedNodeId}
+UA_EXPANDEDNODEID(s::Ptr{UA_String})::Ptr{UA_ExpandedNodeId}
+```
+
+creates a `UA_ExpandedNodeId` object by parsing `s`. Memory is allocated by C and
+needs to be cleaned up using `UA_ExpandedNodeId_delete(x::Ptr{UA_ExpandedNodeId})`
+after the object is not used anymore.
+
+See also: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part6/v105/docs/5.2.2.10)
+
+Example:
+
+```
+UA_EXPANDEDNODEID("svr=1;nsu=http://example.com;i=1234") #generates UA_ExpandedNodeId with numeric identifier
+UA_EXPANDEDNODEID("svr=1;nsu=http://example.com;s=test") #generates UA_ExpandedNodeId with string identifier
+```
+"""
 function UA_EXPANDEDNODEID(s::AbstractString)
     ua_s = UA_STRING(s)
     nodeid = UA_EXPANDEDNODEID(ua_s)
@@ -658,7 +708,6 @@ function UA_ExpandedNodeId_equal(n1, n2)
 end
 
 ## QualifiedName
-
 function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::AbstractString)
     ua_s = UA_STRING(s)
     qn = UA_QUALIFIEDNAME_ALLOC(nsIndex, ua_s)
@@ -743,41 +792,6 @@ unsafe_size(p::Ref{UA_Variant}) = unsafe_size(unsafe_load(p))
 Base.length(v::UA_Variant) = Int(v.arrayLength)
 Base.length(p::Ref{UA_Variant}) = length(unsafe_load(p))
 
-function UA_Variant_new_copy(value::AbstractArray{T, N},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T, N}
-    var = UA_Variant_new()
-    var.type = type_ptr
-    var.storageType = UA_VARIANT_DATA
-    var.arrayLength = length(value)
-    var.arrayDimensionsSize = length(size(value))
-    var.data = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr)
-    var.arrayDimensions = UA_UInt32_Array_new(reverse(size(value)))
-    return var
-end
-
-function UA_Variant_new_copy(value::Ref{T},
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer}}
-    var = UA_Variant_new()
-    var.type = type_ptr
-    var.storageType = UA_VARIANT_DATA
-    var.arrayLength = 0
-    var.arrayDimensionsSize = length(size(value))
-    UA_Variant_setScalarCopy(var, value, type_ptr)
-    var.arrayDimensions = C_NULL
-    return var
-end
-
-function UA_Variant_new_copy(value::T,
-        type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{
-        AbstractFloat, Integer}}
-    return UA_Variant_new_copy(Ref(value), type_ptr)
-end
-
-function UA_Variant_new_copy(value, type_sym::Symbol)
-    UA_Variant_new_copy(value, ua_data_type_ptr(Val(type_sym)))
-end
-
 function Base.unsafe_wrap(v::UA_Variant)
     type = juliadatatype(v.type)
     data = reinterpret(Ptr{type}, v.data)
@@ -790,11 +804,11 @@ function Base.unsafe_wrap(v::UA_Variant)
     end
 end
 
-Base.unsafe_wrap(p::Ref{UA_Variant}) = unsafe_wrap(unsafe_load(p))
+Base.unsafe_wrap(p::Ptr{UA_Variant}) = unsafe_wrap(unsafe_load(p))
 UA_Variant_isEmpty(v::UA_Variant) = v.type == C_NULL
-UA_Variant_isEmpty(p::Ref{UA_Variant}) = UA_Variant_isEmpty(unsafe_load(p))
+UA_Variant_isEmpty(p::Ptr{UA_Variant}) = UA_Variant_isEmpty(unsafe_load(p))
 UA_Variant_isScalar(v::UA_Variant) = v.arrayLength == 0 && v.data > UA_EMPTY_ARRAY_SENTINEL
-UA_Variant_isScalar(p::Ref{UA_Variant}) = UA_Variant_isScalar(unsafe_load(p))
+UA_Variant_isScalar(p::Ptr{UA_Variant}) = UA_Variant_isScalar(unsafe_load(p))
 
 function UA_Variant_hasScalarType(v::UA_Variant, type::Ref{UA_DataType})
     return UA_Variant_isScalar(v) && type == v.type
