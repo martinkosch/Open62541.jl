@@ -72,9 +72,6 @@ UA_Variant_copy(v, v2)
 @test open62541.unsafe_size(v2) == open62541.unsafe_size(v)
 @test open62541.length(v2) == open62541.length(v)
 @test unsafe_wrap(v2) == unsafe_wrap(v)
-UA_Variant_delete(v2)
-UA_Variant_delete(v)
-
 
 # Set an array value
 d = Float64[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
