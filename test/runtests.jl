@@ -21,6 +21,10 @@ end
     include("basic_types_and_functions.jl")
 end
 
+@safetestset "High level types" begin
+    include("highlevel_types.jl")
+end
+
 @safetestset "Basic data handling" begin
     include("data_handling.jl")
 end
@@ -47,6 +51,10 @@ end
 
 @safetestset "Server Add Nodes" begin
     include("server_add_nodes.jl")
+end
+
+@safetestset "Server Add Nodes Highlevel Interface" begin
+    include("server_add_nodes_highlevelinterface.jl")
 end
 
 @safetestset "Memory leaks" begin

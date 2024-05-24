@@ -1,6 +1,14 @@
 ### attribute generation functions
 
 ##generic functions
+"""
+```
+UA_VALUERANK(N::Integer)::Integer
+```
+
+returns the valuerank based on the dimensionality of an array `N`. For special
+cases see here: [Unified Automation Website](https://documentation.unified-automation.com/uasdknet/2.5.7/html/classUnifiedAutomation_1_1UaBase_1_1ValueRanks.html#details)
+"""
 function UA_VALUERANK(N::Integer)
     N == 1 && return UA_VALUERANK_ONE_DIMENSION
     N == 2 && return UA_VALUERANK_TWO_DIMENSIONS
@@ -17,15 +25,11 @@ UA_ACCESSLEVEL(; read = false, write = false, historyread = false,
 
 calculates a `UInt8` number expressing how the value of a variable can be accessed.
 Default is to disallow all operations. The meaning of the keywords is explained
-here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57
+here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
-function UA_ACCESSLEVEL(;
-        read::Bool = false,
-        write::Bool = false,
-        historyread::Bool = false,
-        historywrite::Bool = false,
-        semanticchange::Bool = false,
-        statuswrite::Bool = false,
+function UA_ACCESSLEVEL(; read::Bool = false, write::Bool = false,
+        historyread::Bool = false, historywrite::Bool = false,
+        semanticchange::Bool = false, statuswrite::Bool = false,
         timestampwrite::Bool = false)
     al = UA_Byte(0)
     al = read ? al | UA_ACCESSLEVELMASK_READ : al
@@ -36,6 +40,26 @@ function UA_ACCESSLEVEL(;
     al = statuswrite ? al | UA_ACCESSLEVELMASK_STATUSWRITE : al
     al = timestampwrite ? al | UA_ACCESSLEVELMASK_TIMESTAMPWRITE : al
     return UA_Byte(al)
+end
+
+"""
+```
+UA_USERACCESSLEVEL(; read = false, write = false, historyread = false, 
+        historywrite = false, semanticchange = false, statuswrite = false, 
+        timestampwrite = false)::UInt8
+```
+
+calculates a `UInt8` number expressing how the value of a variable can be accessed.
+Default is to disallow all operations. The meaning of the keywords is explained
+here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
+"""
+function UA_USERACCESSLEVEL(; read::Bool = false, write::Bool = false,
+        historyread::Bool = false, historywrite::Bool = false,
+        semanticchange::Bool = false, statuswrite::Bool = false,
+        timestampwrite::Bool = false)
+    UA_ACCESSLEVEL(; read = read, write = write, historyread = historyread,
+        historywrite = historywrite, semanticchange = semanticchange,
+        statuswrite = statuswrite, timestampwrite = timestampwrite)
 end
 
 """
@@ -56,14 +80,14 @@ The meaning of the keywords is explained here: https://reference.opcfoundation.o
 If the specific node type does not support an attribute, the corresponding keyword
 must be set to false. *This is currently not enforced automatically.*
 """
-function UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
-        browsename = false, containsnoloops = false, datatype = false,
-        description = false, displayname = false, eventnotifier = false,
-        executable = false, historizing = false, inversename = false,
-        isabstract = false, minimumsamplinginterval = false, nodeclass = false,
-        nodeid = false, symmetric = false, useraccesslevel = false,
-        userexecutable = false, userwritemask = false, valuerank = false,
-        writemask = false, valueforvariabletype = false)
+function UA_WRITEMASK(; accesslevel::Bool = false, arraydimensions::Bool = false,
+        browsename::Bool = false, containsnoloops::Bool = false, datatype::Bool = false,
+        description::Bool = false, displayname::Bool = false, eventnotifier::Bool = false,
+        executable::Bool = false, historizing::Bool = false, inversename::Bool = false,
+        isabstract::Bool = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid::Bool = false, symmetric::Bool = false, useraccesslevel::Bool = false,
+        userexecutable::Bool = false, userwritemask::Bool = false, valuerank::Bool = false,
+        writemask::Bool = false, valueforvariabletype::Bool = false)
     wm = UInt32(0)
     wm = accesslevel ? wm | UA_WRITEMASK_ACCESSLEVEL : wm
     wm = arraydimensions ? wm | UA_WRITEMASK_ARRRAYDIMENSIONS : wm #Note: RRR is a typo in open62541, not here.
@@ -90,7 +114,41 @@ function UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
     return wm
 end
 
-const UA_USERWRITEMASK = UA_WRITEMASK
+"""
+```
+UA_USERWRITEMASK(; accesslevel = false, arraydimensions = false,
+        browsename = false, containsnoloops = false, datatype = false,
+        description = false, displayname = false, eventnotifier = false,
+        executable = false, historizing = false, inversename = false,
+        isabstract = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid = false, symmetric = false, useraccesslevel = false, 
+        userexecutable = false, userwritemask = false, valuerank = false,
+        writemask = false, valueforvariabletype = false)::UInt32
+```
+
+calculates a `UInt32` number expressing which attributes of a node are writeable.
+The meaning of the keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60)
+
+If the specific node type does not support an attribute, the corresponding keyword
+must be set to false. *This is currently not enforced automatically.*
+"""
+function UA_USERWRITEMASK(; accesslevel::Bool = false, arraydimensions::Bool = false,
+        browsename::Bool = false, containsnoloops::Bool = false, datatype::Bool = false,
+        description::Bool = false, displayname::Bool = false, eventnotifier::Bool = false,
+        executable::Bool = false, historizing::Bool = false, inversename::Bool = false,
+        isabstract::Bool = false, minimumsamplinginterval = false, nodeclass = false,
+        nodeid::Bool = false, symmetric::Bool = false, useraccesslevel::Bool = false,
+        userexecutable::Bool = false, userwritemask::Bool = false, valuerank::Bool = false,
+        writemask::Bool = false, valueforvariabletype::Bool = false)
+    UA_WRITEMASK(; accesslevel = accesslevel, arraydimensions = arraydimensions,
+        browsename = browsename, containsnoloops = containsnoloops, datatype = datatype,
+        description = description, displayname = displayname, eventnotifier = eventnotifier,
+        executable = executable, historizing = historizing, inversename = inversename,
+        isabstract = isabstract, minimumsamplinginterval = minimumsamplinginterval, nodeclass = nodeclass,
+        nodeid = nodeid, symmetric = symmetric, useraccesslevel = useraccesslevel,
+        userexecutable = userexecutable, userwritemask = userwritemask, valuerank = valuerank,
+        writemask = writemask, valueforvariabletype = valueforvariabletype)
+end
 
 """
 ```
@@ -101,7 +159,7 @@ UA_EVENTNOTIFIER(; subscribetoevent = false, historyread = false,
 calculates a `UInt8` number expressing whether a node can be used to subscribe to
 events and/or read/write historic events.
 
-Meaning of keywords is explained here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59
+Meaning of keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59)
 """
 function UA_EVENTNOTIFIER(;
         subscribetoevent = false,
@@ -137,7 +195,8 @@ function __set_generic_attributes!(attr,
 end
 
 function __set_scalar_attributes!(attr, value::T,
-        valuerank) where {T <: Union{AbstractFloat, Integer}}
+        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String},
+        UA_ComplexNumberType, UA_DoubleComplexNumberType}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     UA_Variant_setScalarCopy(attr.value, wrap_ref(value), type_ptr)
@@ -146,15 +205,44 @@ end
 
 function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
     ua_s = UA_STRING(value)
-    type_ptr = ua_data_type_ptr_default(UA_String)
-    attr.valueRank = valuerank
-    UA_Variant_setScalarCopy(attr.value, ua_s, type_ptr)
+    __set_scalar_attributes!(attr, ua_s, valuerank)
     UA_String_delete(ua_s)
     return nothing
 end
 
+function __set_scalar_attributes!(
+        attr, value::Complex{T}, valuerank) where {T <: Union{Float32, Float64}}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    ua_c = f(reim(value)...)
+    __set_scalar_attributes!(attr, ua_c, valuerank)
+    return nothing
+end
+
+function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, valuerank)
+    a = similar(value, UA_String)
+    for i in eachindex(a)
+        a[i] = UA_String_fromChars(value[i])
+    end
+    __set_array_attributes!(attr, a, valuerank)
+    return nothing
+end
+
+function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}},
+        valuerank) where {T <: Union{Float32, Float64}}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    a = similar(value, f)
+    for i in eachindex(a)
+        a[i] = f(reim(value[i])...)
+    end
+    __set_array_attributes!(attr, a, valuerank)
+    return nothing
+end
+
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
-        valuerank) where {T, N}
+        valuerank) where {
+        T <: Union{AbstractFloat, Integer, UA_String,
+            UA_ComplexNumberType, UA_DoubleComplexNumberType},
+        N}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
     #Note: need array dims twice, once to put into the variant, i.e., attr.value 
@@ -166,10 +254,7 @@ function __set_array_attributes!(attr, value::AbstractArray{T, N},
     attr.arrayDimensions = arraydims_attr
     attr.arrayDimensionsSize = length(arraydims_attr)
     ua_arr = UA_Array_new(vec(permutedims(value, reverse(1:N))), type_ptr) # Allocate new UA_Array from value with C style indexing
-    UA_Variant_setArray(attr.value,
-        ua_arr,
-        length(value),
-        type_ptr)
+    UA_Variant_setArray(attr.value, ua_arr, length(value), type_ptr)
     attr.value.arrayDimensions = arraydims_variant
     attr.value.arrayDimensionsSize = length(arraydims_variant)
     return nothing
@@ -212,7 +297,7 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
         valuerank::Union{Nothing, Integer} = nothing) where
-        {T <: Union{AbstractFloat, Integer, AbstractString}} #TODO: implement array of strings
+        {T <: Union{Complex, AbstractFloat, Integer, AbstractString}}
     attr = __generate_variable_attributes(value, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, valuerank)
@@ -267,6 +352,10 @@ function __generic_variable_attributes(displayname, description, localization,
         end
         if type <: AbstractString
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
+        elseif type == ComplexF64
+            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
+        elseif type == ComplexF32
+            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
         else
             attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
         end
@@ -279,7 +368,7 @@ end
 
 """
 ```
-UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
+UA_VariableTypeAttributes_generate(; value::Union{Nothing, AbstractArray{T}, T} = nothing,
     displayname::AbstractString, description::AbstractString,
     localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
@@ -289,25 +378,28 @@ UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
 ```
 
 generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated
-by C and needs to be cleaned up by calling `UA_VariableAttributes_delete(x)`
+by C and needs to be cleaned up by calling `UA_VariableTypeAttributes_delete(x)`
 after usage.
 
-For keywords given as `nothing`, the respective default value is used, see `UA_VariableAttributes_default[]`.
-If nothing is given for keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR`
-(if `value` is a scalar), or to the dimensionality of the supplied array
-(i.e., `N` for an AbstractArray{T,N}).
+For keywords given as `nothing`, the respective default value is used, see `UA_VariableTypeAttributes_default[]`.
+If a default `value` is specified for the variabletype and nothing is given for
+keyword `valuerank`, then it is either set to `UA_VALUERANK_SCALAR` (if `value`
+is a scalar), or to the dimensionality of the supplied array (i.e., `N` for an
+AbstractArray{T,N}).
 
 See also [`UA_WRITEMASK`](@ref), [`UA_USERWRITEMASK`](@ref) for information on
 how to generate the respective keyword inputs.
 """
-function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T},
+function UA_VariableTypeAttributes_generate(;
+        value::Union{
+            AbstractArray{<:Union{UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64}},
+            Union{Nothing, UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64}} = nothing,
         displayname::AbstractString, description::AbstractString,
         localization::AbstractString = "en-US",
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) where {T <:
-                                                           Union{AbstractFloat, Integer}}
+        isabstract::Union{Nothing, Bool} = nothing)
     attr = __generate_variabletype_attributes(value, displayname, description,
         localization, writemask, userwritemask, valuerank, isabstract)
     return attr
@@ -315,7 +407,8 @@ end
 
 function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T, N}
+        isabstract) where {
+        T <: Union{AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}, N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
@@ -327,13 +420,24 @@ end
 
 function __generate_variabletype_attributes(value::T, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T}
+        isabstract) where {T <: Union{
+        AbstractString, AbstractFloat, Integer, ComplexF32, ComplexF64}}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
     attr = __generic_variabletype_attributes(displayname, description, localization,
         writemask, userwritemask, isabstract, T)
     __set_scalar_attributes!(attr, value, valuerank)
+    return attr
+end
+
+function __generate_variabletype_attributes(value::Nothing, displayname,
+        description, localization, writemask, userwritemask, valuerank, isabstract)
+    attr = __generic_variabletype_attributes(displayname, description, localization,
+        writemask, userwritemask, isabstract, value)
+    if !isnothing(valuerank)
+        attr.valueRank = valuerank
+    end
     return attr
 end
 
@@ -347,7 +451,17 @@ function __generic_variabletype_attributes(displayname, description, localizatio
         if !isnothing(isabstract)
             attr.isAbstract = isabstract
         end
-        attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+        if !isnothing(type)
+            if type <: AbstractString
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
+            elseif type == ComplexF64
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
+            elseif type == ComplexF32
+                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
+            else
+                attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
+            end
+        end
         return attr
     else
         err = AttributeCopyError(statuscode)
@@ -445,7 +559,8 @@ UA_MethodAttributes_generate(; displayname::AbstractString,
     description::AbstractString, localization::AbstractString = "en-US",
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
-    isabstract::Union{Nothing, Bool} = nothing)::Ptr{UA_MethodAttributes}
+    executable::Union{Nothing, Bool} = nothing,
+    userexecutable::Union{Nothing, Bool} = nothing)::Ptr{UA_MethodAttributes}
 ```
 
 generates a `UA_MethodAttributes` object. Memory for the object is allocated by

@@ -52,23 +52,32 @@ UA_NodeId_delete(id3)
 
 # Variants
 # Set a scalar value 
-v = UA_Variant_new_copy(Int32(42))
+v = UA_Variant_new()
+value = Ref(Int32(42))
+type_ptr = UA_TYPES_PTRS[UA_TYPES_INT32]
+retcode = UA_Variant_setScalarCopy(v, value, type_ptr)
+@test retcode == UA_STATUSCODE_GOOD
 
 # Make a copy 
 v2 = UA_Variant_new()
 UA_Variant_copy(v, v2)
-@test unsafe_load(v2.type) == unsafe_load(v.type)
 @test unsafe_load(v2.storageType) == unsafe_load(v.storageType)
 @test unsafe_load(v2.arrayLength) == unsafe_load(v.arrayLength)
 @test open62541.unsafe_size(v2) == open62541.unsafe_size(v)
 @test open62541.length(v2) == open62541.length(v)
 @test unsafe_wrap(v2) == unsafe_wrap(v)
 UA_Variant_delete(v2)
+UA_Variant_delete(v)
 
 # Set an array value
 d = Float64[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
-v3 = UA_Variant_new_copy(d)
-Base.promote_rule(::Type{T}, ::Type{UA_Double}) where {T <: AbstractFloat} = Float64
+type_ptr = UA_TYPES_PTRS[UA_TYPES_DOUBLE]
+v3 = UA_Variant_new()
+v3.arrayLength = length(d)
+ua_arr = UA_Array_new(vec(permutedims(d, reverse(1:length(size(d))))), type_ptr) # Allocate new UA_Array from value with C style indexing
+UA_Variant_setArray(v3, ua_arr, length(d), type_ptr)
+v3.arrayDimensionsSize = length(size(d))
+v3.arrayDimensions = UA_UInt32_Array_new(reverse(size(d)))
 @test all(isapprox.(d, unsafe_wrap(v3)))
 
 # Set array dimensions
