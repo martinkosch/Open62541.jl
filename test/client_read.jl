@@ -113,7 +113,7 @@ for node in nodes
         out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-            @test isa(eval(fun_name)(client, node), Ptr{eval(attr_type)})
+            @test isa(eval(fun_name)(client, node, out2), Ptr{eval(attr_type)})
         else
             @test_throws open62541.AttributeReadWriteError eval(fun_name)(client, node)
         end

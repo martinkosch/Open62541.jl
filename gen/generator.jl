@@ -103,7 +103,7 @@ ctx = create_context(open62541_header, args, options)
 # Run generator
 build!(ctx)
 
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
@@ -116,13 +116,36 @@ for i in eachindex(inlined_funcs)
     data = replace(data, r => "")
 end
 
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+#alternative1: removes docstrings of just the inlined functions
+# for i in eachindex(inlined_funcs) 
+#     @show i
+#     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
+#     data = replace(data, r => "")
+# end 
+
+#alternative2: automatically generated docstrings aren't really informative; removes them ALL.
+r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
+data = replace(data, r => "")
+
+#replace a specific function to make data handling more transparent
+orig = "function UA_Guid_random()
+    @ccall libopen62541.UA_Guid_random()::UA_Guid
+end"
+new = "function UA_Guid_random()
+guid_dst = UA_Guid_new()
+guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
+UA_Guid_copy(guid_src, guid_dst)
+return guid_dst
+end"
+data = replace(data, orig=>new)
+
+fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
 
 @show "loading module"
-include("../src/open62541_new.jl")
+include("../src/open62541.jl")
 
 # Get UA type names
 UA_TYPES = Ref{Ptr{open62541.UA_DataType}}(0)
@@ -156,7 +179,7 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
 
 # Now let's get the epilogue into the open62541.jl filter
 # 1. Read original file content
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 orig_content = replace(orig_content, "end # module" => "")
@@ -169,13 +192,13 @@ epilogue_content = read(f, String)
 close(f)
 
 # 3. Write overall content to the file
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "w")
 write(f, orig_content * "\n" * epilogue_content * "\nend # module")
 close(f)
 
 #remove double new lines on each "const xxx = ..." line
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
@@ -197,4 +220,4 @@ write(f, new_content)
 close(f)
 
 # automated formatting
-format(joinpath(@__DIR__, ".."))
+format(joinpath(@__DIR__, "../src/open62541.jl"))
