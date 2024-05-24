@@ -21,10 +21,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-        4842,
-        C_NULL,
-        0,
-        0)
+        4842, C_NULL,  0, 0)
     @test retval == UA_STATUSCODE_GOOD
 
     # Add variable node containing a scalar to the server
@@ -100,22 +97,29 @@ nodes = (variablenodeid, variabletypenodeid)
 
 #now run through the tests
 for node in nodes
-    nodeclass = unsafe_load(UA_Client_readNodeClassAttribute(client, node))
+    out1 = UA_NodeClass_new()
+    UA_Client_readNodeClassAttribute(client, node, out1)
+    nodeclass = unsafe_load(out1)
     if nodeclass == UA_NODECLASS_VARIABLE
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end #TODO: add more node types once implemented
+    end 
     for att in open62541.attributes_UA_Client_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
+        generator = Symbol(att[3]*"_new")
+        cleaner = Symbol(att[3]*"_delete")
+        out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(client, node), Ptr{eval(attr_type)})
         else
             @test_throws open62541.AttributeReadWriteError eval(fun_name)(client, node)
         end
+        eval(cleaner)(out2)
     end
+    UA_NodeClass_delete(out1)
 end
 
 # Disconnect client
