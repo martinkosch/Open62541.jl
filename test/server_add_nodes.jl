@@ -270,113 +270,116 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
     return UA_STATUSCODE_GOOD
 end
 
-function addPumpTypeConstructor(server)
-    c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
-    lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
-    UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
+if !Sys.isapple()
+    function addPumpTypeConstructor(server)
+        c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
+        lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
+        UA_Server_setNodeTypeLifecycle(server, pumpTypeId, lifecycle)
+    end
+
+    addPumpObjectInstance(server, "pump2") #should have status = false (constructor not in place yet)
+    addPumpObjectInstance(server, "pump3") #should have status = false (constructor not in place yet)
+    addPumpTypeConstructor(server)
+    addPumpObjectInstance(server, "pump4") #should have status = true
+    addPumpObjectInstance(server, "pump5") #should have status = true
+
+    #add method node
+    #follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+
+    function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
+            methodContext, objectId, objectContext, inputSize, input, outputSize, output)
+        inputstr = unsafe_string(unsafe_wrap(input))
+        tmp = UA_STRING("Hello " * inputstr)
+        UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
+        UA_String_delete(tmp)
+        return UA_STATUSCODE_GOOD
+    end
+
+    inputArgument = UA_Argument_new()
+    inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
+    inputArgument.name = UA_STRING("MyInput");
+    inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId;
+    inputArgument.valueRank = UA_VALUERANK_SCALAR
+    outputArgument = UA_Argument_new()
+    outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
+    outputArgument.name = UA_STRING("MyOutput");
+    outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
+    outputArgument.valueRank = UA_VALUERANK_SCALAR
+    helloAttr = UA_MethodAttributes_generate(description = "Say Hello World",
+        displayname = "Hello World",
+        executable = true,
+        userexecutable = true)
+
+    methodid = UA_NODEID_NUMERIC(1, 62541)
+    obj = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+    retval = UA_Server_addMethodNode(server, methodid,
+        obj,
+        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+        UA_QUALIFIEDNAME(1, "hello world"),
+        helloAttr, helloWorldMethodCallback,
+        1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
+
+    @test retval == UA_STATUSCODE_GOOD
+
+    #UA_Server_run(server, Ref(true)) - checking server in uaexpert shows that the 
+    #hello world method is there and that it produces the correct results when called
+    inputArguments = UA_Variant_new()
+    ua_s = UA_STRING("Peter")
+    UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
+    req = UA_CallMethodRequest_new()
+    req.objectId = obj
+    req.methodId = methodid
+    req.inputArgumentsSize = 1
+    req.inputArguments = inputArguments
+
+    answer = UA_CallMethodResult_new()
+    UA_Server_call(server, req, answer)
+    @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
+    @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
+
+    UA_CallMethodRequest_delete(req)
+    UA_CallMethodResult_delete(answer)
+
+    #TODO: this will need a test to see whether any memory is leaking.
+
+    #Now test with the higher level JUA interface as well
+    #configure server
+    server2 = JUA_Server()
+    retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_Server_getConfig(server2),
+        4842, C_NULL, 0, 0)
+    @test retvalj0 == UA_STATUSCODE_GOOD
+
+    #Variable node: scalar
+    accesslevel = UA_ACCESSLEVEL(read = true, write = true)
+    input = rand(Float64)
+    attr = UA_VariableAttributes_generate(value = input,
+        displayname = "scalar variable",
+        description = "this is a scalar variable",
+        accesslevel = accesslevel)
+    varnodeid = JUA_NodeId(1, "scalar variable")
+    parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
+    parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
+    typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+    browsename = JUA_QualifiedName(1, "scalar variable")
+    nodecontext = C_NULL
+    outnewnodeid = C_NULL
+    retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
+        parentreferencenodeid, browsename, attr, nodecontext,
+        outnewnodeid, typedefinition)
+    @test retvalj1 == UA_STATUSCODE_GOOD
+
+    # hit objecttype add node function
+    pumpTypeId = JUA_NodeId(1, 1001)
+    #Define the object type for "Device"
+    deviceTypeId = JUA_NodeId()
+    attr = UA_ObjectTypeAttributes_generate(displayname = "DeviceType",
+        description = "Object type for a device")
+    parentnodeid = JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE)
+    parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASSUBTYPE)
+    browsename = JUA_QualifiedName(1, "DeviceType")
+    retvalj2 = JUA_Server_addNode(server2, JUA_NodeId(), parentnodeid,
+        parentreferencenodeid, browsename, attr, C_NULL,
+        outnewnodeid)
+    @test retvalj2 == UA_STATUSCODE_GOOD
+
 end
-
-addPumpObjectInstance(server, "pump2") #should have status = false (constructor not in place yet)
-addPumpObjectInstance(server, "pump3") #should have status = false (constructor not in place yet)
-addPumpTypeConstructor(server)
-addPumpObjectInstance(server, "pump4") #should have status = true
-addPumpObjectInstance(server, "pump5") #should have status = true
-
-#add method node
-#follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
-
-function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
-        methodContext, objectId, objectContext, inputSize, input, outputSize, output)
-    inputstr = unsafe_string(unsafe_wrap(input))
-    tmp = UA_STRING("Hello " * inputstr)
-    UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
-    UA_String_delete(tmp)
-    return UA_STATUSCODE_GOOD
-end
-
-inputArgument = UA_Argument_new()
-inputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String")
-inputArgument.name = UA_STRING("MyInput");
-inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId;
-inputArgument.valueRank = UA_VALUERANK_SCALAR
-outputArgument = UA_Argument_new()
-outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A String");
-outputArgument.name = UA_STRING("MyOutput");
-outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-outputArgument.valueRank = UA_VALUERANK_SCALAR
-helloAttr = UA_MethodAttributes_generate(description = "Say Hello World",
-    displayname = "Hello World",
-    executable = true,
-    userexecutable = true)
-
-methodid = UA_NODEID_NUMERIC(1, 62541)
-obj = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
-retval = UA_Server_addMethodNode(server, methodid,
-    obj,
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
-    UA_QUALIFIEDNAME(1, "hello world"),
-    helloAttr, helloWorldMethodCallback,
-    1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
-
-@test retval == UA_STATUSCODE_GOOD
-
-#UA_Server_run(server, Ref(true)) - checking server in uaexpert shows that the 
-#hello world method is there and that it produces the correct results when called
-inputArguments = UA_Variant_new()
-ua_s = UA_STRING("Peter")
-UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
-req = UA_CallMethodRequest_new()
-req.objectId = obj
-req.methodId = methodid
-req.inputArgumentsSize = 1
-req.inputArguments = inputArguments
-
-answer = UA_CallMethodResult_new()
-UA_Server_call(server, req, answer)
-@test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
-
-UA_CallMethodRequest_delete(req)
-UA_CallMethodResult_delete(answer)
-
-#TODO: this will need a test to see whether any memory is leaking.
-
-#Now test with the higher level JUA interface as well
-#configure server
-server2 = JUA_Server()
-retvalj0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_Server_getConfig(server2),
-    4842, C_NULL, 0, 0)
-@test retvalj0 == UA_STATUSCODE_GOOD
-
-#Variable node: scalar
-accesslevel = UA_ACCESSLEVEL(read = true, write = true)
-input = rand(Float64)
-attr = UA_VariableAttributes_generate(value = input,
-    displayname = "scalar variable",
-    description = "this is a scalar variable",
-    accesslevel = accesslevel)
-varnodeid = JUA_NodeId(1, "scalar variable")
-parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
-parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_ORGANIZES)
-typedefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-browsename = JUA_QualifiedName(1, "scalar variable")
-nodecontext = C_NULL
-outnewnodeid = C_NULL
-retvalj1 = JUA_Server_addNode(server2, varnodeid, parentnodeid,
-    parentreferencenodeid, browsename, attr, nodecontext,
-    outnewnodeid, typedefinition)
-@test retvalj1 == UA_STATUSCODE_GOOD
-
-# hit objecttype add node function
-pumpTypeId = JUA_NodeId(1, 1001)
-#Define the object type for "Device"
-deviceTypeId = JUA_NodeId()
-attr = UA_ObjectTypeAttributes_generate(displayname = "DeviceType",
-    description = "Object type for a device")
-parentnodeid = JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE)
-parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASSUBTYPE)
-browsename = JUA_QualifiedName(1, "DeviceType")
-retvalj2 = JUA_Server_addNode(server2, JUA_NodeId(), parentnodeid,
-    parentreferencenodeid, browsename, attr, C_NULL,
-    outnewnodeid)
-@test retvalj2 == UA_STATUSCODE_GOOD

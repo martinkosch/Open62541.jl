@@ -173,9 +173,6 @@ f = open(fn, "w")
 write(f, data)
 close(f)
 
-#delete headers directory
-Base.Filesystem.rm("headers", recursive = true)
-
 @show "loading module"
 include("../src/open62541.jl")
 
@@ -257,3 +254,6 @@ include("callbacks_generator.jl")
 # automated formatting
 format(joinpath(@__DIR__, "../src/open62541.jl"))
 format(joinpath(@__DIR__, "../src/callbacks.jl"))
+
+#delete headers directory
+Base.Filesystem.rm("headers", recursive = true)

@@ -15,6 +15,9 @@ const UA_FALSE = false
 const UA_TRUE = true
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
 
+const UINT_PTR = Culonglong
+const SOCKET = UINT_PTR
+
 @cenum aa_cmp::Int32 begin
     AA_CMP_LESS = -1
     AA_CMP_EQ = 0
@@ -119,11 +122,11 @@ struct static_assertion_failed_0
 end
 
 function UA_socket_set_blocking(sockfd)
-    @ccall libopen62541.UA_socket_set_blocking(sockfd::Cint)::Cuint
+    @ccall libopen62541.UA_socket_set_blocking(sockfd::SOCKET)::Cuint
 end
 
 function UA_socket_set_nonblocking(sockfd)
-    @ccall libopen62541.UA_socket_set_nonblocking(sockfd::Cint)::Cuint
+    @ccall libopen62541.UA_socket_set_nonblocking(sockfd::SOCKET)::Cuint
 end
 
 function UA_initialize_architecture_network()
@@ -214,24 +217,24 @@ end
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_531
+struct __JL_Ctag_4864
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_531}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_532}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_533}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4864}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_4865}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_4866}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_531, f::Symbol)
-    r = Ref{__JL_Ctag_531}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_531}, r)
+function Base.getproperty(x::__JL_Ctag_4864, f::Symbol)
+    r = Ref{__JL_Ctag_4864}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4864}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_531}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4864}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -241,7 +244,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
-    f === :content && return Ptr{__JL_Ctag_531}(x + 8)
+    f === :content && return Ptr{__JL_Ctag_4864}(x + 8)
     return getfield(x, f)
 end
 
@@ -331,11 +334,11 @@ const UA_UInt16 = UInt16
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_527
+struct __JL_Ctag_4867
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_527}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4867}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -343,14 +346,14 @@ function Base.getproperty(x::Ptr{__JL_Ctag_527}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_527, f::Symbol)
-    r = Ref{__JL_Ctag_527}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_527}, r)
+function Base.getproperty(x::__JL_Ctag_4867, f::Symbol)
+    r = Ref{__JL_Ctag_4867}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4867}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_527}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4867}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -361,7 +364,7 @@ end
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_527}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_4867}(x + 8)
     return getfield(x, f)
 end
 
@@ -3229,7 +3232,7 @@ mutable struct UA_SecureChannel end
 struct UA_Connection
     state::UA_ConnectionState
     channel::Ptr{UA_SecureChannel}
-    sockfd::Cint
+    sockfd::SOCKET
     openingDate::UA_DateTime
     handle::Ptr{Cvoid}
     getSendBuffer::Ptr{Cvoid}
@@ -3735,25 +3738,25 @@ end
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_528
+struct __JL_Ctag_4859
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_528}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_529}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4859}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_4860}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_530}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_4861}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_528, f::Symbol)
-    r = Ref{__JL_Ctag_528}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_528}, r)
+function Base.getproperty(x::__JL_Ctag_4859, f::Symbol)
+    r = Ref{__JL_Ctag_4859}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4859}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_528}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4859}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -3763,7 +3766,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
-    f === :backend && return Ptr{__JL_Ctag_528}(x + 8)
+    f === :backend && return Ptr{__JL_Ctag_4859}(x + 8)
     return getfield(x, f)
 end
 
@@ -6035,24 +6038,24 @@ struct UA_ReferenceTypeSet
     bits::NTuple{4, UA_UInt32}
 end
 
-struct __JL_Ctag_536
+struct __JL_Ctag_4868
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_536}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4868}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
-    f === :tree && return Ptr{__JL_Ctag_537}(x + 0)
+    f === :tree && return Ptr{__JL_Ctag_4869}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_536, f::Symbol)
-    r = Ref{__JL_Ctag_536}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_536}, r)
+function Base.getproperty(x::__JL_Ctag_4868, f::Symbol)
+    r = Ref{__JL_Ctag_4868}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4868}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_536}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4868}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6061,7 +6064,7 @@ struct UA_NodeReferenceKind
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
-    f === :targets && return Ptr{__JL_Ctag_536}(x + 0)
+    f === :targets && return Ptr{__JL_Ctag_4868}(x + 0)
     f === :targetsSize && return Ptr{Csize_t}(x + 16)
     f === :hasRefTree && return Ptr{UA_Boolean}(x + 24)
     f === :referenceTypeIndex && return Ptr{UA_Byte}(x + 25)
@@ -6177,24 +6180,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_538
+struct __JL_Ctag_4862
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_538}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_539}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4862}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4863}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_538, f::Symbol)
-    r = Ref{__JL_Ctag_538}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_538}, r)
+function Base.getproperty(x::__JL_Ctag_4862, f::Symbol)
+    r = Ref{__JL_Ctag_4862}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4862}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_538}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4862}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6210,7 +6213,7 @@ function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_538}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_4862}(x + 328)
     f === :accessLevel && return Ptr{UA_Byte}(x + 424)
     f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 432)
     f === :historizing && return Ptr{UA_Boolean}(x + 440)
@@ -6229,24 +6232,24 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_534
+struct __JL_Ctag_4870
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_534}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_535}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4870}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4871}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_534, f::Symbol)
-    r = Ref{__JL_Ctag_534}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_534}, r)
+function Base.getproperty(x::__JL_Ctag_4870, f::Symbol)
+    r = Ref{__JL_Ctag_4870}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4870}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_534}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4870}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6262,7 +6265,7 @@ function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 208)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 216)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 320)
-    f === :value && return Ptr{__JL_Ctag_534}(x + 328)
+    f === :value && return Ptr{__JL_Ctag_4870}(x + 328)
     f === :isAbstract && return Ptr{UA_Boolean}(x + 424)
     f === :lifecycle && return Ptr{UA_NodeTypeLifecycle}(x + 432)
     return getfield(x, f)
@@ -6475,150 +6478,150 @@ function UA_HistoryDatabase_default(gathering)
     @ccall libopen62541.UA_HistoryDatabase_default(gathering::UA_HistoryDataGathering)::UA_HistoryDatabase
 end
 
-struct __JL_Ctag_529
+struct __JL_Ctag_4860
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_529}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4860}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_529, f::Symbol)
-    r = Ref{__JL_Ctag_529}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_529}, r)
+function Base.getproperty(x::__JL_Ctag_4860, f::Symbol)
+    r = Ref{__JL_Ctag_4860}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4860}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_529}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4860}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_530
+struct __JL_Ctag_4861
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_530}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4861}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_530, f::Symbol)
-    r = Ref{__JL_Ctag_530}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_530}, r)
+function Base.getproperty(x::__JL_Ctag_4861, f::Symbol)
+    r = Ref{__JL_Ctag_4861}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4861}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_530}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4861}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_532
+struct __JL_Ctag_4863
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_4863}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4863, f::Symbol)
+    r = Ref{__JL_Ctag_4863}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4863}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4863}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_4865
     typeId::UA_NodeId
     body::UA_ByteString
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_532}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4865}, f::Symbol)
     f === :typeId && return Ptr{UA_NodeId}(x + 0)
     f === :body && return Ptr{UA_ByteString}(x + 24)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_532, f::Symbol)
-    r = Ref{__JL_Ctag_532}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_532}, r)
+function Base.getproperty(x::__JL_Ctag_4865, f::Symbol)
+    r = Ref{__JL_Ctag_4865}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4865}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_532}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4865}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_533
+struct __JL_Ctag_4866
     type::Ptr{UA_DataType}
     data::Ptr{Cvoid}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_533}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4866}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_533, f::Symbol)
-    r = Ref{__JL_Ctag_533}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_533}, r)
+function Base.getproperty(x::__JL_Ctag_4866, f::Symbol)
+    r = Ref{__JL_Ctag_4866}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4866}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_533}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4866}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_535
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_535}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_535, f::Symbol)
-    r = Ref{__JL_Ctag_535}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_535}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_535}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_537
+struct __JL_Ctag_4869
     idTreeRoot::Ptr{aa_entry}
     nameTreeRoot::Ptr{aa_entry}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_537}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4869}, f::Symbol)
     f === :idTreeRoot && return Ptr{Ptr{aa_entry}}(x + 0)
     f === :nameTreeRoot && return Ptr{Ptr{aa_entry}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_537, f::Symbol)
-    r = Ref{__JL_Ctag_537}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_537}, r)
+function Base.getproperty(x::__JL_Ctag_4869, f::Symbol)
+    r = Ref{__JL_Ctag_4869}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4869}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_537}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4869}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_539
+struct __JL_Ctag_4871
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_539}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4871}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_539, f::Symbol)
-    r = Ref{__JL_Ctag_539}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_539}, r)
+function Base.getproperty(x::__JL_Ctag_4871, f::Symbol)
+    r = Ref{__JL_Ctag_4871}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4871}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_539}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4871}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6626,7 +6629,7 @@ end
 
 # Skipping MacroDefinition: ZIP_UNUSED __attribute__ ( ( unused ) )
 
-# Skipping MacroDefinition: UA_EXPORT __attribute__ ( ( visibility ( "default" ) ) )
+# Skipping MacroDefinition: UA_EXPORT __attribute__ ( ( dllimport ) )
 
 # Skipping MacroDefinition: UA_INLINE inline
 
@@ -6692,7 +6695,6 @@ const UA_OPEN62541_VERSION = "v1.3.10"
 const UA_LOGLEVEL = 300
 const UA_MULTITHREADING = 100
 const UA_VALGRIND_INTERACTIVE_INTERVAL = 1000
-const _XOPEN_SOURCE = 600
 const UA_NS0ID_BOOLEAN = 1
 const UA_NS0ID_SBYTE = 2
 const UA_NS0ID_BYTE = 3
