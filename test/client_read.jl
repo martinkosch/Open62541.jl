@@ -111,9 +111,8 @@ for node in nodes
         generator = Symbol(att[3]*"_new")
         cleaner = Symbol(att[3]*"_delete")
         out2 = eval(generator)()
-        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-            @test isa(eval(fun_name)(client, node, out2), Ptr{eval(attr_type)})
+        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) || in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+            @test isa(eval(fun_name)(client, node, out2), UA_StatusCode)
         else
             @test_throws open62541.AttributeReadWriteError eval(fun_name)(client, node)
         end

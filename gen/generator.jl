@@ -205,6 +205,7 @@ close(f)
 new_content = replace(orig_content, "\n\nconst" => "\nconst")
 f = open(fn, "w")
 write(f, new_content)
+close(f)
 
 #set compat bound in Projet.toml automatically to version that the generator ran on.
 fn = joinpath(@__DIR__, "../Project.toml")
