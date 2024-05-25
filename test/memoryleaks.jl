@@ -182,3 +182,6 @@ end
 GC.gc()
 mem_end = meminfo_julia()
 @test (mem_end - mem_start) < 50.0
+
+#clean up server
+UA_Server_delete(server)

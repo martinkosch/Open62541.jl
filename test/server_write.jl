@@ -82,3 +82,5 @@ for node in nodes
     end
     UA_NodeClass_delete(out1)
 end
+
+#clean up
