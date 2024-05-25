@@ -68,6 +68,10 @@ end
     include("client_read.jl")
 end
 
+@testset "Client write functions" begin
+    include("client_write.jl")
+end
+
 @testset "Simple Server/Client" begin
     include("simple_server_client.jl")
 end

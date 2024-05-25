@@ -69,12 +69,12 @@ for node in nodes
         generator = Symbol(att[3]*"_new")
         cleaner = Symbol(att[3]*"_delete")
         out2 = eval(generator)()
-        if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
-            if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-               in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-                statuscode1 = eval(fun_read)(server, node, out2) #read
+        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
+            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+            statuscode1 = eval(fun_read)(server, node, out2) #read
+            @test statuscode1 == UA_STATUSCODE_GOOD
+            if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
                 statuscode2 = eval(fun_write)(server, node, out2) #write read value back...
-                @test statuscode1 == UA_STATUSCODE_GOOD
                 @test statuscode2 == UA_STATUSCODE_GOOD
             end
         end
