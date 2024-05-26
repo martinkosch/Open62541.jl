@@ -59,9 +59,9 @@ Distributed.@spawnat Distributed.workers()[end] begin
             browsename = JUA_QualifiedName(1, varnode_ids[type_ind, array_size_ind])
             nodecontext = JUA_NodeId()
             outnewnodeid = JUA_NodeId()
-            retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
+            retval = JUA_Server_addNode(server, varnodeid, parentnodeid,
                 parentreferencenodeid,
-                browsename, typedefinition, attr, nodecontext, outnewnodeid)
+                browsename, attr, nodecontext, outnewnodeid, typedefinition)
             # Test whether adding node to the server worked
             @test retval == UA_STATUSCODE_GOOD
             # Test whether the correct array is within the server (read from server)
