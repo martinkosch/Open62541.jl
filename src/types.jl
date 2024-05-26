@@ -119,7 +119,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_init"(x::Ptr{$($(type_name))})
+        $($(type_name))_init(x::Ptr{$($(type_name))})
         ```
         initializes the object `x`. This is synonymous with zeroing out the allocated memory. 
         """
@@ -133,8 +133,8 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_copy"(src::Ptr{$($(type_name))}, dst::Ptr{$($(type_name))})::UA_STATUSCODE
-        $($(type_name))_copy"(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        $($(type_name))_copy(src::Ptr{$($(type_name))}, dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        $($(type_name))_copy(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
         ```
         Copy the content of the source object `src` to the destination object `dst`. Returns `UA_STATUSCODE_GOOD` or `UA_STATUSCODE_BADOUTOFMEMORY`.
         """

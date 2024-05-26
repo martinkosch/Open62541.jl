@@ -27,7 +27,7 @@ typedefinition1 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 browsename1 = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
 nodecontext1 = C_NULL
 outnewnodeid1 = C_NULL
-retval = UA_Server_addVariableNode(server, varnodeid1, parentnodeid1,
+retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid1,
     parentreferencenodeid1,
     browsename1, typedefinition1, attr1, nodecontext1, outnewnodeid1)
 #test whether adding node to the server worked    

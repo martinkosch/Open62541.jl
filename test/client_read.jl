@@ -28,18 +28,18 @@ Distributed.@spawnat Distributed.workers()[end] begin
     #add a variable node
     accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     input = rand(Float64)
-    attr = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
+    attr1 = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
         description = "this is a scalar variable",
         accesslevel = accesslevel)
-    parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
-    parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
-    typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-    browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
-    nodecontext = C_NULL
-    outnewnodeid = C_NULL
-    retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid,
-        parentreferencenodeid, browsename, typedefinition, attr, nodecontext, 
-        outnewnodeid)
+    parentnodeid1 = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+    parentreferencenodeid1 = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
+    typedefinition1 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+    browsename1 = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
+    nodecontext1 = C_NULL
+    outnewnodeid1 = C_NULL
+    retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid1,
+        parentreferencenodeid1, browsename1, typedefinition1, attr1, nodecontext1, 
+        outnewnodeid1)
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
 
@@ -48,21 +48,35 @@ Distributed.@spawnat Distributed.workers()[end] begin
     accesslevel = UA_ACCESSLEVEL(read = true)
     displayname = "2D point type"
     description = "This is a 2D point type."
-    attr = UA_VariableTypeAttributes_generate(value = input,
+    attr2 = UA_VariableTypeAttributes_generate(value = input,
         displayname = displayname,
         description = description)
-    parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-    parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE)
-    typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-    browsename = UA_QUALIFIEDNAME_ALLOC(1, "2DPoint Type")
-    nodecontext = C_NULL
-    outnewnodeid = C_NULL
-    retval = UA_Server_addVariableTypeNode(server, variabletypenodeid, parentnodeid,
-        parentreferencenodeid, browsename, typedefinition, attr, nodecontext, 
-        outnewnodeid)
+    parentnodeid2 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+    parentreferencenodeid2 = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE)
+    typedefinition2 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+    browsename2 = UA_QUALIFIEDNAME_ALLOC(1, "2DPoint Type")
+    nodecontext2 = C_NULL
+    outnewnodeid2 = C_NULL
+    retval = UA_Server_addVariableTypeNode(server, variabletypenodeid, parentnodeid2,
+        parentreferencenodeid2, browsename2, typedefinition2, attr2, nodecontext2, 
+        outnewnodeid2)
         
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
+
+    #clean up 
+    UA_VariableAttributes_delete(attr1)
+    UA_NodeId_delete(variablenodeid)
+    UA_NodeId_delete(parentnodeid1)
+    UA_NodeId_delete(parentreferencenodeid1)
+    UA_NodeId_delete(typedefinition1)
+    UA_QualifiedName_delete(browsename1)
+    UA_VariableTypeAttributes_delete(attr2)
+    UA_NodeId_delete(variabletypenodeid)
+    UA_NodeId_delete(parentnodeid2)
+    UA_NodeId_delete(parentreferencenodeid2)
+    UA_NodeId_delete(typedefinition2)
+    UA_QualifiedName_delete(browsename2)
 
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
