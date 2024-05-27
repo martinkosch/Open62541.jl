@@ -95,42 +95,40 @@ let trial
     @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
-newVariableIdRequest = UA_NodeId_new()
-newVariableId = UA_NodeId_new()
+newVariableIdRequest = JUA_NodeId()
+newVariableId = JUA_NodeId()
 value = UA_UInt32(50)
 accesslevel = UA_ACCESSLEVEL(read = true)
 description = "NewVariable description"
 displayname = "NewVariable"
-newVariableAttributes = UA_VariableAttributes_generate(value = value,
+newVariableAttributes = JUA_VariableAttributes(value = value,
     accesslevel = accesslevel,
     description = description,
     displayname = displayname)
-retval2 = UA_Client_addVariableNode(client, newVariableIdRequest,
-    UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES), UA_QUALIFIEDNAME(1, "newVariable"),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
-    newVariableAttributes, newVariableId)
+retval2 = JUA_Client_addNode(client, newVariableIdRequest,
+    JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER),
+    JUA_NodeId(0, UA_NS0ID_ORGANIZES), JUA_QualifiedName(1, "newVariable"),
+    newVariableAttributes, newVariableId, JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE))
 @test retval2 == UA_STATUSCODE_GOOD
 
 extNodeId = UA_EXPANDEDNODEID_NUMERIC(0, 0);
 extNodeId.nodeId = newVariableId
-retval3 = UA_Client_addReference(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT), UA_TRUE, UA_STRING_NULL, extNodeId,
+retval3 = UA_Client_addReference(client, JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER),
+    JUA_NodeId(0, UA_NS0ID_HASCOMPONENT), UA_TRUE, UA_STRING_NULL, extNodeId,
     UA_NODECLASS_VARIABLE)
 @test retval3 == UA_STATUSCODE_GOOD
 
-retval4 = UA_Client_deleteReference(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES), UA_TRUE, extNodeId, UA_TRUE)
+retval4 = UA_Client_deleteReference(client, JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER),
+    JUA_NodeId(0, UA_NS0ID_ORGANIZES), UA_TRUE, extNodeId, UA_TRUE)
 @test retval4 == UA_STATUSCODE_GOOD
 
 retval5 = UA_Client_deleteNode(client, newVariableId, UA_TRUE)
 @test retval5 == UA_STATUSCODE_BADUSERACCESSDENIED #disallowed deleting nodes via client above, so should return access denied retcode
 
-#TODO: need to do clean up.
-
-# Disconnect client
+# Disconnect and clean up
 UA_Client_disconnect(client)
 UA_Client_delete(client)
+UA_ExpandedNodeId_delete(extNodeId)
 
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
