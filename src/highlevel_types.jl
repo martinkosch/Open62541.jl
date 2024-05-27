@@ -235,6 +235,8 @@ function release_handle(obj::JUA_NodeId)
     UA_NodeId_delete(Jpointer(obj))
 end
 
+Base.convert(::Type{UA_NodeId}, x::JUA_NodeId) = unsafe_load(Jpointer(x))
+
 """
 ```
 JUA_NodeId_equal(j1::JUA_NodeId, n2::JUA_NodeId)::Bool
