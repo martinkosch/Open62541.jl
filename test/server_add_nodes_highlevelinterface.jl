@@ -298,89 +298,95 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
     return UA_STATUSCODE_GOOD
 end
 
-if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
-    function addPumpTypeConstructor(server, id)
-        c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
-        lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
-        UA_Server_setNodeTypeLifecycle(server, id, lifecycle)
-    end
-
-    r1 = addPumpObjectInstance(server, "pump2", pumpTypeId) #should have status = false (constructor not in place yet)
-    r2 = addPumpObjectInstance(server, "pump3", pumpTypeId) #should have status = false (constructor not in place yet)
-    addPumpTypeConstructor(server, pumpTypeId)
-    r3 = addPumpObjectInstance(server, "pump4", pumpTypeId) #should have status = true
-    r4 = addPumpObjectInstance(server, "pump5", pumpTypeId) #should have status = true
-    @test  r1 == UA_STATUSCODE_GOOD
-    @test  r2 == UA_STATUSCODE_GOOD
-    @test  r3 == UA_STATUSCODE_GOOD
-    @test  r4 == UA_STATUSCODE_GOOD
-    #TODO: should actually check the status value and not just whether adding things went ok.
-
-    #add method node
-    #follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
-
-    function helloWorldMethodCallback(server, sessionId, sessionHandle, methodId,
-            methodContext, objectId, objectContext, inputSize, input, outputSize, output)
-        inputstr = unsafe_string(unsafe_wrap(input))
-        tmp = UA_STRING("Hello " * inputstr)
-        UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
-        UA_String_delete(tmp)
-        return UA_STATUSCODE_GOOD
-    end
-
-    #TODO: code here is not yet part of the high level interface, but a mixture...
-    inputArgument = UA_Argument_new()
-    lt = UA_LOCALIZEDTEXT("en-US", "A String")
-    ua_s = UA_STRING("MyInput")
-    UA_LocalizedText_copy(lt, inputArgument.description)
-    UA_String_copy(ua_s, inputArgument.name)
-    inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-    inputArgument.valueRank = UA_VALUERANK_SCALAR
-    UA_LocalizedText_delete(lt)
-    UA_String_delete(ua_s)
-    
-    outputArgument = UA_Argument_new()
-    lt = UA_LOCALIZEDTEXT("en-US", "A String")
-    ua_s = UA_STRING("MyOutput")
-    UA_LocalizedText_copy(lt, outputArgument.description)
-    UA_String_copy(ua_s, outputArgument.name)
-    UA_LocalizedText_delete(lt)
-    UA_String_delete(ua_s)
-    outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-    outputArgument.valueRank = UA_VALUERANK_SCALAR
-    helloAttr = JUA_MethodAttributes(description = "Say Hello World",
-        displayname = "Hello World",
-        executable = true,
-        userexecutable = true)
-
-    methodid = JUA_NodeId(1, 62541)
-    parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
-    parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
-    browsename = JUA_QualifiedName(1, "hello world")
-    retval = JUA_Server_addNode(server, methodid,
-        parentnodeid, parentreferencenodeid, browsename,
-        helloAttr, helloWorldMethodCallback,
-        1, inputArgument, 1, outputArgument, JUA_NodeId(), JUA_NodeId())
-
-    @test retval == UA_STATUSCODE_GOOD
-
-    inputArguments = UA_Variant_new()
-    ua_s = UA_STRING("Peter")
-    UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
-    req = UA_CallMethodRequest_new()
-    req.objectId = parentnodeid
-    req.methodId = methodid
-    req.inputArgumentsSize = 1
-    req.inputArguments = inputArguments
-
-    answer = UA_CallMethodResult_new()
-    UA_Server_call(server, req, answer)
-    @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-    @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
-
-    #clean up
-    UA_Argument_delete(inputArgument)
-    UA_Argument_delete(outputArgument)
-    UA_CallMethodRequest_delete(req)
-    UA_CallMethodResult_delete(answer)
+function addPumpTypeConstructor(server, id)
+    c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
+    lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
+    UA_Server_setNodeTypeLifecycle(server, id, lifecycle)
 end
+
+r1 = addPumpObjectInstance(server, "pump2", pumpTypeId) #should have status = false (constructor not in place yet)
+r2 = addPumpObjectInstance(server, "pump3", pumpTypeId) #should have status = false (constructor not in place yet)
+addPumpTypeConstructor(server, pumpTypeId)
+r3 = addPumpObjectInstance(server, "pump4", pumpTypeId) #should have status = true
+r4 = addPumpObjectInstance(server, "pump5", pumpTypeId) #should have status = true
+@test  r1 == UA_STATUSCODE_GOOD
+@test  r2 == UA_STATUSCODE_GOOD
+@test  r3 == UA_STATUSCODE_GOOD
+@test  r4 == UA_STATUSCODE_GOOD
+#TODO: should actually check the status value and not just whether adding things went ok.
+
+#add method node
+#follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+
+function helloWorld(server, sessionId, sessionHandle, methodId,
+        methodContext, objectId, objectContext, inputSize, input, outputSize, output)
+    inputstr = unsafe_string(unsafe_wrap(input))
+    tmp = UA_STRING("Hello " * inputstr)
+    UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
+    UA_String_delete(tmp)
+    return UA_STATUSCODE_GOOD
+end
+
+#TODO: code here is not yet part of the high level interface, but a mixture...
+inputArgument = UA_Argument_new()
+lt = UA_LOCALIZEDTEXT("en-US", "A String")
+ua_s = UA_STRING("MyInput")
+UA_LocalizedText_copy(lt, inputArgument.description)
+UA_String_copy(ua_s, inputArgument.name)
+inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
+inputArgument.valueRank = UA_VALUERANK_SCALAR
+UA_LocalizedText_delete(lt)
+UA_String_delete(ua_s)
+
+outputArgument = UA_Argument_new()
+lt = UA_LOCALIZEDTEXT("en-US", "A String")
+ua_s = UA_STRING("MyOutput")
+UA_LocalizedText_copy(lt, outputArgument.description)
+UA_String_copy(ua_s, outputArgument.name)
+UA_LocalizedText_delete(lt)
+UA_String_delete(ua_s)
+outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
+outputArgument.valueRank = UA_VALUERANK_SCALAR
+helloAttr = JUA_MethodAttributes(description = "Say Hello World",
+    displayname = "Hello World",
+    executable = true,
+    userexecutable = true)
+
+methodid = JUA_NodeId(1, 62541)
+parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
+parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
+if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+    helloWorldMethodCallback = UA_MethodCallback_generate(helloWorld)
+else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
+    helloWorldMethodCallback = @cfunction(helloWorld, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+end
+browsename = JUA_QualifiedName(1, "hello world")
+retval = JUA_Server_addNode(server, methodid,
+    parentnodeid, parentreferencenodeid, browsename,
+    helloAttr, helloWorldMethodCallback,
+    1, inputArgument, 1, outputArgument, JUA_NodeId(), JUA_NodeId())
+
+@test retval == UA_STATUSCODE_GOOD
+
+inputArguments = UA_Variant_new()
+ua_s = UA_STRING("Peter")
+UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
+req = UA_CallMethodRequest_new()
+req.objectId = parentnodeid
+req.methodId = methodid
+req.inputArgumentsSize = 1
+req.inputArguments = inputArguments
+
+answer = UA_CallMethodResult_new()
+UA_Server_call(server, req, answer)
+@test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
+@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
+
+#clean up
+UA_Argument_delete(inputArgument)
+UA_Argument_delete(outputArgument)
+UA_CallMethodRequest_delete(req)
+UA_CallMethodResult_delete(answer)

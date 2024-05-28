@@ -32,11 +32,11 @@ const JUA_Client_disconnect = UA_Client_disconnect
 ```
 JUA_Client_addNode(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
         parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName, 
-        attributes::Union{JUA_VariableAttributes, JUA_VariableTypeAttributes, JUA_ObjectAttributes},
+        attributes::Union{JUA_VariableAttributes, JUA_ObjectAttributes},
         outNewNodeId::JUA_NodeId, typeDefinition::JUA_NodeId)::UA_StatusCode
 ```
 
-uses the client API to add a Variable, VariableType, or Object node to the server 
+uses the client API to add a Variable or Object node to the server 
 to which the client is connected to.
 
 See [`JUA_VariableAttributes`](@ref), [`JUA_VariableTypeAttributes`](@ref), and [`JUA_ObjectAttributes`](@ref) 
@@ -45,16 +45,50 @@ on how to define valid attributes.
 ```
 JUA_Client_addNode(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
         parentNodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName,
-        attributes::Union{JUA_ObjectTypeAttributes, JUA_ReferenceTypeAttributes, JUA_DataTypeAttributes, JUA_ViewAttributes},
+        attributes::Union{JUA_VariableTypeAttributes, JUA_ObjectTypeAttributes, 
+        JUA_ReferenceTypeAttributes, JUA_DataTypeAttributes, JUA_ViewAttributes},
         outNewNodeId::JUA_NodeId)::UA_StatusCode
 ```
 
 uses the client API to add a ObjectType, ReferenceType, DataType or View node 
 to the server to which the client is connected to.
 
-See [`JUA_ObjectTypeAttributes`](@ref), See [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
+See [`JUA_VariableTypeAttributes](@ref), [`JUA_ObjectTypeAttributes`](@ref), [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
 """
 function JUA_Client_addNode end 
+
+"""
+```
+JUA_Client_addNode_async(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
+        parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName, 
+        attributes::Union{JUA_VariableAttributes, JUA_ObjectAttributes},
+        outNewNodeId::JUA_NodeId, callback::UA_ClientAsyncAddNodesCallback, 
+        userdata::Ptr{Cvoid}, requestId::UInt32, typeDefinition::JUA_NodeId)::UA_StatusCode
+```
+
+uses the **asynchronous** client API to add a Variable or Object node to the server 
+to which the client is connected to.
+
+See [`JUA_VariableAttributes`](@ref) or [`JUA_ObjectAttributes`](@ref) 
+on how to define valid attributes.
+
+```
+JUA_Client_addNode_async(client::JUA_Client, requestedNewNodeId::JUA_NodeId,
+        parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName, 
+        attributes::Union{JUA_VariableTypeAttributes, JUA_ObjectTypeAttributes, 
+        JUA_ViewAttributes, JUA_ReferenceTypeAttributes, JUA_DataTypeAttributes},
+        outNewNodeId::JUA_NodeId, callback::UA_ClientAsyncAddNodesCallback, 
+        userdata::Ptr{Cvoid}, requestId::UInt32, typeDefinition::JUA_NodeId)::UA_StatusCode
+```
+
+uses the **asynchronous** client API to add a VariableType, ObjectType, ReferenceType, DataType 
+or View node to the server to which the client is connected to.
+
+See [`JUA_VariableTypeAttributes`](@ref), [`JUA_ObjectTypeAttributes`](@ref), 
+[`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), 
+and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
+"""
+function JUA_Client_addNode_async end 
 
 for nodeclass in instances(UA_NodeClass)
     if nodeclass != __UA_NODECLASS_FORCE32BIT && nodeclass != UA_NODECLASS_UNSPECIFIED
@@ -64,6 +98,11 @@ for nodeclass in instances(UA_NodeClass)
             titlecase(string(nodeclass_sym)[14:end]) *
             "Node",
             "type" => "Type"))
+        funname_sym_async = Symbol(replace(
+            "UA_Client_add" *
+            titlecase(string(nodeclass_sym)[14:end]) *
+            "Node",
+            "type" => "Type") * "_async")
         attributeptr_sym = Symbol(uppercase("UA_TYPES_" * string(nodeclass_sym)[14:end] *
                                             "ATTRIBUTES"))
         attributetype_sym_J = Symbol("J"*replace(
@@ -81,6 +120,14 @@ for nodeclass in instances(UA_NodeClass)
                         parentNodeId, referenceTypeId, browseName, typeDefinition,
                         attributes, outNewNodeId)
                 end
+                function JUA_Client_addNode_async(client, 
+                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        browseName, attributes::$(attributetype_sym_J), 
+                        outNewNodeId, callback, userdata, reqId, typeDefinition)
+                return $(funname_sym_async)(client, requestedNewNodeId, parentNodeId,
+                    referenceTypeId, browseName, typeDefinition, attributes,
+                    outNewNodeId, callback, userdata, reqId)
+                end
             end
         elseif funname_sym != :UA_Client_addMethodNode #can't add method node via client.
             @eval begin
@@ -91,6 +138,14 @@ for nodeclass in instances(UA_NodeClass)
                         parentNodeId, referenceTypeId, browseName, attributes,
                         outNewNodeId)
                 end
+                function JUA_Client_addNode_async(client, requestedNewNodeId,
+                    parentNodeId, referenceTypeId, browseName,
+                    attributes::$(attributetype_sym_J), outNewNodeId, 
+                    callback, userdata, reqId)
+                return $(funname_sym_async)(client, requestedNewNodeId,
+                    parentNodeId, referenceTypeId, browseName, attributes,
+                    outNewNodeId, callback, userdata, reqId)
+            end
             end
         end
     end

@@ -234,8 +234,7 @@ end
 UA_ServerCallback_generate(f::Function)
 ```
 
-creates a `UA_ServerCallback` object that can be used in `UA_Server_addTimedCallback`
-or `UA_Server_addRepeatedCallback`.
+creates a `UA_ServerCallback` object.
 
 `f` must be a Julia function with the following signature:
 `f(server::Ptr{UA_Server}, data::Ptr{Cvoid}))::Nothing`
@@ -259,8 +258,7 @@ end
 UA_ClientCallback_generate(f::Function)
 ```
 
-creates a `UA_ClientCallback` object that can be used in `UA_Client_addTimedCallback`
-or `UA_Client_addRepeatedCallback`.
+creates a `UA_ClientCallback` object.
 
 `f` must be a Julia function with the following signature:
 `f(client::Ptr{UA_Client}, data::Ptr{Cvoid}))::Nothing`
@@ -279,22 +277,163 @@ function UA_ClientCallback_generate(f::Function)
     end
 end
 
+
+"""
+```
+UA_ClientAsyncServiceCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncServiceCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, response::Ptr{Cvoid}))::Nothing`
+"""
+function UA_ClientAsyncServiceCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{Cvoid})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{Cvoid}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncReadCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncReadCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, readresponse::Ptr{UA_ReadResponse}))::Nothing`
+"""
+function UA_ClientAsyncReadCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncWriteCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncWriteCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_WriteResponse}))::Nothing`
+"""
+function UA_ClientAsyncWriteCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncBrowseCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncBrowseCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_WriteResponse}))::Nothing`
+"""
+function UA_ClientAsyncBrowseCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncAddNodesCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncAddNodesCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_AddNodesResponse}))::Nothing`
+"""
+function UA_ClientAsyncAddNodesCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncCallCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncCallCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, callresponse::Ptr{UA_CallResponse}))::Nothing`
+"""
+function UA_ClientAsyncCallCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
 #1 # typedef void ( * UA_Server_AsyncOperationNotifyCallback ) ( UA_Server * server )
 #2 # typedef UA_Connection ( * UA_ConnectClientConnection ) ( UA_ConnectionConfig config , UA_String endpointUrl , UA_UInt32 timeout , const UA_Logger * logger )
 #3 # typedef void ( * UA_NodestoreVisitor ) ( void * visitorCtx , const UA_Node * node )
 #4 # typedef UA_StatusCode ( * UA_NodeIteratorCallback ) ( UA_NodeId childId , UA_Boolean isInverse , UA_NodeId referenceTypeId , void * handle )
 #5 # typedef void ( * UA_Server_DataChangeNotificationCallback ) ( UA_Server * server , UA_UInt32 monitoredItemId , void * monitoredItemContext , const UA_NodeId * nodeId , void * nodeContext , UA_UInt32 attributeId , const UA_DataValue * value )
 #6 # typedef void ( * UA_Server_EventNotificationCallback ) ( UA_Server * server , UA_UInt32 monId , void * monContext , size_t nEventFields , const UA_Variant * eventFields )
-#7 # typedef void ( * UA_ClientAsyncServiceCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , void * response )
 #8 # typedef UA_Boolean ( * UA_HistoricalIteratorCallback ) ( UA_Client * client , const UA_NodeId * nodeId , UA_Boolean moreDataAvailable , const UA_ExtensionObject * data , void * callbackContext )
 #9 # typedef void ( * UA_Client_DeleteSubscriptionCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext )
 #10 # typedef void ( * UA_Client_StatusChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_StatusChangeNotification * notification )
 #11 # typedef void ( * UA_Client_DeleteMonitoredItemCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext )
 #12 # typedef void ( * UA_Client_DataChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , UA_DataValue * value )
 #13 # typedef void ( * UA_Client_EventNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , size_t nEventFields , UA_Variant * eventFields )
-#14 # typedef void ( * UA_ClientAsyncReadCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_ReadResponse * rr )
-#15 # typedef void ( * UA_ClientAsyncWriteCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_WriteResponse * wr )
-#16 # typedef void ( * UA_ClientAsyncBrowseCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_BrowseResponse * wr )
 #17 # typedef void ( * UA_ClientAsyncOperationCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , void * result )
 #18 # typedef void ( * UA_ClientAsyncCallCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_CallResponse * cr )
 #19 # typedef void ( * UA_ClientAsyncAddNodesCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_AddNodesResponse * ar )
