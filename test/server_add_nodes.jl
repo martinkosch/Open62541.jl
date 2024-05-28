@@ -431,10 +431,21 @@ function pumpTypeConstructor(server, sessionId, sessionContext,
     return UA_STATUSCODE_GOOD
 end
 
-function addPumpTypeConstructor(server, id)
-    c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
-    lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
-    UA_Server_setNodeTypeLifecycle(server, id, lifecycle)
+@static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+    function addPumpTypeConstructor(server, id)
+        c_pumpTypeConstructor = UA_NodeTypeLifecycleCallback_constructor_generate(pumpTypeConstructor)
+        lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
+        UA_Server_setNodeTypeLifecycle(server, id, lifecycle)
+    end
+else
+    function addPumpTypeConstructor(server, id)
+        c_pumpTypeConstructor = @cfunction(pumpTypeConstructor, UA_StatusCode,
+            (Ptr{UA_Server},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
+                Ptr{Ptr{Cvoid}}))
+        lifecycle = UA_NodeTypeLifecycle(c_pumpTypeConstructor, C_NULL)
+        UA_Server_setNodeTypeLifecycle(server, id, lifecycle)
+    end
 end
 
 r1 = addPumpObjectInstance(server, "pump2", pumpTypeId) #should have status = false (constructor not in place yet)
@@ -488,7 +499,7 @@ helloAttr = UA_MethodAttributes_generate(description = "Say Hello World",
 methodid = UA_NODEID_NUMERIC(1, 62541)
 parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT)
-if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+@static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
     helloWorldMethodCallback = UA_MethodCallback_generate(helloWorld)
 else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
     helloWorldMethodCallback = @cfunction(helloWorld, UA_StatusCode,
