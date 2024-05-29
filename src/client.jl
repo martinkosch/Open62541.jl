@@ -41,8 +41,6 @@ for att in attributes_UA_Client_Service
     resp_del = Symbol(resp_type, "_delete")
     req_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "REQUEST")
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
-    a = isdefined(open62541, req_type)
-    @show req_type, a
     if isdefined(open62541, req_type) # Skip functions that use undefined types
         @eval begin
             #TODO: add tests           
@@ -72,10 +70,10 @@ for att in attributes_UA_Client_Service
                 statuscode = __UA_Client_Service(client, request, 
                     UA_TYPES_PTRS[$(req_type_ptr)], response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
-                if statuscode == UA_STATUSCODE_GOOD
+                if statuscode == UA_STATUSCODE_GOOD || isnothing(statuscode)
                     return response
                 else
-                    throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
+                    throw(ClientServiceRequestError("Service request of type ´($($(req_type))´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
                 end
             end
         end

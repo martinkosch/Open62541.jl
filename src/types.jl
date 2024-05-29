@@ -800,7 +800,11 @@ function Base.unsafe_wrap(v::UA_Variant)
     else
         values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
         values_row_major = reshape(values, unsafe_size(v))
-        return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+        if v.arrayDimensionsSize == 0
+            return values_row_major
+        else 
+            return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+        end
     end
 end
 
