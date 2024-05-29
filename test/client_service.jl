@@ -60,3 +60,15 @@ variant = unsafe_load(response).results.value
 strings = unsafe_string.(unsafe_wrap(variant))
 shouldbe = ["http://opcfoundation.org/UA/", "urn:open62541.server.application"]
 @test all(strings .== shouldbe)
+
+# Disconnect client
+UA_Client_disconnect(client)
+UA_Client_delete(client)
+
+#clean up
+UA_ReadRequest_delete(request)
+UA_ReadResponse_delete(response)
+
+println("Ungracefully kill server process...")
+Distributed.interrupt(Distributed.workers()[end])
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
