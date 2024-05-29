@@ -49,6 +49,10 @@ end
     include("server_write.jl")
 end
 
+@safetestset "Server Monitored Items" begin
+    include("server_monitoreditems.jl")
+end
+
 @safetestset "Server Add Nodes" begin
     include("server_add_nodes.jl")
 end
@@ -73,6 +77,10 @@ end
 end
 
 @testset "Client service functions" begin
+    include("client_service.jl")
+end
+
+@testset "Client subscriptions" begin
     include("client_service.jl")
 end
 

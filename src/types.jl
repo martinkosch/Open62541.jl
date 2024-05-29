@@ -831,6 +831,21 @@ function UA_Variant_hasArrayType(p::Ref{UA_Variant}, type::Ref{UA_DataType})
 end
 
 ## Subscriptions
+"""
+```
+request::Ptr{UA_CreateSubscriptionRequest} = UA_CreateSubscriptionRequest_default()
+```
+
+create a subscription create request to which monitored items can be added 
+subsequently. The subscription properties are set to their default values. 
+
+Note that memory for the response is allocated by C and needs to be cleaned up by
+using `UA_CreateSubscriptionRequest_delete0(request)` after its use.
+
+See also:
+
+[`UA_UA_CreateSubscriptionRequest`](@ref)
+"""
 function UA_CreateSubscriptionRequest_default()
     request = UA_CreateSubscriptionRequest_new()
     UA_CreateSubscriptionRequest_init(request)
@@ -843,6 +858,21 @@ function UA_CreateSubscriptionRequest_default()
     return request
 end
 
+"""
+```
+request::Ptr{UA_MonitoredItemCreateRequest} = UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId})
+```
+
+create a monitored item create request that monitors `nodeId`. The monitored item 
+properties are set to their default values. 
+
+Note that memory for the request is allocated by C and needs to be cleaned up by 
+using `UA_MonitoredItemCreateRequest_delete(request)` after its use.
+
+See also:
+
+[`UA_MonitoredItemCreateRequest`](@ref)
+"""
 function UA_MonitoredItemCreateRequest_default(nodeId)
     request = UA_MonitoredItemCreateRequest_new()
     UA_MonitoredItemCreateRequest_init(request)
@@ -855,6 +885,7 @@ function UA_MonitoredItemCreateRequest_default(nodeId)
     return request
 end
 
+#TODO: add docstring
 function UA_constantTimeEqual(ptr1, ptr2, len)
     a = reinterpret(Ptr{UInt8}, ptr1)
     b = reinterpret(Ptr{UInt8}, ptr2)

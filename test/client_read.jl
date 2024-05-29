@@ -142,5 +142,3 @@ UA_Client_delete(client)
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
 Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
-
-
