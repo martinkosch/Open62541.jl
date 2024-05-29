@@ -37,22 +37,43 @@ for att in attributes_UA_Client_Service
     fun_name = Symbol(att[1])
     req_type = Symbol("UA_", uppercasefirst(att[2]), "Request")
     resp_type = Symbol("UA_", uppercasefirst(att[2]), "Response")
+    resp_gen =  Symbol(resp_type, "_new")
+    resp_del = Symbol(resp_type, "_delete")
     req_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "REQUEST")
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
+    a = isdefined(open62541, req_type)
+    @show req_type, a
+    if isdefined(open62541, req_type) # Skip functions that use undefined types
+        @eval begin
+            #TODO: add tests           
+            """
+            ```
+            response::Ptr{$($resp_type))} = $($(fun_name))(client::Ptr{UA_Client}, request::Ptr{$($resp_type))})
+            ```
 
-    @eval begin
-        if @isdefined $(req_type) # Skip functions that use undefined types
-            #TODO: add docstring
-            #TODO: add tests
-            function $(fun_name)(client::Ptr{UA_Client}, request::Ptr{$(req_type)})
-                response = Ref{$(resp_type)}()
-                statuscode = __UA_Client_Service(client,
-                    request,
-                    UA_TYPES_PTRS[$(req_type_ptr)],
-                    response,
+            Uses the client $($(att[2])) service API to deliver a `response` to a 
+            previously defined `request`. Note that memory for the response is 
+            allocated by C and needs to be cleaned up using 
+            `$($(resp_del))(response)` after its use.
+
+            !!! This is a low-level function within open62541. It is normally 
+            much better and more convenient to use a more specific, high level 
+            function.              
+            
+            See also:
+
+            [`$($resp_type)`](@ref)
+
+            [`$($req_type)`](@ref)
+
+            """
+            function $(fun_name)(client, request)
+                response = $(resp_gen)()
+                statuscode = __UA_Client_Service(client, request, 
+                    UA_TYPES_PTRS[$(req_type_ptr)], response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
-                if isnothing(statuscode) || statuscode == UA_STATUSCODE_GOOD #TODO: why is isnothing() here? do some open62541 service methods return nothing??
-                    return response[]
+                if statuscode == UA_STATUSCODE_GOOD
+                    return response
                 else
                     throw(ClientServiceRequestError("Service request of type ´$(req_type)´ from UA_Client failed with statuscode \"$(UA_StatusCode_name_print(statuscode))\"."))
                 end
