@@ -3,6 +3,7 @@
 
 using open62541
 using Test
+using Pkg.BinaryPlatforms
 
 #configure server
 server = UA_Server_new()
