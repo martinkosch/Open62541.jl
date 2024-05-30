@@ -133,7 +133,7 @@ for node in nodes
     nodeclass = unsafe_load(out1)
     if nodeclass == UA_NODECLASS_VARIABLE
         attributeset = UA_VariableAttributes
-        #can't write certain attributs after node creation, see here: 
+        #can't write certain attributes after node creation, see here: 
         #https://github.com/open62541/open62541/issues/3545
         nonvalidattr = (:NodeId, :NodeClass, :BrowseName, :UserWriteMask, :UserAccessLevel)
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
