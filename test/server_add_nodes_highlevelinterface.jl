@@ -200,11 +200,12 @@ retval9 = JUA_Server_addNode(server, requestedNewNodeid, deviceTypeId,
     referenceTypeId, browseName, mnAttr, nodeContext, manufacturerNameId, typeDefinition)
 @test retval9 == UA_STATUSCODE_GOOD
 
-#TODO: would need to introduce JUA_ExpandedNodeId in highlevel_types.jl before revising this
 #Make the manufacturer name mandatory
+referenceTypeId = JUA_NodeId(0, UA_NS0ID_HASMODELLINGRULE)
+targetId = UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY)
 retval9 = UA_Server_addReference(server, manufacturerNameId,
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE),
-    UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
+    referenceTypeId,
+    targetId, true)
 @test retval9 == UA_STATUSCODE_GOOD
 
 #Add model name

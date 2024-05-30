@@ -162,3 +162,65 @@ j6 = JUA_NodeId(1, guid2)
 @test isa(j5, JUA_NodeId)
 @test isa(j6, JUA_NodeId)
 @test JUA_NodeId_equal(j2, j3)
+
+s = "ns=1;i=1234"
+ua_s = UA_STRING(s)
+jua_s = JUA_String(s)
+s2 = "test"
+ua_s2 = UA_STRING(s)
+jua_s2 = JUA_String(s)
+nod = UA_NODEID_NUMERIC(1, 1234)
+jod = JUA_NodeId(nod)
+guid = UA_Guid_random()
+jguid = JUA_Guid(guid)
+ns_uri = "http://example.com"
+
+j7 = JUA_ExpandedNodeId()
+j8 = JUA_ExpandedNodeId(open62541.Jpointer(j7))
+j9 = JUA_ExpandedNodeId(1, 1234)
+j10 = JUA_ExpandedNodeId(s)
+j11 = JUA_ExpandedNodeId(ua_s)
+j12 = JUA_ExpandedNodeId(jua_s)
+j13 = JUA_ExpandedNodeId(1, s2)
+j14 = JUA_ExpandedNodeId(1, ua_s2)
+j15 = JUA_ExpandedNodeId(1, jua_s2)
+j16 = JUA_ExpandedNodeId(nod)
+j17 = JUA_ExpandedNodeId(jod)
+j18 = JUA_ExpandedNodeId(1, guid)
+j19 = JUA_ExpandedNodeId(1, jguid)
+j20 = JUA_ExpandedNodeId(1234, ns_uri, 1) 
+j21 = JUA_ExpandedNodeId(s2, ns_uri, 1)
+j22 = JUA_ExpandedNodeId(ua_s2, ns_uri, 1)
+j23 = JUA_ExpandedNodeId(jua_s2, ns_uri, 1)
+j24 = JUA_ExpandedNodeId(guid, ns_uri, 1)
+j25 = JUA_ExpandedNodeId(jguid, ns_uri, 1)
+j26 = JUA_ExpandedNodeId(nod, ns_uri, 1)
+j27 = JUA_ExpandedNodeId(jod, ns_uri, 1)
+
+@test j7 isa JUA_ExpandedNodeId
+@test j8 isa JUA_ExpandedNodeId
+@test j9 isa JUA_ExpandedNodeId
+@test j10 isa JUA_ExpandedNodeId
+@test j11 isa JUA_ExpandedNodeId
+@test j12 isa JUA_ExpandedNodeId
+@test j13 isa JUA_ExpandedNodeId
+@test j14 isa JUA_ExpandedNodeId
+@test j15 isa JUA_ExpandedNodeId
+@test j16 isa JUA_ExpandedNodeId
+@test j17 isa JUA_ExpandedNodeId
+@test j18 isa JUA_ExpandedNodeId
+@test j19 isa JUA_ExpandedNodeId
+@test j20 isa JUA_ExpandedNodeId
+@test j21 isa JUA_ExpandedNodeId
+@test j22 isa JUA_ExpandedNodeId
+@test j23 isa JUA_ExpandedNodeId
+@test j24 isa JUA_ExpandedNodeId
+@test j25 isa JUA_ExpandedNodeId
+@test j26 isa JUA_ExpandedNodeId
+@test j27 isa JUA_ExpandedNodeId
+
+#clean up
+UA_String_delete(ua_s)
+UA_String_delete(ua_s2)
+UA_NodeId_delete(nod)
+UA_Guid_delete(guid)
