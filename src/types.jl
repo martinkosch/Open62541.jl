@@ -24,7 +24,7 @@ end
 
 # ## UA_Array
 # Julia wrapper for C array types
-#TODO: move this to wrappers.jl in the long term; think about interface some more.
+#TODO: move this to highlevel_types.jl in the long term; think about interface some more.
 struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     ptr::T
     length::Int64
@@ -876,7 +876,7 @@ See also:
 function UA_MonitoredItemCreateRequest_default(nodeId)
     request = UA_MonitoredItemCreateRequest_new()
     UA_MonitoredItemCreateRequest_init(request)
-    request.itemToMonitor.nodeId = nodeId
+    request.itemToMonitor.nodeId = Jpointer(nodeId)
     request.itemToMonitor.attributeId = UA_ATTRIBUTEID_VALUE
     request.monitoringMode = UA_MONITORINGMODE_REPORTING
     request.requestedParameters.samplingInterval = 250

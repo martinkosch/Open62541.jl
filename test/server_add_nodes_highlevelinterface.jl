@@ -202,7 +202,7 @@ retval9 = JUA_Server_addNode(server, requestedNewNodeid, deviceTypeId,
 
 #Make the manufacturer name mandatory
 referenceTypeId = JUA_NodeId(0, UA_NS0ID_HASMODELLINGRULE)
-targetId = UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY)
+targetId = JUA_ExpandedNodeId(0, UA_NS0ID_MODELLINGRULE_MANDATORY)
 retval9 = UA_Server_addReference(server, manufacturerNameId,
     referenceTypeId,
     targetId, true)
@@ -341,22 +341,18 @@ end
 
 #TODO: code here is not yet part of the high level interface, but a mixture...
 inputArgument = UA_Argument_new()
-lt = UA_LOCALIZEDTEXT("en-US", "A String")
-ua_s = UA_STRING("MyInput")
-UA_LocalizedText_copy(lt, inputArgument.description)
-UA_String_copy(ua_s, inputArgument.name)
+lt = JUA_LocalizedText("en-US", "A String")
+ua_s = JUA_String("MyInput")
+inputArgument.description = lt
+inputArgument.name = ua_s
 inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
 inputArgument.valueRank = UA_VALUERANK_SCALAR
-UA_LocalizedText_delete(lt)
-UA_String_delete(ua_s)
 
 outputArgument = UA_Argument_new()
-lt = UA_LOCALIZEDTEXT("en-US", "A String")
-ua_s = UA_STRING("MyOutput")
-UA_LocalizedText_copy(lt, outputArgument.description)
-UA_String_copy(ua_s, outputArgument.name)
-UA_LocalizedText_delete(lt)
-UA_String_delete(ua_s)
+lt = JUA_LocalizedText("en-US", "A String")
+ua_s = JUA_String("MyOutput")
+outputArgument.description = lt
+outputArgument.name = ua_s
 outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
 outputArgument.valueRank = UA_VALUERANK_SCALAR
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",

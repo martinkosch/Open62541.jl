@@ -12,6 +12,35 @@ function Base.unsafe_convert(::Type{Ptr{T}}, obj::AbstractOpen62541Wrapper) wher
     Base.unsafe_convert(Ptr{T}, Jpointer(obj))
 end
 
+function Base.setproperty!(x::AbstractOpen62541Wrapper, f::Symbol, v)
+    setproperty!(Jpointer(x), f, v)
+end
+
+#Sets a field of JUA_XXX object to a JUA_YYY object, calls the next method, i.e., 
+#will create a copy of the JUA_YYY object. 
+function Base.setproperty!(x::AbstractOpen62541Wrapper, f::Symbol, v::AbstractOpen62541Wrapper)
+    @warn "Attention! Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
+        the $(typeof(v)) being generated. Avoid repeated assignments without finalizing the $(typeof(x))." maxlog = 1
+    setproperty!(Jpointer(x), f, v, true)
+end
+
+#Sets a field of Ptr{UA_XXX} to a JUA_YYY item. 
+#This creates a opy of the object to be assigned, so that the JUA_YYY object 
+#can be safely used multiple times in assignments without getting freed multiple 
+#times.
+for i in unique_julia_types_ind
+    @eval begin
+        function Base.setproperty!(x::Ptr{$(julia_types[i])}, f::Symbol, v::T, nowarn::Bool = false) where T <: AbstractOpen62541Wrapper
+            type_ptr = ua_data_type_ptr_default(typeof(Jpointer(v)))
+            UA_copy(Jpointer(v), getproperty(x, f), type_ptr)    
+            if nowarn == false
+                @warn "Attention! Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
+                    the $(typeof(v)) being generated. Avoid repeated assignments without finalizing the $(typeof(x))." maxlog = 1
+            end
+        end
+    end
+end
+
 Base.show(io::IO, ::MIME"text/plain", v::AbstractOpen62541Wrapper) = print(io, "$(typeof(v)):\n"*UA_print(Jpointer(v)))
 
 ## Useful basic types
@@ -53,6 +82,12 @@ to the user to ensure this.
 mutable struct JUA_String <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_String}
 
+    function JUA_String()
+        obj = new(UA_String_new())
+        finalizer(release_handle, obj)
+        return obj
+    end
+
     function JUA_String(s::AbstractString)
         obj = new(UA_STRING(s))
         finalizer(release_handle, obj)
@@ -67,6 +102,8 @@ end
 function release_handle(obj::JUA_String)
     UA_String_delete(Jpointer(obj))
 end
+
+#Base.convert(::Type{UA_String}, x::JUA_String) = unsafe_load(Jpointer(x))
 
 #Guid
 """
@@ -489,6 +526,69 @@ function release_handle(obj::JUA_QualifiedName)
 end
 
 Base.convert(::Type{UA_QualifiedName}, x::JUA_QualifiedName) = unsafe_load(Jpointer(x))
+
+#LocalizedText
+"""
+```
+JUA_LocalizedText
+```
+
+A mutable struct that defines a localized text comprised of a locale specifier 
+and a text portion. It is the equivalent of a `UA_QualifiedName`, but 
+with memory managed by Julia rather than C.
+
+The following constructor methods are defined:
+
+```
+JUA_LocalizedText()
+```
+
+creates an empty `JUA_LocalizedText`, equivalent to calling `UA_LocalizedText_new()`.
+
+```
+JUA_LocalizedText(locale::Union{AbstractString, JUA_String, Ptr{UA_String}}, text::Union{AbstractString, JUA_String, Ptr{UA_String}})
+```
+
+creates a `JUA_LocalizedText` with localization `locale` and text `text`.
+
+```
+JUA_LocalizedText(ptr::Ptr{UA_LocalizedText})
+```
+
+creates a `JUA_LocalizedText` based on the pointer `ptr`. This is a fallback 
+method that can be used to pass `UA_LocalizedText`s generated via the low level 
+interface to the higher level functions. Note that memory management remains on 
+the C side when using this method, i.e., `ptr` needs to be manually cleaned up with 
+`UA_LocalizedText_delete(ptr)` after the object is not needed anymore. It is up 
+to the user to ensure this.
+
+"""
+mutable struct JUA_LocalizedText <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_LocalizedText}
+
+    function JUA_LocalizedText()
+        obj = new(UA_LocalizedText_new())
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_LocalizedText(locale::Union{AbstractString, JUA_String, Ptr{UA_String}}, text::Union{AbstractString, JUA_String, Ptr{UA_String}})
+        obj = new(UA_LOCALIZEDTEXT_ALLOC(Jpointer(locale), Jpointer(text)))
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_LocalizedText(ptr::Ptr{UA_LocalizedText})
+        obj = new(ptr)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_LocalizedText)
+    UA_LocalizedText_delete(Jpointer(obj))
+end
+
+#Base.convert(::Type{UA_LocalizedText}, x::JUA_LocalizedText) = unsafe_load(Jpointer(x))
 
 #Variant
 """

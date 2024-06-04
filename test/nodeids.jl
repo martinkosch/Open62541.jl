@@ -167,8 +167,8 @@ s = "ns=1;i=1234"
 ua_s = UA_STRING(s)
 jua_s = JUA_String(s)
 s2 = "test"
-ua_s2 = UA_STRING(s)
-jua_s2 = JUA_String(s)
+ua_s2 = UA_STRING(s2)
+jua_s2 = JUA_String(s2)
 nod = UA_NODEID_NUMERIC(1, 1234)
 jod = JUA_NodeId(nod)
 guid = UA_Guid_random()
@@ -218,6 +218,7 @@ j27 = JUA_ExpandedNodeId(jod, ns_uri, 1)
 @test j25 isa JUA_ExpandedNodeId
 @test j26 isa JUA_ExpandedNodeId
 @test j27 isa JUA_ExpandedNodeId
+@test JUA_ExpandedNodeId_equal(j13, j14)
 
 #clean up
 UA_String_delete(ua_s)

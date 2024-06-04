@@ -46,6 +46,42 @@ j3 = JUA_QualifiedName()
 @test j3 isa JUA_QualifiedName
 UA_QualifiedName_delete(u1)
 
+#JUA_LocalizedText
+s1 = "test"
+ua_s1 = UA_STRING(s1)
+jua_s1 = JUA_String(s1)
+s2 = "en-US"
+ua_s2 = UA_STRING(s2)
+jua_s2 = JUA_String(s2)
+u1 = UA_LocalizedText_new()
+j1 = JUA_LocalizedText()
+j2 = JUA_LocalizedText(u1)
+j3 = JUA_LocalizedText(s1, s2)
+j4 = JUA_LocalizedText(s1, ua_s2)
+j5 = JUA_LocalizedText(s1, jua_s2)
+j6 = JUA_LocalizedText(ua_s1, s2)
+j7 = JUA_LocalizedText(ua_s1, ua_s2)
+j8 = JUA_LocalizedText(ua_s1, jua_s2)
+j9 = JUA_LocalizedText(jua_s1, s2)
+j10 = JUA_LocalizedText(jua_s1, s2)
+j11 = JUA_LocalizedText(jua_s1, s2)
+
+@test j1 isa JUA_LocalizedText
+@test j2 isa JUA_LocalizedText
+@test j3 isa JUA_LocalizedText
+@test j4 isa JUA_LocalizedText
+@test j5 isa JUA_LocalizedText
+@test j6 isa JUA_LocalizedText
+@test j7 isa JUA_LocalizedText
+@test j8 isa JUA_LocalizedText
+@test j9 isa JUA_LocalizedText
+@test j10 isa JUA_LocalizedText
+@test j11 isa JUA_LocalizedText
+
+UA_LocalizedText_delete(u1)
+UA_String_delete(ua_s1)
+UA_String_delete(ua_s2)
+
 #Attributes
 #just testing the fallback methods here; other methods are tested in more in depth
 #testsets

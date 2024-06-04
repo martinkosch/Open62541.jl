@@ -26,6 +26,9 @@ function write_generated_defs(generated_defs_dir::String,
     # Julia types corresponding to the UA types in vector type_names
     const julia_types = $julia_types
 
+    # Unique julia types
+    const unique_julia_types_ind = unique(i -> julia_types[i], eachindex(julia_types))
+
     # Vector of types that are ambiguously defined via typedef and are not to be used as default type
     types_ambiguous_ignorelist = [:UA_Duration, :UA_ByteString, :UA_XmlElement, :UA_LocaleId, :UA_DateTime, :UA_UtcTime, :UA_StatusCode]
 

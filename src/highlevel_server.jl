@@ -83,9 +83,21 @@ function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
         attributes::JUA_MethodAttributes,
         method, inputArgumentsSize, inputArguments, outputArgumentsSize,
-        outputArguments, nodeContext, outNewNodeId) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
+        outputArguments, nodeContext, outNewNodeId)
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, Jpointer(attributes), method,
+        inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId)
+end
+
+function JUA_Server_addNode(server, requestedNewNodeId,
+        parentNodeId, referenceTypeId, browseName,
+        attributes::JUA_MethodAttributes,
+        method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
+    methodcb = UA_MethodCallback_generate(method)
+    return JUA_Server_addNode(server, requestedNewNodeId, parentNodeId,
+        referenceTypeId, browseName, attributes, methodcb,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments, nodeContext, outNewNodeId)
 end
