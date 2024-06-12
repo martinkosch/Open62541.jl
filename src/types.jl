@@ -258,7 +258,7 @@ end
 UA_STRING_ALLOC(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_String_delete(x::Ptr{UA_String})`.
 """
 function UA_STRING_ALLOC(s::AbstractString)
     dst = UA_String_new()
@@ -278,7 +278,7 @@ end
 UA_STRING(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_String_delete(x::Ptr{UA_String})`.
 """
 function UA_STRING(s::AbstractString)
     return UA_STRING_ALLOC(s)
@@ -306,7 +306,7 @@ end
 UA_BYTESTRING_ALLOC(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_ByteString_delete(x::Ptr{UA_ByteString})`.
 """
 function UA_BYTESTRING_ALLOC(s::AbstractString)
     return UA_STRING_ALLOC(s)
@@ -317,7 +317,7 @@ end
 UA_BYTESTRING(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_ByteString_delete(x::Ptr{UA_ByteString})`.
 """
 function UA_BYTESTRING(s::AbstractString)
     return UA_BYTESTRING_ALLOC(s)
@@ -840,11 +840,11 @@ create a subscription create request to which monitored items can be added
 subsequently. The subscription properties are set to their default values. 
 
 Note that memory for the response is allocated by C and needs to be cleaned up by
-using `UA_CreateSubscriptionRequest_delete0(request)` after its use.
+using `UA_CreateSubscriptionRequest_delete(request)` after its use.
 
 See also:
 
-[`UA_UA_CreateSubscriptionRequest`](@ref)
+[`UA_CreateSubscriptionRequest`](@ref)
 """
 function UA_CreateSubscriptionRequest_default()
     request = UA_CreateSubscriptionRequest_new()

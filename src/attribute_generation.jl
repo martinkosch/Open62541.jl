@@ -7,7 +7,7 @@ UA_VALUERANK(N::Integer)::Integer
 ```
 
 returns the valuerank based on the dimensionality of an array `N`. For special
-cases see here: [Unified Automation Website](https://documentation.unified-automation.com/uasdknet/2.5.7/html/classUnifiedAutomation_1_1UaBase_1_1ValueRanks.html#details)
+cases see here: [Unified Automation website](https://documentation.unified-automation.com/uasdknet/2.5.7/html/classUnifiedAutomation_1_1UaBase_1_1ValueRanks.html#details)
 """
 function UA_VALUERANK(N::Integer)
     N == 1 && return UA_VALUERANK_ONE_DIMENSION
@@ -25,7 +25,7 @@ UA_ACCESSLEVEL(; read = false, write = false, historyread = false,
 
 calculates a `UInt8` number expressing how the value of a variable can be accessed.
 Default is to disallow all operations. The meaning of the keywords is explained
-here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
+here: [OPC Foundation website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
 function UA_ACCESSLEVEL(; read::Bool = false, write::Bool = false,
         historyread::Bool = false, historywrite::Bool = false,
@@ -51,7 +51,7 @@ UA_USERACCESSLEVEL(; read = false, write = false, historyread = false,
 
 calculates a `UInt8` number expressing how the value of a variable can be accessed.
 Default is to disallow all operations. The meaning of the keywords is explained
-here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
+here: [OPC Foundation website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.57)
 """
 function UA_USERACCESSLEVEL(; read::Bool = false, write::Bool = false,
         historyread::Bool = false, historywrite::Bool = false,
@@ -75,7 +75,7 @@ UA_WRITEMASK(; accesslevel = false, arraydimensions = false,
 ```
 
 calculates a `UInt32` number expressing which attributes of a node are writeable.
-The meaning of the keywords is explained here: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60
+The meaning of the keywords is explained here: [OPC Foundation website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60)
 
 If the specific node type does not support an attribute, the corresponding keyword
 must be set to false. *This is currently not enforced automatically.*
@@ -127,7 +127,7 @@ UA_USERWRITEMASK(; accesslevel = false, arraydimensions = false,
 ```
 
 calculates a `UInt32` number expressing which attributes of a node are writeable.
-The meaning of the keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60)
+The meaning of the keywords is explained here: [OPC Foundation website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60)
 
 If the specific node type does not support an attribute, the corresponding keyword
 must be set to false. *This is currently not enforced automatically.*
@@ -159,7 +159,7 @@ UA_EVENTNOTIFIER(; subscribetoevent = false, historyread = false,
 calculates a `UInt8` number expressing whether a node can be used to subscribe to
 events and/or read/write historic events.
 
-Meaning of keywords is explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59)
+Meaning of keywords is explained here: [OPC Foundation website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59)
 """
 function UA_EVENTNOTIFIER(;
         subscribetoevent = false,

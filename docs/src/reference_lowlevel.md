@@ -1,0 +1,114 @@
+# Reference: Low level interface 
+
+Lists types and functions that are part of the open62541 standard interface.
+
+## open62541 types
+```@autodocs
+Modules = [open62541]
+Order = [:type]
+Filter = t -> startswith(string(t), "UA_")
+``` 
+
+## Memory allocation and management for open62541 types
+These are low level functions allowing to allocate and free (etc.) memory for 
+open62541 types ("UA_...") on the C-side.
+
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_") && any(endswith.(string(t), ["_new", "_init", "_delete", "_clear", "_copy", "_deleteMembers"]))
+``` 
+
+## Convenience functions for generating strings/bytestrings & associated functions
+
+```@docs
+UA_BYTESTRING
+UA_BYTESTRING_ALLOC
+UA_STRING
+UA_STRING_ALLOC
+```
+
+```@docs
+UA_ByteString_equal
+```
+
+## Generation of (Expanded)NodeIds & associated functions
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_NODEID") 
+``` 
+
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_EXPANDEDNODEID") 
+``` 
+
+```@docs
+UA_NodeId_equal
+``` 
+
+## Attribute generation
+
+Functions that allow generating attributes (used in node creation) in a convenient
+ fashion:
+
+```@docs
+UA_DataTypeAttributes_generate
+UA_MethodAttributes_generate
+UA_ObjectAttributes_generate
+UA_ObjectTypeAttributes_generate
+UA_ReferenceTypeAttributes_generate
+UA_VariableAttributes_generate
+UA_VariableTypeAttributes_generate
+UA_ViewAttributes_generate
+```
+
+Helper functions for readmasks, valueranks, etc.:
+```@docs
+UA_ACCESSLEVEL
+UA_EVENTNOTIFIER
+UA_USERACCESSLEVEL
+UA_USERWRITEMASK
+UA_VALUERANK
+UA_WRITEMASK
+```
+
+## Server API
+
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_ServerConfig")
+``` 
+
+## Client API
+
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_Client_")
+``` 
+
+## Asynchronous Client API
+
+```@autodocs
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
+``` 
+
+## Callback generation
+
+```@autodocs
+Modules = [open62541]
+Pages = ["callbacks.jl"]
+``` 
+
+## Miscellaneous
+
+```@docs
+UA_CreateSubscriptionRequest_default
+UA_MonitoredItemCreateRequest_default
+```

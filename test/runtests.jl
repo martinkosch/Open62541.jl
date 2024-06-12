@@ -61,9 +61,9 @@ end
     include("server_add_nodes_highlevelinterface.jl")
 end
 
-# @safetestset "Memory leaks" begin
-#     include("memoryleaks.jl")
-# end
+@safetestset "Memory leaks" begin
+    include("memoryleaks.jl")
+end
 
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
@@ -83,7 +83,6 @@ end
 @testset "Client subscriptions" begin
     include("client_service.jl")
 end
-
 
 @testset "Simple Server/Client" begin
     include("simple_server_client.jl")

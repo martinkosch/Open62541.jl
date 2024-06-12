@@ -75,7 +75,7 @@ JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
 
 uses the server API to add a ObjectType, ReferenceType, DataType, or View node to the `server`.
 
-See [`JUA_ObjectTypeAttributes`](@ref), See [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
+See [`JUA_ObjectTypeAttributes`](@ref), [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
 
 TODO: Need to add docstring for method node addition once I have thought about the interface.
 """

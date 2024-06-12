@@ -16,7 +16,12 @@ makedocs(;
         repolink = "https://github.com/martinkosch/open62541.jl"
     ),
     pages = [
-        "Home" => "index.md",
+        "Introduction" => "index.md",
+        "Tutorials" => [
+            "tutorials/server_first_steps.md",
+            "tutorials/client_first_steps.md",
+            "tutorials/combined_variables.md"
+        ],
         "Manual" => [
             "manual/numbertypes.md",
             "manual/nodeid.md",
@@ -24,14 +29,12 @@ makedocs(;
             "manual/server.md",
             "manual/client.md"
         ],
-        "Tutorials" => [
-            "tutorials/server_first_steps.md",
-            "tutorials/client_first_steps.md"
-        ]
+        "Reference" => ["Low level interface" => "reference_lowlevel.md",
+                        "High level interface" => "reference_highlevel.md"]
     ],
     warnonly = Documenter.except(
         :autodocs_block,
-        # :cross_references, 
+        #:cross_references, 
         :docs_block,
         :doctest,
         :eval_block,

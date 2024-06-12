@@ -41,7 +41,10 @@ for i in unique_julia_types_ind
     end
 end
 
-Base.show(io::IO, ::MIME"text/plain", v::AbstractOpen62541Wrapper) = print(io, "$(typeof(v)):\n"*UA_print(Jpointer(v)))
+function Base.show(io::IO, a::MIME"text/plain", v::AbstractOpen62541Wrapper)
+    print(io, "$(typeof(v)):\npointer: "*string(Jpointer(v))*"\ncontent: ")
+    Base.show(io, a, unsafe_load(Jpointer(v)))
+end
 
 ## Useful basic types
 #String
@@ -834,7 +837,7 @@ For valid keyword arguments `kwargs` see [`UA_ObjectAttributes_generate`](@ref).
 JUA_ObjectAttributes(ptr::Ptr{UA_ObjectAttributes})
 ```
 
-creates a `JUA_ObjectAttributes` based on the pointer `objattrptr`. 
+creates a `JUA_ObjectAttributes` based on the pointer `ptr`. 
 This is a fallback method that can be used to pass `UA_ObjectAttributes`s 
 generated via the low level interface to the higher level functions. See also [`UA_ObjectAttributes_generate`](@ref).
 
@@ -868,7 +871,7 @@ JUA_ObjectTypeAttributes
 
 A mutable struct that defines a `JUA_ObjectTypeAttributes` object - the equivalent 
 of a `UA_ObjectTypeAttributes`, but with memory managed by Julia rather than C (see 
-below for exceptions) 
+below for exceptions).
 
 The following constructor methods are defined:
 

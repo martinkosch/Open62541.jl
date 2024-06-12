@@ -40,6 +40,7 @@ uses the server API to add a method node with the callback `method` to the `serv
 See also:
 
 [`UA_MethodAttributes_generate`](@ref) to define valid attributes.
+
 [`UA_MethodAttributes_generate`](@ref) to generate a valid callback. 
 
 """
