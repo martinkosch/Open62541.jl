@@ -37,6 +37,7 @@ end
 
 # Create nodes with random default values on new server running at a worker process
 Distributed.@spawnat Distributed.workers()[end] begin
+    # Generate a UA_Server with standard config
     server = JUA_Server()
     retval = JUA_ServerConfig_setMinimalCustomBuffer(JUA_ServerConfig(server),
         4842, C_NULL, 0, 0)
@@ -45,7 +46,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
     # Add variable node containing an array to the server
     for (type_ind, type) in enumerate(types)
         for (array_size_ind, array_size) in enumerate(array_sizes)
-            # Generate a UA_Server with standard config
             input = input_data[type_ind][array_size_ind]
             accesslevel = UA_ACCESSLEVEL(read = true, write = true)
             attr = JUA_VariableAttributes(value = input,
@@ -59,9 +59,9 @@ Distributed.@spawnat Distributed.workers()[end] begin
             browsename = JUA_QualifiedName(1, varnode_ids[type_ind, array_size_ind])
             nodecontext = JUA_NodeId()
             outnewnodeid = JUA_NodeId()
-            retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
+            retval = JUA_Server_addNode(server, varnodeid, parentnodeid,
                 parentreferencenodeid,
-                browsename, typedefinition, attr, nodecontext, outnewnodeid)
+                browsename, attr, nodecontext, outnewnodeid, typedefinition)
             # Test whether adding node to the server worked
             @test retval == UA_STATUSCODE_GOOD
             # Test whether the correct array is within the server (read from server)

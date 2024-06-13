@@ -24,7 +24,7 @@ end
 
 # ## UA_Array
 # Julia wrapper for C array types
-#TODO: move this to wrappers.jl in the long term; think about interface some more.
+#TODO: move this to highlevel_types.jl in the long term; think about interface some more.
 struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     ptr::T
     length::Int64
@@ -119,7 +119,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_init"(x::Ptr{$($(type_name))})
+        $($(type_name))_init(x::Ptr{$($(type_name))})
         ```
         initializes the object `x`. This is synonymous with zeroing out the allocated memory. 
         """
@@ -133,8 +133,8 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_copy"(src::Ptr{$($(type_name))}, dst::Ptr{$($(type_name))})::UA_STATUSCODE
-        $($(type_name))_copy"(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        $($(type_name))_copy(src::Ptr{$($(type_name))}, dst::Ptr{$($(type_name))})::UA_STATUSCODE
+        $($(type_name))_copy(src::$($(type_name)), dst::Ptr{$($(type_name))})::UA_STATUSCODE
         ```
         Copy the content of the source object `src` to the destination object `dst`. Returns `UA_STATUSCODE_GOOD` or `UA_STATUSCODE_BADOUTOFMEMORY`.
         """
@@ -145,7 +145,7 @@ for (i, type_name) in enumerate(type_names)
 
         """
         ```
-        $($(type_name))_clear"(x::Ptr{$($(type_name))})
+        $($(type_name))_clear(x::Ptr{$($(type_name))})
         ```
         deletes the dynamically allocated content of the object `x` and calls `$($(type_name))_init(x)` to reset the type and its memory. 
         """
@@ -258,7 +258,7 @@ end
 UA_STRING_ALLOC(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_String_delete(x::Ptr{UA_String})`.
 """
 function UA_STRING_ALLOC(s::AbstractString)
     dst = UA_String_new()
@@ -278,7 +278,7 @@ end
 UA_STRING(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_String_delete(x::Ptr{UA_String})
+creates a `UA_String` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_String_delete(x::Ptr{UA_String})`.
 """
 function UA_STRING(s::AbstractString)
     return UA_STRING_ALLOC(s)
@@ -306,7 +306,7 @@ end
 UA_BYTESTRING_ALLOC(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_ByteString_delete(x::Ptr{UA_ByteString})`.
 """
 function UA_BYTESTRING_ALLOC(s::AbstractString)
     return UA_STRING_ALLOC(s)
@@ -317,7 +317,7 @@ end
 UA_BYTESTRING(s::AbstractString)::Ptr{UA_String}
 ```
 
-creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with UA_ByteString_delete(x::Ptr{UA_ByteString})
+creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to be cleaned up with `UA_ByteString_delete(x::Ptr{UA_ByteString})`.
 """
 function UA_BYTESTRING(s::AbstractString)
     return UA_BYTESTRING_ALLOC(s)
@@ -800,7 +800,11 @@ function Base.unsafe_wrap(v::UA_Variant)
     else
         values = GC.@preserve data unsafe_wrap(Array, data, unsafe_size(v))
         values_row_major = reshape(values, unsafe_size(v))
-        return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+        if v.arrayDimensionsSize == 0
+            return values_row_major
+        else 
+            return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
+        end
     end
 end
 
@@ -827,6 +831,21 @@ function UA_Variant_hasArrayType(p::Ref{UA_Variant}, type::Ref{UA_DataType})
 end
 
 ## Subscriptions
+"""
+```
+request::Ptr{UA_CreateSubscriptionRequest} = UA_CreateSubscriptionRequest_default()
+```
+
+create a subscription create request to which monitored items can be added 
+subsequently. The subscription properties are set to their default values. 
+
+Note that memory for the response is allocated by C and needs to be cleaned up by
+using `UA_CreateSubscriptionRequest_delete(request)` after its use.
+
+See also:
+
+[`UA_CreateSubscriptionRequest`](@ref)
+"""
 function UA_CreateSubscriptionRequest_default()
     request = UA_CreateSubscriptionRequest_new()
     UA_CreateSubscriptionRequest_init(request)
@@ -839,10 +858,25 @@ function UA_CreateSubscriptionRequest_default()
     return request
 end
 
+"""
+```
+request::Ptr{UA_MonitoredItemCreateRequest} = UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId})
+```
+
+create a monitored item create request that monitors `nodeId`. The monitored item 
+properties are set to their default values. 
+
+Note that memory for the request is allocated by C and needs to be cleaned up by 
+using `UA_MonitoredItemCreateRequest_delete(request)` after its use.
+
+See also:
+
+[`UA_MonitoredItemCreateRequest`](@ref)
+"""
 function UA_MonitoredItemCreateRequest_default(nodeId)
     request = UA_MonitoredItemCreateRequest_new()
     UA_MonitoredItemCreateRequest_init(request)
-    request.itemToMonitor.nodeId = nodeId
+    request.itemToMonitor.nodeId = Jpointer(nodeId)
     request.itemToMonitor.attributeId = UA_ATTRIBUTEID_VALUE
     request.monitoringMode = UA_MONITORINGMODE_REPORTING
     request.requestedParameters.samplingInterval = 250
@@ -851,6 +885,7 @@ function UA_MonitoredItemCreateRequest_default(nodeId)
     return request
 end
 
+#TODO: add docstring
 function UA_constantTimeEqual(ptr1, ptr2, len)
     a = reinterpret(Ptr{UInt8}, ptr1)
     b = reinterpret(Ptr{UInt8}, ptr2)

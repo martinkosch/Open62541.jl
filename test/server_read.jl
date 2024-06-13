@@ -38,14 +38,16 @@ variabletypenodeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "2D point type"
 description = "This is a 2D point type."
-attr = UA_VariableTypeAttributes_generate(value = input,
+attr2 = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
-retval = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
-    UA_QUALIFIEDNAME_ALLOC(1, "2DPoint Type"), UA_NodeId_new(),
-    attr, C_NULL, variabletypenodeid)
+reqnewnodeid =  UA_NodeId_new()
+parent2 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+ref2 = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE)
+browse2 = UA_QUALIFIEDNAME_ALLOC(1, "2DPoint Type")
+t2 = UA_NodeId_new()
+retval = UA_Server_addVariableTypeNode(server, reqnewnodeid, parent2, ref2,
+    browse2, t2, attr2, C_NULL, variabletypenodeid)
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
@@ -78,3 +80,19 @@ for node in nodes
     end
     UA_NodeClass_delete(out1)
 end
+
+#clean up
+UA_Server_delete(server)
+UA_VariableAttributes_delete(attr)
+UA_NodeId_delete(variablenodeid) 
+UA_NodeId_delete(parentnodeid) 
+UA_NodeId_delete(parentreferencenodeid)
+UA_NodeId_delete(typedefinition)
+UA_QualifiedName_delete(browsename) 
+UA_NodeId_delete(variabletypenodeid) 
+UA_VariableTypeAttributes_delete(attr2) 
+UA_NodeId_delete(reqnewnodeid) 
+UA_NodeId_delete(parent2) 
+UA_NodeId_delete(ref2) 
+UA_QualifiedName_delete(browse2) 
+UA_NodeId_delete(t2)

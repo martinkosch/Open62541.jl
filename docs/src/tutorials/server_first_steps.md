@@ -1,4 +1,4 @@
-# First steps with an open62541 server
+# First steps: Server
 
 Starting up a server with a default configuration in open62541.jl is very simple.
 Just execute the following code in the REPL or as a script:

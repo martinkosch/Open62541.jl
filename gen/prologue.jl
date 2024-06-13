@@ -1,5 +1,6 @@
 using Dates
 using OffsetArrays
+using DocStringExtensions
 
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)

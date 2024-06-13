@@ -75,17 +75,29 @@ JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
 
 uses the server API to add a ObjectType, ReferenceType, DataType, or View node to the `server`.
 
-See [`JUA_ObjectTypeAttributes`](@ref), See [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
+See [`JUA_ObjectTypeAttributes`](@ref), [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
 
 TODO: Need to add docstring for method node addition once I have thought about the interface.
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
-        attributes::Ptr{UA_MethodAttributes}, outNewNodeId, nodeContext,
-        method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
-        outputArguments) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
+        attributes::JUA_MethodAttributes,
+        method, inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId)
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, attributes, method,
+        referenceTypeId, browseName, Jpointer(attributes), method,
+        inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId)
+end
+
+function JUA_Server_addNode(server, requestedNewNodeId,
+        parentNodeId, referenceTypeId, browseName,
+        attributes::JUA_MethodAttributes,
+        method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
+        outputArguments, nodeContext, outNewNodeId) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
+    methodcb = UA_MethodCallback_generate(method)
+    return JUA_Server_addNode(server, requestedNewNodeId, parentNodeId,
+        referenceTypeId, browseName, attributes, methodcb,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments, nodeContext, outNewNodeId)
 end

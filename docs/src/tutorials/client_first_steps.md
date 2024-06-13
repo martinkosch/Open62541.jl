@@ -1,6 +1,6 @@
-# First steps with an open62541 client
+# First steps: Client
 
-In this tutorial we will connect an OPC client to the server started up in [First steps with an open62541 server](@ref)
+In this tutorial we will connect an OPC client to the server started up in [First steps: Server](@ref)
 and read some basic information from it, namely the software version number and
 the current time. Note that this information should be contained in all OPC UA
 servers, so you could also connect to a different server that you know is running.

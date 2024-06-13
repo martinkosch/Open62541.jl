@@ -4,8 +4,7 @@ This page lists docstrings relevant to the server API.
 
 ## Adding different types of nodes:
 
-
-```@docs
+```@docs; canonical = false
 JUA_Server_addNode
 UA_Server_addVariableNode
 UA_Server_addObjectNode 
@@ -19,7 +18,7 @@ UA_Server_addMethodNode
 
 ## Reading from nodes:
 
-```@docs
+```@docs; canonical = false
 UA_Server_readAccessLevel
 UA_Server_readArrayDimensions
 UA_Server_readBrowseName
@@ -43,7 +42,7 @@ UA_Server_readWriteMask
 
 ## Writing to nodes:
 
-```@docs
+```@docs; canonical = false
 UA_Server_writeAccessLevel
 UA_Server_writeArrayDimensions
 UA_Server_writeBrowseName

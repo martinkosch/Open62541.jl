@@ -7,6 +7,7 @@ using CEnum
 
 using Dates
 using OffsetArrays
+using DocStringExtensions
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)
 const UA_UINT64_MAX = typemax(UInt64)
@@ -74,15 +75,12 @@ const RTL_CRITICAL_SECTION = _RTL_CRITICAL_SECTION
 const CRITICAL_SECTION = RTL_CRITICAL_SECTION
 const SOCKET = UINT_PTR
 
-"""
-Byte ^^^^ An integer value between 0 and 255.
-"""
 const UA_Byte = UInt8
 
 """
-    UA_String
-
-String ^^^^^^ A sequence of Unicode characters. Strings are just an array of [`UA_Byte`](@ref).
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_String
     length::Csize_t
@@ -102,18 +100,8 @@ function UA_String_fromChars(src)
     @ccall libopen62541.UA_String_fromChars(src::Cstring)::UA_String
 end
 
-"""
-UInt16 ^^^^^^ An integer value between 0 and 65 535.
-"""
 const UA_UInt16 = UInt16
 
-"""
-    UA_NodeIdType
-
-.. \\_nodeid:
-
-NodeId ^^^^^^ An identifier for a node in the address space of an OPC UA Server.
-"""
 @cenum UA_NodeIdType::UInt32 begin
     UA_NODEIDTYPE_NUMERIC = 0
     UA_NODEIDTYPE_STRING = 3
@@ -144,6 +132,19 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_425}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+$(TYPEDEF)
+
+Fields:
+
+- `nameSpaceIndex`
+
+- `identifierType`
+
+- `identifier`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeId
     data::NTuple{24, UInt8}
 end
@@ -166,23 +167,22 @@ function Base.setproperty!(x::Ptr{UA_NodeId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-UInt32 ^^^^^^ An integer value between 0 and 4 294 967 295.
-"""
 const UA_UInt32 = UInt32
 
 """
-    UA_DataTypeMember
 
-.. \\_generic-types:
+$(TYPEDEF)
 
-Generic Type Handling ---------------------
+Fields:
 
-All information about a (builtin/structured) data type is stored in a `[`UA_DataType`](@ref)`. The array ``UA_TYPES`` contains the description of all standard-defined types. This type description is used for the following generic operations that work on all types:
+- `memberName`
 
-  - ``void T\\_init(T *ptr)``: Initialize the data type. This is synonymous with zeroing out the memory, i.e. ``memset(ptr, 0, sizeof(T))``. - ``T* T\\_new()``: Allocate and return the memory for the data type. The value is already initialized. - ``[`UA_StatusCode`](@ref) T\\_copy(const T *src, T *dst)``: Copy the content of the data type. Returns `[`UA_STATUSCODE_GOOD`](@ref)` or `[`UA_STATUSCODE_BADOUTOFMEMORY`](@ref)`. - ``void T\\_clear(T *ptr)``: Delete the dynamically allocated content of the data type and perform a ``T_init`` to reset the type. - ``void T\\_delete(T *ptr)``: Delete the content of the data type and the memory for the data type itself.
+- `memberType`
+- `padding`
+- `isArray`
+- `isOptional`
 
-Specializations, such as ``[`UA_Int32_new`](@ref)()`` are derived from the generic type operations as static inline functions.
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataTypeMember
     data::NTuple{24, UInt8}
@@ -241,21 +241,30 @@ function Base.setproperty!(x::Ptr{UA_DataTypeMember}, f::Symbol, v)
 end
 
 """
-    UA_DataType
 
-.. \\_variant:
+$(TYPEDEF)
 
-Variant ^^^^^^^
+Fields:
 
-Variants may contain values of any type together with a description of the content. See the section on :ref:`generic-types` on how types are described. The standard mandates that variants contain built-in data types only. If the value is not of a builtin type, it is wrapped into an :ref:`extensionobject`. open62541 hides this wrapping transparently in the encoding layer. If the data type is unknown to the receiver, the variant contains the original ExtensionObject in binary or XML encoding.
+- `typeName`
 
-Variants may contain a scalar value or an array. For details on the handling of arrays, see the section on :ref:`array-handling`. Array variants can have an additional dimensionality (matrix, 3-tensor, ...) defined in an array of dimension lengths. The actual values are kept in an array of dimensions one. For users who work with higher-dimensions arrays directly, keep in mind that dimensions of higher rank are serialized first (the highest rank dimension has stride 1 and elements follow each other directly). Usually it is simplest to interact with higher-dimensional arrays via `[`UA_NumericRange`](@ref)` descriptions (see :ref:`array-handling`).
+- `typeId`
 
-To differentiate between scalar / array variants, the following definition is used. `[`UA_Variant_isScalar`](@ref)` provides simplified access to these checks.
+- `binaryEncodingId`
 
-  - ``arrayLength == 0 && data == NULL``: undefined array of length -1 - ``arrayLength == 0 && data == [`UA_EMPTY_ARRAY_SENTINEL`](@ref)``: array of length 0 - ``arrayLength == 0 && data > [`UA_EMPTY_ARRAY_SENTINEL`](@ref)``: scalar value - ``arrayLength > 0``: array of the given length
+- `memSize`
 
-Variants can also be *empty*. Then, the pointer to the type description is ``NULL``.
+- `typeKind`
+
+- `pointerFree`
+
+- `overlayable`
+
+- `membersSize`
+
+- `members`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataType
     data::NTuple{72, UInt8}
@@ -362,9 +371,6 @@ function __ZIP_ITER(fieldoffset, cb, context, elm)
         context::Ptr{Cvoid}, elm::Ptr{Cvoid})::Cvoid
 end
 
-"""
-Int32 ^^^^^ An integer value between -2 147 483 648 and 2 147 483 647.
-"""
 const UA_Int32 = Int32
 
 @cenum UA_ValueBackendType::UInt32 begin
@@ -396,6 +402,18 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_417}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `backendType`
+
+- `backend`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_ValueBackend
     data::NTuple{104, UInt8}
 end
@@ -417,41 +435,6 @@ function Base.setproperty!(x::Ptr{UA_ValueBackend}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_ValueSource
-
-VariableNode ------------
-
-Variables store values in a :ref:`datavalue` together with metadata for introspection. Most notably, the attributes data type, value rank and array dimensions constrain the possible values the variable can take on.
-
-Variables come in two flavours: properties and datavariables. Properties are related to a parent with a ``hasProperty`` reference and may not have child nodes themselves. Datavariables may contain properties (``hasProperty``) and also datavariables (``hasComponents``).
-
-All variables are instances of some :ref:`variabletypenode` in return constraining the possible data type, value rank and array dimensions attributes.
-
-Data Type ~~~~~~~~~
-
-The (scalar) data type of the variable is constrained to be of a specific type or one of its children in the type hierarchy. The data type is given as a NodeId pointing to a :ref:`datatypenode` in the type hierarchy. See the Section :ref:`datatypenode` for more details.
-
-If the data type attribute points to ``UInt32``, then the value attribute must be of that exact type since ``UInt32`` does not have children in the type hierarchy. If the data type attribute points ``Number``, then the type of the value attribute may still be ``UInt32``, but also ``Float`` or ``Byte``.
-
-Consistency between the data type attribute in the variable and its :ref:`VariableTypeNode` is ensured.
-
-Value Rank ~~~~~~~~~~
-
-This attribute indicates whether the value attribute of the variable is an array and how many dimensions the array has. It may have the following values:
-
-  - ``n >= 1``: the value is an array with the specified number of dimensions - ``n = 0``: the value is an array with one or more dimensions - ``n = -1``: the value is a scalar - ``n = -2``: the value can be a scalar or an array with any number of dimensions - ``n = -3``: the value can be a scalar or a one dimensional array
-
-Consistency between the value rank attribute in the variable and its :ref:`variabletypenode` is ensured.
-
-Array Dimensions ~~~~~~~~~~~~~~~~
-
-If the value rank permits the value to be a (multi-dimensional) array, the exact length in each dimensions can be further constrained with this attribute.
-
-  - For positive lengths, the variable value is guaranteed to be of the same length in this dimension. - The dimension length zero is a wildcard and the actual value may have any length in this dimension.
-
-Consistency between the array dimensions attribute in the variable and its :ref:`variabletypenode` is ensured.
-"""
 @cenum UA_ValueSource::UInt32 begin
     UA_VALUESOURCE_DATA = 0
     UA_VALUESOURCE_DATASOURCE = 1
@@ -462,6 +445,11 @@ end
     UA_VARIANT_DATA_NODELETE = 1
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_Variant
     type::Ptr{UA_DataType}
     storageType::UA_VariantStorageType
@@ -484,47 +472,16 @@ function Base.setproperty!(x::Ptr{UA_Variant}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-.. \\_datetime:
-
-DateTime ^^^^^^^^ An instance in time. A DateTime value is encoded as a 64-bit signed integer which represents the number of 100 nanosecond intervals since January 1, 1601 (UTC).
-
-The methods providing an interface to the system clock are architecture- specific. Usually, they provide a UTC clock that includes leap seconds. The OPC UA standard allows the use of International Atomic Time (TAI) for the DateTime instead. But this is still unusual and not implemented for most SDKs. Currently (2019), UTC and TAI are 37 seconds apart due to leap seconds.
-"""
 const UA_DateTime = Int64
 
-"""
-.. \\_statuscode:
-
-StatusCode ^^^^^^^^^^ A numeric identifier for an error or condition that is associated with a value or an operation. See the section :ref:`statuscodes` for the meaning of a specific code.
-
-Each StatusCode has one of three "severity" bit-flags: Good, Uncertain, Bad. An additional reason is indicated by the SubCode bitfield.
-
-  - A StatusCode with severity Good means that the value is of good quality. - A StatusCode with severity Uncertain means that the quality of the value is uncertain for reasons indicated by the SubCode. - A StatusCode with severity Bad means that the value is not usable for reasons indicated by the SubCode.
-"""
 const UA_StatusCode = UInt32
 
-"""
-.. \\_types:
-
-Data Types ==========
-
-The OPC UA protocol defines 25 builtin data types and three ways of combining them into higher-order types: arrays, structures and unions. In open62541, only the builtin data types are defined manually. All other data types are generated from standard XML definitions. Their exact definitions can be looked up at https://opcfoundation.org/UA/schemas/Opc.Ua.Types.bsd.
-
-For users that are new to open62541, take a look at the :ref:`tutorial for working with data types<types-tutorial>` before diving into the implementation details.
-
-Builtin Types -------------
-
-Boolean ^^^^^^^ A two-state logical value (true or false).
-"""
 const UA_Boolean = Bool
 
 """
-    UA_DataValue
-
-.. \\_datavalue:
-
-DataValue ^^^^^^^^^ A data value with an associated status code and timestamps.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DataValue
     value::UA_Variant
@@ -560,24 +517,28 @@ function Base.setproperty!(x::Ptr{UA_DataValue}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_ValueCallback
     onRead::Ptr{Cvoid}
     onWrite::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_DataSource
     read::Ptr{Cvoid}
     write::Ptr{Cvoid}
 end
 
-"""
-Forward Declarations -------------------- Opaque pointers used by the plugins.
-"""
 mutable struct UA_Server end
 
-"""
-UInt64 ^^^^^^ An integer value between 0 and 18 446 744 073 709 551 615.
-"""
 const UA_UInt64 = UInt64
 
 function UA_Server_removeCallback(server, callbackId)
@@ -586,15 +547,7 @@ function UA_Server_removeCallback(server, callbackId)
 end
 
 # typedef UA_StatusCode ( * UA_MethodCallback ) ( UA_Server * server , const UA_NodeId * sessionId , void * sessionContext , const UA_NodeId * methodId , void * methodContext , const UA_NodeId * objectId , void * objectContext , size_t inputSize , const UA_Variant * input , size_t outputSize , UA_Variant * output )
-"""
-.. \\_methodnode:
 
-MethodNode ----------
-
-Methods define callable functions and are invoked using the :ref:`Call <method-services>` service. MethodNodes may have special properties (variable children with a ``hasProperty`` reference) with the :ref:`qualifiedname` ``(0, "InputArguments")`` and ``(0, "OutputArguments")``. The input and output arguments are both described via an array of `[`UA_Argument`](@ref)`. While the Call service uses a generic array of :ref:`variant` for input and output, the actual argument values are checked to match the signature of the MethodNode.
-
-Note that the same MethodNode may be referenced from several objects (and object types). For this, the NodeId of the method *and of the object providing context* is part of a Call request message.
-"""
 const UA_MethodCallback = Ptr{Cvoid}
 
 function UA_Server_setMethodNodeCallback(server, methodNodeId, methodCallback)
@@ -607,17 +560,6 @@ struct static_assertion_failed_0
     static_assertion_failed_cannot_overlay_integers_with_large_bool::Cint
 end
 
-"""
-    UA_AttributeId
-
-Common Definitions ==================
-
-Common definitions for Client, Server and PubSub.
-
-.. \\_attribute-id:
-
-Attribute Id ------------ Every node in an OPC UA information model contains attributes depending on the node type. Possible attributes are as follows:
-"""
 @cenum UA_AttributeId::UInt32 begin
     UA_ATTRIBUTEID_NODEID = 1
     UA_ATTRIBUTEID_NODECLASS = 2
@@ -648,15 +590,6 @@ Attribute Id ------------ Every node in an OPC UA information model contains att
     UA_ATTRIBUTEID_ACCESSLEVELEX = 27
 end
 
-"""
-    UA_RuleHandling
-
-.. \\_rule-handling:
-
-Rule Handling -------------
-
-The RuleHanding settings define how error cases that result from rules in the OPC UA specification shall be handled. The rule handling can be softened, e.g. to workaround misbehaving implementations or to mitigate the impact of additional rules that are introduced in later versions of the OPC UA specification.
-"""
 @cenum UA_RuleHandling::UInt32 begin
     UA_RULEHANDLING_DEFAULT = 0
     UA_RULEHANDLING_ABORT = 1
@@ -664,24 +597,12 @@ The RuleHanding settings define how error cases that result from rules in the OP
     UA_RULEHANDLING_ACCEPT = 3
 end
 
-"""
-    UA_Order
-
-Order -----
-
-The Order enum is used to establish an absolute ordering between elements.
-"""
 @cenum UA_Order::Int32 begin
     UA_ORDER_LESS = -1
     UA_ORDER_EQ = 0
     UA_ORDER_MORE = 1
 end
 
-"""
-    UA_SecureChannelState
-
-Connection State ----------------
-"""
 @cenum UA_SecureChannelState::UInt32 begin
     UA_SECURECHANNELSTATE_FRESH = 0
     UA_SECURECHANNELSTATE_HEL_SENT = 1
@@ -704,15 +625,9 @@ end
 end
 
 """
-    UA_NetworkStatistics
-
-Statistic counters ------------------
-
-The stack manages statistic counters for the following layers:
-
-  - Network - Secure channel - Session
-
-The session layer counters are matching the counters of the ServerDiagnosticsSummaryDataType that are defined in the OPC UA Part 5 specification. Counters of the other layers are not specified by OPC UA but are harmonized with the session layer counters if possible.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_NetworkStatistics
     currentConnectionCount::Csize_t
@@ -722,6 +637,11 @@ struct UA_NetworkStatistics
     connectionAbortCount::Csize_t
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecureChannelStatistics
     currentChannelCount::Csize_t
     cumulatedChannelCount::Csize_t
@@ -731,6 +651,11 @@ struct UA_SecureChannelStatistics
     channelPurgeCount::Csize_t
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SessionStatistics
     currentSessionCount::Csize_t
     cumulatedSessionCount::Csize_t
@@ -740,29 +665,14 @@ struct UA_SessionStatistics
     sessionAbortCount::Csize_t
 end
 
-"""
-SByte ^^^^^ An integer value between -128 and 127.
-"""
 const UA_SByte = Int8
 
-"""
-Int16 ^^^^^ An integer value between -32 768 and 32 767.
-"""
 const UA_Int16 = Int16
 
-"""
-Int64 ^^^^^ An integer value between -9 223 372 036 854 775 808 and 9 223 372 036 854 775 807.
-"""
 const UA_Int64 = Int64
 
-"""
-Float ^^^^^ An IEEE single precision (32 bit) floating point value.
-"""
 const UA_Float = Cfloat
 
-"""
-Double ^^^^^^ An IEEE double precision (64 bit) floating point value.
-"""
 const UA_Double = Cdouble
 
 function UA_StatusCode_name(code)
@@ -778,11 +688,6 @@ function UA_String_equal(s1, s2)
     @ccall libopen62541.UA_String_equal(s1::Ptr{UA_String}, s2::Ptr{UA_String})::UA_Boolean
 end
 
-"""
-    UA_STRING(chars)
-
-`[`UA_STRING`](@ref)` returns a string pointing to the original char-array. `[`UA_STRING_ALLOC`](@ref)` is shorthand for `[`UA_String_fromChars`](@ref)` and makes a copy of the char-array.
-"""
 function UA_DateTime_now()
     @ccall libopen62541.UA_DateTime_now()::UA_DateTime
 end
@@ -795,6 +700,11 @@ function UA_DateTime_nowMonotonic()
     @ccall libopen62541.UA_DateTime_nowMonotonic()::UA_DateTime
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_DateTimeStruct
     nanoSec::UA_UInt16
     microSec::UA_UInt16
@@ -816,9 +726,9 @@ function UA_DateTime_fromStruct(ts)
 end
 
 """
-    UA_Guid
-
-Guid ^^^^ A 16 byte value that can be used as a globally unique identifier.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_Guid
     data1::UA_UInt32
@@ -846,9 +756,6 @@ function UA_Guid_parse(guid, str)
     @ccall libopen62541.UA_Guid_parse(guid::Ptr{UA_Guid}, str::UA_String)::UA_StatusCode
 end
 
-"""
-ByteString ^^^^^^^^^^ A sequence of octets.
-"""
 const UA_ByteString = UA_String
 
 function UA_ByteString_allocBuffer(bs, length)
@@ -871,9 +778,6 @@ function UA_ByteString_hash(initialHashValue, data, size)
         initialHashValue::UA_UInt32, data::Ptr{UA_Byte}, size::Csize_t)::UA_UInt32
 end
 
-"""
-XmlElement ^^^^^^^^^^ An XML element.
-"""
 const UA_XmlElement = UA_String
 
 function UA_NodeId_isNull(p)
@@ -889,11 +793,6 @@ function UA_NodeId_parse(id, str)
     @ccall libopen62541.UA_NodeId_parse(id::Ptr{UA_NodeId}, str::UA_String)::UA_StatusCode
 end
 
-"""
-    UA_NODEID_NUMERIC(nsIndex, identifier)
-
-The following functions are shorthand for creating NodeIds.
-"""
 function UA_NodeId_order(n1, n2)
     @ccall libopen62541.UA_NodeId_order(n1::Ptr{UA_NodeId}, n2::Ptr{UA_NodeId})::UA_Order
 end
@@ -903,9 +802,9 @@ function UA_NodeId_hash(n)
 end
 
 """
-    UA_ExpandedNodeId
-
-ExpandedNodeId ^^^^^^^^^^^^^^ A NodeId that allows the namespace URI to be specified instead of an index.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ExpandedNodeId
     nodeId::UA_NodeId
@@ -933,11 +832,6 @@ function UA_ExpandedNodeId_parse(id, str)
         id::Ptr{UA_ExpandedNodeId}, str::UA_String)::UA_StatusCode
 end
 
-"""
-    UA_EXPANDEDNODEID_NUMERIC(nsIndex, identifier)
-
-The following functions are shorthand for creating ExpandedNodeIds.
-"""
 function UA_ExpandedNodeId_isLocal(n)
     @ccall libopen62541.UA_ExpandedNodeId_isLocal(n::Ptr{UA_ExpandedNodeId})::UA_Boolean
 end
@@ -952,11 +846,9 @@ function UA_ExpandedNodeId_hash(n)
 end
 
 """
-    UA_QualifiedName
-
-.. \\_qualifiedname:
-
-QualifiedName ^^^^^^^^^^^^^ A name qualified by a namespace.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_QualifiedName
     namespaceIndex::UA_UInt16
@@ -982,9 +874,9 @@ function UA_QualifiedName_equal(qn1, qn2)
 end
 
 """
-    UA_LocalizedText
-
-LocalizedText ^^^^^^^^^^^^^ Human readable text with an optional locale identifier.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_LocalizedText
     locale::UA_String
@@ -1001,19 +893,20 @@ function Base.setproperty!(x::Ptr{UA_LocalizedText}, f::Symbol, v)
 end
 
 """
-    UA_NumericRangeDimension
-
-.. \\_numericrange:
-
-NumericRange ^^^^^^^^^^^^
-
-NumericRanges are used to indicate subsets of a (multidimensional) array. They no official data type in the OPC UA standard and are transmitted only with a string encoding, such as "1:2,0:3,5". The colon separates min/max index and the comma separates dimensions. A single value indicates a range with a single element (min==max).
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_NumericRangeDimension
     min::UA_UInt32
     max::UA_UInt32
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_NumericRange
     dimensionsSize::Csize_t
     dimensions::Ptr{UA_NumericRangeDimension}
@@ -1062,15 +955,6 @@ function UA_Variant_setRangeCopy(v, array, arraySize, range)
         range::UA_NumericRange)::UA_StatusCode
 end
 
-"""
-    UA_ExtensionObjectEncoding
-
-.. \\_extensionobject:
-
-ExtensionObject ^^^^^^^^^^^^^^^
-
-ExtensionObjects may contain scalars of any data type. Even those that are unknown to the receiver. See the section on :ref:`generic-types` on how types are described. If the received data type is unknown, the encoded string and target NodeId is stored instead of the decoded value.
-"""
 @cenum UA_ExtensionObjectEncoding::UInt32 begin
     UA_EXTENSIONOBJECT_ENCODED_NOBODY = 0
     UA_EXTENSIONOBJECT_ENCODED_BYTESTRING = 1
@@ -1100,6 +984,18 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_420}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `encoding`
+
+- `content`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_ExtensionObject
     data::NTuple{48, UInt8}
 end
@@ -1143,9 +1039,40 @@ function UA_DataValue_copyVariantRange(src, dst, range)
 end
 
 """
-    UA_DiagnosticInfo
 
-DiagnosticInfo ^^^^^^^^^^^^^^ A structure that contains detailed error and diagnostic information associated with a StatusCode.
+$(TYPEDEF)
+
+Fields:
+
+- `hasSymbolicId`
+
+- `hasNamespaceUri`
+
+- `hasLocalizedText`
+
+- `hasLocale`
+
+- `hasAdditionalInfo`
+
+- `hasInnerStatusCode`
+
+- `hasInnerDiagnosticInfo`
+
+- `symbolicId`
+
+- `namespaceUri`
+
+- `localizedText`
+
+- `locale`
+
+- `additionalInfo`
+
+- `innerStatusCode`
+
+- `innerDiagnosticInfo`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DiagnosticInfo
     data::NTuple{56, UInt8}
@@ -1266,11 +1193,6 @@ function UA_DataType_getPrecedence(type)
     @ccall libopen62541.UA_DataType_getPrecedence(type::Ptr{UA_DataType})::UA_Int16
 end
 
-"""
-    UA_findDataType(typeId)
-
-Builtin data types can be accessed as UA\\_TYPES[UA\\_TYPES\\_XXX], where XXX is the name of the data type. If only the NodeId of a type is known, use the following method to retrieve the data type description.
-"""
 function UA_findDataType(typeId)
     @ccall libopen62541.UA_findDataType(typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
 end
@@ -1298,11 +1220,6 @@ function UA_order(p1, p2, type)
         p1::Ptr{Cvoid}, p2::Ptr{Cvoid}, type::Ptr{UA_DataType})::UA_Order
 end
 
-"""
-    UA_calcSizeBinary(p, type)
-
-Encoding/Decoding ^^^^^^^^^^^^^^^^^^ Encoding and decoding routines for the available formats. For all formats the \\_calcSize, \\_encode and \\_decode methods are provided.
-"""
 function UA_calcSizeBinary(p, type)
     @ccall libopen62541.UA_calcSizeBinary(p::Ptr{Cvoid}, type::Ptr{UA_DataType})::Csize_t
 end
@@ -1312,6 +1229,11 @@ function UA_encodeBinary(p, type, outBuf)
         p::Ptr{Cvoid}, type::Ptr{UA_DataType}, outBuf::Ptr{UA_ByteString})::UA_StatusCode
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_DecodeBinaryOptions
     customTypes::Ptr{UA_DataTypeArray}
 end
@@ -1351,11 +1273,6 @@ function UA_Array_delete(p, size, type)
         p::Ptr{Cvoid}, size::Csize_t, type::Ptr{UA_DataType})::Cvoid
 end
 
-"""
-    UA_random_seed(seed)
-
-Random Number Generator ----------------------- If [`UA_MULTITHREADING`](@ref) is defined, then the seed is stored in thread local storage. The seed is initialized for every thread in the server/client.
-"""
 function UA_random_seed(seed)
     @ccall libopen62541.UA_random_seed(seed::UA_UInt64)::Cvoid
 end
@@ -1372,20 +1289,15 @@ function UA_Guid_random()
 end
 
 """
-    UA_KeyValuePair
-
-KeyValuePair ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_KeyValuePair
     key::UA_QualifiedName
     value::UA_Variant
 end
 
-"""
-    UA_NodeClass
-
-NodeClass ^^^^^^^^^
-"""
 @cenum UA_NodeClass::UInt32 begin
     UA_NODECLASS_UNSPECIFIED = 0
     UA_NODECLASS_OBJECT = 1
@@ -1403,11 +1315,6 @@ struct static_assertion_failed_1
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_StructureType
-
-StructureType ^^^^^^^^^^^^^
-"""
 @cenum UA_StructureType::UInt32 begin
     UA_STRUCTURETYPE_STRUCTURE = 0
     UA_STRUCTURETYPE_STRUCTUREWITHOPTIONALFIELDS = 1
@@ -1420,9 +1327,9 @@ struct static_assertion_failed_2
 end
 
 """
-    UA_StructureField
-
-StructureField ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_StructureField
     name::UA_String
@@ -1451,9 +1358,9 @@ function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
 end
 
 """
-    UA_StructureDefinition
-
-StructureDefinition ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_StructureDefinition
     defaultEncodingId::UA_NodeId
@@ -1476,9 +1383,9 @@ function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
 end
 
 """
-    UA_Argument
-
-Argument ^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_Argument
     name::UA_String
@@ -1503,9 +1410,9 @@ function Base.setproperty!(x::Ptr{UA_Argument}, f::Symbol, v)
 end
 
 """
-    UA_EnumValueType
-
-EnumValueType ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EnumValueType
     value::UA_Int64
@@ -1524,9 +1431,9 @@ function Base.setproperty!(x::Ptr{UA_EnumValueType}, f::Symbol, v)
 end
 
 """
-    UA_EnumField
-
-EnumField ^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EnumField
     value::UA_Int64
@@ -1546,36 +1453,22 @@ function Base.setproperty!(x::Ptr{UA_EnumField}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-Duration ^^^^^^^^
-"""
 const UA_Duration = UA_Double
 
-"""
-UtcTime ^^^^^^^
-"""
 const UA_UtcTime = UA_DateTime
 
-"""
-LocaleId ^^^^^^^^
-"""
 const UA_LocaleId = UA_String
 
 """
-    UA_TimeZoneDataType
-
-TimeZoneDataType ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TimeZoneDataType
     offset::UA_Int16
     daylightSavingInOffset::UA_Boolean
 end
 
-"""
-    UA_ApplicationType
-
-ApplicationType ^^^^^^^^^^^^^^^
-"""
 @cenum UA_ApplicationType::UInt32 begin
     UA_APPLICATIONTYPE_SERVER = 0
     UA_APPLICATIONTYPE_CLIENT = 1
@@ -1589,9 +1482,9 @@ struct static_assertion_failed_3
 end
 
 """
-    UA_ApplicationDescription
-
-ApplicationDescription ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ApplicationDescription
     applicationUri::UA_String
@@ -1620,9 +1513,9 @@ function Base.setproperty!(x::Ptr{UA_ApplicationDescription}, f::Symbol, v)
 end
 
 """
-    UA_RequestHeader
-
-RequestHeader ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RequestHeader
     authenticationToken::UA_NodeId
@@ -1649,9 +1542,9 @@ function Base.setproperty!(x::Ptr{UA_RequestHeader}, f::Symbol, v)
 end
 
 """
-    UA_ResponseHeader
-
-ResponseHeader ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ResponseHeader
     timestamp::UA_DateTime
@@ -1678,9 +1571,9 @@ function Base.setproperty!(x::Ptr{UA_ResponseHeader}, f::Symbol, v)
 end
 
 """
-    UA_ServiceFault
-
-ServiceFault ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ServiceFault
     responseHeader::UA_ResponseHeader
@@ -1695,9 +1588,9 @@ function Base.setproperty!(x::Ptr{UA_ServiceFault}, f::Symbol, v)
 end
 
 """
-    UA_FindServersRequest
-
-FindServersRequest ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_FindServersRequest
     requestHeader::UA_RequestHeader
@@ -1722,9 +1615,9 @@ function Base.setproperty!(x::Ptr{UA_FindServersRequest}, f::Symbol, v)
 end
 
 """
-    UA_FindServersResponse
-
-FindServersResponse ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_FindServersResponse
     responseHeader::UA_ResponseHeader
@@ -1742,11 +1635,6 @@ function Base.setproperty!(x::Ptr{UA_FindServersResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_MessageSecurityMode
-
-MessageSecurityMode ^^^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_MessageSecurityMode::UInt32 begin
     UA_MESSAGESECURITYMODE_INVALID = 0
     UA_MESSAGESECURITYMODE_NONE = 1
@@ -1759,11 +1647,6 @@ struct static_assertion_failed_4
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_UserTokenType
-
-UserTokenType ^^^^^^^^^^^^^
-"""
 @cenum UA_UserTokenType::UInt32 begin
     UA_USERTOKENTYPE_ANONYMOUS = 0
     UA_USERTOKENTYPE_USERNAME = 1
@@ -1777,9 +1660,9 @@ struct static_assertion_failed_5
 end
 
 """
-    UA_UserTokenPolicy
-
-UserTokenPolicy ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UserTokenPolicy
     policyId::UA_String
@@ -1802,9 +1685,9 @@ function Base.setproperty!(x::Ptr{UA_UserTokenPolicy}, f::Symbol, v)
 end
 
 """
-    UA_EndpointDescription
-
-EndpointDescription ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EndpointDescription
     endpointUrl::UA_String
@@ -1835,9 +1718,9 @@ function Base.setproperty!(x::Ptr{UA_EndpointDescription}, f::Symbol, v)
 end
 
 """
-    UA_GetEndpointsRequest
-
-GetEndpointsRequest ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_GetEndpointsRequest
     requestHeader::UA_RequestHeader
@@ -1862,9 +1745,9 @@ function Base.setproperty!(x::Ptr{UA_GetEndpointsRequest}, f::Symbol, v)
 end
 
 """
-    UA_GetEndpointsResponse
-
-GetEndpointsResponse ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_GetEndpointsResponse
     responseHeader::UA_ResponseHeader
@@ -1882,11 +1765,6 @@ function Base.setproperty!(x::Ptr{UA_GetEndpointsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_SecurityTokenRequestType
-
-SecurityTokenRequestType ^^^^^^^^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_SecurityTokenRequestType::UInt32 begin
     UA_SECURITYTOKENREQUESTTYPE_ISSUE = 0
     UA_SECURITYTOKENREQUESTTYPE_RENEW = 1
@@ -1898,9 +1776,9 @@ struct static_assertion_failed_6
 end
 
 """
-    UA_ChannelSecurityToken
-
-ChannelSecurityToken ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ChannelSecurityToken
     channelId::UA_UInt32
@@ -1921,9 +1799,9 @@ function Base.setproperty!(x::Ptr{UA_ChannelSecurityToken}, f::Symbol, v)
 end
 
 """
-    UA_OpenSecureChannelRequest
-
-OpenSecureChannelRequest ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_OpenSecureChannelRequest
     requestHeader::UA_RequestHeader
@@ -1948,9 +1826,9 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol, v)
 end
 
 """
-    UA_OpenSecureChannelResponse
-
-OpenSecureChannelResponse ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_OpenSecureChannelResponse
     responseHeader::UA_ResponseHeader
@@ -1971,9 +1849,9 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol, v)
 end
 
 """
-    UA_CloseSecureChannelRequest
-
-CloseSecureChannelRequest ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CloseSecureChannelRequest
     requestHeader::UA_RequestHeader
@@ -1988,9 +1866,9 @@ function Base.setproperty!(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol, v)
 end
 
 """
-    UA_CloseSecureChannelResponse
-
-CloseSecureChannelResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CloseSecureChannelResponse
     responseHeader::UA_ResponseHeader
@@ -2005,9 +1883,9 @@ function Base.setproperty!(x::Ptr{UA_CloseSecureChannelResponse}, f::Symbol, v)
 end
 
 """
-    UA_SignedSoftwareCertificate
-
-SignedSoftwareCertificate ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SignedSoftwareCertificate
     certificateData::UA_ByteString
@@ -2024,9 +1902,9 @@ function Base.setproperty!(x::Ptr{UA_SignedSoftwareCertificate}, f::Symbol, v)
 end
 
 """
-    UA_SignatureData
-
-SignatureData ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SignatureData
     algorithm::UA_String
@@ -2043,9 +1921,9 @@ function Base.setproperty!(x::Ptr{UA_SignatureData}, f::Symbol, v)
 end
 
 """
-    UA_CreateSessionRequest
-
-CreateSessionRequest ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateSessionRequest
     requestHeader::UA_RequestHeader
@@ -2076,9 +1954,9 @@ function Base.setproperty!(x::Ptr{UA_CreateSessionRequest}, f::Symbol, v)
 end
 
 """
-    UA_CreateSessionResponse
-
-CreateSessionResponse ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateSessionResponse
     responseHeader::UA_ResponseHeader
@@ -2116,9 +1994,9 @@ function Base.setproperty!(x::Ptr{UA_CreateSessionResponse}, f::Symbol, v)
 end
 
 """
-    UA_UserIdentityToken
-
-UserIdentityToken ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UserIdentityToken
     policyId::UA_String
@@ -2133,9 +2011,9 @@ function Base.setproperty!(x::Ptr{UA_UserIdentityToken}, f::Symbol, v)
 end
 
 """
-    UA_AnonymousIdentityToken
-
-AnonymousIdentityToken ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AnonymousIdentityToken
     policyId::UA_String
@@ -2150,9 +2028,9 @@ function Base.setproperty!(x::Ptr{UA_AnonymousIdentityToken}, f::Symbol, v)
 end
 
 """
-    UA_UserNameIdentityToken
-
-UserNameIdentityToken ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UserNameIdentityToken
     policyId::UA_String
@@ -2173,9 +2051,9 @@ function Base.setproperty!(x::Ptr{UA_UserNameIdentityToken}, f::Symbol, v)
 end
 
 """
-    UA_X509IdentityToken
-
-X509IdentityToken ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_X509IdentityToken
     policyId::UA_String
@@ -2192,9 +2070,9 @@ function Base.setproperty!(x::Ptr{UA_X509IdentityToken}, f::Symbol, v)
 end
 
 """
-    UA_IssuedIdentityToken
-
-IssuedIdentityToken ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_IssuedIdentityToken
     policyId::UA_String
@@ -2213,9 +2091,9 @@ function Base.setproperty!(x::Ptr{UA_IssuedIdentityToken}, f::Symbol, v)
 end
 
 """
-    UA_ActivateSessionRequest
-
-ActivateSessionRequest ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ActivateSessionRequest
     requestHeader::UA_RequestHeader
@@ -2245,9 +2123,9 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionRequest}, f::Symbol, v)
 end
 
 """
-    UA_ActivateSessionResponse
-
-ActivateSessionResponse ^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ActivateSessionResponse
     responseHeader::UA_ResponseHeader
@@ -2272,9 +2150,9 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionResponse}, f::Symbol, v)
 end
 
 """
-    UA_CloseSessionRequest
-
-CloseSessionRequest ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CloseSessionRequest
     requestHeader::UA_RequestHeader
@@ -2291,9 +2169,9 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionRequest}, f::Symbol, v)
 end
 
 """
-    UA_CloseSessionResponse
-
-CloseSessionResponse ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CloseSessionResponse
     responseHeader::UA_ResponseHeader
@@ -2307,11 +2185,6 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_NodeAttributesMask
-
-NodeAttributesMask ^^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_NodeAttributesMask::UInt32 begin
     UA_NODEATTRIBUTESMASK_NONE = 0
     UA_NODEATTRIBUTESMASK_ACCESSLEVEL = 1
@@ -2355,11 +2228,6 @@ struct static_assertion_failed_7
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_NodeAttributes
-
-NodeAttributes ^^^^^^^^^^^^^^
-"""
 struct UA_NodeAttributes
     specifiedAttributes::UA_UInt32
     displayName::UA_LocalizedText
@@ -2381,9 +2249,9 @@ function Base.setproperty!(x::Ptr{UA_NodeAttributes}, f::Symbol, v)
 end
 
 """
-    UA_ObjectAttributes
-
-ObjectAttributes ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ObjectAttributes
     specifiedAttributes::UA_UInt32
@@ -2408,9 +2276,9 @@ function Base.setproperty!(x::Ptr{UA_ObjectAttributes}, f::Symbol, v)
 end
 
 """
-    UA_VariableAttributes
-
-VariableAttributes ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_VariableAttributes
     specifiedAttributes::UA_UInt32
@@ -2451,9 +2319,9 @@ function Base.setproperty!(x::Ptr{UA_VariableAttributes}, f::Symbol, v)
 end
 
 """
-    UA_MethodAttributes
-
-MethodAttributes ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MethodAttributes
     specifiedAttributes::UA_UInt32
@@ -2480,9 +2348,9 @@ function Base.setproperty!(x::Ptr{UA_MethodAttributes}, f::Symbol, v)
 end
 
 """
-    UA_ObjectTypeAttributes
-
-ObjectTypeAttributes ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ObjectTypeAttributes
     specifiedAttributes::UA_UInt32
@@ -2507,9 +2375,9 @@ function Base.setproperty!(x::Ptr{UA_ObjectTypeAttributes}, f::Symbol, v)
 end
 
 """
-    UA_VariableTypeAttributes
-
-VariableTypeAttributes ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_VariableTypeAttributes
     specifiedAttributes::UA_UInt32
@@ -2544,9 +2412,9 @@ function Base.setproperty!(x::Ptr{UA_VariableTypeAttributes}, f::Symbol, v)
 end
 
 """
-    UA_ReferenceTypeAttributes
-
-ReferenceTypeAttributes ^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReferenceTypeAttributes
     specifiedAttributes::UA_UInt32
@@ -2574,11 +2442,6 @@ function Base.setproperty!(x::Ptr{UA_ReferenceTypeAttributes}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_DataTypeAttributes
-
-DataTypeAttributes ^^^^^^^^^^^^^^^^^^
-"""
 struct UA_DataTypeAttributes
     specifiedAttributes::UA_UInt32
     displayName::UA_LocalizedText
@@ -2602,9 +2465,9 @@ function Base.setproperty!(x::Ptr{UA_DataTypeAttributes}, f::Symbol, v)
 end
 
 """
-    UA_ViewAttributes
-
-ViewAttributes ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ViewAttributes
     specifiedAttributes::UA_UInt32
@@ -2631,9 +2494,9 @@ function Base.setproperty!(x::Ptr{UA_ViewAttributes}, f::Symbol, v)
 end
 
 """
-    UA_AddNodesItem
-
-AddNodesItem ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddNodesItem
     parentNodeId::UA_ExpandedNodeId
@@ -2660,9 +2523,9 @@ function Base.setproperty!(x::Ptr{UA_AddNodesItem}, f::Symbol, v)
 end
 
 """
-    UA_AddNodesResult
-
-AddNodesResult ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddNodesResult
     statusCode::UA_StatusCode
@@ -2679,9 +2542,9 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResult}, f::Symbol, v)
 end
 
 """
-    UA_AddNodesRequest
-
-AddNodesRequest ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddNodesRequest
     requestHeader::UA_RequestHeader
@@ -2700,9 +2563,9 @@ function Base.setproperty!(x::Ptr{UA_AddNodesRequest}, f::Symbol, v)
 end
 
 """
-    UA_AddNodesResponse
-
-AddNodesResponse ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddNodesResponse
     responseHeader::UA_ResponseHeader
@@ -2725,9 +2588,9 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResponse}, f::Symbol, v)
 end
 
 """
-    UA_AddReferencesItem
-
-AddReferencesItem ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddReferencesItem
     sourceNodeId::UA_NodeId
@@ -2752,9 +2615,9 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesItem}, f::Symbol, v)
 end
 
 """
-    UA_AddReferencesRequest
-
-AddReferencesRequest ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddReferencesRequest
     requestHeader::UA_RequestHeader
@@ -2773,9 +2636,9 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesRequest}, f::Symbol, v)
 end
 
 """
-    UA_AddReferencesResponse
-
-AddReferencesResponse ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AddReferencesResponse
     responseHeader::UA_ResponseHeader
@@ -2798,9 +2661,9 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesResponse}, f::Symbol, v)
 end
 
 """
-    UA_DeleteNodesItem
-
-DeleteNodesItem ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteNodesItem
     nodeId::UA_NodeId
@@ -2817,9 +2680,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesItem}, f::Symbol, v)
 end
 
 """
-    UA_DeleteNodesRequest
-
-DeleteNodesRequest ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteNodesRequest
     requestHeader::UA_RequestHeader
@@ -2838,9 +2701,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesRequest}, f::Symbol, v)
 end
 
 """
-    UA_DeleteNodesResponse
-
-DeleteNodesResponse ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteNodesResponse
     responseHeader::UA_ResponseHeader
@@ -2863,9 +2726,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesResponse}, f::Symbol, v)
 end
 
 """
-    UA_DeleteReferencesItem
-
-DeleteReferencesItem ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteReferencesItem
     sourceNodeId::UA_NodeId
@@ -2888,9 +2751,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesItem}, f::Symbol, v)
 end
 
 """
-    UA_DeleteReferencesRequest
-
-DeleteReferencesRequest ^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteReferencesRequest
     requestHeader::UA_RequestHeader
@@ -2909,9 +2772,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol, v)
 end
 
 """
-    UA_DeleteReferencesResponse
-
-DeleteReferencesResponse ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteReferencesResponse
     responseHeader::UA_ResponseHeader
@@ -2933,11 +2796,6 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_BrowseDirection
-
-BrowseDirection ^^^^^^^^^^^^^^^
-"""
 @cenum UA_BrowseDirection::UInt32 begin
     UA_BROWSEDIRECTION_FORWARD = 0
     UA_BROWSEDIRECTION_INVERSE = 1
@@ -2951,9 +2809,9 @@ struct static_assertion_failed_8
 end
 
 """
-    UA_ViewDescription
-
-ViewDescription ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ViewDescription
     viewId::UA_NodeId
@@ -2972,9 +2830,9 @@ function Base.setproperty!(x::Ptr{UA_ViewDescription}, f::Symbol, v)
 end
 
 """
-    UA_BrowseDescription
-
-BrowseDescription ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseDescription
     nodeId::UA_NodeId
@@ -2998,11 +2856,6 @@ function Base.setproperty!(x::Ptr{UA_BrowseDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_BrowseResultMask
-
-BrowseResultMask ^^^^^^^^^^^^^^^^
-"""
 @cenum UA_BrowseResultMask::UInt32 begin
     UA_BROWSERESULTMASK_NONE = 0
     UA_BROWSERESULTMASK_REFERENCETYPEID = 1
@@ -3022,9 +2875,9 @@ struct static_assertion_failed_9
 end
 
 """
-    UA_ReferenceDescription
-
-ReferenceDescription ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReferenceDescription
     referenceTypeId::UA_NodeId
@@ -3051,9 +2904,9 @@ function Base.setproperty!(x::Ptr{UA_ReferenceDescription}, f::Symbol, v)
 end
 
 """
-    UA_BrowseResult
-
-BrowseResult ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseResult
     statusCode::UA_StatusCode
@@ -3074,9 +2927,9 @@ function Base.setproperty!(x::Ptr{UA_BrowseResult}, f::Symbol, v)
 end
 
 """
-    UA_BrowseRequest
-
-BrowseRequest ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseRequest
     requestHeader::UA_RequestHeader
@@ -3099,9 +2952,9 @@ function Base.setproperty!(x::Ptr{UA_BrowseRequest}, f::Symbol, v)
 end
 
 """
-    UA_BrowseResponse
-
-BrowseResponse ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseResponse
     responseHeader::UA_ResponseHeader
@@ -3124,9 +2977,9 @@ function Base.setproperty!(x::Ptr{UA_BrowseResponse}, f::Symbol, v)
 end
 
 """
-    UA_BrowseNextRequest
-
-BrowseNextRequest ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseNextRequest
     requestHeader::UA_RequestHeader
@@ -3147,9 +3000,9 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextRequest}, f::Symbol, v)
 end
 
 """
-    UA_BrowseNextResponse
-
-BrowseNextResponse ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowseNextResponse
     responseHeader::UA_ResponseHeader
@@ -3172,9 +3025,9 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextResponse}, f::Symbol, v)
 end
 
 """
-    UA_RelativePathElement
-
-RelativePathElement ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RelativePathElement
     referenceTypeId::UA_NodeId
@@ -3195,9 +3048,9 @@ function Base.setproperty!(x::Ptr{UA_RelativePathElement}, f::Symbol, v)
 end
 
 """
-    UA_RelativePath
-
-RelativePath ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RelativePath
     elementsSize::Csize_t
@@ -3214,9 +3067,9 @@ function Base.setproperty!(x::Ptr{UA_RelativePath}, f::Symbol, v)
 end
 
 """
-    UA_BrowsePath
-
-BrowsePath ^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowsePath
     startingNode::UA_NodeId
@@ -3233,9 +3086,9 @@ function Base.setproperty!(x::Ptr{UA_BrowsePath}, f::Symbol, v)
 end
 
 """
-    UA_BrowsePathTarget
-
-BrowsePathTarget ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowsePathTarget
     targetId::UA_ExpandedNodeId
@@ -3252,9 +3105,9 @@ function Base.setproperty!(x::Ptr{UA_BrowsePathTarget}, f::Symbol, v)
 end
 
 """
-    UA_BrowsePathResult
-
-BrowsePathResult ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BrowsePathResult
     statusCode::UA_StatusCode
@@ -3273,9 +3126,9 @@ function Base.setproperty!(x::Ptr{UA_BrowsePathResult}, f::Symbol, v)
 end
 
 """
-    UA_TranslateBrowsePathsToNodeIdsRequest
-
-TranslateBrowsePathsToNodeIdsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TranslateBrowsePathsToNodeIdsRequest
     requestHeader::UA_RequestHeader
@@ -3294,9 +3147,9 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::S
 end
 
 """
-    UA_TranslateBrowsePathsToNodeIdsResponse
-
-TranslateBrowsePathsToNodeIdsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TranslateBrowsePathsToNodeIdsResponse
     responseHeader::UA_ResponseHeader
@@ -3319,9 +3172,9 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::
 end
 
 """
-    UA_RegisterNodesRequest
-
-RegisterNodesRequest ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RegisterNodesRequest
     requestHeader::UA_RequestHeader
@@ -3340,9 +3193,9 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesRequest}, f::Symbol, v)
 end
 
 """
-    UA_RegisterNodesResponse
-
-RegisterNodesResponse ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RegisterNodesResponse
     responseHeader::UA_ResponseHeader
@@ -3361,9 +3214,9 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesResponse}, f::Symbol, v)
 end
 
 """
-    UA_UnregisterNodesRequest
-
-UnregisterNodesRequest ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UnregisterNodesRequest
     requestHeader::UA_RequestHeader
@@ -3382,9 +3235,9 @@ function Base.setproperty!(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol, v)
 end
 
 """
-    UA_UnregisterNodesResponse
-
-UnregisterNodesResponse ^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UnregisterNodesResponse
     responseHeader::UA_ResponseHeader
@@ -3398,11 +3251,6 @@ function Base.setproperty!(x::Ptr{UA_UnregisterNodesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_FilterOperator
-
-FilterOperator ^^^^^^^^^^^^^^
-"""
 @cenum UA_FilterOperator::UInt32 begin
     UA_FILTEROPERATOR_EQUALS = 0
     UA_FILTEROPERATOR_ISNULL = 1
@@ -3430,9 +3278,9 @@ struct static_assertion_failed_10
 end
 
 """
-    UA_ContentFilterElement
-
-ContentFilterElement ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ContentFilterElement
     filterOperator::UA_FilterOperator
@@ -3451,9 +3299,9 @@ function Base.setproperty!(x::Ptr{UA_ContentFilterElement}, f::Symbol, v)
 end
 
 """
-    UA_ContentFilter
-
-ContentFilter ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ContentFilter
     elementsSize::Csize_t
@@ -3470,9 +3318,9 @@ function Base.setproperty!(x::Ptr{UA_ContentFilter}, f::Symbol, v)
 end
 
 """
-    UA_ElementOperand
-
-ElementOperand ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ElementOperand
     index::UA_UInt32
@@ -3487,9 +3335,9 @@ function Base.setproperty!(x::Ptr{UA_ElementOperand}, f::Symbol, v)
 end
 
 """
-    UA_LiteralOperand
-
-LiteralOperand ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_LiteralOperand
     value::UA_Variant
@@ -3504,9 +3352,9 @@ function Base.setproperty!(x::Ptr{UA_LiteralOperand}, f::Symbol, v)
 end
 
 """
-    UA_AttributeOperand
-
-AttributeOperand ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AttributeOperand
     nodeId::UA_NodeId
@@ -3529,9 +3377,9 @@ function Base.setproperty!(x::Ptr{UA_AttributeOperand}, f::Symbol, v)
 end
 
 """
-    UA_SimpleAttributeOperand
-
-SimpleAttributeOperand ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SimpleAttributeOperand
     typeDefinitionId::UA_NodeId
@@ -3554,9 +3402,9 @@ function Base.setproperty!(x::Ptr{UA_SimpleAttributeOperand}, f::Symbol, v)
 end
 
 """
-    UA_ContentFilterElementResult
-
-ContentFilterElementResult ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ContentFilterElementResult
     statusCode::UA_StatusCode
@@ -3579,9 +3427,9 @@ function Base.setproperty!(x::Ptr{UA_ContentFilterElementResult}, f::Symbol, v)
 end
 
 """
-    UA_ContentFilterResult
-
-ContentFilterResult ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ContentFilterResult
     elementResultsSize::Csize_t
@@ -3601,11 +3449,6 @@ function Base.setproperty!(x::Ptr{UA_ContentFilterResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_TimestampsToReturn
-
-TimestampsToReturn ^^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_TimestampsToReturn::UInt32 begin
     UA_TIMESTAMPSTORETURN_SOURCE = 0
     UA_TIMESTAMPSTORETURN_SERVER = 1
@@ -3620,9 +3463,9 @@ struct static_assertion_failed_11
 end
 
 """
-    UA_ReadValueId
-
-ReadValueId ^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadValueId
     nodeId::UA_NodeId
@@ -3643,9 +3486,9 @@ function Base.setproperty!(x::Ptr{UA_ReadValueId}, f::Symbol, v)
 end
 
 """
-    UA_ReadRequest
-
-ReadRequest ^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadRequest
     requestHeader::UA_RequestHeader
@@ -3668,9 +3511,9 @@ function Base.setproperty!(x::Ptr{UA_ReadRequest}, f::Symbol, v)
 end
 
 """
-    UA_ReadResponse
-
-ReadResponse ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadResponse
     responseHeader::UA_ResponseHeader
@@ -3693,9 +3536,9 @@ function Base.setproperty!(x::Ptr{UA_ReadResponse}, f::Symbol, v)
 end
 
 """
-    UA_HistoryReadValueId
-
-HistoryReadValueId ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryReadValueId
     nodeId::UA_NodeId
@@ -3705,9 +3548,9 @@ struct UA_HistoryReadValueId
 end
 
 """
-    UA_HistoryReadResult
-
-HistoryReadResult ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryReadResult
     statusCode::UA_StatusCode
@@ -3716,9 +3559,9 @@ struct UA_HistoryReadResult
 end
 
 """
-    UA_ReadRawModifiedDetails
-
-ReadRawModifiedDetails ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadRawModifiedDetails
     isReadModified::UA_Boolean
@@ -3729,9 +3572,9 @@ struct UA_ReadRawModifiedDetails
 end
 
 """
-    UA_ReadAtTimeDetails
-
-ReadAtTimeDetails ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadAtTimeDetails
     reqTimesSize::Csize_t
@@ -3740,9 +3583,9 @@ struct UA_ReadAtTimeDetails
 end
 
 """
-    UA_HistoryData
-
-HistoryData ^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryData
     dataValuesSize::Csize_t
@@ -3750,9 +3593,9 @@ struct UA_HistoryData
 end
 
 """
-    UA_HistoryReadRequest
-
-HistoryReadRequest ^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryReadRequest
     requestHeader::UA_RequestHeader
@@ -3764,9 +3607,9 @@ struct UA_HistoryReadRequest
 end
 
 """
-    UA_HistoryReadResponse
-
-HistoryReadResponse ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryReadResponse
     responseHeader::UA_ResponseHeader
@@ -3777,9 +3620,9 @@ struct UA_HistoryReadResponse
 end
 
 """
-    UA_WriteValue
-
-WriteValue ^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_WriteValue
     nodeId::UA_NodeId
@@ -3800,9 +3643,9 @@ function Base.setproperty!(x::Ptr{UA_WriteValue}, f::Symbol, v)
 end
 
 """
-    UA_WriteRequest
-
-WriteRequest ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_WriteRequest
     requestHeader::UA_RequestHeader
@@ -3821,9 +3664,9 @@ function Base.setproperty!(x::Ptr{UA_WriteRequest}, f::Symbol, v)
 end
 
 """
-    UA_WriteResponse
-
-WriteResponse ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_WriteResponse
     responseHeader::UA_ResponseHeader
@@ -3845,11 +3688,6 @@ function Base.setproperty!(x::Ptr{UA_WriteResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_HistoryUpdateType
-
-HistoryUpdateType ^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_HistoryUpdateType::UInt32 begin
     UA_HISTORYUPDATETYPE_INSERT = 1
     UA_HISTORYUPDATETYPE_REPLACE = 2
@@ -3862,11 +3700,6 @@ struct static_assertion_failed_12
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_PerformUpdateType
-
-PerformUpdateType ^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_PerformUpdateType::UInt32 begin
     UA_PERFORMUPDATETYPE_INSERT = 1
     UA_PERFORMUPDATETYPE_REPLACE = 2
@@ -3880,9 +3713,9 @@ struct static_assertion_failed_13
 end
 
 """
-    UA_UpdateDataDetails
-
-UpdateDataDetails ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UpdateDataDetails
     nodeId::UA_NodeId
@@ -3892,9 +3725,9 @@ struct UA_UpdateDataDetails
 end
 
 """
-    UA_DeleteRawModifiedDetails
-
-DeleteRawModifiedDetails ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteRawModifiedDetails
     nodeId::UA_NodeId
@@ -3904,9 +3737,9 @@ struct UA_DeleteRawModifiedDetails
 end
 
 """
-    UA_HistoryUpdateResult
-
-HistoryUpdateResult ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryUpdateResult
     statusCode::UA_StatusCode
@@ -3917,9 +3750,9 @@ struct UA_HistoryUpdateResult
 end
 
 """
-    UA_HistoryUpdateRequest
-
-HistoryUpdateRequest ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryUpdateRequest
     requestHeader::UA_RequestHeader
@@ -3928,9 +3761,9 @@ struct UA_HistoryUpdateRequest
 end
 
 """
-    UA_HistoryUpdateResponse
-
-HistoryUpdateResponse ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryUpdateResponse
     responseHeader::UA_ResponseHeader
@@ -3941,9 +3774,9 @@ struct UA_HistoryUpdateResponse
 end
 
 """
-    UA_CallMethodRequest
-
-CallMethodRequest ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CallMethodRequest
     objectId::UA_NodeId
@@ -3964,9 +3797,9 @@ function Base.setproperty!(x::Ptr{UA_CallMethodRequest}, f::Symbol, v)
 end
 
 """
-    UA_CallMethodResult
-
-CallMethodResult ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CallMethodResult
     statusCode::UA_StatusCode
@@ -3993,9 +3826,9 @@ function Base.setproperty!(x::Ptr{UA_CallMethodResult}, f::Symbol, v)
 end
 
 """
-    UA_CallRequest
-
-CallRequest ^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CallRequest
     requestHeader::UA_RequestHeader
@@ -4014,9 +3847,9 @@ function Base.setproperty!(x::Ptr{UA_CallRequest}, f::Symbol, v)
 end
 
 """
-    UA_CallResponse
-
-CallResponse ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CallResponse
     responseHeader::UA_ResponseHeader
@@ -4038,11 +3871,6 @@ function Base.setproperty!(x::Ptr{UA_CallResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_MonitoringMode
-
-MonitoringMode ^^^^^^^^^^^^^^
-"""
 @cenum UA_MonitoringMode::UInt32 begin
     UA_MONITORINGMODE_DISABLED = 0
     UA_MONITORINGMODE_SAMPLING = 1
@@ -4054,11 +3882,6 @@ struct static_assertion_failed_14
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_DataChangeTrigger
-
-DataChangeTrigger ^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_DataChangeTrigger::UInt32 begin
     UA_DATACHANGETRIGGER_STATUS = 0
     UA_DATACHANGETRIGGER_STATUSVALUE = 1
@@ -4070,11 +3893,6 @@ struct static_assertion_failed_15
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_DeadbandType
-
-DeadbandType ^^^^^^^^^^^^
-"""
 @cenum UA_DeadbandType::UInt32 begin
     UA_DEADBANDTYPE_NONE = 0
     UA_DEADBANDTYPE_ABSOLUTE = 1
@@ -4087,9 +3905,9 @@ struct static_assertion_failed_16
 end
 
 """
-    UA_DataChangeFilter
-
-DataChangeFilter ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DataChangeFilter
     trigger::UA_DataChangeTrigger
@@ -4108,9 +3926,9 @@ function Base.setproperty!(x::Ptr{UA_DataChangeFilter}, f::Symbol, v)
 end
 
 """
-    UA_EventFilter
-
-EventFilter ^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EventFilter
     selectClausesSize::Csize_t
@@ -4129,9 +3947,9 @@ function Base.setproperty!(x::Ptr{UA_EventFilter}, f::Symbol, v)
 end
 
 """
-    UA_AggregateConfiguration
-
-AggregateConfiguration ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AggregateConfiguration
     useServerCapabilitiesDefaults::UA_Boolean
@@ -4154,9 +3972,9 @@ function Base.setproperty!(x::Ptr{UA_AggregateConfiguration}, f::Symbol, v)
 end
 
 """
-    UA_AggregateFilter
-
-AggregateFilter ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AggregateFilter
     startTime::UA_DateTime
@@ -4177,9 +3995,9 @@ function Base.setproperty!(x::Ptr{UA_AggregateFilter}, f::Symbol, v)
 end
 
 """
-    UA_EventFilterResult
-
-EventFilterResult ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EventFilterResult
     selectClauseResultsSize::Csize_t
@@ -4202,9 +4020,9 @@ function Base.setproperty!(x::Ptr{UA_EventFilterResult}, f::Symbol, v)
 end
 
 """
-    UA_MonitoringParameters
-
-MonitoringParameters ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoringParameters
     clientHandle::UA_UInt32
@@ -4227,9 +4045,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoringParameters}, f::Symbol, v)
 end
 
 """
-    UA_MonitoredItemCreateRequest
-
-MonitoredItemCreateRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoredItemCreateRequest
     itemToMonitor::UA_ReadValueId
@@ -4248,9 +4066,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol, v)
 end
 
 """
-    UA_MonitoredItemCreateResult
-
-MonitoredItemCreateResult ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoredItemCreateResult
     statusCode::UA_StatusCode
@@ -4273,9 +4091,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol, v)
 end
 
 """
-    UA_CreateMonitoredItemsRequest
-
-CreateMonitoredItemsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateMonitoredItemsRequest
     requestHeader::UA_RequestHeader
@@ -4298,9 +4116,9 @@ function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
-    UA_CreateMonitoredItemsResponse
-
-CreateMonitoredItemsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateMonitoredItemsResponse
     responseHeader::UA_ResponseHeader
@@ -4323,9 +4141,9 @@ function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsResponse}, f::Symbol, v
 end
 
 """
-    UA_MonitoredItemModifyRequest
-
-MonitoredItemModifyRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoredItemModifyRequest
     monitoredItemId::UA_UInt32
@@ -4342,9 +4160,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol, v)
 end
 
 """
-    UA_MonitoredItemModifyResult
-
-MonitoredItemModifyResult ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoredItemModifyResult
     statusCode::UA_StatusCode
@@ -4365,9 +4183,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol, v)
 end
 
 """
-    UA_ModifyMonitoredItemsRequest
-
-ModifyMonitoredItemsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ModifyMonitoredItemsRequest
     requestHeader::UA_RequestHeader
@@ -4390,9 +4208,9 @@ function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
-    UA_ModifyMonitoredItemsResponse
-
-ModifyMonitoredItemsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ModifyMonitoredItemsResponse
     responseHeader::UA_ResponseHeader
@@ -4415,9 +4233,9 @@ function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsResponse}, f::Symbol, v
 end
 
 """
-    UA_SetMonitoringModeRequest
-
-SetMonitoringModeRequest ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetMonitoringModeRequest
     requestHeader::UA_RequestHeader
@@ -4440,9 +4258,9 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol, v)
 end
 
 """
-    UA_SetMonitoringModeResponse
-
-SetMonitoringModeResponse ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetMonitoringModeResponse
     responseHeader::UA_ResponseHeader
@@ -4465,9 +4283,9 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol, v)
 end
 
 """
-    UA_SetTriggeringRequest
-
-SetTriggeringRequest ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetTriggeringRequest
     requestHeader::UA_RequestHeader
@@ -4494,9 +4312,9 @@ function Base.setproperty!(x::Ptr{UA_SetTriggeringRequest}, f::Symbol, v)
 end
 
 """
-    UA_SetTriggeringResponse
-
-SetTriggeringResponse ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetTriggeringResponse
     responseHeader::UA_ResponseHeader
@@ -4527,9 +4345,9 @@ function Base.setproperty!(x::Ptr{UA_SetTriggeringResponse}, f::Symbol, v)
 end
 
 """
-    UA_DeleteMonitoredItemsRequest
-
-DeleteMonitoredItemsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteMonitoredItemsRequest
     requestHeader::UA_RequestHeader
@@ -4550,9 +4368,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
-    UA_DeleteMonitoredItemsResponse
-
-DeleteMonitoredItemsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteMonitoredItemsResponse
     responseHeader::UA_ResponseHeader
@@ -4575,9 +4393,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsResponse}, f::Symbol, v
 end
 
 """
-    UA_CreateSubscriptionRequest
-
-CreateSubscriptionRequest ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateSubscriptionRequest
     requestHeader::UA_RequestHeader
@@ -4604,9 +4422,9 @@ function Base.setproperty!(x::Ptr{UA_CreateSubscriptionRequest}, f::Symbol, v)
 end
 
 """
-    UA_CreateSubscriptionResponse
-
-CreateSubscriptionResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CreateSubscriptionResponse
     responseHeader::UA_ResponseHeader
@@ -4629,9 +4447,9 @@ function Base.setproperty!(x::Ptr{UA_CreateSubscriptionResponse}, f::Symbol, v)
 end
 
 """
-    UA_ModifySubscriptionRequest
-
-ModifySubscriptionRequest ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ModifySubscriptionRequest
     requestHeader::UA_RequestHeader
@@ -4658,9 +4476,9 @@ function Base.setproperty!(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol, v)
 end
 
 """
-    UA_ModifySubscriptionResponse
-
-ModifySubscriptionResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ModifySubscriptionResponse
     responseHeader::UA_ResponseHeader
@@ -4681,9 +4499,9 @@ function Base.setproperty!(x::Ptr{UA_ModifySubscriptionResponse}, f::Symbol, v)
 end
 
 """
-    UA_SetPublishingModeRequest
-
-SetPublishingModeRequest ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetPublishingModeRequest
     requestHeader::UA_RequestHeader
@@ -4704,9 +4522,9 @@ function Base.setproperty!(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol, v)
 end
 
 """
-    UA_SetPublishingModeResponse
-
-SetPublishingModeResponse ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SetPublishingModeResponse
     responseHeader::UA_ResponseHeader
@@ -4729,9 +4547,9 @@ function Base.setproperty!(x::Ptr{UA_SetPublishingModeResponse}, f::Symbol, v)
 end
 
 """
-    UA_NotificationMessage
-
-NotificationMessage ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_NotificationMessage
     sequenceNumber::UA_UInt32
@@ -4752,9 +4570,9 @@ function Base.setproperty!(x::Ptr{UA_NotificationMessage}, f::Symbol, v)
 end
 
 """
-    UA_MonitoredItemNotification
-
-MonitoredItemNotification ^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_MonitoredItemNotification
     clientHandle::UA_UInt32
@@ -4771,9 +4589,9 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemNotification}, f::Symbol, v)
 end
 
 """
-    UA_EventFieldList
-
-EventFieldList ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EventFieldList
     clientHandle::UA_UInt32
@@ -4792,9 +4610,9 @@ function Base.setproperty!(x::Ptr{UA_EventFieldList}, f::Symbol, v)
 end
 
 """
-    UA_HistoryEventFieldList
-
-HistoryEventFieldList ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryEventFieldList
     eventFieldsSize::Csize_t
@@ -4802,9 +4620,9 @@ struct UA_HistoryEventFieldList
 end
 
 """
-    UA_StatusChangeNotification
-
-StatusChangeNotification ^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_StatusChangeNotification
     status::UA_StatusCode
@@ -4821,9 +4639,9 @@ function Base.setproperty!(x::Ptr{UA_StatusChangeNotification}, f::Symbol, v)
 end
 
 """
-    UA_SubscriptionAcknowledgement
-
-SubscriptionAcknowledgement ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SubscriptionAcknowledgement
     subscriptionId::UA_UInt32
@@ -4840,9 +4658,9 @@ function Base.setproperty!(x::Ptr{UA_SubscriptionAcknowledgement}, f::Symbol, v)
 end
 
 """
-    UA_PublishRequest
-
-PublishRequest ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_PublishRequest
     requestHeader::UA_RequestHeader
@@ -4862,9 +4680,9 @@ function Base.setproperty!(x::Ptr{UA_PublishRequest}, f::Symbol, v)
 end
 
 """
-    UA_PublishResponse
-
-PublishResponse ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_PublishResponse
     responseHeader::UA_ResponseHeader
@@ -4897,9 +4715,9 @@ function Base.setproperty!(x::Ptr{UA_PublishResponse}, f::Symbol, v)
 end
 
 """
-    UA_RepublishRequest
-
-RepublishRequest ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RepublishRequest
     requestHeader::UA_RequestHeader
@@ -4918,9 +4736,9 @@ function Base.setproperty!(x::Ptr{UA_RepublishRequest}, f::Symbol, v)
 end
 
 """
-    UA_RepublishResponse
-
-RepublishResponse ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_RepublishResponse
     responseHeader::UA_ResponseHeader
@@ -4937,9 +4755,9 @@ function Base.setproperty!(x::Ptr{UA_RepublishResponse}, f::Symbol, v)
 end
 
 """
-    UA_TransferResult
-
-TransferResult ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TransferResult
     statusCode::UA_StatusCode
@@ -4958,9 +4776,9 @@ function Base.setproperty!(x::Ptr{UA_TransferResult}, f::Symbol, v)
 end
 
 """
-    UA_TransferSubscriptionsRequest
-
-TransferSubscriptionsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TransferSubscriptionsRequest
     requestHeader::UA_RequestHeader
@@ -4981,9 +4799,9 @@ function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol, v
 end
 
 """
-    UA_TransferSubscriptionsResponse
-
-TransferSubscriptionsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_TransferSubscriptionsResponse
     responseHeader::UA_ResponseHeader
@@ -5006,9 +4824,9 @@ function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsResponse}, f::Symbol, 
 end
 
 """
-    UA_DeleteSubscriptionsRequest
-
-DeleteSubscriptionsRequest ^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteSubscriptionsRequest
     requestHeader::UA_RequestHeader
@@ -5027,9 +4845,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol, v)
 end
 
 """
-    UA_DeleteSubscriptionsResponse
-
-DeleteSubscriptionsResponse ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DeleteSubscriptionsResponse
     responseHeader::UA_ResponseHeader
@@ -5052,9 +4870,9 @@ function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsResponse}, f::Symbol, v)
 end
 
 """
-    UA_BuildInfo
-
-BuildInfo ^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_BuildInfo
     productUri::UA_String
@@ -5078,11 +4896,6 @@ function Base.setproperty!(x::Ptr{UA_BuildInfo}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_RedundancySupport
-
-RedundancySupport ^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_RedundancySupport::UInt32 begin
     UA_REDUNDANCYSUPPORT_NONE = 0
     UA_REDUNDANCYSUPPORT_COLD = 1
@@ -5097,11 +4910,6 @@ struct static_assertion_failed_17
     static_assertion_failed_enum_must_be_32bit::Cint
 end
 
-"""
-    UA_ServerState
-
-ServerState ^^^^^^^^^^^
-"""
 @cenum UA_ServerState::UInt32 begin
     UA_SERVERSTATE_RUNNING = 0
     UA_SERVERSTATE_FAILED = 1
@@ -5119,9 +4927,9 @@ struct static_assertion_failed_18
 end
 
 """
-    UA_ServerDiagnosticsSummaryDataType
-
-ServerDiagnosticsSummaryDataType ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ServerDiagnosticsSummaryDataType
     serverViewCount::UA_UInt32
@@ -5158,9 +4966,9 @@ function Base.setproperty!(x::Ptr{UA_ServerDiagnosticsSummaryDataType}, f::Symbo
 end
 
 """
-    UA_ServerStatusDataType
-
-ServerStatusDataType ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ServerStatusDataType
     startTime::UA_DateTime
@@ -5185,9 +4993,9 @@ function Base.setproperty!(x::Ptr{UA_ServerStatusDataType}, f::Symbol, v)
 end
 
 """
-    UA_Range
-
-Range ^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_Range
     low::UA_Double
@@ -5204,9 +5012,9 @@ function Base.setproperty!(x::Ptr{UA_Range}, f::Symbol, v)
 end
 
 """
-    UA_EUInformation
-
-EUInformation ^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EUInformation
     namespaceUri::UA_String
@@ -5226,11 +5034,6 @@ function Base.setproperty!(x::Ptr{UA_EUInformation}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_AxisScaleEnumeration
-
-AxisScaleEnumeration ^^^^^^^^^^^^^^^^^^^^
-"""
 @cenum UA_AxisScaleEnumeration::UInt32 begin
     UA_AXISSCALEENUMERATION_LINEAR = 0
     UA_AXISSCALEENUMERATION_LOG = 1
@@ -5243,9 +5046,9 @@ struct static_assertion_failed_19
 end
 
 """
-    UA_ComplexNumberType
-
-ComplexNumberType ^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ComplexNumberType
     real::UA_Float
@@ -5262,9 +5065,9 @@ function Base.setproperty!(x::Ptr{UA_ComplexNumberType}, f::Symbol, v)
 end
 
 """
-    UA_DoubleComplexNumberType
-
-DoubleComplexNumberType ^^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DoubleComplexNumberType
     real::UA_Double
@@ -5281,9 +5084,9 @@ function Base.setproperty!(x::Ptr{UA_DoubleComplexNumberType}, f::Symbol, v)
 end
 
 """
-    UA_AxisInformation
-
-AxisInformation ^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AxisInformation
     engineeringUnits::UA_EUInformation
@@ -5308,9 +5111,9 @@ function Base.setproperty!(x::Ptr{UA_AxisInformation}, f::Symbol, v)
 end
 
 """
-    UA_XVType
-
-XVType ^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_XVType
     x::UA_Double
@@ -5327,9 +5130,9 @@ function Base.setproperty!(x::Ptr{UA_XVType}, f::Symbol, v)
 end
 
 """
-    UA_EnumDefinition
-
-EnumDefinition ^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EnumDefinition
     fieldsSize::Csize_t
@@ -5346,9 +5149,9 @@ function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
 end
 
 """
-    UA_ReadEventDetails
-
-ReadEventDetails ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadEventDetails
     numValuesPerNode::UA_UInt32
@@ -5358,9 +5161,9 @@ struct UA_ReadEventDetails
 end
 
 """
-    UA_ReadProcessedDetails
-
-ReadProcessedDetails ^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReadProcessedDetails
     startTime::UA_DateTime
@@ -5372,9 +5175,9 @@ struct UA_ReadProcessedDetails
 end
 
 """
-    UA_ModificationInfo
-
-ModificationInfo ^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ModificationInfo
     modificationTime::UA_DateTime
@@ -5383,9 +5186,9 @@ struct UA_ModificationInfo
 end
 
 """
-    UA_HistoryModifiedData
-
-HistoryModifiedData ^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryModifiedData
     dataValuesSize::Csize_t
@@ -5395,9 +5198,9 @@ struct UA_HistoryModifiedData
 end
 
 """
-    UA_HistoryEvent
-
-HistoryEvent ^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_HistoryEvent
     eventsSize::Csize_t
@@ -5405,9 +5208,9 @@ struct UA_HistoryEvent
 end
 
 """
-    UA_DataChangeNotification
-
-DataChangeNotification ^^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_DataChangeNotification
     monitoredItemsSize::Csize_t
@@ -5428,9 +5231,9 @@ function Base.setproperty!(x::Ptr{UA_DataChangeNotification}, f::Symbol, v)
 end
 
 """
-    UA_EventNotificationList
-
-EventNotificationList ^^^^^^^^^^^^^^^^^^^^^
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_EventNotificationList
     eventsSize::Csize_t
@@ -5446,6 +5249,11 @@ function Base.setproperty!(x::Ptr{UA_EventNotificationList}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_Logger
     log::Ptr{Cvoid}
     context::Ptr{Cvoid}
@@ -5453,13 +5261,9 @@ struct UA_Logger
 end
 
 """
-    UA_ConnectionConfig
-
-.. \\_networking:
-
-Networking Plugin API =====================
-
-Connection ---------- Client-server connections are represented by a [`UA_Connection`](@ref). The connection is stateful and stores partially received messages, and so on. In addition, the connection contains function pointers to the underlying networking implementation. An example for this is the `send` function. So the connection encapsulates all the required networking functionality. This lets users on embedded (or otherwise exotic) systems implement their own networking plugins with a clear interface to the main open62541 library.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ConnectionConfig
     protocolVersion::UA_UInt32
@@ -5471,6 +5275,11 @@ struct UA_ConnectionConfig
     remoteMaxChunkCount::UA_UInt32
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_ServerNetworkLayer
     handle::Ptr{Cvoid}
     statistics::Ptr{UA_NetworkStatistics}
@@ -5483,9 +5292,9 @@ struct UA_ServerNetworkLayer
 end
 
 """
-    UA_SecurityPolicySignatureAlgorithm
-
-SecurityPolicy Interface Definition -----------------------------------
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_SecurityPolicySignatureAlgorithm
     uri::UA_String
@@ -5497,6 +5306,11 @@ struct UA_SecurityPolicySignatureAlgorithm
     getRemoteKeyLength::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicyEncryptionAlgorithm
     uri::UA_String
     encrypt::Ptr{Cvoid}
@@ -5507,17 +5321,32 @@ struct UA_SecurityPolicyEncryptionAlgorithm
     getRemotePlainTextBlockSize::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicyCryptoModule
     signatureAlgorithm::UA_SecurityPolicySignatureAlgorithm
     encryptionAlgorithm::UA_SecurityPolicyEncryptionAlgorithm
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicyAsymmetricModule
     makeCertificateThumbprint::Ptr{Cvoid}
     compareCertificateThumbprint::Ptr{Cvoid}
     cryptoModule::UA_SecurityPolicyCryptoModule
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicySymmetricModule
     generateKey::Ptr{Cvoid}
     generateNonce::Ptr{Cvoid}
@@ -5525,6 +5354,11 @@ struct UA_SecurityPolicySymmetricModule
     cryptoModule::UA_SecurityPolicyCryptoModule
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicyChannelModule
     newContext::Ptr{Cvoid}
     deleteContext::Ptr{Cvoid}
@@ -5537,6 +5371,11 @@ struct UA_SecurityPolicyChannelModule
     compareCertificate::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SecurityPolicy
     policyContext::Ptr{Cvoid}
     policyUri::UA_String
@@ -5551,13 +5390,9 @@ struct UA_SecurityPolicy
 end
 
 """
-    UA_CertificateVerification
-
-Public Key Infrastructure Integration ===================================== This file contains interface definitions for integration in a Public Key Infrastructure (PKI). Currently only one plugin interface is defined.
-
-Certificate Verification ------------------------ This plugin verifies that the origin of the certificate is trusted. It does not assign any access rights/roles to the holder of the certificate.
-
-Usually, implementations of the certificate verification plugin provide an initialization method that takes a trust-list and a revocation-list as input. The lifecycle of the plugin is attached to a server or client config. The ``clear`` method is called automatically when the config is destroyed.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_CertificateVerification
     context::Ptr{Cvoid}
@@ -5567,13 +5402,9 @@ struct UA_CertificateVerification
 end
 
 """
-    UA_AccessControl
-
-.. \\_access-control:
-
-Access Control Plugin API ========================= The access control callback is used to authenticate sessions and grant access rights accordingly.
-
-The ``sessionId`` and ``sessionContext`` can be both NULL. This is the case when, for example, a MonitoredItem (the underlying Subscription) is detached from its Session but continues to run.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_AccessControl
     context::Ptr{Cvoid}
@@ -5637,37 +5468,9 @@ struct UA_Nodestore
 end
 
 """
-    UA_GlobalNodeLifecycle
-
-.. \\_information-modelling:
-
-Information Modelling =====================
-
-Information modelling in OPC UA combines concepts from object-orientation and semantic modelling. At the core, an OPC UA information model is a graph made up of
-
-  - Nodes: There are eight possible Node types (variable, object, method, ...) - References: Typed and directed relations between two nodes
-
-Every node is identified by a unique (within the server) :ref:`nodeid`. Reference are triples of the form ``(source-nodeid, referencetype-nodeid, target-nodeid)``. An example reference between nodes is a ``hasTypeDefinition`` reference between a Variable and its VariableType. Some ReferenceTypes are *hierarchic* and must not form *directed loops*. See the section on :ref:`ReferenceTypes <referencetypenode>` for more details on possible references and their semantics.
-
-**Warning!!** The structures defined in this section are only relevant for the developers of custom Nodestores. The interaction with the information model is possible only via the OPC UA :ref:`services`. So the following sections are purely informational so that users may have a clear mental model of the underlying representation.
-
-.. \\_node-lifecycle:
-
-Node Lifecycle: Constructors, Destructors and Node Contexts -----------------------------------------------------------
-
-To finalize the instantiation of a node, a (user-defined) constructor callback is executed. There can be both a global constructor for all nodes and node-type constructor specific to the TypeDefinition of the new node (attached to an ObjectTypeNode or VariableTypeNode).
-
-In the hierarchy of ObjectTypes and VariableTypes, only the constructor of the (lowest) type defined for the new node is executed. Note that every Object and Variable can have only one ``isTypeOf`` reference. But type-nodes can technically have several ``hasSubType`` references to implement multiple inheritance. Issues of (multiple) inheritance in the constructor need to be solved by the user.
-
-When a node is destroyed, the node-type destructor is called before the global destructor. So the overall node lifecycle is as follows:
-
- 1. Global Constructor (set in the server config) 2. Node-Type Constructor (for VariableType or ObjectTypes) 3. (Usage-period of the Node) 4. Node-Type Destructor 5. Global Destructor
-
-The constructor and destructor callbacks can be set to ``NULL`` and are not used in that case. If the node-type constructor fails, the global destructor will be called before removing the node. The destructors are assumed to never fail.
-
-Every node carries a user-context and a constructor-context pointer. The user-context is used to attach custom data to a node. But the (user-defined) constructors and destructors may replace the user-context pointer if they wish to do so. The initial value for the constructor-context is ``NULL``. When the ``AddNodes`` service is used over the network, the user-context pointer of the new node is also initially set to ``NULL``.
-
-Global Node Lifecycle ~~~~~~~~~~~~~~~~~~~~~~ Global constructor and destructor callbacks used for every node type. To be set in the server config.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_GlobalNodeLifecycle
     constructor::Ptr{Cvoid}
@@ -5679,16 +5482,31 @@ end
 # typedef void ( * UA_Server_AsyncOperationNotifyCallback ) ( UA_Server * server )
 const UA_Server_AsyncOperationNotifyCallback = Ptr{Cvoid}
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_DurationRange
     min::UA_Duration
     max::UA_Duration
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_UInt32Range
     min::UA_UInt32
     max::UA_UInt32
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_HistoryDatabase
     context::Ptr{Cvoid}
     clear::Ptr{Cvoid}
@@ -5704,34 +5522,9 @@ struct UA_HistoryDatabase
 end
 
 """
-    UA_ServerConfig
-
-.. \\_server:
-
-Server ======
-
-.. \\_server-configuration:
-
-Server Configuration -------------------- The configuration structure is passed to the server during initialization. The server expects that the configuration is not modified during runtime. Currently, only one server can use a configuration at a time. During shutdown, the server will clean up the parts of the configuration that are modified at runtime through the provided API.
-
-Examples for configurations are provided in the ``/plugins`` folder. The usual usage is as follows:
-
- 1. Create a server configuration with default settings as a starting point 2. Modifiy the configuration, e.g. by adding a server certificate 3. Instantiate a server with it 4. After shutdown of the server, clean up the configuration (free memory)
-
-The :ref:`tutorials` provide a good starting point for this.
-
-| Field                     | Note                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|:------------------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| buildInfo                 | Server Description ^^^^^^^^^^^^^^^^^^ The description must be internally consistent. The ApplicationUri set in the ApplicationDescription must match the URI set in the server certificate.                                                                                                                                                                                                                                                                                                                                                                                                |
-| shutdownDelay             | Timeouts and Delays ^^^^^^^^^^^^^^^^^^^                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| verifyRequestTimestamp    | Rule Handling ^^^^^^^^^^^^^ Override the handling of standard-defined behavior. These settings are used to balance the following contradicting requirements:  - Strict conformance with the standard (for certification). - Ensure interoperability with old/non-conforming implementations encountered in the wild.  The defaults are set for compatibility with the largest number of OPC UA vendors (with log warnings activated). Cf. Postel's Law "be conservative in what you send, be liberal in what you accept".  See the section :ref:`rule-handling` for the possible settings. |
-| customDataTypes           | Custom Data Types ^^^^^^^^^^^^^^^^^ The following is a linked list of arrays with custom data types. All data types that are accessible from here are automatically considered for the decoding of received messages. Custom data types are not cleaned up together with the configuration. So it is possible to allocate them on ROM.  See the section on :ref:`generic-types`. Examples for working with custom data types are provided in ``/examples/custom\\_datatype/``.                                                                                                             |
-| networkLayersSize         | Networking ^^^^^^^^^^                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| securityPoliciesSize      | Security and Encryption ^^^^^^^^^^^^^^^^^^^^^^^                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| accessControl             | See the section for :ref:`access-control handling<access-control>`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| nodestore                 | Nodes and Node Lifecycle ^^^^^^^^^^^^^^^^^^^^^^^^ See the section for :ref:`node lifecycle handling<node-lifecycle>`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| modellingRulesOnInstances | Copy the HasModellingRule reference in instances from the type definition in [`UA_Server_addObjectNode`](@ref) and [`UA_Server_addVariableNode`](@ref).  Part 3 - 6.4.4: [...] it is not required that newly created or referenced instances based on InstanceDeclarations have a ModellingRule, however, it is allowed that they have any ModellingRule independent of the ModellingRule of their InstanceDeclaration                                                                                                                                                                     |
-| maxSecureChannels         | Limits ^^^^^^                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ServerConfig
     logger::UA_Logger
@@ -5890,11 +5683,6 @@ mutable struct UA_Client end
     UA_TIMER_HANDLE_CYCLEMISS_WITH_BASETIME = 1
 end
 
-"""
-    UA_KeyValueMap_setQualified(map, mapSize, key, value)
-
-Key Value Map ------------- Helper functions to work with configuration parameters in an array of [`UA_KeyValuePair`](@ref). Lookup is linear. So this is for small numbers of keys.
-"""
 function UA_KeyValueMap_setQualified(map, mapSize, key, value)
     @ccall libopen62541.UA_KeyValueMap_setQualified(
         map::Ptr{Ptr{UA_KeyValuePair}}, mapSize::Ptr{Csize_t},
@@ -5968,15 +5756,6 @@ function UA_RelativePath_parse(rp, str)
         rp::Ptr{UA_RelativePath}, str::UA_String)::UA_StatusCode
 end
 
-"""
-    UA_LogLevel
-
-Logging Plugin API ==================
-
-Servers and clients define a logger in their configuration. The logger is a plugin. A default plugin that logs to ``stdout`` is provided as an example. The logger plugin is stateful and can point to custom data. So it is possible to keep open file handlers in the logger context.
-
-Every log message consists of a log level, a log category and a string message content. The timestamp of the log message is created within the logger.
-"""
 @cenum UA_LogLevel::UInt32 begin
     UA_LOGLEVEL_TRACE = 0
     UA_LOGLEVEL_DEBUG = 1
@@ -6005,9 +5784,9 @@ end
 mutable struct UA_SecureChannel end
 
 """
-    UA_Connection
-
-** amalgamated original file "/srcdir/open62541/include/open62541/plugin/network.h" ***
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_Connection
     state::UA_ConnectionState
@@ -6024,15 +5803,6 @@ struct UA_Connection
     free::Ptr{Cvoid}
 end
 
-"""
-    UA_Server_processBinaryMessage(server, connection, message)
-
-Server Network Layer -------------------- The server exposes two functions to interact with remote clients: `processBinaryMessage` and `removeConnection`. These functions are called by the server network layer.
-
-It is the job of the server network layer to listen on a TCP socket, to accept new connections, to call the server with received messages and to signal closed connections to the server.
-
-The network layer is part of the server config. So users can provide a custom implementation if the provided example does not fit their architecture. The network layer is invoked only from the server's main loop. So the network layer does not need to be thread-safe. If the network layer receives a positive duration for blocking listening, the server's main loop will block until a message is received or the duration times out.
-"""
 function UA_Server_processBinaryMessage(server, connection, message)
     @ccall libopen62541.UA_Server_processBinaryMessage(
         server::Ptr{UA_Server}, connection::Ptr{UA_Connection},
@@ -6107,16 +5877,16 @@ end
 
 mutable struct UA_MonitoredItem end
 
-"""
-    UA_NodeTypeLifecycle
-
-Node Type Lifecycle ~~~~~~~~~~~~~~~~~~~ Constructor and destructors for specific object and variable types.
-"""
 struct UA_NodeTypeLifecycle
     constructor::Ptr{Cvoid}
     destructor::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_ReferenceTypeSet
     bits::NTuple{4, UA_UInt32}
 end
@@ -6166,15 +5936,6 @@ function Base.setproperty!(x::Ptr{UA_NodeReferenceKind}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-"""
-    UA_NodeHead
-
-Node Pointer ============
-
-The "native" format for reference between nodes is the ExpandedNodeId. That is, references can also point to external servers. In practice, most references point to local nodes using numerical NodeIds from the standard-defined namespace zero. In order to save space (and time), pointer-tagging is used for compressed "NodePointer" representations. Numerical NodeIds are immediately contained in the pointer. Full NodeIds and ExpandedNodeIds are behind a pointer indirection. If the Nodestore supports it, a NodePointer can also be an actual pointer to the target node.
-
-Depending on the processor architecture, some numerical NodeIds don't fit into an immediate encoding and are kept as pointers. ExpandedNodeIds may be internally translated to "normal" NodeIds. Use the provided functions to generate NodePointers that fit the assumptions for the local architecture.
-"""
 struct UA_NodeHead
     nodeId::UA_NodeId
     nodeClass::UA_NodeClass
@@ -6189,6 +5950,22 @@ struct UA_NodeHead
     monitoredItems::Ptr{UA_MonitoredItem}
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `immediate`
+
+- `id`
+
+- `expandedId`
+
+- `node`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodePointer
     data::NTuple{8, UInt8}
 end
@@ -6247,19 +6024,20 @@ function UA_NodePointer_toNodeId(np)
 end
 
 """
-    UA_ReferenceTarget
-
-Base Node Attributes --------------------
-
-Nodes contain attributes according to their node type. The base node attributes are common to all node types. In the OPC UA :ref:`services`, attributes are referred to via the :ref:`nodeid` of the containing node and an integer :ref:`attribute-id`.
-
-Internally, open62541 uses `[`UA_Node`](@ref)` in places where the exact node type is not known or not important. The ``nodeClass`` attribute is used to ensure the correctness of casting from `[`UA_Node`](@ref)` to a specific node type.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReferenceTarget
     targetId::UA_NodePointer
     targetNameHash::UA_UInt32
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_ReferenceTargetTreeElem
     target::UA_ReferenceTarget
     targetIdHash::UA_UInt32
@@ -6277,11 +6055,9 @@ function UA_NodeReferenceKind_switch(rk)
 end
 
 """
-    UA_ExternalValueCallback
-
-.. \\_value-callback:
-
-Value Callback ~~~~~~~~~~~~~~ Value Callbacks can be attached to variable and variable type nodes. If not ``NULL``, they are called before reading and after writing respectively.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ExternalValueCallback
     notificationRead::Ptr{Cvoid}
@@ -6309,6 +6085,38 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_426}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `head`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `valueBackend`
+
+- `valueSource`
+
+- `value`
+
+- `accessLevel`
+
+- `minimumSamplingInterval`
+
+- `historizing`
+
+- `isDynamic`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_VariableNode
     data::NTuple{448, UInt8}
 end
@@ -6362,13 +6170,32 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_423}, f::Symbol, v)
 end
 
 """
-    UA_VariableTypeNode
 
-.. \\_variabletypenode:
+$(TYPEDEF)
 
-VariableTypeNode ----------------
+Fields:
 
-VariableTypes are used to provide type definitions for variables. VariableTypes constrain the data type, value rank and array dimensions attributes of variable instances. Furthermore, instantiating from a specific variable type may provide semantic information. For example, an instance from ``MotorTemperatureVariableType`` is more meaningful than a float variable instantiated from ``BaseDataVariable``.
+- `head`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `valueBackend`
+
+- `valueSource`
+
+- `value`
+
+- `isAbstract`
+
+- `lifecycle`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableTypeNode
     data::NTuple{448, UInt8}
@@ -6399,6 +6226,11 @@ function Base.setproperty!(x::Ptr{UA_VariableTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_MethodNode
     head::UA_NodeHead
     executable::UA_Boolean
@@ -6407,11 +6239,9 @@ struct UA_MethodNode
 end
 
 """
-    UA_ObjectNode
-
-ObjectNode ----------
-
-Objects are used to represent systems, system components, real-world objects and software objects. Objects are instances of an :ref:`object type<objecttypenode>` and may contain variables, methods and further objects.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ObjectNode
     head::UA_NodeHead
@@ -6419,13 +6249,9 @@ struct UA_ObjectNode
 end
 
 """
-    UA_ObjectTypeNode
-
-.. \\_objecttypenode:
-
-ObjectTypeNode --------------
-
-ObjectTypes provide definitions for Objects. Abstract objects cannot be instantiated. See :ref:`node-lifecycle` for the use of constructor and destructor callbacks.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ObjectTypeNode
     head::UA_NodeHead
@@ -6434,65 +6260,9 @@ struct UA_ObjectTypeNode
 end
 
 """
-    UA_ReferenceTypeNode
-
-.. \\_referencetypenode:
-
-ReferenceTypeNode -----------------
-
-Each reference between two nodes is typed with a ReferenceType that gives meaning to the relation. The OPC UA standard defines a set of ReferenceTypes as a mandatory part of OPC UA information models.
-
-  - Abstract ReferenceTypes cannot be used in actual references and are only used to structure the ReferenceTypes hierarchy - Symmetric references have the same meaning from the perspective of the source and target node
-
-The figure below shows the hierarchy of the standard ReferenceTypes (arrows indicate a ``hasSubType`` relation). Refer to Part 3 of the OPC UA specification for the full semantics of each ReferenceType.
-
-.. graphviz::
-
-digraph tree {
-
-node [height=0, shape=box, fillcolor="#E5E5E5", concentrate=true]
-
-references [label="References\\n(Abstract, Symmetric)"] hierarchical\\_references [label="HierarchicalReferences\\n(Abstract)"] references -> hierarchical\\_references
-
-nonhierarchical\\_references [label="NonHierarchicalReferences\\n(Abstract, Symmetric)"] references -> nonhierarchical\\_references
-
-haschild [label="HasChild\\n(Abstract)"] hierarchical\\_references -> haschild
-
-aggregates [label="Aggregates\\n(Abstract)"] haschild -> aggregates
-
-organizes [label="Organizes"] hierarchical\\_references -> organizes
-
-hascomponent [label="HasComponent"] aggregates -> hascomponent
-
-hasorderedcomponent [label="HasOrderedComponent"] hascomponent -> hasorderedcomponent
-
-hasproperty [label="HasProperty"] aggregates -> hasproperty
-
-hassubtype [label="HasSubtype"] haschild -> hassubtype
-
-hasmodellingrule [label="HasModellingRule"] nonhierarchical\\_references -> hasmodellingrule
-
-hastypedefinition [label="HasTypeDefinition"] nonhierarchical\\_references -> hastypedefinition
-
-hasencoding [label="HasEncoding"] nonhierarchical\\_references -> hasencoding
-
-hasdescription [label="HasDescription"] nonhierarchical\\_references -> hasdescription
-
-haseventsource [label="HasEventSource"] hierarchical\\_references -> haseventsource
-
-hasnotifier [label="HasNotifier"] hierarchical\\_references -> hasnotifier
-
-generatesevent [label="GeneratesEvent"] nonhierarchical\\_references -> generatesevent
-
-alwaysgeneratesevent [label="AlwaysGeneratesEvent"] generatesevent -> alwaysgeneratesevent
-
-{rank=same hierarchical\\_references nonhierarchical\\_references} {rank=same generatesevent haseventsource hasmodellingrule hasencoding hassubtype} {rank=same alwaysgeneratesevent hasproperty}
-
-}
-
-The ReferenceType hierarchy can be extended with user-defined ReferenceTypes. Many Companion Specifications for OPC UA define new ReferenceTypes to be used in their domain of interest.
-
-For the following example of custom ReferenceTypes, we attempt to model the structure of a technical system. For this, we introduce two custom ReferenceTypes. First, the hierarchical ``contains`` ReferenceType indicates that a system (represented by an OPC UA object) contains a component (or subsystem). This gives rise to a tree-structure of containment relations. For example, the motor (object) is contained in the car and the crankshaft is contained in the motor. Second, the symmetric ``connectedTo`` ReferenceType indicates that two components are connected. For example, the motor's crankshaft is connected to the gear box. Connections are independent of the containment hierarchy and can induce a general graph-structure. Further subtypes of ``connectedTo`` could be used to differentiate between physical, electrical and information related connections. A client can then learn the layout of a (physical) system represented in an OPC UA information model based on a common understanding of just two custom reference types.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ReferenceTypeNode
     head::UA_NodeHead
@@ -6503,28 +6273,15 @@ struct UA_ReferenceTypeNode
     subTypes::UA_ReferenceTypeSet
 end
 
-"""
-    UA_DataTypeNode
-
-.. \\_datatypenode:
-
-DataTypeNode ------------
-
-DataTypes represent simple and structured data types. DataTypes may contain arrays. But they always describe the structure of a single instance. In open62541, DataTypeNodes in the information model hierarchy are matched to `[`UA_DataType`](@ref)` type descriptions for :ref:`generic-types` via their NodeId.
-
-Abstract DataTypes (e.g. ``Number``) cannot be the type of actual values. They are used to constrain values to possible child DataTypes (e.g. ``UInt32``).
-"""
 struct UA_DataTypeNode
     head::UA_NodeHead
     isAbstract::UA_Boolean
 end
 
 """
-    UA_ViewNode
-
-ViewNode --------
-
-Each View defines a subset of the Nodes in the AddressSpace. Views can be used when browsing an information model to focus on a subset of nodes and references only. ViewNodes can be created and be interacted with. But their use in the :ref:`Browse<view-services>` service is currently unsupported in open62541.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ViewNode
     head::UA_NodeHead
@@ -6533,11 +6290,30 @@ struct UA_ViewNode
 end
 
 """
-    UA_Node
 
-Node Union ----------
+$(TYPEDEF)
 
-A union that represents any kind of node. The node head can always be used. Check the NodeClass before accessing specific content.
+Fields:
+
+- `head`
+
+- `variableNode`
+
+- `variableTypeNode`
+
+- `methodNode`
+
+- `objectNode`
+
+- `objectTypeNode`
+
+- `referenceTypeNode`
+
+- `dataTypeNode`
+
+- `viewNode`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_Node
     data::NTuple{448, UInt8}
@@ -6568,13 +6344,7 @@ function Base.setproperty!(x::Ptr{UA_Node}, f::Symbol, v)
 end
 
 # typedef void ( * UA_NodestoreVisitor ) ( void * visitorCtx , const UA_Node * node )
-"""
-Nodestore Plugin API --------------------
 
-The following definitions are used for implementing custom node storage backends. **Most users will want to use the default nodestore and don't need to work with the nodestore API**.
-
-Outside of custom nodestore implementations, users should not manually edit nodes. Please use the OPC UA services for that. Otherwise, all consistency checks are omitted. This can crash the application eventually.
-"""
 const UA_NodestoreVisitor = Ptr{Cvoid}
 
 function UA_Node_setAttributes(node, attributes, attributeType)
@@ -6670,11 +6440,6 @@ function UA_Server_changeRepeatedCallbackInterval(server, callbackId, interval_m
         interval_ms::UA_Double)::UA_StatusCode
 end
 
-"""
-    UA_Server_closeSession(server, sessionId)
-
-Session Handling ---------------- A new session is announced via the AccessControl plugin. The session identifier is forwarded to the relevant callbacks back into userland. The following methods enable an interaction with a particular session.
-"""
 function UA_Server_closeSession(server, sessionId)
     @ccall libopen62541.UA_Server_closeSession(
         server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId})::UA_StatusCode
@@ -6730,11 +6495,6 @@ function __UA_Server_write(server, nodeId, attributeId, attr_type, attr)
         attr_type::Ptr{UA_DataType}, attr::Ptr{Cvoid})::UA_StatusCode
 end
 
-"""
-    UA_Server_browse(server, maxReferences, bd)
-
-Browsing --------
-"""
 function UA_Server_browse(server, maxReferences, bd)
     @ccall libopen62541.UA_Server_browse(server::Ptr{UA_Server}, maxReferences::UA_UInt32,
         bd::Ptr{UA_BrowseDescription})::UA_BrowseResult
@@ -6772,15 +6532,6 @@ function UA_Server_forEachChildNodeCall(server, parentNodeId, callback, handle)
         callback::UA_NodeIteratorCallback, handle::Ptr{Cvoid})::UA_StatusCode
 end
 
-"""
-    UA_Server_setAdminSessionContext(server, context)
-
-Information Model Callbacks ---------------------------
-
-There are three places where a callback from an information model to user-defined code can happen.
-
-  - Custom node constructors and destructors - Linking VariableNodes with an external data source - MethodNode callbacks
-"""
 function UA_Server_setAdminSessionContext(server, context)
     @ccall libopen62541.UA_Server_setAdminSessionContext(
         server::Ptr{UA_Server}, context::Ptr{Cvoid})::Cvoid
@@ -6802,17 +6553,6 @@ function UA_Server_setNodeContext(server, nodeId, nodeContext)
         server::Ptr{UA_Server}, nodeId::UA_NodeId, nodeContext::Ptr{Cvoid})::UA_StatusCode
 end
 
-"""
-    UA_Server_setVariableNode_dataSource(server, nodeId, dataSource)
-
-.. \\_datasource:
-
-Data Source Callback ^^^^^^^^^^^^^^^^^^^^
-
-The server has a unique way of dealing with the content of variables. Instead of storing a variant attached to the variable node, the node can point to a function with a local data provider. Whenever the value attribute is read, the function will be called and asked to provide a [`UA_DataValue`](@ref) return value that contains the value content and additional timestamps.
-
-It is expected that the read callback is implemented. The write callback can be set to a null-pointer.
-"""
 function UA_Server_setVariableNode_dataSource(server, nodeId, dataSource)
     @ccall libopen62541.UA_Server_setVariableNode_dataSource(
         server::Ptr{UA_Server}, nodeId::UA_NodeId, dataSource::UA_DataSource)::UA_StatusCode
@@ -6917,19 +6657,6 @@ function UA_Server_addMethodNodeEx(
         nodeContext::Ptr{Cvoid}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 end
 
-"""
-    UA_Server_addNode_begin(server, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId, browseName, typeDefinition, attr, attributeType, nodeContext, outNewNodeId)
-
-The method pair [`UA_Server_addNode_begin`](@ref) and \\_finish splits the AddNodes service in two parts. This is useful if the node shall be modified before finish the instantiation. For example to add children with specific NodeIds. Otherwise, mandatory children (e.g. of an ObjectType) are added with pseudo-random unique NodeIds. Existing children are detected during the \\_finish part via their matching BrowseName.
-
-The \\_begin method: - prepares the node and adds it to the nodestore - copies some unassigned attributes from the TypeDefinition node internally - adds the references to the parent (and the TypeDefinition if applicable) - performs type-checking of variables.
-
-You can add an object node without a parent if you set the parentNodeId and referenceTypeId to UA\\_NODE\\_ID\\_NULL. Then you need to add the parent reference and hasTypeDef reference yourself before calling the \\_finish method. Not that this is only allowed for object nodes.
-
-The \\_finish method: - copies mandatory children - calls the node constructor(s) at the end - may remove the node if it encounters an error.
-
-The special [`UA_Server_addMethodNode_finish`](@ref) method needs to be used for method nodes, since there you need to explicitly specifiy the input and output arguments which are added in the finish step (if not yet already there)
-"""
 function UA_Server_addNode_begin(
         server, nodeClass, requestedNewNodeId, parentNodeId, referenceTypeId,
         browseName, typeDefinition, attr, attributeType, nodeContext, outNewNodeId)
@@ -6958,11 +6685,6 @@ function UA_Server_deleteNode(server, nodeId, deleteReferences)
         deleteReferences::UA_Boolean)::UA_StatusCode
 end
 
-"""
-    UA_Server_addReference(server, sourceId, refTypeId, targetId, isForward)
-
-Reference Management --------------------
-"""
 function UA_Server_addReference(server, sourceId, refTypeId, targetId, isForward)
     @ccall libopen62541.UA_Server_addReference(
         server::Ptr{UA_Server}, sourceId::UA_NodeId, refTypeId::UA_NodeId,
@@ -6988,11 +6710,6 @@ function UA_Server_triggerEvent(server, eventNodeId, originId, outEventId, delet
         outEventId::Ptr{UA_ByteString}, deleteEventNode::UA_Boolean)::UA_StatusCode
 end
 
-"""
-    UA_Server_updateCertificate(server, oldCertificate, newCertificate, newPrivateKey, closeSessions, closeSecureChannels)
-
-Update the Server Certificate at Runtime ----------------------------------------
-"""
 function UA_Server_updateCertificate(server, oldCertificate, newCertificate,
         newPrivateKey, closeSessions, closeSecureChannels)
     @ccall libopen62541.UA_Server_updateCertificate(
@@ -7001,11 +6718,6 @@ function UA_Server_updateCertificate(server, oldCertificate, newCertificate,
         closeSessions::UA_Boolean, closeSecureChannels::UA_Boolean)::UA_StatusCode
 end
 
-"""
-    UA_Server_findDataType(server, typeId)
-
-Utility Functions -----------------
-"""
 function UA_Server_findDataType(server, typeId)
     @ccall libopen62541.UA_Server_findDataType(
         server::Ptr{UA_Server}, typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
@@ -7038,6 +6750,16 @@ end
     UA_ASYNCOPERATIONTYPE_CALL = 1
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `callMethodRequest`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_AsyncOperationRequest
     data::NTuple{64, UInt8}
 end
@@ -7058,6 +6780,16 @@ function Base.setproperty!(x::Ptr{UA_AsyncOperationRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `callMethodResult`
+
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_AsyncOperationResponse
     data::NTuple{56, UInt8}
 end
@@ -7092,11 +6824,9 @@ function UA_Server_setAsyncOperationResult(server, response, context)
 end
 
 """
-    UA_ServerStatistics
-
-Statistics ----------
-
-Statistic counters keeping track of the current state of the stack. Counters are structured per OPC UA communication layer.
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ServerStatistics
     ns::UA_NetworkStatistics
@@ -7109,35 +6839,9 @@ function UA_Server_getStatistics(server)
 end
 
 """
-    UA_ClientConfig
-
-.. \\_client:
-
-Client ======
-
-The client implementation allows remote access to all OPC UA services. For convenience, some functionality has been wrapped in :ref:`high-level abstractions <client-highlevel>`.
-
-**However**: At this time, the client does not yet contain its own thread or event-driven main-loop, meaning that the client will not perform any actions automatically in the background. This is especially relevant for connection/session management and subscriptions. The user will have to periodically call [`UA_Client_run_iterate`](@ref) to ensure that asynchronous events are handled, including keeping a secure connection established. See more about :ref:`asynchronicity<client-async-services>` and :ref:`subscriptions<client-subscriptions>`.
-
-.. \\_client-config:
-
-Client Configuration --------------------
-
-The client configuration is used for setting connection parameters and additional settings used by the client. The configuration should not be modified after it is passed to a client. Currently, only one client can use a configuration at a time.
-
-Examples for configurations are provided in the ``/plugins`` folder. The usual usage is as follows:
-
- 1. Create a client configuration with default settings as a starting point 2. Modifiy the configuration, e.g. modifying the timeout 3. Instantiate a client with it 4. After shutdown of the client, clean up the configuration (free memory)
-
-The :ref:`tutorials` provide a good starting point for this.
-
-| Field                 | Note                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|:--------------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| userIdentityToken     | Connection configuration ~~~~~~~~~~~~~~~~~~~~~~~~  The following configuration elements reduce the "degrees of freedom" the client has when connecting to a server. If no connection can be made under these restrictions, then the connection will abort with an error message.                                                                                                                                                                                                                                                                                                                              |
-| endpoint              | If either endpoint or userTokenPolicy has been set (at least one non-zero byte in either structure), then the selected Endpoint and UserTokenPolicy overwrite the settings in the basic connection configuration. The userTokenPolicy array in the EndpointDescription is ignored. The selected userTokenPolicy is set in the dedicated configuration field.  If the advanced configuration is not set, the client will write to it the selected Endpoint and UserTokenPolicy during GetEndpoints.  The information in the advanced configuration is used during reconnect when the SecureChannel was broken. |
-| applicationUri        | If the EndpointDescription has not been defined, the ApplicationURI constrains the servers considered in the FindServers service and the Endpoints considered in the GetEndpoints service.  If empty the applicationURI is not used to filter.                                                                                                                                                                                                                                                                                                                                                                |
-| customDataTypes       | Custom Data Types ~~~~~~~~~~~~~~~~~ The following is a linked list of arrays with custom data types. All data types that are accessible from here are automatically considered for the decoding of received messages. Custom data types are not cleaned up together with the configuration. So it is possible to allocate them on ROM.  See the section on :ref:`generic-types`. Examples for working with custom data types are provided in ``/examples/custom\\_datatype/``.                                                                                                                                |
-| secureChannelLifeTime | Advanced Client Configuration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_ClientConfig
     clientContext::Ptr{Cvoid}
@@ -7268,15 +6972,6 @@ function UA_Client_findServers(
         registeredServers::Ptr{Ptr{UA_ApplicationDescription}})::UA_StatusCode
 end
 
-"""
-    __UA_Client_Service(client, request, requestType, response, responseType)
-
-.. \\_client-services:
-
-Services --------
-
-The raw OPC UA services are exposed to the client. But most of them time, it is better to use the convenience functions from ``ua\\_client\\_highlevel.h`` that wrap the raw services.
-"""
 function __UA_Client_Service(client, request, requestType, response, responseType)
     @ccall libopen62541.__UA_Client_Service(
         client::Ptr{UA_Client}, request::Ptr{Cvoid}, requestType::Ptr{UA_DataType},
@@ -7284,15 +6979,7 @@ function __UA_Client_Service(client, request, requestType, response, responseTyp
 end
 
 # typedef void ( * UA_ClientAsyncServiceCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , void * response )
-"""
-.. \\_client-async-services:
 
-Asynchronous Services --------------------- All OPC UA services are asynchronous in nature. So several service calls can be made without waiting for the individual responses. Depending on the server's priorities responses may come in a different ordering than sent.
-
-As noted in :ref:`the client overview<client>` currently no means of handling asynchronous events automatically is provided. However, some synchronous function calls will trigger handling, but to ensure this happens a client should periodically call [`UA_Client_run_iterate`](@ref) explicitly.
-
-Connection and session management are also performed in [`UA_Client_run_iterate`](@ref), so to keep a connection healthy any client need to consider how and when it is appropriate to do the call. This is especially true for the periodic renewal of a SecureChannel's SecurityToken which is designed to have a limited lifetime and will invalidate the connection if not renewed.
-"""
 const UA_ClientAsyncServiceCallback = Ptr{Cvoid}
 
 function __UA_Client_AsyncService(
@@ -7335,9 +7022,7 @@ function __UA_Client_AsyncServiceEx(
 end
 
 # typedef void ( * UA_ClientCallback ) ( UA_Client * client , void * data )
-"""
-Timed Callbacks --------------- Repeated callbacks can be attached to a client and will be executed in the defined interval.
-"""
+
 const UA_ClientCallback = Ptr{Cvoid}
 
 function UA_Client_addTimedCallback(client, callback, data, date, callbackId)
@@ -7363,27 +7048,11 @@ function UA_Client_removeCallback(client, callbackId)
         client::Ptr{UA_Client}, callbackId::UA_UInt64)::Cvoid
 end
 
-"""
-    UA_Client_findDataType(client, typeId)
-
-Client Utility Functions ------------------------
-"""
 function UA_Client_findDataType(client, typeId)
     @ccall libopen62541.UA_Client_findDataType(
         client::Ptr{UA_Client}, typeId::Ptr{UA_NodeId})::Ptr{UA_DataType}
 end
 
-"""
-    __UA_Client_readAttribute(client, nodeId, attributeId, out, outDataType)
-
-.. \\_client-highlevel:
-
-Highlevel Client Functionality ------------------------------
-
-The following definitions are convenience functions making use of the standard OPC UA services in the background. This is a less flexible way of handling the stack, because at many places sensible defaults are presumed; at the same time using these functions is the easiest way of implementing an OPC UA application, as you will not have to consider all the details that go into the OPC UA services. If more flexibility is needed, you can always achieve the same functionality using the raw :ref:`OPC UA services <client-services>`.
-
-Read Attributes ^^^^^^^^^^^^^^^ The following functions can be used to retrieve a single node attribute. Use the regular service to read several attributes at once.
-"""
 function __UA_Client_readAttribute(client, nodeId, attributeId, out, outDataType)
     @ccall libopen62541.__UA_Client_readAttribute(
         client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, attributeId::UA_AttributeId,
@@ -7435,13 +7104,6 @@ function UA_Client_HistoryUpdate_deleteRaw(client, nodeId, startTimestamp, endTi
         startTimestamp::UA_DateTime, endTimestamp::UA_DateTime)::UA_StatusCode
 end
 
-"""
-    __UA_Client_writeAttribute(client, nodeId, attributeId, in, inDataType)
-
-Write Attributes ^^^^^^^^^^^^^^^^
-
-The following functions can be use to write a single node attribute at a time. Use the regular write service to write several attributes at once.
-"""
 function __UA_Client_writeAttribute(client, nodeId, attributeId, in, inDataType)
     @ccall libopen62541.__UA_Client_writeAttribute(
         client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, attributeId::UA_AttributeId,
@@ -7462,11 +7124,6 @@ function UA_Client_call(client, objectId, methodId, inputSize, input, outputSize
         output::Ptr{Ptr{UA_Variant}})::UA_StatusCode
 end
 
-"""
-    UA_Client_addReference(client, sourceNodeId, referenceTypeId, isForward, targetServerUri, targetNodeId, targetNodeClass)
-
-Node Management ^^^^^^^^^^^^^^^ See the section on :ref:`server-side node management <addnodes>`.
-"""
 function UA_Client_addReference(client, sourceNodeId, referenceTypeId, isForward,
         targetServerUri, targetNodeId, targetNodeClass)
     @ccall libopen62541.UA_Client_addReference(
@@ -7511,17 +7168,7 @@ function UA_Client_forEachChildNodeCall(client, parentNodeId, callback, handle)
 end
 
 # typedef void ( * UA_Client_DeleteSubscriptionCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext )
-"""
-.. \\_client-subscriptions:
 
-Subscriptions -------------
-
-Subscriptions in OPC UA are asynchronous. That is, the client sends several PublishRequests to the server. The server returns PublishResponses with notifications. But only when a notification has been generated. The client does not wait for the responses and continues normal operations.
-
-Note the difference between Subscriptions and MonitoredItems. Subscriptions are used to report back notifications. MonitoredItems are used to generate notifications. Every MonitoredItem is attached to exactly one Subscription. And a Subscription can contain many MonitoredItems.
-
-The client automatically processes PublishResponses (with a callback) in the background and keeps enough PublishRequests in transit. The PublishResponses may be recieved during a synchronous service call or in `[`UA_Client_run_iterate`](@ref)`. See more about :ref:`asynchronicity<client-async-services>`.
-"""
 const UA_Client_DeleteSubscriptionCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_Client_StatusChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_StatusChangeNotification * notification )
@@ -7579,19 +7226,8 @@ function UA_Client_Subscriptions_deleteSingle(client, subscriptionId)
         client::Ptr{UA_Client}, subscriptionId::UA_UInt32)::UA_StatusCode
 end
 
-"""
-    UA_MonitoredItemCreateRequest_default(nodeId)
-
-MonitoredItems --------------
-
-MonitoredItems for Events indicate the ``EventNotifier`` attribute. This indicates to the server not to monitor changes of the attribute, but to forward Event notifications from that node.
-
-During the creation of a MonitoredItem, the server may return changed adjusted parameters. Check the returned `[`UA_CreateMonitoredItemsResponse`](@ref)` to get the current parameters.
-"""
 # typedef void ( * UA_Client_DeleteMonitoredItemCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext )
-"""
-The clientHandle parameter cannot be set by the user, any value will be replaced by the client before sending the request to the server.
-"""
+
 const UA_Client_DeleteMonitoredItemCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_Client_DataChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , UA_DataValue * value )
@@ -7686,17 +7322,8 @@ function UA_Client_MonitoredItems_modify(client, request)
         request::UA_ModifyMonitoredItemsRequest)::UA_ModifyMonitoredItemsResponse
 end
 
-"""
-    UA_Client_MonitoredItems_setMonitoringMode(client, request)
-
-The following service calls go directly to the server. The MonitoredItem settings are not stored in the client.
-"""
 # typedef void ( * UA_ClientAsyncReadCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_ReadResponse * rr )
-"""
-Async Services ^^^^^^^^^^^^^^
 
-Call OPC UA Services asynchronously with a callback. The (optional) requestId output can be used to cancel the service while it is still pending.
-"""
 const UA_ClientAsyncReadCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncWriteCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_WriteResponse * wr )
@@ -7706,23 +7333,11 @@ const UA_ClientAsyncWriteCallback = Ptr{Cvoid}
 const UA_ClientAsyncBrowseCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncOperationCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , void * result )
-"""
-Asynchronous Operations ^^^^^^^^^^^^^^^^^^^^^^^
 
-Many Services can be called with an array of operations. For example, a request to the Read Service contains an array of ReadValueId, each corresponding to a single read operation. For convenience, wrappers are provided to call single operations for the most common Services.
-
-All async operations have a callback of the following structure: The returned StatusCode is split in two parts. The status indicates the overall success of the request and the operation. The result argument is non-NULL only if the status is no good.
-"""
 const UA_ClientAsyncOperationCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncReadAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_DataValue * attribute )
-"""
-Read Attribute ^^^^^^^^^^^^^^
 
-Asynchronously read a single attribute. The attribute is unpacked from the response as the datatype of the attribute is known ahead of time. Value attributes are variants.
-
-Note that the last argument (value pointer) of the callbacks can be NULL if the status of the operation is not good.
-"""
 const UA_ClientAsyncReadAttributeCallback = Ptr{Cvoid}
 
 function UA_Client_readAttribute_async(
@@ -7964,11 +7579,6 @@ function UA_Client_readUserExecutableAttribute_async(
         userdata::Ptr{Cvoid}, requestId::Ptr{UA_UInt32})::UA_StatusCode
 end
 
-"""
-    __UA_Client_writeAttribute_async(client, nodeId, attributeId, in, inDataType, callback, userdata, reqId)
-
-Write Attribute ^^^^^^^^^^^^^^^
-"""
 function __UA_Client_writeAttribute_async(
         client, nodeId, attributeId, in, inDataType, callback, userdata, reqId)
     @ccall libopen62541.__UA_Client_writeAttribute_async(
@@ -7990,9 +7600,7 @@ end
 const UA_ClientAsyncCallCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncAddNodesCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_AddNodesResponse * ar )
-"""
-Node Management ^^^^^^^^^^^^^^^
-"""
+
 const UA_ClientAsyncAddNodesCallback = Ptr{Cvoid}
 
 function __UA_Client_addNode_async(
@@ -8008,9 +7616,9 @@ function __UA_Client_addNode_async(
 end
 
 """
-    UA_UsernamePasswordLogin
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/accesscontrol\\_default.h" ***
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
 """
 struct UA_UsernamePasswordLogin
     username::UA_String
@@ -8041,11 +7649,6 @@ function UA_AccessControl_defaultWithLoginCallback(
         loginContext::Ptr{Cvoid})::UA_StatusCode
 end
 
-"""
-    UA_CertificateVerification_AcceptAll(cv)
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/pki\\_default.h" ***
-"""
 function UA_CertificateVerification_AcceptAll(cv)
     @ccall libopen62541.UA_CertificateVerification_AcceptAll(cv::Ptr{UA_CertificateVerification})::Cvoid
 end
@@ -8054,11 +7657,6 @@ function UA_Log_Stdout_withLevel(minlevel)
     @ccall libopen62541.UA_Log_Stdout_withLevel(minlevel::UA_LogLevel)::UA_Logger
 end
 
-"""
-    UA_Nodestore_HashMap(ns)
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/nodestore\\_default.h" ***
-"""
 function UA_Nodestore_HashMap(ns)
     @ccall libopen62541.UA_Nodestore_HashMap(ns::Ptr{UA_Nodestore})::UA_StatusCode
 end
@@ -8067,11 +7665,6 @@ function UA_Nodestore_ZipTree(ns)
     @ccall libopen62541.UA_Nodestore_ZipTree(ns::Ptr{UA_Nodestore})::UA_StatusCode
 end
 
-"""
-    UA_Server_new()
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/server\\_config\\_default.h" ***
-"""
 function UA_Server_new()
     @ccall libopen62541.UA_Server_new()::Ptr{UA_Server}
 end
@@ -8110,11 +7703,6 @@ function UA_ServerConfig_addAllEndpoints(config)
     @ccall libopen62541.UA_ServerConfig_addAllEndpoints(config::Ptr{UA_ServerConfig})::UA_StatusCode
 end
 
-"""
-    UA_Client_new()
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/client\\_config\\_default.h" ***
-"""
 function UA_Client_new()
     @ccall libopen62541.UA_Client_new()::Ptr{UA_Client}
 end
@@ -8123,11 +7711,6 @@ function UA_ClientConfig_setDefault(config)
     @ccall libopen62541.UA_ClientConfig_setDefault(config::Ptr{UA_ClientConfig})::UA_StatusCode
 end
 
-"""
-    UA_SecurityPolicy_None(policy, localCertificate, logger)
-
-** amalgamated original file "/srcdir/open62541/plugins/include/open62541/plugin/securitypolicy\\_default.h" ***
-"""
 function UA_SecurityPolicy_None(policy, localCertificate, logger)
     @ccall libopen62541.UA_SecurityPolicy_None(
         policy::Ptr{UA_SecurityPolicy}, localCertificate::UA_ByteString,
@@ -8142,6 +7725,11 @@ end
     MATCH_EQUAL_OR_BEFORE = 4
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_HistoryDataBackend
     context::Ptr{Cvoid}
     deleteMembers::Ptr{Cvoid}
@@ -8168,6 +7756,11 @@ end
     UA_HISTORIZINGUPDATESTRATEGY_POLL = 2
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_HistorizingNodeIdSettings
     historizingBackend::UA_HistoryDataBackend
     maxHistoryDataResponseSize::Csize_t
@@ -8176,6 +7769,11 @@ struct UA_HistorizingNodeIdSettings
     userContext::Ptr{Cvoid}
 end
 
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_HistoryDataGathering
     context::Ptr{Cvoid}
     deleteMembers::Ptr{Cvoid}
@@ -20117,8 +19715,8 @@ const UA_NODEID_NULL = UA_NodeId(Tuple(zeros(UA_Byte, 24)))
 const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(UA_NODEID_NULL, UA_STRING_NULL, 0)
 #Julia number types that are rare built directly into open62541
 #Does NOT include ComplexF32/64 - these have to be treated differently.
-const UA_NUMBER_TYPES = Union{Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, 
-    UInt32, UInt64, Float32, Float64} 
+const UA_NUMBER_TYPES = Union{Bool, Int8, Int16, Int32, Int64, UInt8, UInt16,
+    UInt32, UInt64, Float32, Float64}
 
 include("generated_defs.jl")
 include("helper_functions.jl")

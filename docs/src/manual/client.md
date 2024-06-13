@@ -4,7 +4,7 @@ This page lists docstrings relevant to the client API.
 
 ## Adding different types of nodes:
 
-```@docs
+```@docs; canonical = false
 JUA_Client_addNode
 UA_Client_addVariableNode
 UA_Client_addObjectNode 
@@ -17,7 +17,8 @@ UA_Client_addDataTypeNode
 
 ## Reading from nodes:
 
-```@docs
+```@docs; canonical = false
+JUA_Client_readValueAttribute
 UA_Client_readAccessLevelAttribute
 UA_Client_readBrowseNameAttribute
 UA_Client_readContainsNoLoopsAttribute
@@ -43,7 +44,8 @@ UA_Client_readWriteMaskAttribute
 
 ## Writing to nodes:
 
-```@docs
+```@docs; canonical = false
+JUA_Client_writeValueAttribute
 UA_Client_writeAccessLevelAttribute
 UA_Client_writeBrowseNameAttribute
 UA_Client_writeContainsNoLoopsAttribute
@@ -66,3 +68,10 @@ UA_Client_writeValueAttribute
 UA_Client_writeValueRankAttribute
 UA_Client_writeWriteMaskAttribute
 ```
+
+## Asynchronous Client API
+```@autodocs; canonical = false
+Modules = [open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
+``` 

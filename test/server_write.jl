@@ -16,20 +16,20 @@ retval0 = UA_ServerConfig_setDefault(UA_Server_getConfig(server))
 #add variable node
 accesslevel = UA_ACCESSLEVEL(read = true, write = true)
 input = rand(Float64)
-attr = UA_VariableAttributes_generate(value = input,
+attr1 = UA_VariableAttributes_generate(value = input,
     displayname = "scalar variable",
     description = "this is a scalar variable",
     accesslevel = accesslevel)
 varnodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
-parentnodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
-parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
-typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-browsename = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
-nodecontext = C_NULL
-outnewnodeid = C_NULL
-retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid,
-    parentreferencenodeid,
-    browsename, typedefinition, attr, nodecontext, outnewnodeid)
+parentnodeid1 = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER)
+parentreferencenodeid1 = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES)
+typedefinition1 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+browsename1 = UA_QUALIFIEDNAME_ALLOC(1, "scalar variable")
+nodecontext1 = C_NULL
+outnewnodeid1 = C_NULL
+retval = UA_Server_addVariableNode(server, varnodeid, parentnodeid1,
+    parentreferencenodeid1,
+    browsename1, typedefinition1, attr1, nodecontext1, outnewnodeid1)
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
@@ -39,15 +39,18 @@ variabletypenodeid = UA_NodeId_new()
 accesslevel = UA_ACCESSLEVEL(read = true)
 displayname = "2D point type"
 description = "This is a 2D point type."
-attr = UA_VariableAttributes_generate(value = input,
+attr2 = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
-    description = description,
-    accesslevel = accesslevel) #TODO: BUG?!?!!?!? shouldn't this be variableTYPE_attributes
-retval = UA_Server_addVariableTypeNode(server, UA_NodeId_new(),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
-    UA_QUALIFIEDNAME(1, "2DPoint Type"), UA_NodeId_new(),
-    attr, C_NULL, variabletypenodeid)
+    description = description)
+requestednewnodeid = UA_NodeId_new()
+parentnodeid2 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
+browsename2 = UA_QUALIFIEDNAME(1, "2DPoint Type")
+parentreferencenodeid2 = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE)
+typedefinition2 = UA_NodeId_new()
+retval = UA_Server_addVariableTypeNode(server, requestednewnodeid,
+    parentnodeid2, parentreferencenodeid2,
+    browsename2, typedefinition2,
+    attr2, C_NULL, variabletypenodeid)
 #test whether adding node to the server worked    
 @test retval == UA_STATUSCODE_GOOD
 
@@ -69,12 +72,12 @@ for node in nodes
         generator = Symbol(att[3]*"_new")
         cleaner = Symbol(att[3]*"_delete")
         out2 = eval(generator)()
-        if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
-            if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-               in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
-                statuscode1 = eval(fun_read)(server, node, out2) #read
+        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
+            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+            statuscode1 = eval(fun_read)(server, node, out2) #read
+            @test statuscode1 == UA_STATUSCODE_GOOD
+            if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545
                 statuscode2 = eval(fun_write)(server, node, out2) #write read value back...
-                @test statuscode1 == UA_STATUSCODE_GOOD
                 @test statuscode2 == UA_STATUSCODE_GOOD
             end
         end
@@ -82,3 +85,17 @@ for node in nodes
     end
     UA_NodeClass_delete(out1)
 end
+
+#clean up
+UA_Server_delete(server)
+UA_NodeId_delete(varnodeid)
+UA_NodeId_delete(parentnodeid1)
+UA_NodeId_delete(parentreferencenodeid1)
+UA_NodeId_delete(typedefinition1)
+UA_QualifiedName_delete(browsename1)
+UA_NodeId_delete(requestednewnodeid)
+UA_NodeId_delete(parentnodeid2)
+UA_NodeId_delete(parentreferencenodeid2)
+UA_NodeId_delete(typedefinition2)
+UA_QualifiedName_delete(browsename2)
+UA_NodeId_delete(variabletypenodeid)

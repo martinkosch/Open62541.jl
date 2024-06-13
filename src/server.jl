@@ -30,28 +30,28 @@ end
 UA_Server_addMethodNode(server::Ptr{UA_Server}, requestednewnodeid::Ptr{UA_NodeId}, 
         parentnodeid::Ptr{UA_NodeId}, referenceTypeId::Ptr{UA_NodeId}, 
         browseName::Ptr{UA_QualifiedName}, attr::Ptr{UA_MethodAttributes}, 
-        method::Function, inputArgumentsSize::Csize_t, inputArguments::Union{UA_Argument, AbstractArray{UA_Argument}}, 
+        method::UA_MethodCallback, inputArgumentsSize::Csize_t, inputArguments::Union{UA_Argument, AbstractArray{UA_Argument}}, 
         outputArgumentsSize::Csize_t, outputArguments::Union{UA_Argument, AbstractArray{UA_Argument}}, 
         nodeContext::Ptr{UA_NodeId}, outNewNodeId::Ptr{UA_NodeId})::UA_StatusCode
 ```
 
 uses the server API to add a method node with the callback `method` to the `server`.
-`UA_MethodCallback_generate` is internally called on the `method` supplied and thus
-its function signature must match its requirements.
 
-See [`UA_MethodAttributes_generate`](@ref) on how to define valid attributes.
+See also:
+
+[`UA_MethodAttributes_generate`](@ref) to define valid attributes.
+
+[`UA_MethodAttributes_generate`](@ref) to generate a valid callback. 
+
 """
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, attr, method::Function,
+        referenceTypeId, browseName, attr, method,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments, nodeContext, outNewNodeId)
 
-    #Generate the appropriate Cfunction pointer for the callback method
-    callback = UA_MethodCallback_generate(method)
-
     return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName, unsafe_load(attr),
-        callback, inputArgumentsSize, inputArguments,
+        method, inputArgumentsSize, inputArguments,
         UA_NODEID_NULL, C_NULL, outputArgumentsSize, outputArguments,
         UA_NODEID_NULL, C_NULL, nodeContext, outNewNodeId)
 end

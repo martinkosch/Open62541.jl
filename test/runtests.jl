@@ -49,6 +49,10 @@ end
     include("server_write.jl")
 end
 
+@safetestset "Server Monitored Items" begin
+    include("server_monitoreditems.jl")
+end
+
 @safetestset "Server Add Nodes" begin
     include("server_add_nodes.jl")
 end
@@ -64,6 +68,22 @@ end
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
+@testset "Client read functions" begin
+    include("client_read.jl")
+end
+
+@testset "Client write functions" begin
+    include("client_write.jl")
+end
+
+@testset "Client service functions" begin
+    include("client_service.jl")
+end
+
+@testset "Client subscriptions" begin
+    include("client_service.jl")
+end
+
 @testset "Simple Server/Client" begin
     include("simple_server_client.jl")
 end
