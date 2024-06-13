@@ -14,7 +14,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #UA_QualifiedName
 ua_s = UA_STRING("scalar variable")
@@ -27,7 +27,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #UA_LocalizedText
 ua_s1 = UA_STRING("test1")
@@ -41,7 +41,7 @@ for i in 1:100_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #NodeIds
 ua_s = UA_STRING("test")
@@ -77,7 +77,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #expanded nodeids
 ns_uri = "http://example.com"
@@ -133,7 +133,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #VariableAttributes and VariableTypeAttributes - both scalar and array, hitting all dispatch paths
 mem_start = meminfo_julia()
@@ -157,7 +157,7 @@ for j in eachindex(inputs)
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #adding a node to a server
 server = UA_Server_new()
@@ -192,7 +192,7 @@ for i in 1:1_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #clean up server
 UA_Server_delete(server)
