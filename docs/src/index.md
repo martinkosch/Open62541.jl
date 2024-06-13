@@ -29,15 +29,14 @@ level interface that wraps all functionality of open62541 is, however, available
 
 ## Installation
 
-open62541.jl is not yet registered in Julia's General registry, but it will
-hopefully be soon (status: May 2024).
+open62541.jl is registered in Julia's General registry.
 
 Assuming you have Julia already installed (otherwise: [JuliaLang Website](https://julialang.org/)),
-you can install by executing:
+you can install open62541.jl by executing:
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/martinkosch/open62541.jl")
+Pkg.add("open62541")
 ```
 
 ## Structure of the documentation
