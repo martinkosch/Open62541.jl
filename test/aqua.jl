@@ -1,2 +1,2 @@
-using Aqua, open62541
-Aqua.test_all(open62541)
+using Aqua, Open62541
+Aqua.test_all(Open62541)

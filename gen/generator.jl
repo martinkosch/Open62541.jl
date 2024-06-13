@@ -18,7 +18,7 @@ function write_generated_defs(generated_defs_dir::String,
         headers,
         type_names,
         julia_types)
-    julia_types = replace("$julia_types", Regex("Main\\.open62541\\.") => "")
+    julia_types = replace("$julia_types", Regex("Main\\.Open62541\\.") => "")
     type_string = """
     # Vector of all UA types
     const type_names = $type_names
@@ -106,7 +106,7 @@ ctx = create_context(open62541_header, args, options)
 # Run generator
 build!(ctx)
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
@@ -116,7 +116,7 @@ inlined_funcs = extract_inlined_funcs(open62541_header)
 for i in eachindex(inlined_funcs)
     @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
-    data = replace(data, r => "")
+    global data = replace(data, r => "")
 end
 
 #alternative1: removes docstrings of just the inlined functions
@@ -142,25 +142,25 @@ return guid_dst
 end"
 data = replace(data, orig=>new)
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
 
 @show "loading module"
-include("../src/open62541.jl")
+include("../src/Open62541.jl")
 
 # Get UA type names
-UA_TYPES = Ref{Ptr{open62541.UA_DataType}}(0)
-UA_TYPES[] = cglobal((:UA_TYPES, libopen62541), open62541.UA_DataType)
-UA_TYPES_PTRS = OffsetVector{Ptr{open62541.UA_DataType}}(undef,
-    0:(open62541.UA_TYPES_COUNT - 1))
-UA_TYPES_MAP = Vector{DataType}(undef, open62541.UA_TYPES_COUNT) # Initialize vector of mapping between UA_TYPES and Julia types as undefined and write values during __init__
+UA_TYPES = Ref{Ptr{Open62541.UA_DataType}}(0)
+UA_TYPES[] = cglobal((:UA_TYPES, libopen62541), Open62541.UA_DataType)
+UA_TYPES_PTRS = OffsetVector{Ptr{Open62541.UA_DataType}}(undef,
+    0:(Open62541.UA_TYPES_COUNT - 1))
+UA_TYPES_MAP = Vector{DataType}(undef, Open62541.UA_TYPES_COUNT) # Initialize vector of mapping between UA_TYPES and Julia types as undefined and write values during __init__
 
 for i in eachindex(UA_TYPES_PTRS)
-    UA_TYPES_PTRS[i] = UA_TYPES[] + sizeof(open62541.UA_DataType) * i
+    UA_TYPES_PTRS[i] = UA_TYPES[] + sizeof(Open62541.UA_DataType) * i
     typename = "UA_" * unsafe_string(unsafe_load(UA_TYPES_PTRS[i]).typeName)
-    UA_TYPES_MAP[i + 1] = getglobal(open62541, Symbol(typename))
+    UA_TYPES_MAP[i + 1] = getglobal(Open62541, Symbol(typename))
 end
 
 type_names = [Symbol("UA_", unsafe_string(unsafe_load(type_ptr).typeName))
@@ -168,7 +168,7 @@ type_names = [Symbol("UA_", unsafe_string(unsafe_load(type_ptr).typeName))
 
 # Get corresponding Julia Types
 function juliadatatype(p, start, UA_TYPES_MAP)
-    ind = Int(Int((p - start)) / sizeof(open62541.UA_DataType))
+    ind = Int(Int((p - start)) / sizeof(Open62541.UA_DataType))
     return UA_TYPES_MAP[ind + 1]
 end
 julia_types = [juliadatatype(type_ptr, UA_TYPES_PTRS[0], UA_TYPES_MAP)
@@ -180,9 +180,9 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
     type_names,
     julia_types)
 
-# Now let's get the epilogue into the open62541.jl filter
+# Now let's get the epilogue into the Open62541.jl filter
 # 1. Read original file content
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 orig_content = replace(orig_content, "end # module" => "")
@@ -195,13 +195,13 @@ epilogue_content = read(f, String)
 close(f)
 
 # 3. Write overall content to the file
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, orig_content * "\n" * epilogue_content * "\nend # module")
 close(f)
 
 #remove double new lines on each "const xxx = ..." line
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
@@ -224,4 +224,4 @@ write(f, new_content)
 close(f)
 
 # automated formatting
-format(joinpath(@__DIR__, "../src/open62541.jl"))
+format(joinpath(@__DIR__, "../src/Open62541.jl"))

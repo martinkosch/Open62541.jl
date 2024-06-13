@@ -12,7 +12,7 @@ library_name = "libopen62541"
 library_names = {}
 
 # output file path relative to the working directory
-output_file_path = "../src/open62541.jl"
+output_file_path = "../src/Open62541.jl"
 
 # if these are set, common file (types and constants) and API file (functions) will be separated
 # this is for compatibility, so prologue and epilogue are not supported.
@@ -23,7 +23,7 @@ output_file_path = "../src/open62541.jl"
 # module module_name
 #
 # end # module
-module_name = "open62541"
+module_name = "Open62541"
 
 # if this entry is not empty, the generator will print the code below to the `output_file_path`.
 # using jll_pkg_name
@@ -91,7 +91,20 @@ output_ignorelist = [
                      "UA_INT64_MIN", 
                      "UA_UINT64_MAX", 
                      "UA_UINT64_MIN", 
-                     "UA_PRINTF_GUID_FORMAT"
+                     "UA_PRINTF_GUID_FORMAT",
+                     "UA_poll",
+                     "UA_send",
+                     "UA_recv",
+                     "UA_sendto",
+                     "UA_recvfrom",
+                     "UA_recvmsg",
+                     "UA_select",
+                     "UA_bind",
+                     "UA_connect",
+                     "UA_getsockopt",
+                     "UA_setsockopt",
+                     "UA_ioctl",
+                     "UA_snprintf",
                      ]
 
 # Julia's `@enum` do not allow duplicated values, so by default, C enums are translated to

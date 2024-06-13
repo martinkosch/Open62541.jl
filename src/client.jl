@@ -41,7 +41,7 @@ for att in attributes_UA_Client_Service
     resp_del = Symbol(resp_type, "_delete")
     req_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "REQUEST")
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
-    if isdefined(open62541, req_type) # Skip functions that use undefined types
+    if isdefined(Open62541, req_type) # Skip functions that use undefined types
         @eval begin
             #TODO: add tests           
             """

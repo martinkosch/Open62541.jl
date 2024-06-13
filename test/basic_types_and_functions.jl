@@ -1,7 +1,7 @@
 #Purpose: Tests functionality of basic types used in UA for a lot of things:
 #Types currently covered: (J)UA_String, (J)UA_QualifiedName, (J)UA_LocalizedText, (J)UA_ByteString
 #Functions currently covered: UA_DateTime_
-using open62541
+using Open62541
 using Test
 using Base64
 using Dates

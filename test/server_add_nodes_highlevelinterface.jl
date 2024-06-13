@@ -1,7 +1,7 @@
 # Simple checks whether addition of different node types was successful or not
 # Closely follows https://www.open62541.org/doc/1.3/tutorial_server_variabletype.html
 
-using open62541
+using Open62541
 using Test
 using Pkg.BinaryPlatforms
 
@@ -127,7 +127,7 @@ retval5 = JUA_Server_addNode(server, requestednewnodeid, parentnodeid, reference
 @test retval5 == UA_STATUSCODE_BADTYPEMISMATCH
 
 #and now we just want to change value rank (which again shouldn't be allowed)
-@test_throws open62541.AttributeReadWriteError UA_Server_writeValueRank(server,
+@test_throws Open62541.AttributeReadWriteError UA_Server_writeValueRank(server,
     pointvariableid1,
     UA_VALUERANK_ONE_OR_MORE_DIMENSIONS)
 
@@ -239,7 +239,7 @@ retval12 = JUA_Server_addNode(server, JUA_NodeId(), pumpTypeId,
 
 #TODO: would need to introduce JUA_ExpandedNodeId in highlevel_types.jl before revising this
 # Make the status variable mandatory */
-retval13 = UA_Server_addReference(server, open62541.Jpointer(statusId),
+retval13 = UA_Server_addReference(server, Open62541.Jpointer(statusId),
     UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE),
     UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
 @test retval13 == UA_STATUSCODE_GOOD

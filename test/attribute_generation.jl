@@ -1,5 +1,5 @@
 #Purpose: Tests attribute generation functionality and associated functions
-using open62541
+using Open62541
 using Test
 using Random
 
@@ -126,7 +126,7 @@ for i in eachindex(array_sizes)
         @test unsafe_load(attr.valueRank) == valueranks[i]
         @test unsafe_load(attr.historizing) == historizing
         #TODO: add test that checks dataType being correctly set.
-        out = open62541.__get_juliavalues_from_variant(attr.value, Any)
+        out = Open62541.__get_juliavalues_from_variant(attr.value, Any)
         if types[j] <: Union{AbstractFloat, Complex}
             @test all(out .≈ v)
         else
@@ -179,7 +179,7 @@ for i in eachindex(array_sizes)
         @test unsafe_load(attr.userWriteMask) == userwritemask
         @test unsafe_load(attr.valueRank) == valueranks[i]
         @test unsafe_load(attr.isAbstract) == isabstract
-        out = open62541.__get_juliavalues_from_variant(attr.value, Any)
+        out = Open62541.__get_juliavalues_from_variant(attr.value, Any)
         if types[j] <: Union{AbstractFloat, Complex}
             @test all(out .≈ v)
         else

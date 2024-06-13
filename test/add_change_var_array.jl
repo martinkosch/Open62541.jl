@@ -10,7 +10,7 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
-    using open62541, Test, Random
+    using Open62541, Test, Random
 
     # What types and sizes we are testing for: 
     types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
@@ -158,7 +158,7 @@ for type_ind in eachindex(types)
                     reshape(
             [randstring(rand(1:10)) for i in 1:prod(array_size)], array_size...)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
-        @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(
+        @test_throws Open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(
             client, varnodeid, new_input)
     end
 end

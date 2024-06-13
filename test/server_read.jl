@@ -5,7 +5,7 @@
 # For functions not defined for a variable node, we check that they throw the 
 # appropriate exception. 
 
-using open62541
+using Open62541
 using Test
 
 #configure server
@@ -64,7 +64,7 @@ for node in nodes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
     end 
-    for att in open62541.attributes_UA_Server_read
+    for att in Open62541.attributes_UA_Server_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
         generator = Symbol(att[3]*"_new")
@@ -74,7 +74,7 @@ for node in nodes
            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(server, node, out2), UA_StatusCode)
         else
-            @test_throws open62541.AttributeReadWriteError eval(fun_name)(server, node, out2)
+            @test_throws Open62541.AttributeReadWriteError eval(fun_name)(server, node, out2)
         end
         eval(cleaner)(out2)
     end

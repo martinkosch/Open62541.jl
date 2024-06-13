@@ -19,7 +19,7 @@ end
 #Sets a field of JUA_XXX object to a JUA_YYY object, calls the next method, i.e., 
 #will create a copy of the JUA_YYY object. 
 function Base.setproperty!(x::AbstractOpen62541Wrapper, f::Symbol, v::AbstractOpen62541Wrapper)
-    @warn "Attention! Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
+    @warn "Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
         the $(typeof(v)) being generated. Avoid repeated assignments without finalizing the $(typeof(x))." maxlog = 1
     setproperty!(Jpointer(x), f, v, true)
 end
@@ -34,7 +34,7 @@ for i in unique_julia_types_ind
             type_ptr = ua_data_type_ptr_default(typeof(Jpointer(v)))
             UA_copy(Jpointer(v), getproperty(x, f), type_ptr)    
             if nowarn == false
-                @warn "Attention! Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
+                @warn "Assigning a $(typeof(v)) as content of field $(String(f)) in a $(typeof(x)) leads to a copy of 
                     the $(typeof(v)) being generated. Avoid repeated assignments without finalizing the $(typeof(x))." maxlog = 1
             end
         end
