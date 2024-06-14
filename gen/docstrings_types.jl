@@ -37,7 +37,7 @@ for type in typenames
     end
 end
 
-fn = joinpath(@__DIR__, "../src/Open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
