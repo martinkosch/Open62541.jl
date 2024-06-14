@@ -11,9 +11,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```
+f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
-       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode```
+       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode
 ```
 """
 function UA_NodeTypeLifecycleCallback_constructor_generate(f::Function)
@@ -45,9 +46,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```
+f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
-       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::Cvoid```
+       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::Cvoid
 ```
 """
 function UA_NodeTypeLifecycleCallback_destructor_generate(f::Function)
@@ -77,10 +79,11 @@ creates a `UA_MethodCallback` that can be attached to a method node using
 `UA_Server_addMethodNode`.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`, 
+```
+f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`, 
     methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   
     objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
-    outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
+    outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -111,9 +114,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::Nothing```
+        data::Ptr{UA_DataValue})::Nothing
 ```
 """
 function UA_ValueCallback_onRead_generate(f::Function)
@@ -143,9 +147,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::Nothing```
+        data::Ptr{UA_DataValue})::Nothing
 ```
 """
 function UA_ValueCallback_onWrite_generate(f::Function)
@@ -175,9 +180,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::UA_StatusCode```
+        data::Ptr{UA_DataValue})::UA_StatusCode
 ```
 """
 function UA_DataSourceCallback_write_generate(f::Function)
@@ -207,9 +213,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, includesourcetimestamp::UA_Boolean, 
-        range::Ptr{UA_NumericRange}, data::Ptr{UA_DataValue})::UA_StatusCode```
+        range::Ptr{UA_NumericRange}, data::Ptr{UA_DataValue})::UA_StatusCode
 ```
 """
 function UA_DataSourceCallback_read_generate(f::Function)

@@ -28,7 +28,7 @@ typenames  = getfield.(collect(eachmatch(r"struct (\S*)\n", data)), :captures) #
 for type in typenames
     @show type[1]
     if !any(startswith.(type[1], docstrings_types_ignore_keywords)) && !any(contains.(type[1], docstrings_types_special)) #standard docstring
-        data = replace(data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
+        global data = replace(data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
     elseif any(contains.(type[1], docstrings_types_special[:,1]))
         i = findfirst(t -> t == type[1], docstrings_types_special[:,1])
         if !isnothing(i)

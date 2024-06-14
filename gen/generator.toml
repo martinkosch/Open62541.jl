@@ -105,6 +105,17 @@ output_ignorelist = [
                      "UA_setsockopt",
                      "UA_ioctl",
                      "UA_snprintf",
+                     "CRITICAL_SECTION",
+                     "_RTL_CRITICAL_SECTION",
+                     "RTL_CRITICAL_SECTION",
+                     "_RTL_CRITICAL_SECTION_DEBUG",
+                     "_LIST_ENTRY",
+                     "HANDLE",
+                     "DWORD",
+                     "WORD",
+                     "ULONG_PTR"
+                     "LONG"
+                     "PRTL_CRITICAL_SECTION_DEBUG"
                      ]
 
 # Julia's `@enum` do not allow duplicated values, so by default, C enums are translated to

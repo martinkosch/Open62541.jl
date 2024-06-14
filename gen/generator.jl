@@ -130,7 +130,23 @@ end
 r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
 data = replace(data, r => "")
 
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
+f = open(fn, "w")
+write(f, data)
+close(f)
+
+#Bring back simple docstrings for structs
+include("docstrings_types.jl")
+
+#Bring back simple docstrings for structs
+include("callbacks_generator.jl")
+
 #replace a specific function to make data handling more transparent
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
+f = open(fn, "r")
+data = read(f, String)
+close(f)
+
 orig = "function UA_Guid_random()
     @ccall libopen62541.UA_Guid_random()::UA_Guid
 end"
@@ -147,6 +163,7 @@ f = open(fn, "w")
 write(f, data)
 close(f)
 
+@warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
 @show "loading module"
 include("../src/Open62541.jl")
 
@@ -225,3 +242,4 @@ close(f)
 
 # automated formatting
 format(joinpath(@__DIR__, "../src/Open62541.jl"))
+format(joinpath(@__DIR__, "../src/callbacks.jl"))
