@@ -1,6 +1,6 @@
 #stolen from: https://github.com/open62541/open62541/blob/master/examples/tutorial_server_monitoreditems.c
 
-using open62541
+using Open62541
 using Test
 
 function dataChangeNotificationCallback(server, monitoredItemId,

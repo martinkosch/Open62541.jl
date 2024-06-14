@@ -4,7 +4,7 @@ Lists types and functions that are part of the open62541 standard interface.
 
 ## open62541 types
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:type]
 Filter = t -> startswith(string(t), "UA_")
 ``` 
@@ -14,7 +14,7 @@ These are low level functions allowing to allocate and free (etc.) memory for
 open62541 types ("UA_...") on the C-side.
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_") && any(endswith.(string(t), ["_new", "_init", "_delete", "_clear", "_copy", "_deleteMembers"]))
 ``` 
@@ -34,13 +34,13 @@ UA_ByteString_equal
 
 ## Generation of (Expanded)NodeIds & associated functions
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_NODEID") 
 ``` 
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_EXPANDEDNODEID") 
 ``` 
@@ -78,7 +78,7 @@ UA_WRITEMASK
 ## Server API
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_ServerConfig")
 ``` 
@@ -86,7 +86,7 @@ Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_S
 ## Client API
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_Client_")
 ``` 
@@ -94,7 +94,7 @@ Filter = t -> startswith(string(t), "UA_Client_")
 ## Asynchronous Client API
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
 ``` 
@@ -102,7 +102,7 @@ Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_
 ## Callback generation
 
 ```@autodocs
-Modules = [open62541]
+Modules = [Open62541]
 Pages = ["callbacks.jl"]
 ``` 
 

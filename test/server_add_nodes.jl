@@ -1,7 +1,7 @@
 # Simple checks whether addition of different node types was successful or not
 # Closely follows https://www.open62541.org/doc/1.3/tutorial_server_variabletype.html
 
-using open62541
+using Open62541
 using Test
 using Pkg.BinaryPlatforms
 
@@ -163,7 +163,7 @@ retval5 = UA_Server_addVariableNode(server, requestednewnodeid,
 @test retval5 == UA_STATUSCODE_BADTYPEMISMATCH
 
 #and now we just want to change value rank (which again shouldn't be allowed)
-@test_throws open62541.AttributeReadWriteError UA_Server_writeValueRank(server,
+@test_throws Open62541.AttributeReadWriteError UA_Server_writeValueRank(server,
     pointvariableid1,
     UA_VALUERANK_ONE_OR_MORE_DIMENSIONS)
 

@@ -10,7 +10,7 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
-    using open62541
+    using Open62541
     using Test
 end
 
@@ -140,7 +140,7 @@ for node in nodes
         attributeset = UA_VariableTypeAttributes
         nonvalidattr = (:NodeId, :NodeClass, :BrowseName, :UserWriteMask) #as above
     end 
-    for att in open62541.attributes_UA_Client_write
+    for att in Open62541.attributes_UA_Client_write
         fun_write = Symbol(att[1])
         fun_read = Symbol(replace(att[1], "write" => "read"))
         attr_name = Symbol(att[2])

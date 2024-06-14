@@ -1,6 +1,6 @@
 #tests custom exceptions
 
-using open62541
+using Open62541
 using Test
 
 codes_good = [UA_STATUSCODE_GOOD
@@ -25,9 +25,9 @@ bools_bad = [false, false, true]
 
 function test_codes(codes, bools)
     for c in codes
-        @test open62541.UA_StatusCode_isGood(c) == bools[1]
-        @test open62541.UA_StatusCode_isUncertain(c) == bools[2]
-        @test open62541.UA_StatusCode_isBad(c) == bools[3]
+        @test Open62541.UA_StatusCode_isGood(c) == bools[1]
+        @test Open62541.UA_StatusCode_isUncertain(c) == bools[2]
+        @test Open62541.UA_StatusCode_isBad(c) == bools[3]
     end
 end
 

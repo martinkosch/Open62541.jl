@@ -1,4 +1,4 @@
-name = "open62541"
+name = "Open62541"
 uuid = "e9b70463-8ccb-4e30-a2e2-0d1ec8db6536"
 authors = ["Martin Kosch <martin.kosch@gmail.com> and contributors"]
 version = "0.1.0"

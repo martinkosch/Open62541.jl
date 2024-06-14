@@ -9,7 +9,7 @@ This will detail how to add the variables mentioned above to the server. The
 code block is commented line by line.
 
 ```julia
-using open62541
+using Open62541
 
 #configure the open62541 server; we choose a default config on port 4840.
 server = JUA_Server()
@@ -82,7 +82,7 @@ you may want to return to the first Julia session and stop the server (press
 CTRL + C repeatedly).
 
 ```julia
-using open62541
+using Open62541
 
 #initiate client, configure it and connect to server
 client = JUA_Client()

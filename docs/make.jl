@@ -1,19 +1,19 @@
-using open62541
+using Open62541
 using Documenter
 
-DocMeta.setdocmeta!(open62541, :DocTestSetup, :(using open62541); recursive = true)
+DocMeta.setdocmeta!(Open62541, :DocTestSetup, :(using Open62541); recursive = true)
 
 makedocs(;
-    modules = [open62541],
+    modules = [Open62541],
     authors = "Martin Kosch <martin.kosch@gmail.com> and contributors",
-    repo = "https://github.com/martinkosch/open62541.jl/blob/{commit}{path}#{line}",
-    sitename = "open62541.jl",
+    repo = "https://github.com/martinkosch/Open62541.jl/blob/{commit}{path}#{line}",
+    sitename = "Open62541.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://martinkosch.github.io/open62541.jl",
+        canonical = "https://martinkosch.github.io/Open62541.jl",
         assets = String[],
         size_threshold = 8000 * 2^10,
-        repolink = "https://github.com/martinkosch/open62541.jl"
+        repolink = "https://github.com/martinkosch/Open62541.jl"
     ),
     pages = [
         "Introduction" => "index.md",
@@ -50,5 +50,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo = "github.com/martinkosch/open62541.jl",
+    repo = "github.com/martinkosch/Open62541.jl",
     devbranch = "main")

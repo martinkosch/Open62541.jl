@@ -4,7 +4,7 @@
 #variable type to the node. For functions not defined for a variable node, we check that they throw the 
 #appropriate exception. 
 
-using open62541
+using Open62541
 using Test
 using Base.Threads
 
@@ -65,7 +65,7 @@ for node in nodes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
     end 
-    for att in open62541.attributes_UA_Server_write
+    for att in Open62541.attributes_UA_Server_write
         fun_write = Symbol(att[1])
         fun_read = Symbol(replace(att[1], "write" => "read"))
         attr_name = Symbol(att[2])

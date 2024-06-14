@@ -18,17 +18,17 @@ docstrings_types_special = [
                             ]
 
 uniontype_warning = "Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.\n"
-#splice docstrings into open62541.jl
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+#splice docstrings into Open62541.jl
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
 
-typenames  = getfield.(collect(eachmatch(r"struct (\S*)\n", data)), :captures) #gets all typenames within open62541.jl
+typenames  = getfield.(collect(eachmatch(r"struct (\S*)\n", data)), :captures) #gets all typenames within Open62541.jl
 for type in typenames
     @show type[1]
     if !any(startswith.(type[1], docstrings_types_ignore_keywords)) && !any(contains.(type[1], docstrings_types_special)) #standard docstring
-        data = replace(data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
+        global data = replace(data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
     elseif any(contains.(type[1], docstrings_types_special[:,1]))
         i = findfirst(t -> t == type[1], docstrings_types_special[:,1])
         if !isnothing(i)
@@ -37,7 +37,7 @@ for type in typenames
     end
 end
 
-fn = joinpath(@__DIR__, "../src/open62541_new.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)

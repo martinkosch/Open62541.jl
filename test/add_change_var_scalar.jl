@@ -10,7 +10,7 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
-    using open62541, Test, Random
+    using Open62541, Test, Random
 
     # What types we are testing for: 
     types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
@@ -114,7 +114,7 @@ for type_ind in eachindex(types)
     type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
     new_input = type != String ? rand(type) : randstring(rand(1:10))
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
-    @test_throws open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(client,
+    @test_throws Open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(client,
         varnodeid, new_input)
 end
 

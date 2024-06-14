@@ -1,5 +1,5 @@
 # Based on https://www.open62541.org/doc/master/tutorial_datatypes.html
-using open62541
+using Open62541
 using Test
 
 ### Int32
@@ -69,8 +69,8 @@ v2 = UA_Variant_new()
 UA_Variant_copy(v, v2)
 @test unsafe_load(v2.storageType) == unsafe_load(v.storageType)
 @test unsafe_load(v2.arrayLength) == unsafe_load(v.arrayLength)
-@test open62541.unsafe_size(v2) == open62541.unsafe_size(v)
-@test open62541.length(v2) == open62541.length(v)
+@test Open62541.unsafe_size(v2) == Open62541.unsafe_size(v)
+@test Open62541.length(v2) == Open62541.length(v)
 @test unsafe_wrap(v2) == unsafe_wrap(v)
 
 # Set an array value

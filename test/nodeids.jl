@@ -1,6 +1,6 @@
 #Purpose: run through all kinds of different functions defining nodeids and test them
 
-using open62541
+using Open62541
 using Test
 
 #NodeId String
@@ -176,7 +176,7 @@ jguid = JUA_Guid(guid)
 ns_uri = "http://example.com"
 
 j7 = JUA_ExpandedNodeId()
-j8 = JUA_ExpandedNodeId(open62541.Jpointer(j7))
+j8 = JUA_ExpandedNodeId(Open62541.Jpointer(j7))
 j9 = JUA_ExpandedNodeId(1, 1234)
 j10 = JUA_ExpandedNodeId(s)
 j11 = JUA_ExpandedNodeId(ua_s)

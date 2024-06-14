@@ -1,4 +1,4 @@
-module open62541
+module Open62541
 
 using open62541_jll
 export open62541_jll
@@ -15,66 +15,8 @@ const UA_UINT64_MIN = typemin(UInt64)
 const UA_FALSE = false
 const UA_TRUE = true
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
-
-const WORD = Cushort
-const DWORD = Culong
 const UINT_PTR = Culonglong
-const ULONG_PTR = Culonglong
-const LONG = Clong
-const HANDLE = Ptr{Cvoid}
-
-struct _LIST_ENTRY
-    Flink::Ptr{_LIST_ENTRY}
-    Blink::Ptr{_LIST_ENTRY}
-end
-const LIST_ENTRY = _LIST_ENTRY
-
-struct _RTL_CRITICAL_SECTION_DEBUG
-    Type::WORD
-    CreatorBackTraceIndex::WORD
-    CriticalSection::Ptr{Cvoid} # CriticalSection::Ptr{_RTL_CRITICAL_SECTION}
-    ProcessLocksList::LIST_ENTRY
-    EntryCount::DWORD
-    ContentionCount::DWORD
-    Flags::DWORD
-    CreatorBackTraceIndexHigh::WORD
-    SpareWORD::WORD
-end
-
-function Base.getproperty(x::_RTL_CRITICAL_SECTION_DEBUG, f::Symbol)
-    f === :CriticalSection && return Ptr{_RTL_CRITICAL_SECTION}(getfield(x, f))
-    return getfield(x, f)
-end
-const PRTL_CRITICAL_SECTION_DEBUG = Ptr{_RTL_CRITICAL_SECTION_DEBUG}
-
-struct _RTL_CRITICAL_SECTION
-    data::NTuple{40, UInt8}
-end
-
-function Base.getproperty(x::Ptr{_RTL_CRITICAL_SECTION}, f::Symbol)
-    f === :DebugInfo && return Ptr{PRTL_CRITICAL_SECTION_DEBUG}(x + 0)
-    f === :LockCount && return Ptr{LONG}(x + 8)
-    f === :RecursionCount && return Ptr{LONG}(x + 12)
-    f === :OwningThread && return Ptr{HANDLE}(x + 16)
-    f === :LockSemaphore && return Ptr{HANDLE}(x + 24)
-    f === :SpinCount && return Ptr{ULONG_PTR}(x + 32)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::_RTL_CRITICAL_SECTION, f::Symbol)
-    r = Ref{_RTL_CRITICAL_SECTION}(x)
-    ptr = Base.unsafe_convert(Ptr{_RTL_CRITICAL_SECTION}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{_RTL_CRITICAL_SECTION}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-const RTL_CRITICAL_SECTION = _RTL_CRITICAL_SECTION
-const CRITICAL_SECTION = RTL_CRITICAL_SECTION
 const SOCKET = UINT_PTR
-
 const UA_Byte = UInt8
 
 """
@@ -547,7 +489,6 @@ function UA_Server_removeCallback(server, callbackId)
 end
 
 # typedef UA_StatusCode ( * UA_MethodCallback ) ( UA_Server * server , const UA_NodeId * sessionId , void * sessionContext , const UA_NodeId * methodId , void * methodContext , const UA_NodeId * objectId , void * objectContext , size_t inputSize , const UA_Variant * input , size_t outputSize , UA_Variant * output )
-
 const UA_MethodCallback = Ptr{Cvoid}
 
 function UA_Server_setMethodNodeCallback(server, methodNodeId, methodCallback)
@@ -6344,7 +6285,6 @@ function Base.setproperty!(x::Ptr{UA_Node}, f::Symbol, v)
 end
 
 # typedef void ( * UA_NodestoreVisitor ) ( void * visitorCtx , const UA_Node * node )
-
 const UA_NodestoreVisitor = Ptr{Cvoid}
 
 function UA_Node_setAttributes(node, attributes, attributeType)
@@ -6979,7 +6919,6 @@ function __UA_Client_Service(client, request, requestType, response, responseTyp
 end
 
 # typedef void ( * UA_ClientAsyncServiceCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , void * response )
-
 const UA_ClientAsyncServiceCallback = Ptr{Cvoid}
 
 function __UA_Client_AsyncService(
@@ -7022,7 +6961,6 @@ function __UA_Client_AsyncServiceEx(
 end
 
 # typedef void ( * UA_ClientCallback ) ( UA_Client * client , void * data )
-
 const UA_ClientCallback = Ptr{Cvoid}
 
 function UA_Client_addTimedCallback(client, callback, data, date, callbackId)
@@ -7168,7 +7106,6 @@ function UA_Client_forEachChildNodeCall(client, parentNodeId, callback, handle)
 end
 
 # typedef void ( * UA_Client_DeleteSubscriptionCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext )
-
 const UA_Client_DeleteSubscriptionCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_Client_StatusChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_StatusChangeNotification * notification )
@@ -7227,7 +7164,6 @@ function UA_Client_Subscriptions_deleteSingle(client, subscriptionId)
 end
 
 # typedef void ( * UA_Client_DeleteMonitoredItemCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext )
-
 const UA_Client_DeleteMonitoredItemCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_Client_DataChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , UA_DataValue * value )
@@ -7323,7 +7259,6 @@ function UA_Client_MonitoredItems_modify(client, request)
 end
 
 # typedef void ( * UA_ClientAsyncReadCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_ReadResponse * rr )
-
 const UA_ClientAsyncReadCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncWriteCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_WriteResponse * wr )
@@ -7333,11 +7268,9 @@ const UA_ClientAsyncWriteCallback = Ptr{Cvoid}
 const UA_ClientAsyncBrowseCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncOperationCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , void * result )
-
 const UA_ClientAsyncOperationCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncReadAttributeCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , UA_DataValue * attribute )
-
 const UA_ClientAsyncReadAttributeCallback = Ptr{Cvoid}
 
 function UA_Client_readAttribute_async(
@@ -7600,7 +7533,6 @@ end
 const UA_ClientAsyncCallCallback = Ptr{Cvoid}
 
 # typedef void ( * UA_ClientAsyncAddNodesCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_AddNodesResponse * ar )
-
 const UA_ClientAsyncAddNodesCallback = Ptr{Cvoid}
 
 function __UA_Client_addNode_async(
@@ -8014,7 +7946,6 @@ const UA_BINARY_OVERLAYABLE_FLOAT = 1
 const OPTVAL_TYPE = Cint
 const UA_IPV6 = 1
 const UA_SOCKET = SOCKET
-const UA_bind = bind
 const UA_STATUSCODE_INFOTYPE_DATAVALUE = 0x00000400
 const UA_STATUSCODE_INFOBITS_OVERFLOW = 0x00000080
 const UA_STATUSCODE_GOOD = 0x00000000

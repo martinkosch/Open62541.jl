@@ -1,4 +1,4 @@
-using open62541
+using Open62541
 using Test
 
 function meminfo_julia()

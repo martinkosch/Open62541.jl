@@ -6,7 +6,7 @@ the current time. Note that this information should be contained in all OPC UA
 servers, so you could also connect to a different server that you know is running.
 
 ```julia
-using open62541
+using Open62541
 using Printf
 
 #initiate client, configure it and connect to server

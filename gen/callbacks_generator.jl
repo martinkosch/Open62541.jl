@@ -5,7 +5,7 @@
 #change dir
 cd(@__DIR__)
 
-fn = joinpath(@__DIR__, "./gen/callbacks_base.jl")
+fn = "callbacks_base.jl"
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
@@ -39,7 +39,7 @@ const client_async_read_callbacks = [
     ["UA_ClientAsyncReadUserExecutableAttributeCallback", "UA_Boolean", "userexecutable"]
 ]
 
-fn = joinpath(@__DIR__, "./src/callbacks.jl")
+fn = joinpath(@__DIR__, "../src/callbacks.jl")
 f = open(fn, "w")
 addedString = ""
 for cb in client_async_read_callbacks
@@ -58,10 +58,12 @@ creates a `$(cb[1])` that can be supplied as callback argument to `$(fun_name2)`
 The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
-    status::UA_StatusCode, $(attr_name))::$(String(attr_type)))::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, $(attr_name))::$(String(attr_type)))::Nothing
+```
 \"\"\"\n"
-    addedString = addedString * docstring *
+    global addedString = addedString * docstring *
                   "function $(fun_name)(f)
                       argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
                           $attr_type)

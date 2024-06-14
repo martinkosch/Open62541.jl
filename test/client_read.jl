@@ -10,7 +10,7 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
-    using open62541
+    using Open62541
     using Test
 end
 
@@ -119,7 +119,7 @@ for node in nodes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
     end 
-    for att in open62541.attributes_UA_Client_read
+    for att in Open62541.attributes_UA_Client_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
         generator = Symbol(att[3]*"_new")
@@ -128,7 +128,7 @@ for node in nodes
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) || in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(client, node, out2), UA_StatusCode)
         else
-            @test_throws open62541.AttributeReadWriteError eval(fun_name)(client, node, out2)
+            @test_throws Open62541.AttributeReadWriteError eval(fun_name)(client, node, out2)
         end
         eval(cleaner)(out2)
     end
