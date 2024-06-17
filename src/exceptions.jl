@@ -47,11 +47,9 @@ function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
         unclear which one should be used as basis of the callback."
     else
         args_in = fieldtypes(first(methods(e.f)).sig)
-        @show args_in[2:end]
-        @show e.f, e.argtuple, methods(e.f), args_in
         ret = Base.return_types(e.f, args_in[2:end])[1]
         msg = "Callback generator expected a method with f($(join([e.argtuple...], ", ")))::$(string(e.returntype)), 
-            but received a method f($(join(args_in[2:end], ", ")))::$(string(ret))." #TODO: does the job, but it's an ugly error message
+            but received a method f($(join(args_in[2:end], ", ")))::$(string(ret))."
     end
     print(io, msg)
 end

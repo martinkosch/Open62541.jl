@@ -57,8 +57,10 @@ creates a `$(cb[1])` that can be supplied as callback argument to `$(fun_name2)`
 The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
-    status::UA_StatusCode, $(attr_name))::$(String(attr_type)))::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, $(attr_name))::$(String(attr_type)))::Nothing
+```
 \"\"\"\n"
     global addedString = addedString * docstring *
                   "function $(fun_name)(f)

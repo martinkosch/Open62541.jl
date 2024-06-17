@@ -60,13 +60,16 @@ function write_generated_defs(generated_defs_dir::String,
         headers,
         type_names,
         julia_types)
-    julia_types = replace("$julia_types", Regex("Main\\.open62541\\.") => "")
+    julia_types = replace("$julia_types", Regex("Main\\.Open62541\\.") => "")
     type_string = """
     # Vector of all UA types
     const type_names = $type_names
 
     # Julia types corresponding to the UA types in vector type_names
     const julia_types = $julia_types
+
+    # Unique julia types
+    const unique_julia_types_ind = unique(i -> julia_types[i], eachindex(julia_types))
 
     # Vector of types that are ambiguously defined via typedef and are not to be used as default type
     types_ambiguous_ignorelist = [:UA_Duration, :UA_ByteString, :UA_XmlElement, :UA_LocaleId, :UA_DateTime, :UA_UtcTime, :UA_StatusCode]
@@ -132,7 +135,26 @@ function extract_header_data(regex::Regex, headers)
     return all_data
 end
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+# Load options from generator.toml
+options = load_options(joinpath(@__DIR__, "generator.toml"))
+
+# Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
+# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
+# memory requirement
+# append!(options["general"]["output_ignorelist"], extract_inlined_funcs(open62541_header))
+
+# Add compiler flags
+args = get_default_args()
+push!(args, "-I$include_dir")
+push!(args, "-std=c99")
+
+# Create context
+ctx = create_context(open62541_header, args, options)
+
+# Run generator
+build!(ctx)
+
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
@@ -142,21 +164,37 @@ inlined_funcs = extract_inlined_funcs(headers)
 for i in eachindex(inlined_funcs) 
     @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
-    data = replace(data, r => "")
-end 
+    global data = replace(data, r => "")
+end
 
-#also remove docstrings of functions that we remove here.
+#alternative1: removes docstrings of just the inlined functions
 # for i in eachindex(inlined_funcs) 
 #     @show i
 #     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
 #     data = replace(data, r => "")
 # end 
 
-#automatically generated docstrings aren't really informative; removing them all.
+#alternative2: automatically generated docstrings aren't really informative; removes them ALL.
 r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
 data = replace(data, r => "")
 
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
+f = open(fn, "w")
+write(f, data)
+close(f)
+
+#Bring back simple docstrings for structs
+include("docstrings_types.jl")
+
+#Bring back simple docstrings for structs
+include("callbacks_generator.jl")
+
 #replace a specific function to make data handling more transparent
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
+f = open(fn, "r")
+data = read(f, String)
+close(f)
+
 orig = "function UA_Guid_random()
     @ccall libopen62541.UA_Guid_random()::UA_Guid
 end"
@@ -168,25 +206,26 @@ return guid_dst
 end"
 data = replace(data, orig=>new)
 
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
 
+@warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
 @show "loading module"
-include("../src/open62541.jl")
+include("../src/Open62541.jl")
 
 # Get UA type names
-UA_TYPES = Ref{Ptr{open62541.UA_DataType}}(0)
-UA_TYPES[] = cglobal((:UA_TYPES, libopen62541), open62541.UA_DataType)
-UA_TYPES_PTRS = OffsetVector{Ptr{open62541.UA_DataType}}(undef,
-    0:(open62541.UA_TYPES_COUNT - 1))
-UA_TYPES_MAP = Vector{DataType}(undef, open62541.UA_TYPES_COUNT) # Initialize vector of mapping between UA_TYPES and Julia types as undefined and write values during __init__
+UA_TYPES = Ref{Ptr{Open62541.UA_DataType}}(0)
+UA_TYPES[] = cglobal((:UA_TYPES, libopen62541), Open62541.UA_DataType)
+UA_TYPES_PTRS = OffsetVector{Ptr{Open62541.UA_DataType}}(undef,
+    0:(Open62541.UA_TYPES_COUNT - 1))
+UA_TYPES_MAP = Vector{DataType}(undef, Open62541.UA_TYPES_COUNT) # Initialize vector of mapping between UA_TYPES and Julia types as undefined and write values during __init__
 
 for i in eachindex(UA_TYPES_PTRS)
-    UA_TYPES_PTRS[i] = UA_TYPES[] + sizeof(open62541.UA_DataType) * i
+    UA_TYPES_PTRS[i] = UA_TYPES[] + sizeof(Open62541.UA_DataType) * i
     typename = "UA_" * unsafe_string(unsafe_load(UA_TYPES_PTRS[i]).typeName)
-    UA_TYPES_MAP[i + 1] = getglobal(open62541, Symbol(typename))
+    UA_TYPES_MAP[i + 1] = getglobal(Open62541, Symbol(typename))
 end
 
 type_names = [Symbol("UA_", unsafe_string(unsafe_load(type_ptr).typeName))
@@ -194,7 +233,7 @@ type_names = [Symbol("UA_", unsafe_string(unsafe_load(type_ptr).typeName))
 
 # Get corresponding Julia Types
 function juliadatatype(p, start, UA_TYPES_MAP)
-    ind = Int(Int((p - start)) / sizeof(open62541.UA_DataType))
+    ind = Int(Int((p - start)) / sizeof(Open62541.UA_DataType))
     return UA_TYPES_MAP[ind + 1]
 end
 julia_types = [juliadatatype(type_ptr, UA_TYPES_PTRS[0], UA_TYPES_MAP)
@@ -206,9 +245,9 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
     type_names,
     julia_types)
 
-# Now let's get the epilogue into the open62541.jl filter
+# Now let's get the epilogue into the Open62541.jl filter
 # 1. Read original file content
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 orig_content = replace(orig_content, "end # module" => "")
@@ -221,19 +260,20 @@ epilogue_content = read(f, String)
 close(f)
 
 # 3. Write overall content to the file
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, orig_content * "\n" * epilogue_content * "\nend # module")
 close(f)
 
 #remove double new lines on each "const xxx = ..." line
-fn = joinpath(@__DIR__, "../src/open62541.jl")
+fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 orig_content = read(f, String)
 close(f)
 new_content = replace(orig_content, "\n\nconst" => "\nconst")
 f = open(fn, "w")
 write(f, new_content)
+close(f)
 
 #set compat bound in Projet.toml automatically to version that the generator ran on.
 fn = joinpath(@__DIR__, "../Project.toml")
@@ -252,8 +292,9 @@ close(f)
 include("callbacks_generator.jl")
 
 # automated formatting
-format(joinpath(@__DIR__, "../src/open62541.jl"))
+format(joinpath(@__DIR__, "../src/Open62541.jl/src/open62541.jl"))
 format(joinpath(@__DIR__, "../src/callbacks.jl"))
 
 #delete headers directory
 Base.Filesystem.rm("headers", recursive = true)
+format(joinpath(@__DIR__, "../src/callbacks.jl"))

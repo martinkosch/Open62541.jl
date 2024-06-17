@@ -1,0 +1,77 @@
+# Client
+
+This page lists docstrings relevant to the client API.
+
+## Adding different types of nodes:
+
+```@docs; canonical = false
+JUA_Client_addNode
+UA_Client_addVariableNode
+UA_Client_addObjectNode 
+UA_Client_addVariableTypeNode
+UA_Client_addObjectTypeNode
+UA_Client_addViewNode
+UA_Client_addReferenceTypeNode
+UA_Client_addDataTypeNode
+```
+
+## Reading from nodes:
+
+```@docs; canonical = false
+JUA_Client_readValueAttribute
+UA_Client_readAccessLevelAttribute
+UA_Client_readBrowseNameAttribute
+UA_Client_readContainsNoLoopsAttribute
+UA_Client_readDataTypeAttribute
+UA_Client_readDescriptionAttribute
+UA_Client_readDisplayNameAttribute
+UA_Client_readEventNotifierAttribute
+UA_Client_readExecutableAttribute
+UA_Client_readHistorizingAttribute
+UA_Client_readInverseNameAttribute
+UA_Client_readIsAbstractAttribute
+UA_Client_readMinimumSamplingIntervalAttribute
+UA_Client_readNodeClassAttribute
+UA_Client_readNodeIdAttribute
+UA_Client_readSymmetricAttribute
+UA_Client_readUserAccessLevelAttribute
+UA_Client_readUserExecutableAttribute
+UA_Client_readUserWriteMaskAttribute
+UA_Client_readValueAttribute
+UA_Client_readValueRankAttribute
+UA_Client_readWriteMaskAttribute
+```
+
+## Writing to nodes:
+
+```@docs; canonical = false
+JUA_Client_writeValueAttribute
+UA_Client_writeAccessLevelAttribute
+UA_Client_writeBrowseNameAttribute
+UA_Client_writeContainsNoLoopsAttribute
+UA_Client_writeDataTypeAttribute
+UA_Client_writeDescriptionAttribute
+UA_Client_writeDisplayNameAttribute
+UA_Client_writeEventNotifierAttribute
+UA_Client_writeExecutableAttribute
+UA_Client_writeHistorizingAttribute
+UA_Client_writeInverseNameAttribute
+UA_Client_writeIsAbstractAttribute
+UA_Client_writeMinimumSamplingIntervalAttribute
+UA_Client_writeNodeClassAttribute
+UA_Client_writeNodeIdAttribute
+UA_Client_writeSymmetricAttribute
+UA_Client_writeUserAccessLevelAttribute
+UA_Client_writeUserExecutableAttribute
+UA_Client_writeUserWriteMaskAttribute
+UA_Client_writeValueAttribute
+UA_Client_writeValueRankAttribute
+UA_Client_writeWriteMaskAttribute
+```
+
+## Asynchronous Client API
+```@autodocs; canonical = false
+Modules = [Open62541]
+Order = [:function]
+Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
+``` 

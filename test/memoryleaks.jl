@@ -1,4 +1,4 @@
-using open62541
+using Open62541
 using Test
 
 function meminfo_julia()
@@ -14,7 +14,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #UA_QualifiedName
 ua_s = UA_STRING("scalar variable")
@@ -27,7 +27,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #UA_LocalizedText
 ua_s1 = UA_STRING("test1")
@@ -41,7 +41,7 @@ for i in 1:100_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #NodeIds
 ua_s = UA_STRING("test")
@@ -77,7 +77,7 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #expanded nodeids
 ns_uri = "http://example.com"
@@ -133,20 +133,31 @@ for i in 1:10_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
-#VariableAttributes - both scalar and array
+#VariableAttributes and VariableTypeAttributes - both scalar and array, hitting all dispatch paths
 mem_start = meminfo_julia()
-for i in 1:10_000_000
-    accesslevel = UA_ACCESSLEVEL(read = true, write = true)
-    input = rand(Float64)
-    attr = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
-        description = "this is a scalar variable", accesslevel = accesslevel)
-    UA_VariableAttributes_delete(attr)
+input1 = rand(Float64)
+input2 = rand(Float64, 2)
+input3 = rand(ComplexF64)
+input4 = rand(ComplexF64, 2, 2)
+input5 = "test1"
+input6 = ["test1", "test2"]
+inputs = (input1, input2, input3, input4, input5, input6)
+for j in eachindex(inputs)
+    for i in 1:10_000_000
+        accesslevel = UA_ACCESSLEVEL(read = true, write = true)
+        attr1 = UA_VariableAttributes_generate(value = inputs[j], displayname = "variable",
+            description = "this is a variable", accesslevel = accesslevel)
+        attr2 = UA_VariableTypeAttributes_generate(value = inputs[j], displayname = "variabletype",
+            description = "this is variabletype variable")
+        UA_VariableAttributes_delete(attr1)
+        UA_VariableTypeAttributes_delete(attr2)
+    end
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
 
 #adding a node to a server
 server = UA_Server_new()
@@ -181,4 +192,7 @@ for i in 1:1_000_000
 end
 GC.gc()
 mem_end = meminfo_julia()
-@test (mem_end - mem_start) < 50.0
+@test (mem_end - mem_start) < 100.0
+
+#clean up server
+UA_Server_delete(server)

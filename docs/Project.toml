@@ -1,6 +1,7 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-open62541 = "e9b70463-8ccb-4e30-a2e2-0d1ec8db6536"
+Open62541 = "e9b70463-8ccb-4e30-a2e2-0d1ec8db6536"
 
 [compat]
 Documenter = "1"
+Open62541 = "0.1"

@@ -11,9 +11,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```
+f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
-       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode```
+       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::UA_StatusCode
 ```
 """
 function UA_NodeTypeLifecycleCallback_constructor_generate(f::Function)
@@ -45,9 +46,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
+```
+f(server::Ptr{UA_Server}, sessionId:: Ptr{UA_NodeId},
        sessionContext::Ptr{Cvoid}, typeNodeId::Ptr{UA_NodeId}, typeNodeContext::Ptr{Cvoid}, 
-       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::Cvoid```
+       nodeId::Ptr{UA_NodeId}, nodeContext::Ptr{Ptr{Cvoid}})::Cvoid
 ```
 """
 function UA_NodeTypeLifecycleCallback_destructor_generate(f::Function)
@@ -77,7 +79,13 @@ creates a `UA_MethodCallback` that can be attached to a method node using
 `UA_Server_addMethodNode`.
 
 `f` must be a Julia function with the following signature:
-```f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`,   methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode```
+
+```
+f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`, 
+    methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   
+    objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
+    outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode
+```
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -108,9 +116,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::Nothing```
+        data::Ptr{UA_DataValue})::Nothing
 ```
 """
 function UA_ValueCallback_onRead_generate(f::Function)
@@ -140,9 +149,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::Nothing```
+        data::Ptr{UA_DataValue})::Nothing
 ```
 """
 function UA_ValueCallback_onWrite_generate(f::Function)
@@ -172,9 +182,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, range::Ptr{UA_NumericRange}, 
-        data::Ptr{UA_DataValue})::UA_StatusCode```
+        data::Ptr{UA_DataValue})::UA_StatusCode
 ```
 """
 function UA_DataSourceCallback_write_generate(f::Function)
@@ -204,9 +215,10 @@ object.
 
 `f` must be a Julia function with the following signature:
 
-```f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
+```
+f(server::Ptr{UA_Server}, sessionid::Ptr{UA_NodeId}), sessioncontext::Ptr{Cvoid},
         nodeid::Ptr{Cvoid}, nodecontext::Ptr{Cvoid}, includesourcetimestamp::UA_Boolean, 
-        range::Ptr{UA_NumericRange}, data::Ptr{UA_DataValue})::UA_StatusCode```
+        range::Ptr{UA_NumericRange}, data::Ptr{UA_DataValue})::UA_StatusCode
 ```
 """
 function UA_DataSourceCallback_read_generate(f::Function)
@@ -231,8 +243,7 @@ end
 UA_ServerCallback_generate(f::Function)
 ```
 
-creates a `UA_ServerCallback` object that can be used in `UA_Server_addTimedCallback`
-or `UA_Server_addRepeatedCallback`.
+creates a `UA_ServerCallback` object.
 
 `f` must be a Julia function with the following signature:
 `f(server::Ptr{UA_Server}, data::Ptr{Cvoid}))::Nothing`
@@ -256,8 +267,7 @@ end
 UA_ClientCallback_generate(f::Function)
 ```
 
-creates a `UA_ClientCallback` object that can be used in `UA_Client_addTimedCallback`
-or `UA_Client_addRepeatedCallback`.
+creates a `UA_ClientCallback` object.
 
 `f` must be a Julia function with the following signature:
 `f(client::Ptr{UA_Client}, data::Ptr{Cvoid}))::Nothing`
@@ -269,6 +279,155 @@ function UA_ClientCallback_generate(f::Function)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
         callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncServiceCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncServiceCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, response::Ptr{Cvoid}))::Nothing`
+"""
+function UA_ClientAsyncServiceCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{Cvoid})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{Cvoid}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncReadCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncReadCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, readresponse::Ptr{UA_ReadResponse}))::Nothing`
+"""
+function UA_ClientAsyncReadCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncWriteCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncWriteCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_WriteResponse}))::Nothing`
+"""
+function UA_ClientAsyncWriteCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncBrowseCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncBrowseCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_WriteResponse}))::Nothing`
+"""
+function UA_ClientAsyncBrowseCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncAddNodesCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncAddNodesCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, writeresponse::Ptr{UA_AddNodesResponse}))::Nothing`
+"""
+function UA_ClientAsyncAddNodesCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse}))
+        return callback
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientAsyncCallCallback_generate(f::Function)
+```
+
+creates a `UA_ClientAsyncCallCallback` object.
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestId::UInt32, callresponse::Ptr{UA_CallResponse}))::Nothing`
+"""
+function UA_ClientAsyncCallCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -305,19 +464,14 @@ end
 #4 # typedef UA_StatusCode ( * UA_NodeIteratorCallback ) ( UA_NodeId childId , UA_Boolean isInverse , UA_NodeId referenceTypeId , void * handle )
 #5 # typedef void ( * UA_Server_DataChangeNotificationCallback ) ( UA_Server * server , UA_UInt32 monitoredItemId , void * monitoredItemContext , const UA_NodeId * nodeId , void * nodeContext , UA_UInt32 attributeId , const UA_DataValue * value )
 #6 # typedef void ( * UA_Server_EventNotificationCallback ) ( UA_Server * server , UA_UInt32 monId , void * monContext , size_t nEventFields , const UA_Variant * eventFields )
-#7 # typedef void ( * UA_ClientAsyncServiceCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , void * response )
 #8 # typedef UA_Boolean ( * UA_HistoricalIteratorCallback ) ( UA_Client * client , const UA_NodeId * nodeId , UA_Boolean moreDataAvailable , const UA_ExtensionObject * data , void * callbackContext )
 #9 # typedef void ( * UA_Client_DeleteSubscriptionCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext )
 #10 # typedef void ( * UA_Client_StatusChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_StatusChangeNotification * notification )
 #11 # typedef void ( * UA_Client_DeleteMonitoredItemCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext )
 #12 # typedef void ( * UA_Client_DataChangeNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , UA_DataValue * value )
 #13 # typedef void ( * UA_Client_EventNotificationCallback ) ( UA_Client * client , UA_UInt32 subId , void * subContext , UA_UInt32 monId , void * monContext , size_t nEventFields , UA_Variant * eventFields )
-#14 # typedef void ( * UA_ClientAsyncReadCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_ReadResponse * rr )
-#15 # typedef void ( * UA_ClientAsyncWriteCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_WriteResponse * wr )
 #16 # typedef void ( * UA_ClientAsyncBrowseCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_BrowseResponse * wr )
 #17 # typedef void ( * UA_ClientAsyncOperationCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_StatusCode status , void * result )
-#18 # typedef void ( * UA_ClientAsyncCallCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_CallResponse * cr )
-#19 # typedef void ( * UA_ClientAsyncAddNodesCallback ) ( UA_Client * client , void * userdata , UA_UInt32 requestId , UA_AddNodesResponse * ar )
 #20 # typedef UA_StatusCode ( * UA_UsernamePasswordLoginCallback ) ( const UA_String * userName , const UA_ByteString * password , size_t usernamePasswordLoginSize , const UA_UsernamePasswordLogin * usernamePasswordLogin , void * * sessionContext , void * loginContext )
 
 # typedef struct {
@@ -1282,9 +1436,6 @@ end
 #     size_t sessionLocaleIdsSize;
 # } UA_ClientConfig;
 
-# typedef void (*UA_ClientAsyncServiceCallback)(UA_Client *client, void *userdata,
-#                                               UA_UInt32 requestId, void *response);
-
 # typedef UA_Boolean
 # (*UA_HistoricalIteratorCallback)(UA_Client *client,
 #     const UA_NodeId *nodeId,
@@ -1319,12 +1470,6 @@ end
 #      UA_UInt32 monId, void *monContext,
 #      size_t nEventFields, UA_Variant *eventFields);
 
-#      typedef void (*UA_ClientAsyncReadCallback)(UA_Client *client, void *userdata,
-#      UA_UInt32 requestId, UA_ReadResponse *rr);
-
-#      typedef void (*UA_ClientAsyncWriteCallback)(UA_Client *client, void *userdata,
-#      UA_UInt32 requestId, UA_WriteResponse *wr);
-
 # typedef void (*UA_ClientAsyncBrowseCallback)(UA_Client *client, void *userdata,
 # UA_UInt32 requestId, UA_BrowseResponse *wr);
 
@@ -1332,12 +1477,6 @@ end
 # (*UA_ClientAsyncOperationCallback)(UA_Client *client, void *userdata,
 # UA_UInt32 requestId, UA_StatusCode status,
 # void *result);
-# typedef void (*UA_ClientAsyncCallCallback)(UA_Client *client, void *userdata,
-# UA_UInt32 requestId, UA_CallResponse *cr);
-
-# typedef void (*UA_ClientAsyncAddNodesCallback)(UA_Client *client, void *userdata,
-#                                                UA_UInt32 requestId,
-#                                                UA_AddNodesResponse *ar);
 
 # typedef UA_StatusCode (*UA_UsernamePasswordLoginCallback)
 # (const UA_String *userName, const UA_ByteString *password,
@@ -1696,8 +1835,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, attribute)::UA_DataValue)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, attribute)::UA_DataValue)::Nothing
 ```
 """
 function UA_ClientAsyncReadAttributeCallback_generate(f)
@@ -1726,8 +1866,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, value)::UA_DataValue)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, value)::UA_DataValue)::Nothing
 ```
 """
 function UA_ClientAsyncReadValueAttributeCallback_generate(f)
@@ -1756,8 +1897,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, datatype)::UA_NodeId)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, datatype)::UA_NodeId)::Nothing
 ```
 """
 function UA_ClientAsyncReadDataTypeAttributeCallback_generate(f)
@@ -1786,8 +1928,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, arraydimensions)::UA_Variant)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, arraydimensions)::UA_Variant)::Nothing
 ```
 """
 function UA_ClientReadArrayDimensionsAttributeCallback_generate(f)
@@ -1816,8 +1959,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, nodeclass)::UA_NodeClass)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, nodeclass)::UA_NodeClass)::Nothing
 ```
 """
 function UA_ClientAsyncReadNodeClassAttributeCallback_generate(f)
@@ -1846,8 +1990,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, browsename)::UA_QualifiedName)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, browsename)::UA_QualifiedName)::Nothing
 ```
 """
 function UA_ClientAsyncReadBrowseNameAttributeCallback_generate(f)
@@ -1876,8 +2021,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, displayname)::UA_LocalizedText)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, displayname)::UA_LocalizedText)::Nothing
 ```
 """
 function UA_ClientAsyncReadDisplayNameAttributeCallback_generate(f)
@@ -1906,8 +2052,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, description)::UA_LocalizedText)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, description)::UA_LocalizedText)::Nothing
 ```
 """
 function UA_ClientAsyncReadDescriptionAttributeCallback_generate(f)
@@ -1936,8 +2083,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, writeMask)::UA_UInt32)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, writeMask)::UA_UInt32)::Nothing
 ```
 """
 function UA_ClientAsyncReadWriteMaskAttributeCallback_generate(f)
@@ -1966,8 +2114,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, userwritemask)::UA_UInt32)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, userwritemask)::UA_UInt32)::Nothing
 ```
 """
 function UA_ClientAsyncReadUserWriteMaskAttributeCallback_generate(f)
@@ -1996,8 +2145,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, isabstract)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, isabstract)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadIsAbstractAttributeCallback_generate(f)
@@ -2026,8 +2176,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, symmetric)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, symmetric)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadSymmetricAttributeCallback_generate(f)
@@ -2056,8 +2207,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, inversename)::UA_LocalizedText)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, inversename)::UA_LocalizedText)::Nothing
 ```
 """
 function UA_ClientAsyncReadInverseNameAttributeCallback_generate(f)
@@ -2086,8 +2238,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, containsNoLoops)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, containsNoLoops)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadContainsNoLoopsAttributeCallback_generate(f)
@@ -2116,8 +2269,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, eventnotifier)::UA_Byte)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, eventnotifier)::UA_Byte)::Nothing
 ```
 """
 function UA_ClientAsyncReadEventNotifierAttributeCallback_generate(f)
@@ -2146,8 +2300,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, valuerank)::UA_UInt32)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, valuerank)::UA_UInt32)::Nothing
 ```
 """
 function UA_ClientAsyncReadValueRankAttributeCallback_generate(f)
@@ -2176,8 +2331,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, accesslevel)::UA_Byte)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, accesslevel)::UA_Byte)::Nothing
 ```
 """
 function UA_ClientAsyncReadAccessLevelAttributeCallback_generate(f)
@@ -2206,8 +2362,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, useraccesslevel)::UA_Byte)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, useraccesslevel)::UA_Byte)::Nothing
 ```
 """
 function UA_ClientAsyncReadUserAccessLevelAttributeCallback_generate(f)
@@ -2236,8 +2393,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, minimumsamplinginterval)::UA_Double)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, minimumsamplinginterval)::UA_Double)::Nothing
 ```
 """
 function UA_ClientAsyncReadMinimumSamplingIntervalAttributeCallback_generate(f)
@@ -2266,8 +2424,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, historizing)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, historizing)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadHistorizingAttributeCallback_generate(f)
@@ -2296,8 +2455,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, executable)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, executable)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadExecutableAttributeCallback_generate(f)
@@ -2326,8 +2486,9 @@ The callback will be triggered once the read operation has been carried out.
 
 `f` must be a Julia function with the following signature:
 
-```f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
-    status::UA_StatusCode, userexecutable)::UA_Boolean)::Nothing```
+```
+f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32, 
+    status::UA_StatusCode, userexecutable)::UA_Boolean)::Nothing
 ```
 """
 function UA_ClientAsyncReadUserExecutableAttributeCallback_generate(f)

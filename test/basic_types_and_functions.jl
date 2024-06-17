@@ -1,7 +1,7 @@
 #Purpose: Tests functionality of basic types used in UA for a lot of things:
 #Types currently covered: (J)UA_String, (J)UA_QualifiedName, (J)UA_LocalizedText, (J)UA_ByteString
 #Functions currently covered: UA_DateTime_
-using open62541
+using Open62541
 using Test
 using Base64
 using Dates
@@ -25,8 +25,7 @@ j1 = JUA_String("test1")
 UA_String_delete(ua_s1)
 UA_String_delete(ua_s2)
 UA_String_delete(ua_s3)
-j1 = 0 #this should trigger the garbage collector 
-GC.gc()
+UA_String_delete(ua_s4)
 
 #QualifiedName
 s1 = "test1"
@@ -46,6 +45,7 @@ UA_String_delete(ua_s1)
 @test UA_QualifiedName_equal(qn1, qn3)
 @test UA_QualifiedName_equal(qn1, qn4)
 @test UA_QualifiedName_isNull(qn0)
+UA_QualifiedName_delete(qn0)
 UA_QualifiedName_delete(qn1)
 UA_QualifiedName_delete(qn2)
 UA_QualifiedName_delete(qn3)
