@@ -1,4 +1,4 @@
-module open62541
+module Open62541
 
 using open62541_jll
 export open62541_jll
