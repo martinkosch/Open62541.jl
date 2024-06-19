@@ -135,25 +135,6 @@ function extract_header_data(regex::Regex, headers)
     return all_data
 end
 
-# Load options from generator.toml
-options = load_options(joinpath(@__DIR__, "generator.toml"))
-
-# Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
-# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
-# memory requirement
-# append!(options["general"]["output_ignorelist"], extract_inlined_funcs(open62541_header))
-
-# Add compiler flags
-args = get_default_args()
-push!(args, "-I$include_dir")
-push!(args, "-std=c99")
-
-# Create context
-ctx = create_context(open62541_header, args, options)
-
-# Run generator
-build!(ctx)
-
 fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
@@ -185,9 +166,6 @@ close(f)
 
 #Bring back simple docstrings for structs
 include("docstrings_types.jl")
-
-#Bring back simple docstrings for structs
-include("callbacks_generator.jl")
 
 #replace a specific function to make data handling more transparent
 fn = joinpath(@__DIR__, "../src/Open62541.jl")
@@ -292,9 +270,8 @@ close(f)
 include("callbacks_generator.jl")
 
 # automated formatting
-format(joinpath(@__DIR__, "../src/Open62541.jl/src/open62541.jl"))
+format(joinpath(@__DIR__, "../src/Open62541.jl"))
 format(joinpath(@__DIR__, "../src/callbacks.jl"))
 
 #delete headers directory
 Base.Filesystem.rm("headers", recursive = true)
-format(joinpath(@__DIR__, "../src/callbacks.jl"))
