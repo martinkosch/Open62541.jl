@@ -46,7 +46,10 @@ mem_end = meminfo_julia()
 #NodeIds
 ua_s = UA_STRING("test")
 guid = UA_Guid_random()
-guid_string = UA_print(unsafe_load(guid))
+ua_s2 = UA_String_new()
+UA_Guid_print(guid, ua_s2)
+guid_string = unsafe_string(ua_s2)
+UA_String_delete(ua_s2)
 
 mem_start = meminfo_julia()
 for i in 1:10_000_000
@@ -84,7 +87,10 @@ ns_uri = "http://example.com"
 server_ind = 1
 nodeid = UA_NODEID_NUMERIC(0, 1234)
 guid = UA_Guid_random()
-guid_string = UA_print(unsafe_load(guid))
+ua_s2 = UA_String_new()
+UA_Guid_print(guid, ua_s2)
+guid_string = unsafe_string(ua_s2)
+UA_String_delete(ua_s2)
 ua_s = UA_STRING("test")
 mem_start = meminfo_julia()
 for i in 1:10_000_000

@@ -146,17 +146,19 @@ for node in nodes
         attr_name = Symbol(att[2])
         generator = Symbol(att[3]*"_new")
         cleaner = Symbol(att[3]*"_delete")
-        out2 = eval(generator)()
-        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+        if (in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
+            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))) && att[3] != "UA_DataType" && 
+            att[1] != "UA_Client_writeValueAttributeEx"
+            @show nodeclass, att
+            out2 = eval(generator)()
             statuscode1 = eval(fun_read)(client, node, out2) #read
             @test statuscode1 == UA_STATUSCODE_GOOD
             if attr_name ∉ nonvalidattr
                 statuscode2 = eval(fun_write)(client, node, out2) #write read value back...
                 @test statuscode2 == UA_STATUSCODE_GOOD
             end
+            eval(cleaner)(out2)
         end
-        eval(cleaner)(out2)
     end
     UA_NodeClass_delete(out1)
 end

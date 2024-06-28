@@ -181,6 +181,11 @@ for (i, type_name) in enumerate(type_names)
             $(Symbol(type_name, "_clear"))(p::Ptr{$(type_name)})
         end
 
+        #TODO: add docstring
+        function $(Symbol(type_name, "_equal"))(p1, p2)
+            return UA_order(p1, p2, UA_TYPES_PTRS[$(type_ind_name)]) == UA_ORDER_EQ
+        end
+
         function $(Symbol(type_name, "_Array_new"))(length::Integer)
             # TODO: Allow empty arrays with corresponding UA_EMPTY_ARRAY_SENTINEL indicator
             length <= 0 &&
@@ -252,6 +257,10 @@ function UA_StatusCode_isGood(sc)
     return (sc >> 30) == 0x00
 end
 
+function UA_StatusCode_isEqualTop(sc1, sc2)
+    return (sc1 & 0xFFFF0000) == (sc2 & 0xFFFF0000)
+end
+
 ## String
 """
 ```
@@ -321,17 +330,6 @@ creates a `UA_ByteString` object from `s`. Memory is allocated by C and needs to
 """
 function UA_BYTESTRING(s::AbstractString)
     return UA_BYTESTRING_ALLOC(s)
-end
-
-"""
-```
-UA_ByteString_equal(s1::Ptr{UA_ByteString}, s2::Ptr{UA_ByteString})::Bool
-```
-
-returns `true` if `s1` and `s2` have identical content.
-"""
-function UA_ByteString_equal(s1, s2)
-    return UA_String_equal(s1, s2)
 end
 
 ## DateTime
@@ -533,17 +531,6 @@ function UA_NODEID_GUID(nsIndex, guid::AbstractString)
     return nodeid
 end
 
-"""
-```
-UA_NodeId_equal(n1::Ptr{UA_NodeId}, n2::Ptr{UA_NodeId})::Bool
-```
-
-returns `true` if `n1` and `n2` are UA_NodeIds with identical content.
-"""
-function UA_NodeId_equal(n1, n2)
-    UA_NodeId_order(n1, n2) == UA_ORDER_EQ
-end
-
 ## ExpandedNodeId
 """
 ```
@@ -703,9 +690,9 @@ function UA_EXPANDEDNODEID_NODEID(nodeid::Ptr{UA_NodeId},
     return id
 end
 
-function UA_ExpandedNodeId_equal(n1, n2)
-    return UA_ExpandedNodeId_order(n1, n2) == UA_ORDER_EQ
-end
+# function UA_ExpandedNodeId_equal(n1, n2)
+#     return UA_ExpandedNodeId_order(n1, n2) == UA_ORDER_EQ
+# end
 
 ## QualifiedName
 function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::AbstractString)
@@ -762,10 +749,6 @@ end
 function UA_LOCALIZEDTEXT(locale::Union{AbstractString, Ptr{UA_String}},
         text::Union{AbstractString, Ptr{UA_String}})
     return UA_LOCALIZEDTEXT_ALLOC(locale, text)
-end
-
-function UA_LocalizedText_equal(lt1, lt2)
-    return UA_String_equal(lt1.locale, lt2.locale) && UA_String_equal(lt1.text, lt2.text)
 end
 
 ## NumericRange
@@ -885,15 +868,6 @@ function UA_MonitoredItemCreateRequest_default(nodeId)
     return request
 end
 
-#TODO: add docstring
-function UA_constantTimeEqual(ptr1, ptr2, len)
-    a = reinterpret(Ptr{UInt8}, ptr1)
-    b = reinterpret(Ptr{UInt8}, ptr2)
-    c = UInt8(0)
-    for i in 1:len
-        x = unsafe_load(a, i)
-        y = unsafe_load(b, i)
-        c = c | (x ⊻ y)
-    end
-    return (c == 0)
+function UA_equal(p1, p2, type)
+    return UA_order(p1, p2, type) == UA_ORDER_EQ
 end

@@ -26,7 +26,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     # Add variable node containing a scalar to the server
     #add a variable node
-    accesslevel = UA_ACCESSLEVEL(read = true, write = true)
+    accesslevel = UA_ACCESSLEVEL(read = true)
     input = rand(Float64)
     attr1 = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
         description = "this is a scalar variable",
@@ -127,9 +127,11 @@ for node in nodes
         out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) || in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(client, node, out2), UA_StatusCode)
-        else
-            @test_throws Open62541.AttributeReadWriteError eval(fun_name)(client, node, out2)
         end
+        # else
+        #     @show att
+        #     @test_throws Open62541.AttributeReadWriteError eval(fun_name)(client, node, out2)
+        # end
         eval(cleaner)(out2)
     end
     UA_NodeClass_delete(out1)

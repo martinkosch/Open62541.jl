@@ -110,6 +110,7 @@ output_ignorelist = [
                      "RTL_CRITICAL_SECTION",
                      "_RTL_CRITICAL_SECTION_DEBUG",
                      "_LIST_ENTRY",
+                     "LIST_ENTRY",
                      "HANDLE",
                      "DWORD",
                      "WORD",
