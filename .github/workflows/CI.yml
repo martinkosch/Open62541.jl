@@ -22,11 +22,12 @@ jobs:
         group:
           - Core
         version:
-          - '1.6'
           - '1'
-        exclude:
-      # excludes version 1.6 from testing with Mac OS, see here: https://github.com/julia-actions/setup-julia/issues/240
-          - platform: macos-latest
+          - 'pre'
+        include:
+          # run 1.6 only on Windows, Mac OS on current github runners doesn't work, see: https://github.com/julia-actions/setup-julia/issues/240
+          # and on ubuntu it runs for disproportionate times.
+          - platform: windows-latest
             version: 1.6
     runs-on: ${{ matrix.platform }}
     steps:
