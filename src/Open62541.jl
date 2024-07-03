@@ -18,6 +18,25 @@ const UA_TRUE = true
 
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
 
+@static if VERSION < v"1.9"
+    pkgdir_old(m::Core.Module) = abspath(Base.pathof(Base.moduleroot(m)), "..", "..")
+    function pkgproject_old(m::Core.Module)
+        Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))
+    end
+    pkgversion_old(m::Core.Module) = pkgproject_old(m).version
+    open62541_version = pkgversion_old(open62541_jll)
+else
+    open62541_version = pkgversion(open62541_jll)
+end
+__versionnumbertostring(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
+
+const UA_OPEN62541_VER_MAJOR = open62541_version.major
+const UA_OPEN62541_VER_MINOR = open62541_version.minor
+const UA_OPEN62541_VER_PATCH = open62541_version.patch
+const UA_OPEN62541_VER_LABEL = ""
+const UA_OPEN62541_VER_COMMIT = __versionnumbertostring(open62541_version)
+const UA_OPEN62541_VERSION = __versionnumbertostring(open62541_version)
+
 const UINT_PTR = Culonglong
 const SOCKET = UINT_PTR
 
@@ -7980,12 +7999,7 @@ const UA_VALUERANK_THREE_DIMENSIONS = 3
 const UA_EVENTNOTIFIER_SUBSCRIBE_TO_EVENT = Cuint(0x01) << Cuint(0)
 const UA_EVENTNOTIFIER_HISTORY_READ = Cuint(0x01) << Cuint(2)
 const UA_EVENTNOTIFIER_HISTORY_WRITE = Cuint(0x01) << Cuint(3)
-const UA_OPEN62541_VER_MAJOR = 1
-const UA_OPEN62541_VER_MINOR = 3
-const UA_OPEN62541_VER_PATCH = 10
-const UA_OPEN62541_VER_LABEL = ""
-const UA_OPEN62541_VER_COMMIT = "v1.3.10"
-const UA_OPEN62541_VERSION = "v1.3.10"
+
 const UA_LOGLEVEL = 300
 const UA_MULTITHREADING = 100
 const UA_VALGRIND_INTERACTIVE_INTERVAL = 1000
