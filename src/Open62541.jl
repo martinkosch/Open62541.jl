@@ -19,8 +19,9 @@ const UA_TRUE = true
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
 
 @static if VERSION < v"1.7"
-    Base.size(m::Base.MethodList) = size(m.ms)
-    Base.getindex(m::Base.MethodList, i::Integer) = m.ms[i]
+    getmethodindex(m::Base.MethodList, i::Integer) = m.ms[i]
+else
+    getmethodindex(m::Base.MethodList, i::Integer) = Base.getindex(m, i)
 end
 
 @static if VERSION < v"1.9"
