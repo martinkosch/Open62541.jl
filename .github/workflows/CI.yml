@@ -24,6 +24,10 @@ jobs:
         version:
           - '1.6'
           - '1'
+        exclude:
+      # excludes version 1.6 from testing with Mac OS, see here: https://github.com/julia-actions/setup-julia/issues/240
+          - os: macos-latest
+            version: 1.6
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
