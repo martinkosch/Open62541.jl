@@ -41,7 +41,7 @@ if !Sys.isapple() #closures not supported on Apple M1 processors, LLVM limitatio
             str = str * ") = $rettype"
             eval(Meta.parse(str))
             @test !isa(eval(callback)(prot), Exception)
-            Base.delete_method(methods(prot)[1])
+            Base.delete_method(getmethodindex(methods(prot), 1))
         end
     end
 end
