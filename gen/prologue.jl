@@ -12,6 +12,7 @@ const UA_TRUE = true
 const UA_EMPTY_ARRAY_SENTINEL = convert(Ptr{Nothing}, Int(0x01))
 
 @static if VERSION < v"1.9"
+    using Pkg
     pkgdir_old(m::Core.Module) = abspath(Base.pathof(Base.moduleroot(m)), "..", "..")
     function pkgproject_old(m::Core.Module)
         Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))
