@@ -1,6 +1,6 @@
 using Pkg
 #update packages by default
-Pkg.update()
+#Pkg.update()
 
 using Clang.Generators
 using open62541_jll
@@ -27,6 +27,7 @@ include_dir = joinpath(open62541_jll.artifact_dir, "include") |> normpath
 
 #copy header files to new directory
 Base.Filesystem.cptree(include_dir, "headers", force = true)
+chmod("headers", 0o777; recursive = true)
 headers = String[]
 for (root, dirs, files) in walkdir("headers")
     for file in files
@@ -211,6 +212,36 @@ const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
 
 data = replace(data, replacestring=>"")
 
+#need to remove some buggy lines
+replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
+
+const UA_INT32_MAX = Clong(2147483647)
+
+const UA_UINT32_MIN = 0
+
+const UA_UINT32_MAX = Culong(4294967295)
+
+const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+
+const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+
+const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+
+const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+
+data = replace(data, replacestring=>"")
+
+#replace version number code (make the constants express the version of the _jll 
+#rather than hard coded numbers)
+version_regex = r"const UA_OPEN62541_VER_MAJOR = \d+\n
+const UA_OPEN62541_VER_MINOR = \d+\n
+const UA_OPEN62541_VER_PATCH = \d+\n
+const UA_OPEN62541_VER_LABEL = \"\S*\"\n
+const UA_OPEN62541_VER_COMMIT = \"\S*\"\n
+const UA_OPEN62541_VERSION = \"\S*\""
+data = replace(data, version_regex => "")
+
+#write new content down
 fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
@@ -281,18 +312,25 @@ f = open(fn, "w")
 write(f, new_content)
 close(f)
 
-#set compat bound in Project.toml automatically to version that the generator ran on.
-fn = joinpath(@__DIR__, "../Project.toml")
-vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
-f = open(fn, "r")
-orig_content = read(f, String)
-close(f)
-reg = r"open62541_jll = \"=[0-9]+\.[0-9]+\.[0-9]+\""
-open62541_version = vn2string(pkgversion(open62541_jll))
-new_content = replace(orig_content, reg => "open62541_jll = \"=$open62541_version\"")
-f = open(fn, "w")
-write(f, new_content)
-close(f)
+#The wrapper has now some flexibility in terms of accepting different patch versions.
+#open62541_jll versions that are compatible with the same wrapper include: 
+#1.3.9, 1.3.10, 1.3.11 (and presumably future patch versions on 1.3 branch)
+#1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch)
+
+# #set compat bound in Project.toml automatically to version that the generator ran on.
+# fn = joinpath(@__DIR__, "../Project.toml")
+# vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
+# f = open(fn, "r")
+# orig_content = read(f, String)
+# close(f)
+# reg = r"open62541_jll = \"=[0-9]+\.[0-9]+\.[0-9]+\""
+# open62541_version = vn2string(pkgversion(open62541_jll))
+# new_content = replace(orig_content, reg => "open62541_jll = \"=$open62541_version\"")
+# f = open(fn, "w")
+# write(f, new_content)
+# close(f)
+
+@warn "Check compat bounds for open62541_jll in Project.toml manually."
 
 #also run the callbacks_generator
 include("callbacks_generator.jl")
@@ -303,3 +341,4 @@ format(joinpath(@__DIR__, "../src/callbacks.jl"))
 
 #delete headers directory
 Base.Filesystem.rm("headers", recursive = true)
+

@@ -46,7 +46,7 @@ function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
         msg = "The provided function ($(e.f)) has more than one method; it is 
         unclear which one should be used as basis of the callback."
     else
-        args_in = fieldtypes(first(methods(e.f)).sig)
+        args_in = fieldtypes(getmethodindex(methods(e.f),1).sig)
         ret = Base.return_types(e.f, args_in[2:end])[1]
         msg = "Callback generator expected a method with f($(join([e.argtuple...], ", ")))::$(string(e.returntype)), 
             but received a method f($(join(args_in[2:end], ", ")))::$(string(ret))."
