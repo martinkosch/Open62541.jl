@@ -160,24 +160,24 @@ end
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_4335
+struct __JL_Ctag_4508
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4335}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_4336}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_4337}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4508}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_4509}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_4510}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4335, f::Symbol)
-    r = Ref{__JL_Ctag_4335}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4335}, r)
+function Base.getproperty(x::__JL_Ctag_4508, f::Symbol)
+    r = Ref{__JL_Ctag_4508}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4508}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4335}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4508}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -199,7 +199,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
-    f === :content && return Ptr{__JL_Ctag_4335}(x + 8)
+    f === :content && return Ptr{__JL_Ctag_4508}(x + 8)
     return getfield(x, f)
 end
 
@@ -301,11 +301,11 @@ const UA_UInt16 = UInt16
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_4332
+struct __JL_Ctag_4501
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4332}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4501}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -313,14 +313,14 @@ function Base.getproperty(x::Ptr{__JL_Ctag_4332}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4332, f::Symbol)
-    r = Ref{__JL_Ctag_4332}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4332}, r)
+function Base.getproperty(x::__JL_Ctag_4501, f::Symbol)
+    r = Ref{__JL_Ctag_4501}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4501}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4332}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4501}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -344,7 +344,7 @@ end
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_4332}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_4501}(x + 8)
     return getfield(x, f)
 end
 
@@ -4124,7 +4124,16 @@ function UA_Server_setMethodNodeCallback(server, methodNodeId, methodCallback)
         methodCallback::UA_MethodCallback)::UA_StatusCode
 end
 
-mutable struct UA_PubSubConfiguration end
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConfiguration
+    stateChangeCallback::Ptr{Cvoid}
+    enableDeltaFrames::UA_Boolean
+    enableInformationModelMethods::UA_Boolean
+end
 
 # typedef void ( * UA_Server_AsyncOperationNotifyCallback ) ( UA_Server * server )
 const UA_Server_AsyncOperationNotifyCallback = Ptr{Cvoid}
@@ -4345,6 +4354,7 @@ struct UA_ServerConfig
     maxPublishReqPerSession::UA_UInt32
     monitoredItemRegisterCallback::Ptr{Cvoid}
     pubsubEnabled::UA_Boolean
+    pubSubConfig::UA_PubSubConfiguration
     historizingEnabled::UA_Boolean
     historyDatabase::UA_HistoryDatabase
     accessHistoryDataCapability::UA_Boolean
@@ -4430,24 +4440,25 @@ function Base.getproperty(x::Ptr{UA_ServerConfig}, f::Symbol)
     f === :maxPublishReqPerSession && return Ptr{UA_UInt32}(x + 928)
     f === :monitoredItemRegisterCallback && return Ptr{Ptr{Cvoid}}(x + 936)
     f === :pubsubEnabled && return Ptr{UA_Boolean}(x + 944)
-    f === :historizingEnabled && return Ptr{UA_Boolean}(x + 945)
-    f === :historyDatabase && return Ptr{UA_HistoryDatabase}(x + 952)
-    f === :accessHistoryDataCapability && return Ptr{UA_Boolean}(x + 1040)
-    f === :maxReturnDataValues && return Ptr{UA_UInt32}(x + 1044)
-    f === :accessHistoryEventsCapability && return Ptr{UA_Boolean}(x + 1048)
-    f === :maxReturnEventValues && return Ptr{UA_UInt32}(x + 1052)
-    f === :insertDataCapability && return Ptr{UA_Boolean}(x + 1056)
-    f === :insertEventCapability && return Ptr{UA_Boolean}(x + 1057)
-    f === :insertAnnotationsCapability && return Ptr{UA_Boolean}(x + 1058)
-    f === :replaceDataCapability && return Ptr{UA_Boolean}(x + 1059)
-    f === :replaceEventCapability && return Ptr{UA_Boolean}(x + 1060)
-    f === :updateDataCapability && return Ptr{UA_Boolean}(x + 1061)
-    f === :updateEventCapability && return Ptr{UA_Boolean}(x + 1062)
-    f === :deleteRawCapability && return Ptr{UA_Boolean}(x + 1063)
-    f === :deleteEventCapability && return Ptr{UA_Boolean}(x + 1064)
-    f === :deleteAtTimeDataCapability && return Ptr{UA_Boolean}(x + 1065)
-    f === :reverseReconnectInterval && return Ptr{UA_UInt32}(x + 1068)
-    f === :privateKeyPasswordCallback && return Ptr{Ptr{Cvoid}}(x + 1072)
+    f === :pubSubConfig && return Ptr{UA_PubSubConfiguration}(x + 952)
+    f === :historizingEnabled && return Ptr{UA_Boolean}(x + 968)
+    f === :historyDatabase && return Ptr{UA_HistoryDatabase}(x + 976)
+    f === :accessHistoryDataCapability && return Ptr{UA_Boolean}(x + 1064)
+    f === :maxReturnDataValues && return Ptr{UA_UInt32}(x + 1068)
+    f === :accessHistoryEventsCapability && return Ptr{UA_Boolean}(x + 1072)
+    f === :maxReturnEventValues && return Ptr{UA_UInt32}(x + 1076)
+    f === :insertDataCapability && return Ptr{UA_Boolean}(x + 1080)
+    f === :insertEventCapability && return Ptr{UA_Boolean}(x + 1081)
+    f === :insertAnnotationsCapability && return Ptr{UA_Boolean}(x + 1082)
+    f === :replaceDataCapability && return Ptr{UA_Boolean}(x + 1083)
+    f === :replaceEventCapability && return Ptr{UA_Boolean}(x + 1084)
+    f === :updateDataCapability && return Ptr{UA_Boolean}(x + 1085)
+    f === :updateEventCapability && return Ptr{UA_Boolean}(x + 1086)
+    f === :deleteRawCapability && return Ptr{UA_Boolean}(x + 1087)
+    f === :deleteEventCapability && return Ptr{UA_Boolean}(x + 1088)
+    f === :deleteAtTimeDataCapability && return Ptr{UA_Boolean}(x + 1089)
+    f === :reverseReconnectInterval && return Ptr{UA_UInt32}(x + 1092)
+    f === :privateKeyPasswordCallback && return Ptr{Ptr{Cvoid}}(x + 1096)
     return getfield(x, f)
 end
 
@@ -4694,25 +4705,25 @@ end
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_4323
+struct __JL_Ctag_4498
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4323}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_4324}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4498}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_4499}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_4325}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_4500}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4323, f::Symbol)
-    r = Ref{__JL_Ctag_4323}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4323}, r)
+function Base.getproperty(x::__JL_Ctag_4498, f::Symbol)
+    r = Ref{__JL_Ctag_4498}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4498}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4323}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4498}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -4734,7 +4745,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
-    f === :backend && return Ptr{__JL_Ctag_4323}(x + 8)
+    f === :backend && return Ptr{__JL_Ctag_4498}(x + 8)
     return getfield(x, f)
 end
 
@@ -5177,6 +5188,1046 @@ function UA_ServerConfig_updateFromFile(config, json_config)
         config::Ptr{UA_ServerConfig}, json_config::UA_ByteString)::UA_StatusCode
 end
 
+@cenum UA_PubSubComponentEnumType::UInt32 begin
+    UA_PUBSUB_COMPONENT_CONNECTION = 0
+    UA_PUBSUB_COMPONENT_WRITERGROUP = 1
+    UA_PUBSUB_COMPONENT_DATASETWRITER = 2
+    UA_PUBSUB_COMPONENT_READERGROUP = 3
+    UA_PUBSUB_COMPONENT_DATASETREADER = 4
+end
+
+@cenum UA_PublisherIdType::UInt32 begin
+    UA_PUBLISHERIDTYPE_BYTE = 0
+    UA_PUBLISHERIDTYPE_UINT16 = 1
+    UA_PUBLISHERIDTYPE_UINT32 = 2
+    UA_PUBLISHERIDTYPE_UINT64 = 3
+    UA_PUBLISHERIDTYPE_STRING = 4
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublisherId
+    data::NTuple{16, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_PublisherId}, f::Symbol)
+    f === :byte && return Ptr{UA_Byte}(x + 0)
+    f === :uint16 && return Ptr{UA_UInt16}(x + 0)
+    f === :uint32 && return Ptr{UA_UInt32}(x + 0)
+    f === :uint64 && return Ptr{UA_UInt64}(x + 0)
+    f === :string && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_PublisherId, f::Symbol)
+    r = Ref{UA_PublisherId}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_PublisherId}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublisherId}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConnectionConfig
+    name::UA_String
+    enabled::UA_Boolean
+    publisherIdType::UA_PublisherIdType
+    publisherId::UA_PublisherId
+    transportProfileUri::UA_String
+    address::UA_Variant
+    connectionProperties::UA_KeyValueMap
+    connectionTransportSettings::UA_Variant
+    eventLoop::Ptr{UA_EventLoop}
+end
+
+function UA_Server_addPubSubConnection(server, connectionConfig, connectionIdentifier)
+    @ccall libopen62541.UA_Server_addPubSubConnection(
+        server::Ptr{UA_Server}, connectionConfig::Ptr{UA_PubSubConnectionConfig},
+        connectionIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_getPubSubConnectionConfig(server, connection, config)
+    @ccall libopen62541.UA_Server_getPubSubConnectionConfig(
+        server::Ptr{UA_Server}, connection::UA_NodeId,
+        config::Ptr{UA_PubSubConnectionConfig})::UA_StatusCode
+end
+
+function UA_Server_removePubSubConnection(server, connection)
+    @ccall libopen62541.UA_Server_removePubSubConnection(
+        server::Ptr{UA_Server}, connection::UA_NodeId)::UA_StatusCode
+end
+
+@cenum UA_PublishedDataSetType::UInt32 begin
+    UA_PUBSUB_DATASET_PUBLISHEDITEMS = 0
+    UA_PUBSUB_DATASET_PUBLISHEDEVENTS = 1
+    UA_PUBSUB_DATASET_PUBLISHEDITEMS_TEMPLATE = 2
+    UA_PUBSUB_DATASET_PUBLISHEDEVENTS_TEMPLATE = 3
+end
+
+@cenum UA_StructureType::UInt32 begin
+    UA_STRUCTURETYPE_STRUCTURE = 0
+    UA_STRUCTURETYPE_STRUCTUREWITHOPTIONALFIELDS = 1
+    UA_STRUCTURETYPE_UNION = 2
+    UA_STRUCTURETYPE_STRUCTUREWITHSUBTYPEDVALUES = 3
+    UA_STRUCTURETYPE_UNIONWITHSUBTYPEDVALUES = 4
+    __UA_STRUCTURETYPE_FORCE32BIT = 2147483647
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StructureField
+    name::UA_String
+    description::UA_LocalizedText
+    dataType::UA_NodeId
+    valueRank::UA_Int32
+    arrayDimensionsSize::Csize_t
+    arrayDimensions::Ptr{UA_UInt32}
+    maxStringLength::UA_UInt32
+    isOptional::UA_Boolean
+end
+function Base.getproperty(x::Ptr{UA_StructureField}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :description && return Ptr{UA_LocalizedText}(x + 16)
+    f === :dataType && return Ptr{UA_NodeId}(x + 48)
+    f === :valueRank && return Ptr{UA_Int32}(x + 72)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 80)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 88)
+    f === :maxStringLength && return Ptr{UA_UInt32}(x + 96)
+    f === :isOptional && return Ptr{UA_Boolean}(x + 100)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StructureDefinition
+    defaultEncodingId::UA_NodeId
+    baseDataType::UA_NodeId
+    structureType::UA_StructureType
+    fieldsSize::Csize_t
+    fields::Ptr{UA_StructureField}
+end
+function Base.getproperty(x::Ptr{UA_StructureDefinition}, f::Symbol)
+    f === :defaultEncodingId && return Ptr{UA_NodeId}(x + 0)
+    f === :baseDataType && return Ptr{UA_NodeId}(x + 24)
+    f === :structureType && return Ptr{UA_StructureType}(x + 48)
+    f === :fieldsSize && return Ptr{Csize_t}(x + 56)
+    f === :fields && return Ptr{Ptr{UA_StructureField}}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StructureDescription
+    dataTypeId::UA_NodeId
+    name::UA_QualifiedName
+    structureDefinition::UA_StructureDefinition
+end
+
+const UA_Int64 = Int64
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EnumField
+    value::UA_Int64
+    displayName::UA_LocalizedText
+    description::UA_LocalizedText
+    name::UA_String
+end
+function Base.getproperty(x::Ptr{UA_EnumField}, f::Symbol)
+    f === :value && return Ptr{UA_Int64}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :name && return Ptr{UA_String}(x + 72)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EnumField}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EnumDefinition
+    fieldsSize::Csize_t
+    fields::Ptr{UA_EnumField}
+end
+function Base.getproperty(x::Ptr{UA_EnumDefinition}, f::Symbol)
+    f === :fieldsSize && return Ptr{Csize_t}(x + 0)
+    f === :fields && return Ptr{Ptr{UA_EnumField}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EnumDescription
+    dataTypeId::UA_NodeId
+    name::UA_QualifiedName
+    enumDefinition::UA_EnumDefinition
+    builtInType::UA_Byte
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SimpleTypeDescription
+    dataTypeId::UA_NodeId
+    name::UA_QualifiedName
+    baseDataType::UA_NodeId
+    builtInType::UA_Byte
+end
+const UA_DataSetFieldFlags = UA_UInt16
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_Guid
+    data1::UA_UInt32
+    data2::UA_UInt16
+    data3::UA_UInt16
+    data4::NTuple{8, UA_Byte}
+end
+function Base.getproperty(x::Ptr{UA_Guid}, f::Symbol)
+    f === :data1 && return Ptr{UA_UInt32}(x + 0)
+    f === :data2 && return Ptr{UA_UInt16}(x + 4)
+    f === :data3 && return Ptr{UA_UInt16}(x + 6)
+    f === :data4 && return Ptr{NTuple{8, UA_Byte}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Guid}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_FieldMetaData
+    name::UA_String
+    description::UA_LocalizedText
+    fieldFlags::UA_DataSetFieldFlags
+    builtInType::UA_Byte
+    dataType::UA_NodeId
+    valueRank::UA_Int32
+    arrayDimensionsSize::Csize_t
+    arrayDimensions::Ptr{UA_UInt32}
+    maxStringLength::UA_UInt32
+    dataSetFieldId::UA_Guid
+    propertiesSize::Csize_t
+    properties::Ptr{UA_KeyValuePair}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ConfigurationVersionDataType
+    majorVersion::UA_UInt32
+    minorVersion::UA_UInt32
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetMetaDataType
+    namespacesSize::Csize_t
+    namespaces::Ptr{UA_String}
+    structureDataTypesSize::Csize_t
+    structureDataTypes::Ptr{UA_StructureDescription}
+    enumDataTypesSize::Csize_t
+    enumDataTypes::Ptr{UA_EnumDescription}
+    simpleDataTypesSize::Csize_t
+    simpleDataTypes::Ptr{UA_SimpleTypeDescription}
+    name::UA_String
+    description::UA_LocalizedText
+    fieldsSize::Csize_t
+    fields::Ptr{UA_FieldMetaData}
+    dataSetClassId::UA_Guid
+    configurationVersion::UA_ConfigurationVersionDataType
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedVariableDataType
+    publishedVariable::UA_NodeId
+    attributeId::UA_UInt32
+    samplingIntervalHint::UA_Double
+    deadbandType::UA_UInt32
+    deadbandValue::UA_Double
+    indexRange::UA_String
+    substituteValue::UA_Variant
+    metaDataPropertiesSize::Csize_t
+    metaDataProperties::Ptr{UA_QualifiedName}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedDataItemsTemplateConfig
+    metaData::UA_DataSetMetaDataType
+    variablesToAddSize::Csize_t
+    variablesToAdd::Ptr{UA_PublishedVariableDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedEventConfig
+    eventNotfier::UA_NodeId
+    filter::UA_ContentFilter
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedEventTemplateConfig
+    metaData::UA_DataSetMetaDataType
+    eventNotfier::UA_NodeId
+    selectedFieldsSize::Csize_t
+    selectedFields::Ptr{UA_SimpleAttributeOperand}
+    filter::UA_ContentFilter
+end
+
+struct __JL_Ctag_4494
+    data::NTuple{208, UInt8}
+end
+
+function Base.getproperty(x::Ptr{__JL_Ctag_4494}, f::Symbol)
+    f === :itemsTemplate && return Ptr{UA_PublishedDataItemsTemplateConfig}(x + 0)
+    f === :event && return Ptr{UA_PublishedEventConfig}(x + 0)
+    f === :eventTemplate && return Ptr{UA_PublishedEventTemplateConfig}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4494, f::Symbol)
+    r = Ref{__JL_Ctag_4494}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4494}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4494}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedDataSetConfig
+    data::NTuple{232, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_PublishedDataSetConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :publishedDataSetType && return Ptr{UA_PublishedDataSetType}(x + 16)
+    f === :config && return Ptr{__JL_Ctag_4494}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_PublishedDataSetConfig, f::Symbol)
+    r = Ref{UA_PublishedDataSetConfig}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_PublishedDataSetConfig}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishedDataSetConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function UA_PublishedDataSetConfig_clear(pdsConfig)
+    @ccall libopen62541.UA_PublishedDataSetConfig_clear(pdsConfig::Ptr{UA_PublishedDataSetConfig})::Cvoid
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_AddPublishedDataSetResult
+    addResult::UA_StatusCode
+    fieldAddResultsSize::Csize_t
+    fieldAddResults::Ptr{UA_StatusCode}
+    configurationVersion::UA_ConfigurationVersionDataType
+end
+
+function UA_Server_addPublishedDataSet(server, publishedDataSetConfig, pdsIdentifier)
+    @ccall libopen62541.UA_Server_addPublishedDataSet(
+        server::Ptr{UA_Server}, publishedDataSetConfig::Ptr{UA_PublishedDataSetConfig},
+        pdsIdentifier::Ptr{UA_NodeId})::UA_AddPublishedDataSetResult
+end
+
+function UA_Server_getPublishedDataSetConfig(server, pds, config)
+    @ccall libopen62541.UA_Server_getPublishedDataSetConfig(
+        server::Ptr{UA_Server}, pds::UA_NodeId,
+        config::Ptr{UA_PublishedDataSetConfig})::UA_StatusCode
+end
+
+function UA_Server_getPublishedDataSetMetaData(server, pds, metaData)
+    @ccall libopen62541.UA_Server_getPublishedDataSetMetaData(
+        server::Ptr{UA_Server}, pds::UA_NodeId,
+        metaData::Ptr{UA_DataSetMetaDataType})::UA_StatusCode
+end
+
+function UA_Server_removePublishedDataSet(server, pds)
+    @ccall libopen62541.UA_Server_removePublishedDataSet(
+        server::Ptr{UA_Server}, pds::UA_NodeId)::UA_StatusCode
+end
+
+struct __JL_Ctag_4493
+    rtFieldSourceEnabled::UA_Boolean
+    rtInformationModelNode::UA_Boolean
+    staticValueSource::Ptr{Ptr{UA_DataValue}}
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_4493}, f::Symbol)
+    f === :rtFieldSourceEnabled && return Ptr{UA_Boolean}(x + 0)
+    f === :rtInformationModelNode && return Ptr{UA_Boolean}(x + 1)
+    f === :staticValueSource && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4493, f::Symbol)
+    r = Ref{__JL_Ctag_4493}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4493}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4493}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetVariableConfig
+    data::NTuple{192, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_DataSetVariableConfig}, f::Symbol)
+    f === :configurationVersion && return Ptr{UA_ConfigurationVersionDataType}(x + 0)
+    f === :fieldNameAlias && return Ptr{UA_String}(x + 8)
+    f === :promotedField && return Ptr{UA_Boolean}(x + 24)
+    f === :publishParameters && return Ptr{UA_PublishedVariableDataType}(x + 32)
+    f === :rtValueSource && return Ptr{__JL_Ctag_4493}(x + 168)
+    f === :maxStringLength && return Ptr{UA_UInt32}(x + 184)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_DataSetVariableConfig, f::Symbol)
+    r = Ref{UA_DataSetVariableConfig}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_DataSetVariableConfig}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataSetVariableConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+@cenum UA_DataSetFieldType::UInt32 begin
+    UA_PUBSUB_DATASETFIELD_VARIABLE = 0
+    UA_PUBSUB_DATASETFIELD_EVENT = 1
+end
+
+struct __JL_Ctag_4507
+    data::NTuple{192, UInt8}
+end
+
+function Base.getproperty(x::Ptr{__JL_Ctag_4507}, f::Symbol)
+    f === :variable && return Ptr{UA_DataSetVariableConfig}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4507, f::Symbol)
+    r = Ref{__JL_Ctag_4507}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4507}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4507}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetFieldConfig
+    data::NTuple{200, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_DataSetFieldConfig}, f::Symbol)
+    f === :dataSetFieldType && return Ptr{UA_DataSetFieldType}(x + 0)
+    f === :field && return Ptr{__JL_Ctag_4507}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_DataSetFieldConfig, f::Symbol)
+    r = Ref{UA_DataSetFieldConfig}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_DataSetFieldConfig}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataSetFieldConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function UA_DataSetFieldConfig_clear(dataSetFieldConfig)
+    @ccall libopen62541.UA_DataSetFieldConfig_clear(dataSetFieldConfig::Ptr{UA_DataSetFieldConfig})::Cvoid
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetFieldResult
+    result::UA_StatusCode
+    configurationVersion::UA_ConfigurationVersionDataType
+end
+
+function UA_Server_addDataSetField(server, publishedDataSet, fieldConfig, fieldIdentifier)
+    @ccall libopen62541.UA_Server_addDataSetField(
+        server::Ptr{UA_Server}, publishedDataSet::UA_NodeId,
+        fieldConfig::Ptr{UA_DataSetFieldConfig},
+        fieldIdentifier::Ptr{UA_NodeId})::UA_DataSetFieldResult
+end
+
+function UA_Server_getDataSetFieldConfig(server, dsf, config)
+    @ccall libopen62541.UA_Server_getDataSetFieldConfig(
+        server::Ptr{UA_Server}, dsf::UA_NodeId,
+        config::Ptr{UA_DataSetFieldConfig})::UA_StatusCode
+end
+
+function UA_Server_removeDataSetField(server, dsf)
+    @ccall libopen62541.UA_Server_removeDataSetField(
+        server::Ptr{UA_Server}, dsf::UA_NodeId)::UA_DataSetFieldResult
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSub_CallbackLifecycle
+    addCustomCallback::Ptr{Cvoid}
+    changeCustomCallback::Ptr{Cvoid}
+    removeCustomCallback::Ptr{Cvoid}
+end
+
+@cenum UA_PubSubEncodingType::UInt32 begin
+    UA_PUBSUB_ENCODING_UADP = 0
+    UA_PUBSUB_ENCODING_JSON = 1
+    UA_PUBSUB_ENCODING_BINARY = 2
+end
+
+@cenum UA_PubSubRTLevel::UInt32 begin
+    UA_PUBSUB_RT_NONE = 0
+    UA_PUBSUB_RT_DIRECT_VALUE_ACCESS = 1
+    UA_PUBSUB_RT_FIXED_SIZE = 2
+    UA_PUBSUB_RT_DETERMINISTIC = 4
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_WriterGroupConfig
+    name::UA_String
+    enabled::UA_Boolean
+    writerGroupId::UA_UInt16
+    publishingInterval::UA_Duration
+    keepAliveTime::UA_Double
+    priority::UA_Byte
+    transportSettings::UA_ExtensionObject
+    messageSettings::UA_ExtensionObject
+    groupProperties::UA_KeyValueMap
+    encodingMimeType::UA_PubSubEncodingType
+    pubsubManagerCallback::UA_PubSub_CallbackLifecycle
+    maxEncapsulatedDataSetMessageCount::UA_UInt16
+    rtLevel::UA_PubSubRTLevel
+    securityMode::UA_MessageSecurityMode
+end
+
+function UA_WriterGroupConfig_clear(writerGroupConfig)
+    @ccall libopen62541.UA_WriterGroupConfig_clear(writerGroupConfig::Ptr{UA_WriterGroupConfig})::Cvoid
+end
+
+function UA_Server_addWriterGroup(
+        server, connection, writerGroupConfig, writerGroupIdentifier)
+    @ccall libopen62541.UA_Server_addWriterGroup(
+        server::Ptr{UA_Server}, connection::UA_NodeId,
+        writerGroupConfig::Ptr{UA_WriterGroupConfig},
+        writerGroupIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_getWriterGroupConfig(server, writerGroup, config)
+    @ccall libopen62541.UA_Server_getWriterGroupConfig(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId,
+        config::Ptr{UA_WriterGroupConfig})::UA_StatusCode
+end
+
+function UA_Server_updateWriterGroupConfig(server, writerGroupIdentifier, config)
+    @ccall libopen62541.UA_Server_updateWriterGroupConfig(
+        server::Ptr{UA_Server}, writerGroupIdentifier::UA_NodeId,
+        config::Ptr{UA_WriterGroupConfig})::UA_StatusCode
+end
+
+@cenum UA_PubSubState::UInt32 begin
+    UA_PUBSUBSTATE_DISABLED = 0
+    UA_PUBSUBSTATE_PAUSED = 1
+    UA_PUBSUBSTATE_OPERATIONAL = 2
+    UA_PUBSUBSTATE_ERROR = 3
+    UA_PUBSUBSTATE_PREOPERATIONAL = 4
+    __UA_PUBSUBSTATE_FORCE32BIT = 2147483647
+end
+
+function UA_Server_WriterGroup_getState(server, writerGroupIdentifier, state)
+    @ccall libopen62541.UA_Server_WriterGroup_getState(
+        server::Ptr{UA_Server}, writerGroupIdentifier::UA_NodeId,
+        state::Ptr{UA_PubSubState})::UA_StatusCode
+end
+
+function UA_Server_WriterGroup_publish(server, writerGroupIdentifier)
+    @ccall libopen62541.UA_Server_WriterGroup_publish(
+        server::Ptr{UA_Server}, writerGroupIdentifier::UA_NodeId)::UA_StatusCode
+end
+
+function UA_WriterGroup_lastPublishTimestamp(server, writerGroupId, timestamp)
+    @ccall libopen62541.UA_WriterGroup_lastPublishTimestamp(
+        server::Ptr{UA_Server}, writerGroupId::UA_NodeId,
+        timestamp::Ptr{UA_DateTime})::UA_StatusCode
+end
+
+function UA_Server_removeWriterGroup(server, writerGroup)
+    @ccall libopen62541.UA_Server_removeWriterGroup(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_freezeWriterGroupConfiguration(server, writerGroup)
+    @ccall libopen62541.UA_Server_freezeWriterGroupConfiguration(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_unfreezeWriterGroupConfiguration(server, writerGroup)
+    @ccall libopen62541.UA_Server_unfreezeWriterGroupConfiguration(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_setWriterGroupOperational(server, writerGroup)
+    @ccall libopen62541.UA_Server_setWriterGroupOperational(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_setWriterGroupDisabled(server, writerGroup)
+    @ccall libopen62541.UA_Server_setWriterGroupDisabled(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId)::UA_StatusCode
+end
+const UA_DataSetFieldContentMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetWriterConfig
+    name::UA_String
+    dataSetWriterId::UA_UInt16
+    dataSetFieldContentMask::UA_DataSetFieldContentMask
+    keyFrameCount::UA_UInt32
+    messageSettings::UA_ExtensionObject
+    transportSettings::UA_ExtensionObject
+    dataSetName::UA_String
+    dataSetWriterProperties::UA_KeyValueMap
+end
+
+function UA_DataSetWriterConfig_clear(pdsConfig)
+    @ccall libopen62541.UA_DataSetWriterConfig_clear(pdsConfig::Ptr{UA_DataSetWriterConfig})::Cvoid
+end
+
+function UA_Server_addDataSetWriter(
+        server, writerGroup, dataSet, dataSetWriterConfig, writerIdentifier)
+    @ccall libopen62541.UA_Server_addDataSetWriter(
+        server::Ptr{UA_Server}, writerGroup::UA_NodeId, dataSet::UA_NodeId,
+        dataSetWriterConfig::Ptr{UA_DataSetWriterConfig},
+        writerIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_getDataSetWriterConfig(server, dsw, config)
+    @ccall libopen62541.UA_Server_getDataSetWriterConfig(
+        server::Ptr{UA_Server}, dsw::UA_NodeId,
+        config::Ptr{UA_DataSetWriterConfig})::UA_StatusCode
+end
+
+function UA_Server_DataSetWriter_getState(server, dataSetWriterIdentifier, state)
+    @ccall libopen62541.UA_Server_DataSetWriter_getState(
+        server::Ptr{UA_Server}, dataSetWriterIdentifier::UA_NodeId,
+        state::Ptr{UA_PubSubState})::UA_StatusCode
+end
+
+function UA_Server_removeDataSetWriter(server, dsw)
+    @ccall libopen62541.UA_Server_removeDataSetWriter(
+        server::Ptr{UA_Server}, dsw::UA_NodeId)::UA_StatusCode
+end
+
+@cenum UA_SubscribedDataSetEnumType::UInt32 begin
+    UA_PUBSUB_SDS_TARGET = 0
+    UA_PUBSUB_SDS_MIRROR = 1
+end
+
+@cenum UA_OverrideValueHandling::UInt32 begin
+    UA_OVERRIDEVALUEHANDLING_DISABLED = 0
+    UA_OVERRIDEVALUEHANDLING_LASTUSABLEVALUE = 1
+    UA_OVERRIDEVALUEHANDLING_OVERRIDEVALUE = 2
+    __UA_OVERRIDEVALUEHANDLING_FORCE32BIT = 2147483647
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_FieldTargetDataType
+    dataSetFieldId::UA_Guid
+    receiverIndexRange::UA_String
+    targetNodeId::UA_NodeId
+    attributeId::UA_UInt32
+    writeIndexRange::UA_String
+    overrideValueHandling::UA_OverrideValueHandling
+    overrideValue::UA_Variant
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_FieldTargetVariable
+    targetVariable::UA_FieldTargetDataType
+    externalDataValue::Ptr{Ptr{UA_DataValue}}
+    targetVariableContext::Ptr{Cvoid}
+    beforeWrite::Ptr{Cvoid}
+    afterWrite::Ptr{Cvoid}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_TargetVariables
+    targetVariablesSize::Csize_t
+    targetVariables::Ptr{UA_FieldTargetVariable}
+end
+
+function UA_Server_DataSetReader_createTargetVariables(
+        server, dataSetReaderIdentifier, targetVariablesSize, targetVariables)
+    @ccall libopen62541.UA_Server_DataSetReader_createTargetVariables(
+        server::Ptr{UA_Server}, dataSetReaderIdentifier::UA_NodeId,
+        targetVariablesSize::Csize_t,
+        targetVariables::Ptr{UA_FieldTargetVariable})::UA_StatusCode
+end
+
+@cenum UA_PubSubRtEncoding::UInt32 begin
+    UA_PUBSUB_RT_UNKNOWN = 0
+    UA_PUBSUB_RT_VARIANT = 1
+    UA_PUBSUB_RT_DATA_VALUE = 2
+    UA_PUBSUB_RT_RAW = 4
+end
+
+struct __JL_Ctag_4504
+    data::NTuple{16, UInt8}
+end
+
+function Base.getproperty(x::Ptr{__JL_Ctag_4504}, f::Symbol)
+    f === :subscribedDataSetTarget && return Ptr{UA_TargetVariables}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4504, f::Symbol)
+    r = Ref{__JL_Ctag_4504}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4504}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4504}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetReaderConfig
+    data::NTuple{384, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_DataSetReaderConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :publisherId && return Ptr{UA_Variant}(x + 16)
+    f === :writerGroupId && return Ptr{UA_UInt16}(x + 64)
+    f === :dataSetWriterId && return Ptr{UA_UInt16}(x + 66)
+    f === :dataSetMetaData && return Ptr{UA_DataSetMetaDataType}(x + 72)
+    f === :dataSetFieldContentMask && return Ptr{UA_DataSetFieldContentMask}(x + 224)
+    f === :messageReceiveTimeout && return Ptr{UA_Double}(x + 232)
+    f === :messageSettings && return Ptr{UA_ExtensionObject}(x + 240)
+    f === :transportSettings && return Ptr{UA_ExtensionObject}(x + 288)
+    f === :subscribedDataSetType && return Ptr{UA_SubscribedDataSetEnumType}(x + 336)
+    f === :subscribedDataSet && return Ptr{__JL_Ctag_4504}(x + 344)
+    f === :linkedStandaloneSubscribedDataSetName && return Ptr{UA_String}(x + 360)
+    f === :expectedEncoding && return Ptr{UA_PubSubRtEncoding}(x + 376)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_DataSetReaderConfig, f::Symbol)
+    r = Ref{UA_DataSetReaderConfig}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_DataSetReaderConfig}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataSetReaderConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function UA_DataSetReaderConfig_copy(src, dst)
+    @ccall libopen62541.UA_DataSetReaderConfig_copy(
+        src::Ptr{UA_DataSetReaderConfig}, dst::Ptr{UA_DataSetReaderConfig})::UA_StatusCode
+end
+
+function UA_DataSetReaderConfig_clear(cfg)
+    @ccall libopen62541.UA_DataSetReaderConfig_clear(cfg::Ptr{UA_DataSetReaderConfig})::Cvoid
+end
+
+function UA_Server_DataSetReader_updateConfig(
+        server, dataSetReaderIdentifier, readerGroupIdentifier, config)
+    @ccall libopen62541.UA_Server_DataSetReader_updateConfig(
+        server::Ptr{UA_Server}, dataSetReaderIdentifier::UA_NodeId,
+        readerGroupIdentifier::UA_NodeId,
+        config::Ptr{UA_DataSetReaderConfig})::UA_StatusCode
+end
+
+function UA_Server_DataSetReader_getConfig(server, dataSetReaderIdentifier, config)
+    @ccall libopen62541.UA_Server_DataSetReader_getConfig(
+        server::Ptr{UA_Server}, dataSetReaderIdentifier::UA_NodeId,
+        config::Ptr{UA_DataSetReaderConfig})::UA_StatusCode
+end
+
+function UA_Server_DataSetReader_getState(server, dataSetReaderIdentifier, state)
+    @ccall libopen62541.UA_Server_DataSetReader_getState(
+        server::Ptr{UA_Server}, dataSetReaderIdentifier::UA_NodeId,
+        state::Ptr{UA_PubSubState})::UA_StatusCode
+end
+
+struct __JL_Ctag_4497
+    data::NTuple{16, UInt8}
+end
+
+function Base.getproperty(x::Ptr{__JL_Ctag_4497}, f::Symbol)
+    f === :target && return Ptr{UA_TargetVariablesDataType}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4497, f::Symbol)
+    r = Ref{__JL_Ctag_4497}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4497}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4497}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StandaloneSubscribedDataSetConfig
+    data::NTuple{200, UInt8}
+end
+
+function Base.getproperty(x::Ptr{UA_StandaloneSubscribedDataSetConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :subscribedDataSetType && return Ptr{UA_SubscribedDataSetEnumType}(x + 16)
+    f === :subscribedDataSet && return Ptr{__JL_Ctag_4497}(x + 24)
+    f === :dataSetMetaData && return Ptr{UA_DataSetMetaDataType}(x + 40)
+    f === :isConnected && return Ptr{UA_Boolean}(x + 192)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::UA_StandaloneSubscribedDataSetConfig, f::Symbol)
+    r = Ref{UA_StandaloneSubscribedDataSetConfig}(x)
+    ptr = Base.unsafe_convert(Ptr{UA_StandaloneSubscribedDataSetConfig}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{UA_StandaloneSubscribedDataSetConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function UA_StandaloneSubscribedDataSetConfig_clear(sdsConfig)
+    @ccall libopen62541.UA_StandaloneSubscribedDataSetConfig_clear(sdsConfig::Ptr{UA_StandaloneSubscribedDataSetConfig})::Cvoid
+end
+
+function UA_Server_addStandaloneSubscribedDataSet(
+        server, subscribedDataSetConfig, sdsIdentifier)
+    @ccall libopen62541.UA_Server_addStandaloneSubscribedDataSet(server::Ptr{UA_Server},
+        subscribedDataSetConfig::Ptr{UA_StandaloneSubscribedDataSetConfig},
+        sdsIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_removeStandaloneSubscribedDataSet(server, sds)
+    @ccall libopen62541.UA_Server_removeStandaloneSubscribedDataSet(
+        server::Ptr{UA_Server}, sds::UA_NodeId)::UA_StatusCode
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ReaderGroupConfig
+    name::UA_String
+    rtLevel::UA_PubSubRTLevel
+    groupProperties::UA_KeyValueMap
+    encodingMimeType::UA_PubSubEncodingType
+    transportSettings::UA_ExtensionObject
+    securityMode::UA_MessageSecurityMode
+end
+
+function UA_ReaderGroupConfig_clear(readerGroupConfig)
+    @ccall libopen62541.UA_ReaderGroupConfig_clear(readerGroupConfig::Ptr{UA_ReaderGroupConfig})::Cvoid
+end
+
+function UA_Server_addDataSetReader(
+        server, readerGroupIdentifier, dataSetReaderConfig, readerIdentifier)
+    @ccall libopen62541.UA_Server_addDataSetReader(
+        server::Ptr{UA_Server}, readerGroupIdentifier::UA_NodeId,
+        dataSetReaderConfig::Ptr{UA_DataSetReaderConfig},
+        readerIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_removeDataSetReader(server, readerIdentifier)
+    @ccall libopen62541.UA_Server_removeDataSetReader(
+        server::Ptr{UA_Server}, readerIdentifier::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_ReaderGroup_getConfig(server, readerGroupIdentifier, config)
+    @ccall libopen62541.UA_Server_ReaderGroup_getConfig(
+        server::Ptr{UA_Server}, readerGroupIdentifier::UA_NodeId,
+        config::Ptr{UA_ReaderGroupConfig})::UA_StatusCode
+end
+
+function UA_Server_ReaderGroup_getState(server, readerGroupIdentifier, state)
+    @ccall libopen62541.UA_Server_ReaderGroup_getState(
+        server::Ptr{UA_Server}, readerGroupIdentifier::UA_NodeId,
+        state::Ptr{UA_PubSubState})::UA_StatusCode
+end
+
+function UA_Server_addReaderGroup(
+        server, connectionIdentifier, readerGroupConfig, readerGroupIdentifier)
+    @ccall libopen62541.UA_Server_addReaderGroup(
+        server::Ptr{UA_Server}, connectionIdentifier::UA_NodeId,
+        readerGroupConfig::Ptr{UA_ReaderGroupConfig},
+        readerGroupIdentifier::Ptr{UA_NodeId})::UA_StatusCode
+end
+
+function UA_Server_removeReaderGroup(server, groupIdentifier)
+    @ccall libopen62541.UA_Server_removeReaderGroup(
+        server::Ptr{UA_Server}, groupIdentifier::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_freezeReaderGroupConfiguration(server, readerGroupId)
+    @ccall libopen62541.UA_Server_freezeReaderGroupConfiguration(
+        server::Ptr{UA_Server}, readerGroupId::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_unfreezeReaderGroupConfiguration(server, readerGroupId)
+    @ccall libopen62541.UA_Server_unfreezeReaderGroupConfiguration(
+        server::Ptr{UA_Server}, readerGroupId::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_setReaderGroupOperational(server, readerGroupId)
+    @ccall libopen62541.UA_Server_setReaderGroupOperational(
+        server::Ptr{UA_Server}, readerGroupId::UA_NodeId)::UA_StatusCode
+end
+
+function UA_Server_setReaderGroupDisabled(server, readerGroupId)
+    @ccall libopen62541.UA_Server_setReaderGroupDisabled(
+        server::Ptr{UA_Server}, readerGroupId::UA_NodeId)::UA_StatusCode
+end
+
 function UA_String_fromChars(src)
     @ccall libopen62541.UA_String_fromChars(src::Cstring)::UA_String
 end
@@ -5188,8 +6239,6 @@ end
 const UA_SByte = Int8
 
 const UA_Int16 = Int16
-
-const UA_Int64 = Int64
 
 const UA_Float = Cfloat
 
@@ -5236,29 +6285,6 @@ end
 
 function UA_DateTime_fromStruct(ts)
     @ccall libopen62541.UA_DateTime_fromStruct(ts::UA_DateTimeStruct)::UA_DateTime
-end
-
-"""
-$(TYPEDEF)
-Fields:
-$(TYPEDFIELDS)
-"""
-struct UA_Guid
-    data1::UA_UInt32
-    data2::UA_UInt16
-    data3::UA_UInt16
-    data4::NTuple{8, UA_Byte}
-end
-function Base.getproperty(x::Ptr{UA_Guid}, f::Symbol)
-    f === :data1 && return Ptr{UA_UInt32}(x + 0)
-    f === :data2 && return Ptr{UA_UInt16}(x + 4)
-    f === :data3 && return Ptr{UA_UInt16}(x + 6)
-    f === :data4 && return Ptr{NTuple{8, UA_Byte}}(x + 8)
-    return getfield(x, f)
-end
-
-function Base.setproperty!(x::Ptr{UA_Guid}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_Guid_print(guid, output)
@@ -5610,52 +6636,206 @@ struct static_assertion_failed_1
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
+@cenum UA_Enumeration::UInt32 begin
+    __UA_ENUMERATION_FORCE32BIT = 2147483647
+end
+
 struct static_assertion_failed_2
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
-@cenum UA_StructureType::UInt32 begin
-    UA_STRUCTURETYPE_STRUCTURE = 0
-    UA_STRUCTURETYPE_STRUCTUREWITHOPTIONALFIELDS = 1
-    UA_STRUCTURETYPE_UNION = 2
-    UA_STRUCTURETYPE_STRUCTUREWITHSUBTYPEDVALUES = 3
-    UA_STRUCTURETYPE_UNIONWITHSUBTYPEDVALUES = 4
-    __UA_STRUCTURETYPE_FORCE32BIT = 2147483647
+const UA_ImageBMP = UA_ByteString
+
+const UA_ImageGIF = UA_ByteString
+
+const UA_ImageJPG = UA_ByteString
+
+const UA_ImagePNG = UA_ByteString
+
+const UA_AudioDataType = UA_ByteString
+
+const UA_UriString = UA_String
+const UA_BitFieldMaskDataType = UA_UInt64
+
+const UA_SemanticVersionString = UA_String
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_AdditionalParametersType
+    parametersSize::Csize_t
+    parameters::Ptr{UA_KeyValuePair}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EphemeralKeyType
+    publicKey::UA_ByteString
+    signature::UA_ByteString
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_RationalNumber
+    numerator::UA_Int32
+    denominator::UA_UInt32
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ThreeDVector
+    x::UA_Double
+    y::UA_Double
+    z::UA_Double
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ThreeDCartesianCoordinates
+    x::UA_Double
+    y::UA_Double
+    z::UA_Double
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ThreeDOrientation
+    a::UA_Double
+    b::UA_Double
+    c::UA_Double
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ThreeDFrame
+    cartesianCoordinates::UA_ThreeDCartesianCoordinates
+    orientation::UA_ThreeDOrientation
+end
+
+@cenum UA_OpenFileMode::UInt32 begin
+    UA_OPENFILEMODE_READ = 1
+    UA_OPENFILEMODE_WRITE = 2
+    UA_OPENFILEMODE_ERASEEXISTING = 4
+    UA_OPENFILEMODE_APPEND = 8
+    __UA_OPENFILEMODE_FORCE32BIT = 2147483647
 end
 
 struct static_assertion_failed_3
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
+@cenum UA_IdentityCriteriaType::UInt32 begin
+    UA_IDENTITYCRITERIATYPE_USERNAME = 1
+    UA_IDENTITYCRITERIATYPE_THUMBPRINT = 2
+    UA_IDENTITYCRITERIATYPE_ROLE = 3
+    UA_IDENTITYCRITERIATYPE_GROUPID = 4
+    UA_IDENTITYCRITERIATYPE_ANONYMOUS = 5
+    UA_IDENTITYCRITERIATYPE_AUTHENTICATEDUSER = 6
+    UA_IDENTITYCRITERIATYPE_APPLICATION = 7
+    UA_IDENTITYCRITERIATYPE_X509SUBJECT = 8
+    __UA_IDENTITYCRITERIATYPE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_4
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
 """
 $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
-struct UA_StructureField
+struct UA_IdentityMappingRuleType
+    criteriaType::UA_IdentityCriteriaType
+    criteria::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_CurrencyUnitType
+    numericCode::UA_Int16
+    exponent::UA_SByte
+    alphabeticCode::UA_String
+    currency::UA_LocalizedText
+end
+
+@cenum UA_TrustListMasks::UInt32 begin
+    UA_TRUSTLISTMASKS_NONE = 0
+    UA_TRUSTLISTMASKS_TRUSTEDCERTIFICATES = 1
+    UA_TRUSTLISTMASKS_TRUSTEDCRLS = 2
+    UA_TRUSTLISTMASKS_ISSUERCERTIFICATES = 4
+    UA_TRUSTLISTMASKS_ISSUERCRLS = 8
+    UA_TRUSTLISTMASKS_ALL = 15
+    __UA_TRUSTLISTMASKS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_5
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_TrustListDataType
+    specifiedLists::UA_UInt32
+    trustedCertificatesSize::Csize_t
+    trustedCertificates::Ptr{UA_ByteString}
+    trustedCrlsSize::Csize_t
+    trustedCrls::Ptr{UA_ByteString}
+    issuerCertificatesSize::Csize_t
+    issuerCertificates::Ptr{UA_ByteString}
+    issuerCrlsSize::Csize_t
+    issuerCrls::Ptr{UA_ByteString}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DecimalDataType
+    scale::UA_Int16
+    value::UA_ByteString
+end
+
+struct UA_DataTypeDescription
+    dataTypeId::UA_NodeId
+    name::UA_QualifiedName
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PortableQualifiedName
+    namespaceUri::UA_String
     name::UA_String
-    description::UA_LocalizedText
-    dataType::UA_NodeId
-    valueRank::UA_Int32
-    arrayDimensionsSize::Csize_t
-    arrayDimensions::Ptr{UA_UInt32}
-    maxStringLength::UA_UInt32
-    isOptional::UA_Boolean
-end
-function Base.getproperty(x::Ptr{UA_StructureField}, f::Symbol)
-    f === :name && return Ptr{UA_String}(x + 0)
-    f === :description && return Ptr{UA_LocalizedText}(x + 16)
-    f === :dataType && return Ptr{UA_NodeId}(x + 48)
-    f === :valueRank && return Ptr{UA_Int32}(x + 72)
-    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 80)
-    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 88)
-    f === :maxStringLength && return Ptr{UA_UInt32}(x + 96)
-    f === :isOptional && return Ptr{UA_Boolean}(x + 100)
-    return getfield(x, f)
-end
-
-function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -5663,24 +6843,569 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
-struct UA_StructureDefinition
-    defaultEncodingId::UA_NodeId
-    baseDataType::UA_NodeId
-    structureType::UA_StructureType
-    fieldsSize::Csize_t
-    fields::Ptr{UA_StructureField}
-end
-function Base.getproperty(x::Ptr{UA_StructureDefinition}, f::Symbol)
-    f === :defaultEncodingId && return Ptr{UA_NodeId}(x + 0)
-    f === :baseDataType && return Ptr{UA_NodeId}(x + 24)
-    f === :structureType && return Ptr{UA_StructureType}(x + 48)
-    f === :fieldsSize && return Ptr{Csize_t}(x + 56)
-    f === :fields && return Ptr{Ptr{UA_StructureField}}(x + 64)
-    return getfield(x, f)
+struct UA_PortableNodeId
+    namespaceUri::UA_String
+    identifier::UA_NodeId
 end
 
-function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UnsignedRationalNumber
+    numerator::UA_UInt32
+    denominator::UA_UInt32
+end
+
+struct static_assertion_failed_6
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedDataItemsDataType
+    publishedDataSize::Csize_t
+    publishedData::Ptr{UA_PublishedVariableDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedDataSetCustomSourceDataType
+    cyclicDataSet::UA_Boolean
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetWriterDataType
+    name::UA_String
+    enabled::UA_Boolean
+    dataSetWriterId::UA_UInt16
+    dataSetFieldContentMask::UA_DataSetFieldContentMask
+    keyFrameCount::UA_UInt32
+    dataSetName::UA_String
+    dataSetWriterPropertiesSize::Csize_t
+    dataSetWriterProperties::Ptr{UA_KeyValuePair}
+    transportSettings::UA_ExtensionObject
+    messageSettings::UA_ExtensionObject
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_NetworkAddressDataType
+    networkInterface::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_NetworkAddressUrlDataType
+    networkInterface::UA_String
+    url::UA_String
+end
+
+struct static_assertion_failed_7
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StandaloneSubscribedDataSetRefDataType
+    dataSetName::UA_String
+end
+
+@cenum UA_DataSetOrderingType::UInt32 begin
+    UA_DATASETORDERINGTYPE_UNDEFINED = 0
+    UA_DATASETORDERINGTYPE_ASCENDINGWRITERID = 1
+    UA_DATASETORDERINGTYPE_ASCENDINGWRITERIDSINGLE = 2
+    __UA_DATASETORDERINGTYPE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_8
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+const UA_UadpNetworkMessageContentMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UadpWriterGroupMessageDataType
+    groupVersion::UA_UInt32
+    dataSetOrdering::UA_DataSetOrderingType
+    networkMessageContentMask::UA_UadpNetworkMessageContentMask
+    samplingOffset::UA_Double
+    publishingOffsetSize::Csize_t
+    publishingOffset::Ptr{UA_Double}
+end
+const UA_UadpDataSetMessageContentMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UadpDataSetWriterMessageDataType
+    dataSetMessageContentMask::UA_UadpDataSetMessageContentMask
+    configuredSize::UA_UInt16
+    networkMessageNumber::UA_UInt16
+    dataSetOffset::UA_UInt16
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UadpDataSetReaderMessageDataType
+    groupVersion::UA_UInt32
+    networkMessageNumber::UA_UInt16
+    dataSetOffset::UA_UInt16
+    dataSetClassId::UA_Guid
+    networkMessageContentMask::UA_UadpNetworkMessageContentMask
+    dataSetMessageContentMask::UA_UadpDataSetMessageContentMask
+    publishingInterval::UA_Double
+    receiveOffset::UA_Double
+    processingOffset::UA_Double
+end
+const UA_JsonNetworkMessageContentMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_JsonWriterGroupMessageDataType
+    networkMessageContentMask::UA_JsonNetworkMessageContentMask
+end
+const UA_JsonDataSetMessageContentMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_JsonDataSetWriterMessageDataType
+    dataSetMessageContentMask::UA_JsonDataSetMessageContentMask
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_JsonDataSetReaderMessageDataType
+    networkMessageContentMask::UA_JsonNetworkMessageContentMask
+    dataSetMessageContentMask::UA_JsonDataSetMessageContentMask
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_TransmitQosPriorityDataType
+    priorityLabel::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ReceiveQosPriorityDataType
+    priorityLabel::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DatagramConnectionTransportDataType
+    discoveryAddress::UA_ExtensionObject
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DatagramConnectionTransport2DataType
+    discoveryAddress::UA_ExtensionObject
+    discoveryAnnounceRate::UA_UInt32
+    discoveryMaxMessageSize::UA_UInt32
+    qosCategory::UA_String
+    datagramQosSize::Csize_t
+    datagramQos::Ptr{UA_ExtensionObject}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DatagramWriterGroupTransportDataType
+    messageRepeatCount::UA_Byte
+    messageRepeatDelay::UA_Double
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DatagramWriterGroupTransport2DataType
+    messageRepeatCount::UA_Byte
+    messageRepeatDelay::UA_Double
+    address::UA_ExtensionObject
+    qosCategory::UA_String
+    datagramQosSize::Csize_t
+    datagramQos::Ptr{UA_ExtensionObject}
+    discoveryAnnounceRate::UA_UInt32
+    topic::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DatagramDataSetReaderTransportDataType
+    address::UA_ExtensionObject
+    qosCategory::UA_String
+    datagramQosSize::Csize_t
+    datagramQos::Ptr{UA_ExtensionObject}
+    topic::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_BrokerConnectionTransportDataType
+    resourceUri::UA_String
+    authenticationProfileUri::UA_String
+end
+
+@cenum UA_BrokerTransportQualityOfService::UInt32 begin
+    UA_BROKERTRANSPORTQUALITYOFSERVICE_NOTSPECIFIED = 0
+    UA_BROKERTRANSPORTQUALITYOFSERVICE_BESTEFFORT = 1
+    UA_BROKERTRANSPORTQUALITYOFSERVICE_ATLEASTONCE = 2
+    UA_BROKERTRANSPORTQUALITYOFSERVICE_ATMOSTONCE = 3
+    UA_BROKERTRANSPORTQUALITYOFSERVICE_EXACTLYONCE = 4
+    __UA_BROKERTRANSPORTQUALITYOFSERVICE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_9
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_BrokerWriterGroupTransportDataType
+    queueName::UA_String
+    resourceUri::UA_String
+    authenticationProfileUri::UA_String
+    requestedDeliveryGuarantee::UA_BrokerTransportQualityOfService
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_BrokerDataSetWriterTransportDataType
+    queueName::UA_String
+    resourceUri::UA_String
+    authenticationProfileUri::UA_String
+    requestedDeliveryGuarantee::UA_BrokerTransportQualityOfService
+    metaDataQueueName::UA_String
+    metaDataUpdateTime::UA_Double
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_BrokerDataSetReaderTransportDataType
+    queueName::UA_String
+    resourceUri::UA_String
+    authenticationProfileUri::UA_String
+    requestedDeliveryGuarantee::UA_BrokerTransportQualityOfService
+    metaDataQueueName::UA_String
+end
+const UA_PubSubConfigurationRefMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConfigurationRefDataType
+    configurationMask::UA_PubSubConfigurationRefMask
+    elementIndex::UA_UInt16
+    connectionIndex::UA_UInt16
+    groupIndex::UA_UInt16
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConfigurationValueDataType
+    configurationElement::UA_PubSubConfigurationRefDataType
+    name::UA_String
+    identifier::UA_Variant
+end
+
+@cenum UA_DiagnosticsLevel::UInt32 begin
+    UA_DIAGNOSTICSLEVEL_BASIC = 0
+    UA_DIAGNOSTICSLEVEL_ADVANCED = 1
+    UA_DIAGNOSTICSLEVEL_INFO = 2
+    UA_DIAGNOSTICSLEVEL_LOG = 3
+    UA_DIAGNOSTICSLEVEL_DEBUG = 4
+    __UA_DIAGNOSTICSLEVEL_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_10
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_PubSubDiagnosticsCounterClassification::UInt32 begin
+    UA_PUBSUBDIAGNOSTICSCOUNTERCLASSIFICATION_INFORMATION = 0
+    UA_PUBSUBDIAGNOSTICSCOUNTERCLASSIFICATION_ERROR = 1
+    __UA_PUBSUBDIAGNOSTICSCOUNTERCLASSIFICATION_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_11
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_AliasNameDataType
+    aliasName::UA_QualifiedName
+    referencedNodesSize::Csize_t
+    referencedNodes::Ptr{UA_ExpandedNodeId}
+end
+const UA_PasswordOptionsMask = UA_UInt32
+const UA_UserConfigurationMask = UA_UInt32
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UserManagementDataType
+    userName::UA_String
+    userConfiguration::UA_UserConfigurationMask
+    description::UA_String
+end
+
+@cenum UA_Duplex::UInt32 begin
+    UA_DUPLEX_FULL = 0
+    UA_DUPLEX_HALF = 1
+    UA_DUPLEX_UNKNOWN = 2
+    __UA_DUPLEX_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_12
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_InterfaceAdminStatus::UInt32 begin
+    UA_INTERFACEADMINSTATUS_UP = 0
+    UA_INTERFACEADMINSTATUS_DOWN = 1
+    UA_INTERFACEADMINSTATUS_TESTING = 2
+    __UA_INTERFACEADMINSTATUS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_13
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_InterfaceOperStatus::UInt32 begin
+    UA_INTERFACEOPERSTATUS_UP = 0
+    UA_INTERFACEOPERSTATUS_DOWN = 1
+    UA_INTERFACEOPERSTATUS_TESTING = 2
+    UA_INTERFACEOPERSTATUS_UNKNOWN = 3
+    UA_INTERFACEOPERSTATUS_DORMANT = 4
+    UA_INTERFACEOPERSTATUS_NOTPRESENT = 5
+    UA_INTERFACEOPERSTATUS_LOWERLAYERDOWN = 6
+    __UA_INTERFACEOPERSTATUS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_14
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_NegotiationStatus::UInt32 begin
+    UA_NEGOTIATIONSTATUS_INPROGRESS = 0
+    UA_NEGOTIATIONSTATUS_COMPLETE = 1
+    UA_NEGOTIATIONSTATUS_FAILED = 2
+    UA_NEGOTIATIONSTATUS_UNKNOWN = 3
+    UA_NEGOTIATIONSTATUS_NONEGOTIATION = 4
+    __UA_NEGOTIATIONSTATUS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_15
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_TsnFailureCode::UInt32 begin
+    UA_TSNFAILURECODE_NOFAILURE = 0
+    UA_TSNFAILURECODE_INSUFFICIENTBANDWIDTH = 1
+    UA_TSNFAILURECODE_INSUFFICIENTRESOURCES = 2
+    UA_TSNFAILURECODE_INSUFFICIENTTRAFFICCLASSBANDWIDTH = 3
+    UA_TSNFAILURECODE_STREAMIDINUSE = 4
+    UA_TSNFAILURECODE_STREAMDESTINATIONADDRESSINUSE = 5
+    UA_TSNFAILURECODE_STREAMPREEMPTEDBYHIGHERRANK = 6
+    UA_TSNFAILURECODE_LATENCYHASCHANGED = 7
+    UA_TSNFAILURECODE_EGRESSPORTNOTAVBCAPABLE = 8
+    UA_TSNFAILURECODE_USEDIFFERENTDESTINATIONADDRESS = 9
+    UA_TSNFAILURECODE_OUTOFMSRPRESOURCES = 10
+    UA_TSNFAILURECODE_OUTOFMMRPRESOURCES = 11
+    UA_TSNFAILURECODE_CANNOTSTOREDESTINATIONADDRESS = 12
+    UA_TSNFAILURECODE_PRIORITYISNOTANSRCCLASS = 13
+    UA_TSNFAILURECODE_MAXFRAMESIZETOOLARGE = 14
+    UA_TSNFAILURECODE_MAXFANINPORTSLIMITREACHED = 15
+    UA_TSNFAILURECODE_FIRSTVALUECHANGEDFORSTREAMID = 16
+    UA_TSNFAILURECODE_VLANBLOCKEDONEGRESS = 17
+    UA_TSNFAILURECODE_VLANTAGGINGDISABLEDONEGRESS = 18
+    UA_TSNFAILURECODE_SRCLASSPRIORITYMISMATCH = 19
+    UA_TSNFAILURECODE_FEATURENOTPROPAGATED = 20
+    UA_TSNFAILURECODE_MAXLATENCYEXCEEDED = 21
+    UA_TSNFAILURECODE_BRIDGEDOESNOTPROVIDENETWORKID = 22
+    UA_TSNFAILURECODE_STREAMTRANSFORMNOTSUPPORTED = 23
+    UA_TSNFAILURECODE_STREAMIDTYPENOTSUPPORTED = 24
+    UA_TSNFAILURECODE_FEATURENOTSUPPORTED = 25
+    __UA_TSNFAILURECODE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_16
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_TsnStreamState::UInt32 begin
+    UA_TSNSTREAMSTATE_DISABLED = 0
+    UA_TSNSTREAMSTATE_CONFIGURING = 1
+    UA_TSNSTREAMSTATE_READY = 2
+    UA_TSNSTREAMSTATE_OPERATIONAL = 3
+    UA_TSNSTREAMSTATE_ERROR = 4
+    __UA_TSNSTREAMSTATE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_17
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_TsnTalkerStatus::UInt32 begin
+    UA_TSNTALKERSTATUS_NONE = 0
+    UA_TSNTALKERSTATUS_READY = 1
+    UA_TSNTALKERSTATUS_FAILED = 2
+    __UA_TSNTALKERSTATUS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_18
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+@cenum UA_TsnListenerStatus::UInt32 begin
+    UA_TSNLISTENERSTATUS_NONE = 0
+    UA_TSNLISTENERSTATUS_READY = 1
+    UA_TSNLISTENERSTATUS_PARTIALFAILED = 2
+    UA_TSNLISTENERSTATUS_FAILED = 3
+    __UA_TSNLISTENERSTATUS_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_19
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PriorityMappingEntryType
+    mappingUri::UA_String
+    priorityLabel::UA_String
+    priorityValue_PCP::UA_Byte
+    priorityValue_DSCP::UA_UInt32
+end
+
+@cenum UA_IdType::UInt32 begin
+    UA_IDTYPE_NUMERIC = 0
+    UA_IDTYPE_STRING = 1
+    UA_IDTYPE_GUID = 2
+    UA_IDTYPE_OPAQUE = 3
+    __UA_IDTYPE_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_20
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+struct static_assertion_failed_21
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+const UA_PermissionType = UA_UInt32
+const UA_AccessLevelType = UA_Byte
+const UA_AccessLevelExType = UA_UInt32
+const UA_EventNotifierType = UA_Byte
+const UA_AccessRestrictionType = UA_UInt16
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_RolePermissionType
+    roleId::UA_NodeId
+    permissions::UA_PermissionType
+end
+
+struct static_assertion_failed_22
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ReferenceNode
+    referenceTypeId::UA_NodeId
+    isInverse::UA_Boolean
+    targetId::UA_ExpandedNodeId
 end
 
 """
@@ -5709,24 +7434,20 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
-struct UA_EnumField
-    value::UA_Int64
-    displayName::UA_LocalizedText
-    description::UA_LocalizedText
-    name::UA_String
-end
-function Base.getproperty(x::Ptr{UA_EnumField}, f::Symbol)
-    f === :value && return Ptr{UA_Int64}(x + 0)
-    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
-    f === :description && return Ptr{UA_LocalizedText}(x + 40)
-    f === :name && return Ptr{UA_String}(x + 72)
-    return getfield(x, f)
+struct UA_OptionSet
+    value::UA_ByteString
+    validBits::UA_ByteString
 end
 
-function Base.setproperty!(x::Ptr{UA_EnumField}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
+const UA_NormalizedString = UA_String
 
+const UA_DecimalString = UA_String
+
+const UA_DurationString = UA_String
+
+const UA_TimeString = UA_String
+
+const UA_DateString = UA_String
 const UA_UtcTime = UA_DateTime
 
 """
@@ -5739,9 +7460,14 @@ struct UA_TimeZoneDataType
     daylightSavingInOffset::UA_Boolean
 end
 
-struct static_assertion_failed_4
+const UA_Index = UA_ByteString
+const UA_IntegerId = UA_UInt32
+
+struct static_assertion_failed_23
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
+
+const UA_VersionTime = UA_ByteString
 
 """
 $(TYPEDEF)
@@ -5758,6 +7484,35 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ServiceFault}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SessionlessInvokeRequestType
+    urisVersion::UA_UInt32
+    namespaceUrisSize::Csize_t
+    namespaceUris::Ptr{UA_String}
+    serverUrisSize::Csize_t
+    serverUris::Ptr{UA_String}
+    localeIdsSize::Csize_t
+    localeIds::Ptr{UA_String}
+    serviceId::UA_UInt32
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SessionlessInvokeResponseType
+    namespaceUrisSize::Csize_t
+    namespaceUris::Ptr{UA_String}
+    serverUrisSize::Csize_t
+    serverUris::Ptr{UA_String}
+    serviceId::UA_UInt32
 end
 
 """
@@ -5833,11 +7588,13 @@ struct UA_FindServersOnNetworkResponse
     servers::Ptr{UA_ServerOnNetwork}
 end
 
-struct static_assertion_failed_5
+const UA_ApplicationInstanceCertificate = UA_ByteString
+
+struct static_assertion_failed_24
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
-struct static_assertion_failed_6
+struct static_assertion_failed_25
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -5968,7 +7725,7 @@ end
     __UA_SECURITYTOKENREQUESTTYPE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_7
+struct static_assertion_failed_26
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6097,6 +7854,8 @@ end
 function Base.setproperty!(x::Ptr{UA_SignedSoftwareCertificate}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
+
+const UA_SessionAuthenticationToken = UA_NodeId
 
 """
 $(TYPEDEF)
@@ -6287,6 +8046,10 @@ function Base.setproperty!(x::Ptr{UA_IssuedIdentityToken}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+const UA_RsaEncryptedSecret = UA_ByteString
+
+const UA_EccEncryptedSecret = UA_ByteString
+
 """
 $(TYPEDEF)
 Fields:
@@ -6441,11 +8204,37 @@ end
     __UA_NODEATTRIBUTESMASK_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_8
+struct static_assertion_failed_27
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
-struct static_assertion_failed_9
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_GenericAttributeValue
+    attributeId::UA_UInt32
+    value::UA_Variant
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_GenericAttributes
+    specifiedAttributes::UA_UInt32
+    displayName::UA_LocalizedText
+    description::UA_LocalizedText
+    writeMask::UA_UInt32
+    userWriteMask::UA_UInt32
+    attributeValuesSize::Csize_t
+    attributeValues::Ptr{UA_GenericAttributeValue}
+end
+const UA_AttributeWriteMask = UA_UInt32
+
+struct static_assertion_failed_28
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6463,12 +8252,72 @@ end
     __UA_BROWSERESULTMASK_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_10
+struct static_assertion_failed_29
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
-struct static_assertion_failed_11
+const UA_ContinuationPoint = UA_ByteString
+const UA_Counter = UA_UInt32
+
+const UA_OpaqueNumericRange = UA_String
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EndpointConfiguration
+    operationTimeout::UA_Int32
+    useBinaryEncoding::UA_Boolean
+    maxStringLength::UA_Int32
+    maxByteStringLength::UA_Int32
+    maxArrayLength::UA_Int32
+    maxMessageSize::UA_Int32
+    maxBufferSize::UA_Int32
+    channelLifetime::UA_Int32
+    securityTokenLifetime::UA_Int32
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryDataDescription
+    relativePath::UA_RelativePath
+    attributeId::UA_UInt32
+    indexRange::UA_String
+end
+
+struct UA_NodeTypeDescription
+    typeDefinitionNode::UA_ExpandedNodeId
+    includeSubTypes::UA_Boolean
+    dataToReturnSize::Csize_t
+    dataToReturn::Ptr{UA_QueryDataDescription}
+end
+
+struct static_assertion_failed_30
     static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryDataSet
+    nodeId::UA_ExpandedNodeId
+    typeDefinitionNode::UA_ExpandedNodeId
+    valuesSize::Csize_t
+    values::Ptr{UA_Variant}
+end
+
+struct UA_NodeReference
+    nodeId::UA_NodeId
+    referenceTypeId::UA_NodeId
+    isForward::UA_Boolean
+    referencedNodeIdsSize::Csize_t
+    referencedNodeIds::Ptr{UA_NodeId}
 end
 
 """
@@ -6578,7 +8427,75 @@ function Base.setproperty!(x::Ptr{UA_ContentFilterResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct static_assertion_failed_12
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ParsingResult
+    statusCode::UA_StatusCode
+    dataStatusCodesSize::Csize_t
+    dataStatusCodes::Ptr{UA_StatusCode}
+    dataDiagnosticInfosSize::Csize_t
+    dataDiagnosticInfos::Ptr{UA_DiagnosticInfo}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryFirstRequest
+    requestHeader::UA_RequestHeader
+    view::UA_ViewDescription
+    nodeTypesSize::Csize_t
+    nodeTypes::Ptr{UA_NodeTypeDescription}
+    filter::UA_ContentFilter
+    maxDataSetsToReturn::UA_UInt32
+    maxReferencesToReturn::UA_UInt32
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryFirstResponse
+    responseHeader::UA_ResponseHeader
+    queryDataSetsSize::Csize_t
+    queryDataSets::Ptr{UA_QueryDataSet}
+    continuationPoint::UA_ByteString
+    parsingResultsSize::Csize_t
+    parsingResults::Ptr{UA_ParsingResult}
+    diagnosticInfosSize::Csize_t
+    diagnosticInfos::Ptr{UA_DiagnosticInfo}
+    filterResult::UA_ContentFilterResult
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryNextRequest
+    requestHeader::UA_RequestHeader
+    releaseContinuationPoint::UA_Boolean
+    continuationPoint::UA_ByteString
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_QueryNextResponse
+    responseHeader::UA_ResponseHeader
+    queryDataSetsSize::Csize_t
+    queryDataSets::Ptr{UA_QueryDataSet}
+    revisedContinuationPoint::UA_ByteString
+end
+
+struct static_assertion_failed_31
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6611,9 +8528,28 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
+struct UA_ReadAnnotationDataDetails
+    reqTimesSize::Csize_t
+    reqTimes::Ptr{UA_DateTime}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_HistoryData
     dataValuesSize::Csize_t
     dataValues::Ptr{UA_DataValue}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_HistoryUpdateDetails
+    nodeId::UA_NodeId
 end
 
 @cenum UA_HistoryUpdateType::UInt32 begin
@@ -6624,7 +8560,7 @@ end
     __UA_HISTORYUPDATETYPE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_13
+struct static_assertion_failed_32
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6636,7 +8572,7 @@ end
     __UA_PERFORMUPDATETYPE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_14
+struct static_assertion_failed_33
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6657,6 +8593,18 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
+struct UA_UpdateStructureDataDetails
+    nodeId::UA_NodeId
+    performInsertReplace::UA_PerformUpdateType
+    updateValuesSize::Csize_t
+    updateValues::Ptr{UA_DataValue}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_DeleteRawModifiedDetails
     nodeId::UA_NodeId
     isDeleteModified::UA_Boolean
@@ -6664,7 +8612,29 @@ struct UA_DeleteRawModifiedDetails
     endTime::UA_DateTime
 end
 
-struct static_assertion_failed_15
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DeleteAtTimeDetails
+    nodeId::UA_NodeId
+    reqTimesSize::Csize_t
+    reqTimes::Ptr{UA_DateTime}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DeleteEventDetails
+    nodeId::UA_NodeId
+    eventIdsSize::Csize_t
+    eventIds::Ptr{UA_ByteString}
+end
+
+struct static_assertion_failed_34
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6675,7 +8645,7 @@ end
     __UA_DATACHANGETRIGGER_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_16
+struct static_assertion_failed_35
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6686,7 +8656,7 @@ end
     __UA_DEADBANDTYPE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_17
+struct static_assertion_failed_36
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -6782,6 +8752,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_EventFilterResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_AggregateFilterResult
+    revisedStartTime::UA_DateTime
+    revisedProcessingInterval::UA_Double
+    revisedAggregateConfiguration::UA_AggregateConfiguration
 end
 
 """
@@ -7071,7 +9052,7 @@ end
     __UA_REDUNDANCYSUPPORT_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_18
+struct static_assertion_failed_37
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -7087,8 +9068,52 @@ end
     __UA_SERVERSTATE_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_19
+struct static_assertion_failed_38
     static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_RedundantServerDataType
+    serverId::UA_String
+    serviceLevel::UA_Byte
+    serverState::UA_ServerState
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EndpointUrlListDataType
+    endpointUrlListSize::Csize_t
+    endpointUrlList::Ptr{UA_String}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_NetworkGroupDataType
+    serverUri::UA_String
+    networkPathsSize::Csize_t
+    networkPaths::Ptr{UA_EndpointUrlListDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SamplingIntervalDiagnosticsDataType
+    samplingInterval::UA_Double
+    monitoredItemCount::UA_UInt32
+    maxMonitoredItemCount::UA_UInt32
+    disabledMonitoredItemCount::UA_UInt32
 end
 
 """
@@ -7190,6 +9215,16 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
+struct UA_StatusResult
+    statusCode::UA_StatusCode
+    diagnosticInfo::UA_DiagnosticInfo
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
 struct UA_SubscriptionDiagnosticsDataType
     sessionId::UA_NodeId
     subscriptionId::UA_UInt32
@@ -7222,6 +9257,40 @@ struct UA_SubscriptionDiagnosticsDataType
     monitoringQueueOverflowCount::UA_UInt32
     nextSequenceNumber::UA_UInt32
     eventQueueOverFlowCount::UA_UInt32
+end
+
+@cenum UA_ModelChangeStructureVerbMask::UInt32 begin
+    UA_MODELCHANGESTRUCTUREVERBMASK_NODEADDED = 1
+    UA_MODELCHANGESTRUCTUREVERBMASK_NODEDELETED = 2
+    UA_MODELCHANGESTRUCTUREVERBMASK_REFERENCEADDED = 4
+    UA_MODELCHANGESTRUCTUREVERBMASK_REFERENCEDELETED = 8
+    UA_MODELCHANGESTRUCTUREVERBMASK_DATATYPECHANGED = 16
+    __UA_MODELCHANGESTRUCTUREVERBMASK_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_39
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ModelChangeStructureDataType
+    affected::UA_NodeId
+    affectedType::UA_NodeId
+    verb::UA_Byte
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SemanticChangeStructureDataType
+    affected::UA_NodeId
+    affectedType::UA_NodeId
 end
 
 """
@@ -7273,7 +9342,7 @@ end
     __UA_AXISSCALEENUMERATION_FORCE32BIT = 2147483647
 end
 
-struct static_assertion_failed_20
+struct static_assertion_failed_40
     static_assertion_failed_enum_must_be_32bit::Cuint
 end
 
@@ -7366,18 +9435,187 @@ $(TYPEDEF)
 Fields:
 $(TYPEDFIELDS)
 """
-struct UA_EnumDefinition
-    fieldsSize::Csize_t
-    fields::Ptr{UA_EnumField}
-end
-function Base.getproperty(x::Ptr{UA_EnumDefinition}, f::Symbol)
-    f === :fieldsSize && return Ptr{Csize_t}(x + 0)
-    f === :fields && return Ptr{Ptr{UA_EnumField}}(x + 8)
-    return getfield(x, f)
+struct UA_ProgramDiagnosticDataType
+    createSessionId::UA_NodeId
+    createClientName::UA_String
+    invocationCreationTime::UA_DateTime
+    lastTransitionTime::UA_DateTime
+    lastMethodCall::UA_String
+    lastMethodSessionId::UA_NodeId
+    lastMethodInputArgumentsSize::Csize_t
+    lastMethodInputArguments::Ptr{UA_Argument}
+    lastMethodOutputArgumentsSize::Csize_t
+    lastMethodOutputArguments::Ptr{UA_Argument}
+    lastMethodCallTime::UA_DateTime
+    lastMethodReturnStatus::UA_StatusResult
 end
 
-function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ProgramDiagnostic2DataType
+    createSessionId::UA_NodeId
+    createClientName::UA_String
+    invocationCreationTime::UA_DateTime
+    lastTransitionTime::UA_DateTime
+    lastMethodCall::UA_String
+    lastMethodSessionId::UA_NodeId
+    lastMethodInputArgumentsSize::Csize_t
+    lastMethodInputArguments::Ptr{UA_Argument}
+    lastMethodOutputArgumentsSize::Csize_t
+    lastMethodOutputArguments::Ptr{UA_Argument}
+    lastMethodInputValuesSize::Csize_t
+    lastMethodInputValues::Ptr{UA_Variant}
+    lastMethodOutputValuesSize::Csize_t
+    lastMethodOutputValues::Ptr{UA_Variant}
+    lastMethodCallTime::UA_DateTime
+    lastMethodReturnStatus::UA_StatusCode
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_Annotation
+    message::UA_String
+    userName::UA_String
+    annotationTime::UA_DateTime
+end
+
+@cenum UA_ExceptionDeviationFormat::UInt32 begin
+    UA_EXCEPTIONDEVIATIONFORMAT_ABSOLUTEVALUE = 0
+    UA_EXCEPTIONDEVIATIONFORMAT_PERCENTOFVALUE = 1
+    UA_EXCEPTIONDEVIATIONFORMAT_PERCENTOFRANGE = 2
+    UA_EXCEPTIONDEVIATIONFORMAT_PERCENTOFEURANGE = 3
+    UA_EXCEPTIONDEVIATIONFORMAT_UNKNOWN = 4
+    __UA_EXCEPTIONDEVIATIONFORMAT_FORCE32BIT = 2147483647
+end
+
+struct static_assertion_failed_41
+    static_assertion_failed_enum_must_be_32bit::Cuint
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_EndpointType
+    endpointUrl::UA_String
+    securityMode::UA_MessageSecurityMode
+    securityPolicyUri::UA_String
+    transportProfileUri::UA_String
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedEventsDataType
+    eventNotifier::UA_NodeId
+    selectedFieldsSize::Csize_t
+    selectedFields::Ptr{UA_SimpleAttributeOperand}
+    filter::UA_ContentFilter
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubGroupDataType
+    name::UA_String
+    enabled::UA_Boolean
+    securityMode::UA_MessageSecurityMode
+    securityGroupId::UA_String
+    securityKeyServicesSize::Csize_t
+    securityKeyServices::Ptr{UA_EndpointDescription}
+    maxNetworkMessageSize::UA_UInt32
+    groupPropertiesSize::Csize_t
+    groupProperties::Ptr{UA_KeyValuePair}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_WriterGroupDataType
+    name::UA_String
+    enabled::UA_Boolean
+    securityMode::UA_MessageSecurityMode
+    securityGroupId::UA_String
+    securityKeyServicesSize::Csize_t
+    securityKeyServices::Ptr{UA_EndpointDescription}
+    maxNetworkMessageSize::UA_UInt32
+    groupPropertiesSize::Csize_t
+    groupProperties::Ptr{UA_KeyValuePair}
+    writerGroupId::UA_UInt16
+    publishingInterval::UA_Double
+    keepAliveTime::UA_Double
+    priority::UA_Byte
+    localeIdsSize::Csize_t
+    localeIds::Ptr{UA_String}
+    headerLayoutUri::UA_String
+    transportSettings::UA_ExtensionObject
+    messageSettings::UA_ExtensionObject
+    dataSetWritersSize::Csize_t
+    dataSetWriters::Ptr{UA_DataSetWriterDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SubscribedDataSetMirrorDataType
+    parentNodeName::UA_String
+    rolePermissionsSize::Csize_t
+    rolePermissions::Ptr{UA_RolePermissionType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_SecurityGroupDataType
+    name::UA_String
+    securityGroupFolderSize::Csize_t
+    securityGroupFolder::Ptr{UA_String}
+    keyLifetime::UA_Double
+    securityPolicyUri::UA_String
+    maxFutureKeyCount::UA_UInt32
+    maxPastKeyCount::UA_UInt32
+    securityGroupId::UA_String
+    rolePermissionsSize::Csize_t
+    rolePermissions::Ptr{UA_RolePermissionType}
+    groupPropertiesSize::Csize_t
+    groupProperties::Ptr{UA_KeyValuePair}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubKeyPushTargetDataType
+    applicationUri::UA_String
+    pushTargetFolderSize::Csize_t
+    pushTargetFolder::Ptr{UA_String}
+    endpointUrl::UA_String
+    securityPolicyUri::UA_String
+    userTokenType::UA_UserTokenPolicy
+    requestedKeyCount::UA_UInt16
+    retryInterval::UA_Double
+    pushTargetPropertiesSize::Csize_t
+    pushTargetProperties::Ptr{UA_KeyValuePair}
+    securityGroupsSize::Csize_t
+    securityGroups::Ptr{UA_String}
 end
 
 """
@@ -7437,6 +9675,19 @@ $(TYPEDFIELDS)
 struct UA_HistoryEvent
     eventsSize::Csize_t
     events::Ptr{UA_HistoryEventFieldList}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UpdateEventDetails
+    nodeId::UA_NodeId
+    performInsertReplace::UA_PerformUpdateType
+    filter::UA_EventFilter
+    eventDataSize::Csize_t
+    eventData::Ptr{UA_HistoryEventFieldList}
 end
 
 """
@@ -7531,6 +9782,182 @@ struct UA_SessionDiagnosticsDataType
     queryNextCount::UA_ServiceCounterDataType
     registerNodesCount::UA_ServiceCounterDataType
     unregisterNodesCount::UA_ServiceCounterDataType
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_UABinaryFileDataType
+    namespacesSize::Csize_t
+    namespaces::Ptr{UA_String}
+    structureDataTypesSize::Csize_t
+    structureDataTypes::Ptr{UA_StructureDescription}
+    enumDataTypesSize::Csize_t
+    enumDataTypes::Ptr{UA_EnumDescription}
+    simpleDataTypesSize::Csize_t
+    simpleDataTypes::Ptr{UA_SimpleTypeDescription}
+    schemaLocation::UA_String
+    fileHeaderSize::Csize_t
+    fileHeader::Ptr{UA_KeyValuePair}
+    body::UA_Variant
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PublishedDataSetDataType
+    name::UA_String
+    dataSetFolderSize::Csize_t
+    dataSetFolder::Ptr{UA_String}
+    dataSetMetaData::UA_DataSetMetaDataType
+    extensionFieldsSize::Csize_t
+    extensionFields::Ptr{UA_KeyValuePair}
+    dataSetSource::UA_ExtensionObject
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_DataSetReaderDataType
+    name::UA_String
+    enabled::UA_Boolean
+    publisherId::UA_Variant
+    writerGroupId::UA_UInt16
+    dataSetWriterId::UA_UInt16
+    dataSetMetaData::UA_DataSetMetaDataType
+    dataSetFieldContentMask::UA_DataSetFieldContentMask
+    messageReceiveTimeout::UA_Double
+    keyFrameCount::UA_UInt32
+    headerLayoutUri::UA_String
+    securityMode::UA_MessageSecurityMode
+    securityGroupId::UA_String
+    securityKeyServicesSize::Csize_t
+    securityKeyServices::Ptr{UA_EndpointDescription}
+    dataSetReaderPropertiesSize::Csize_t
+    dataSetReaderProperties::Ptr{UA_KeyValuePair}
+    transportSettings::UA_ExtensionObject
+    messageSettings::UA_ExtensionObject
+    subscribedDataSet::UA_ExtensionObject
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_TargetVariablesDataType
+    targetVariablesSize::Csize_t
+    targetVariables::Ptr{UA_FieldTargetDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_StandaloneSubscribedDataSetDataType
+    name::UA_String
+    dataSetFolderSize::Csize_t
+    dataSetFolder::Ptr{UA_String}
+    dataSetMetaData::UA_DataSetMetaDataType
+    subscribedDataSet::UA_ExtensionObject
+end
+
+struct UA_DataTypeSchemaHeader
+    namespacesSize::Csize_t
+    namespaces::Ptr{UA_String}
+    structureDataTypesSize::Csize_t
+    structureDataTypes::Ptr{UA_StructureDescription}
+    enumDataTypesSize::Csize_t
+    enumDataTypes::Ptr{UA_EnumDescription}
+    simpleDataTypesSize::Csize_t
+    simpleDataTypes::Ptr{UA_SimpleTypeDescription}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_ReaderGroupDataType
+    name::UA_String
+    enabled::UA_Boolean
+    securityMode::UA_MessageSecurityMode
+    securityGroupId::UA_String
+    securityKeyServicesSize::Csize_t
+    securityKeyServices::Ptr{UA_EndpointDescription}
+    maxNetworkMessageSize::UA_UInt32
+    groupPropertiesSize::Csize_t
+    groupProperties::Ptr{UA_KeyValuePair}
+    transportSettings::UA_ExtensionObject
+    messageSettings::UA_ExtensionObject
+    dataSetReadersSize::Csize_t
+    dataSetReaders::Ptr{UA_DataSetReaderDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConnectionDataType
+    name::UA_String
+    enabled::UA_Boolean
+    publisherId::UA_Variant
+    transportProfileUri::UA_String
+    address::UA_ExtensionObject
+    connectionPropertiesSize::Csize_t
+    connectionProperties::Ptr{UA_KeyValuePair}
+    transportSettings::UA_ExtensionObject
+    writerGroupsSize::Csize_t
+    writerGroups::Ptr{UA_WriterGroupDataType}
+    readerGroupsSize::Csize_t
+    readerGroups::Ptr{UA_ReaderGroupDataType}
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConfigurationDataType
+    publishedDataSetsSize::Csize_t
+    publishedDataSets::Ptr{UA_PublishedDataSetDataType}
+    connectionsSize::Csize_t
+    connections::Ptr{UA_PubSubConnectionDataType}
+    enabled::UA_Boolean
+end
+
+"""
+$(TYPEDEF)
+Fields:
+$(TYPEDFIELDS)
+"""
+struct UA_PubSubConfiguration2DataType
+    publishedDataSetsSize::Csize_t
+    publishedDataSets::Ptr{UA_PublishedDataSetDataType}
+    connectionsSize::Csize_t
+    connections::Ptr{UA_PubSubConnectionDataType}
+    enabled::UA_Boolean
+    subscribedDataSetsSize::Csize_t
+    subscribedDataSets::Ptr{UA_StandaloneSubscribedDataSetDataType}
+    dataSetClassesSize::Csize_t
+    dataSetClasses::Ptr{UA_DataSetMetaDataType}
+    defaultSecurityKeyServicesSize::Csize_t
+    defaultSecurityKeyServices::Ptr{UA_EndpointDescription}
+    securityGroupsSize::Csize_t
+    securityGroups::Ptr{UA_SecurityGroupDataType}
+    pubSubKeyPushTargetsSize::Csize_t
+    pubSubKeyPushTargets::Ptr{UA_PubSubKeyPushTargetDataType}
+    configurationVersion::UA_UInt32
+    configurationPropertiesSize::Csize_t
+    configurationProperties::Ptr{UA_KeyValuePair}
 end
 
 function UA_random_seed(seed)
@@ -7821,24 +10248,24 @@ struct UA_LocalizedTextListEntry
     localizedText::UA_LocalizedText
 end
 
-struct __JL_Ctag_4328
+struct __JL_Ctag_4505
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4328}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4505}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
-    f === :tree && return Ptr{__JL_Ctag_4329}(x + 0)
+    f === :tree && return Ptr{__JL_Ctag_4506}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4328, f::Symbol)
-    r = Ref{__JL_Ctag_4328}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4328}, r)
+function Base.getproperty(x::__JL_Ctag_4505, f::Symbol)
+    r = Ref{__JL_Ctag_4505}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4505}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4328}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4505}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -7847,7 +10274,7 @@ struct UA_NodeReferenceKind
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
-    f === :targets && return Ptr{__JL_Ctag_4328}(x + 0)
+    f === :targets && return Ptr{__JL_Ctag_4505}(x + 0)
     f === :targetsSize && return Ptr{Csize_t}(x + 16)
     f === :hasRefTree && return Ptr{UA_Boolean}(x + 24)
     f === :referenceTypeIndex && return Ptr{UA_Byte}(x + 25)
@@ -7963,23 +10390,23 @@ struct UA_ReferenceTarget
     targetNameHash::UA_UInt32
 end
 
-struct __JL_Ctag_4326
+struct __JL_Ctag_4495
     left::Ptr{Cvoid} # left::Ptr{UA_ReferenceTargetTreeElem}
     right::Ptr{Cvoid} # right::Ptr{UA_ReferenceTargetTreeElem}
 end
 
-function Base.getproperty(x::__JL_Ctag_4326, f::Symbol)
+function Base.getproperty(x::__JL_Ctag_4495, f::Symbol)
     f === :left && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     f === :right && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     return getfield(x, f)
 end
 
-struct __JL_Ctag_4327
+struct __JL_Ctag_4496
     left::Ptr{Cvoid} # left::Ptr{UA_ReferenceTargetTreeElem}
     right::Ptr{Cvoid} # right::Ptr{UA_ReferenceTargetTreeElem}
 end
 
-function Base.getproperty(x::__JL_Ctag_4327, f::Symbol)
+function Base.getproperty(x::__JL_Ctag_4496, f::Symbol)
     f === :left && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     f === :right && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     return getfield(x, f)
@@ -8041,24 +10468,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_4333
+struct __JL_Ctag_4511
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4333}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_4334}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4511}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4512}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4333, f::Symbol)
-    r = Ref{__JL_Ctag_4333}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4333}, r)
+function Base.getproperty(x::__JL_Ctag_4511, f::Symbol)
+    r = Ref{__JL_Ctag_4511}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4511}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4333}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4511}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -8106,7 +10533,7 @@ function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 160)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 168)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 272)
-    f === :value && return Ptr{__JL_Ctag_4333}(x + 280)
+    f === :value && return Ptr{__JL_Ctag_4511}(x + 280)
     f === :accessLevel && return Ptr{UA_Byte}(x + 376)
     f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 384)
     f === :historizing && return Ptr{UA_Boolean}(x + 392)
@@ -8125,24 +10552,24 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4330
+struct __JL_Ctag_4502
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4330}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_4331}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4502}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4503}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4330, f::Symbol)
-    r = Ref{__JL_Ctag_4330}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4330}, r)
+function Base.getproperty(x::__JL_Ctag_4502, f::Symbol)
+    r = Ref{__JL_Ctag_4502}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4502}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4330}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4502}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -8186,7 +10613,7 @@ function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 160)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 168)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 272)
-    f === :value && return Ptr{__JL_Ctag_4330}(x + 280)
+    f === :value && return Ptr{__JL_Ctag_4502}(x + 280)
     f === :isAbstract && return Ptr{UA_Boolean}(x + 376)
     f === :lifecycle && return Ptr{UA_NodeTypeLifecycle}(x + 384)
     return getfield(x, f)
@@ -8524,150 +10951,150 @@ function UA_HistoryDatabase_default(gathering)
     @ccall libopen62541.UA_HistoryDatabase_default(gathering::UA_HistoryDataGathering)::UA_HistoryDatabase
 end
 
-struct __JL_Ctag_4324
+struct __JL_Ctag_4499
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4324}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4499}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4324, f::Symbol)
-    r = Ref{__JL_Ctag_4324}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4324}, r)
+function Base.getproperty(x::__JL_Ctag_4499, f::Symbol)
+    r = Ref{__JL_Ctag_4499}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4499}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4324}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4499}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4325
+struct __JL_Ctag_4500
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4325}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4500}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4325, f::Symbol)
-    r = Ref{__JL_Ctag_4325}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4325}, r)
+function Base.getproperty(x::__JL_Ctag_4500, f::Symbol)
+    r = Ref{__JL_Ctag_4500}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4500}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4325}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4500}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4329
+struct __JL_Ctag_4503
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_4503}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4503, f::Symbol)
+    r = Ref{__JL_Ctag_4503}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4503}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4503}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_4506
     idRoot::Ptr{UA_ReferenceTargetTreeElem}
     nameRoot::Ptr{UA_ReferenceTargetTreeElem}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4329}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4506}, f::Symbol)
     f === :idRoot && return Ptr{Ptr{UA_ReferenceTargetTreeElem}}(x + 0)
     f === :nameRoot && return Ptr{Ptr{UA_ReferenceTargetTreeElem}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4329, f::Symbol)
-    r = Ref{__JL_Ctag_4329}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4329}, r)
+function Base.getproperty(x::__JL_Ctag_4506, f::Symbol)
+    r = Ref{__JL_Ctag_4506}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4506}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4329}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4506}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4331
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_4331}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_4331, f::Symbol)
-    r = Ref{__JL_Ctag_4331}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4331}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_4331}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_4334
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_4334}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_4334, f::Symbol)
-    r = Ref{__JL_Ctag_4334}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4334}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_4334}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_4336
+struct __JL_Ctag_4509
     typeId::UA_NodeId
     body::UA_ByteString
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4336}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4509}, f::Symbol)
     f === :typeId && return Ptr{UA_NodeId}(x + 0)
     f === :body && return Ptr{UA_ByteString}(x + 24)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4336, f::Symbol)
-    r = Ref{__JL_Ctag_4336}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4336}, r)
+function Base.getproperty(x::__JL_Ctag_4509, f::Symbol)
+    r = Ref{__JL_Ctag_4509}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4509}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4336}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4509}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4337
+struct __JL_Ctag_4510
     type::Ptr{UA_DataType}
     data::Ptr{Cvoid}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4337}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4510}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4337, f::Symbol)
-    r = Ref{__JL_Ctag_4337}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4337}, r)
+function Base.getproperty(x::__JL_Ctag_4510, f::Symbol)
+    r = Ref{__JL_Ctag_4510}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4510}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4337}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4510}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_4512
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_4512}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4512, f::Symbol)
+    r = Ref{__JL_Ctag_4512}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4512}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4512}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -29516,7 +31943,7 @@ const UA_DATETIME_UNIX_EPOCH = Clonglong(11644473600) * UA_DATETIME_SEC
 
 # Skipping MacroDefinition: UA_EMPTY_ARRAY_SENTINEL ( ( void * ) 0x01 )
 const UA_DATATYPEKINDS = 31
-const UA_TYPES_COUNT = 227
+const UA_TYPES_COUNT = 388
 const UA_TYPES_BOOLEAN = 0
 const UA_TYPES_SBYTE = 1
 const UA_TYPES_BYTE = 2
@@ -29543,207 +31970,517 @@ const UA_TYPES_DATAVALUE = 22
 const UA_TYPES_VARIANT = 23
 const UA_TYPES_DIAGNOSTICINFO = 24
 const UA_TYPES_NAMINGRULETYPE = 25
-const UA_TYPES_KEYVALUEPAIR = 26
-const UA_TYPES_NODECLASS = 27
-const UA_TYPES_STRUCTURETYPE = 28
-const UA_TYPES_STRUCTUREFIELD = 29
-const UA_TYPES_STRUCTUREDEFINITION = 30
-const UA_TYPES_ARGUMENT = 31
-const UA_TYPES_ENUMVALUETYPE = 32
-const UA_TYPES_ENUMFIELD = 33
-const UA_TYPES_DURATION = 34
-const UA_TYPES_UTCTIME = 35
-const UA_TYPES_LOCALEID = 36
-const UA_TYPES_TIMEZONEDATATYPE = 37
-const UA_TYPES_APPLICATIONTYPE = 38
-const UA_TYPES_APPLICATIONDESCRIPTION = 39
-const UA_TYPES_REQUESTHEADER = 40
-const UA_TYPES_RESPONSEHEADER = 41
-const UA_TYPES_SERVICEFAULT = 42
-const UA_TYPES_FINDSERVERSREQUEST = 43
-const UA_TYPES_FINDSERVERSRESPONSE = 44
-const UA_TYPES_SERVERONNETWORK = 45
-const UA_TYPES_FINDSERVERSONNETWORKREQUEST = 46
-const UA_TYPES_FINDSERVERSONNETWORKRESPONSE = 47
-const UA_TYPES_MESSAGESECURITYMODE = 48
-const UA_TYPES_USERTOKENTYPE = 49
-const UA_TYPES_USERTOKENPOLICY = 50
-const UA_TYPES_ENDPOINTDESCRIPTION = 51
-const UA_TYPES_GETENDPOINTSREQUEST = 52
-const UA_TYPES_GETENDPOINTSRESPONSE = 53
-const UA_TYPES_REGISTEREDSERVER = 54
-const UA_TYPES_REGISTERSERVERREQUEST = 55
-const UA_TYPES_REGISTERSERVERRESPONSE = 56
-const UA_TYPES_MDNSDISCOVERYCONFIGURATION = 57
-const UA_TYPES_REGISTERSERVER2REQUEST = 58
-const UA_TYPES_REGISTERSERVER2RESPONSE = 59
-const UA_TYPES_SECURITYTOKENREQUESTTYPE = 60
-const UA_TYPES_CHANNELSECURITYTOKEN = 61
-const UA_TYPES_OPENSECURECHANNELREQUEST = 62
-const UA_TYPES_OPENSECURECHANNELRESPONSE = 63
-const UA_TYPES_CLOSESECURECHANNELREQUEST = 64
-const UA_TYPES_CLOSESECURECHANNELRESPONSE = 65
-const UA_TYPES_SIGNEDSOFTWARECERTIFICATE = 66
-const UA_TYPES_SIGNATUREDATA = 67
-const UA_TYPES_CREATESESSIONREQUEST = 68
-const UA_TYPES_CREATESESSIONRESPONSE = 69
-const UA_TYPES_USERIDENTITYTOKEN = 70
-const UA_TYPES_ANONYMOUSIDENTITYTOKEN = 71
-const UA_TYPES_USERNAMEIDENTITYTOKEN = 72
-const UA_TYPES_X509IDENTITYTOKEN = 73
-const UA_TYPES_ISSUEDIDENTITYTOKEN = 74
-const UA_TYPES_ACTIVATESESSIONREQUEST = 75
-const UA_TYPES_ACTIVATESESSIONRESPONSE = 76
-const UA_TYPES_CLOSESESSIONREQUEST = 77
-const UA_TYPES_CLOSESESSIONRESPONSE = 78
-const UA_TYPES_CANCELREQUEST = 79
-const UA_TYPES_CANCELRESPONSE = 80
-const UA_TYPES_NODEATTRIBUTESMASK = 81
-const UA_TYPES_NODEATTRIBUTES = 82
-const UA_TYPES_OBJECTATTRIBUTES = 83
-const UA_TYPES_VARIABLEATTRIBUTES = 84
-const UA_TYPES_METHODATTRIBUTES = 85
-const UA_TYPES_OBJECTTYPEATTRIBUTES = 86
-const UA_TYPES_VARIABLETYPEATTRIBUTES = 87
-const UA_TYPES_REFERENCETYPEATTRIBUTES = 88
-const UA_TYPES_DATATYPEATTRIBUTES = 89
-const UA_TYPES_VIEWATTRIBUTES = 90
-const UA_TYPES_ADDNODESITEM = 91
-const UA_TYPES_ADDNODESRESULT = 92
-const UA_TYPES_ADDNODESREQUEST = 93
-const UA_TYPES_ADDNODESRESPONSE = 94
-const UA_TYPES_ADDREFERENCESITEM = 95
-const UA_TYPES_ADDREFERENCESREQUEST = 96
-const UA_TYPES_ADDREFERENCESRESPONSE = 97
-const UA_TYPES_DELETENODESITEM = 98
-const UA_TYPES_DELETENODESREQUEST = 99
-const UA_TYPES_DELETENODESRESPONSE = 100
-const UA_TYPES_DELETEREFERENCESITEM = 101
-const UA_TYPES_DELETEREFERENCESREQUEST = 102
-const UA_TYPES_DELETEREFERENCESRESPONSE = 103
-const UA_TYPES_BROWSEDIRECTION = 104
-const UA_TYPES_VIEWDESCRIPTION = 105
-const UA_TYPES_BROWSEDESCRIPTION = 106
-const UA_TYPES_BROWSERESULTMASK = 107
-const UA_TYPES_REFERENCEDESCRIPTION = 108
-const UA_TYPES_BROWSERESULT = 109
-const UA_TYPES_BROWSEREQUEST = 110
-const UA_TYPES_BROWSERESPONSE = 111
-const UA_TYPES_BROWSENEXTREQUEST = 112
-const UA_TYPES_BROWSENEXTRESPONSE = 113
-const UA_TYPES_RELATIVEPATHELEMENT = 114
-const UA_TYPES_RELATIVEPATH = 115
-const UA_TYPES_BROWSEPATH = 116
-const UA_TYPES_BROWSEPATHTARGET = 117
-const UA_TYPES_BROWSEPATHRESULT = 118
-const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST = 119
-const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE = 120
-const UA_TYPES_REGISTERNODESREQUEST = 121
-const UA_TYPES_REGISTERNODESRESPONSE = 122
-const UA_TYPES_UNREGISTERNODESREQUEST = 123
-const UA_TYPES_UNREGISTERNODESRESPONSE = 124
-const UA_TYPES_FILTEROPERATOR = 125
-const UA_TYPES_CONTENTFILTERELEMENT = 126
-const UA_TYPES_CONTENTFILTER = 127
-const UA_TYPES_ELEMENTOPERAND = 128
-const UA_TYPES_LITERALOPERAND = 129
-const UA_TYPES_ATTRIBUTEOPERAND = 130
-const UA_TYPES_SIMPLEATTRIBUTEOPERAND = 131
-const UA_TYPES_CONTENTFILTERELEMENTRESULT = 132
-const UA_TYPES_CONTENTFILTERRESULT = 133
-const UA_TYPES_TIMESTAMPSTORETURN = 134
-const UA_TYPES_READVALUEID = 135
-const UA_TYPES_READREQUEST = 136
-const UA_TYPES_READRESPONSE = 137
-const UA_TYPES_HISTORYREADVALUEID = 138
-const UA_TYPES_HISTORYREADRESULT = 139
-const UA_TYPES_READRAWMODIFIEDDETAILS = 140
-const UA_TYPES_READATTIMEDETAILS = 141
-const UA_TYPES_HISTORYDATA = 142
-const UA_TYPES_HISTORYREADREQUEST = 143
-const UA_TYPES_HISTORYREADRESPONSE = 144
-const UA_TYPES_WRITEVALUE = 145
-const UA_TYPES_WRITEREQUEST = 146
-const UA_TYPES_WRITERESPONSE = 147
-const UA_TYPES_HISTORYUPDATETYPE = 148
-const UA_TYPES_PERFORMUPDATETYPE = 149
-const UA_TYPES_UPDATEDATADETAILS = 150
-const UA_TYPES_DELETERAWMODIFIEDDETAILS = 151
-const UA_TYPES_HISTORYUPDATERESULT = 152
-const UA_TYPES_HISTORYUPDATEREQUEST = 153
-const UA_TYPES_HISTORYUPDATERESPONSE = 154
-const UA_TYPES_CALLMETHODREQUEST = 155
-const UA_TYPES_CALLMETHODRESULT = 156
-const UA_TYPES_CALLREQUEST = 157
-const UA_TYPES_CALLRESPONSE = 158
-const UA_TYPES_MONITORINGMODE = 159
-const UA_TYPES_DATACHANGETRIGGER = 160
-const UA_TYPES_DEADBANDTYPE = 161
-const UA_TYPES_DATACHANGEFILTER = 162
-const UA_TYPES_EVENTFILTER = 163
-const UA_TYPES_AGGREGATECONFIGURATION = 164
-const UA_TYPES_AGGREGATEFILTER = 165
-const UA_TYPES_EVENTFILTERRESULT = 166
-const UA_TYPES_MONITORINGPARAMETERS = 167
-const UA_TYPES_MONITOREDITEMCREATEREQUEST = 168
-const UA_TYPES_MONITOREDITEMCREATERESULT = 169
-const UA_TYPES_CREATEMONITOREDITEMSREQUEST = 170
-const UA_TYPES_CREATEMONITOREDITEMSRESPONSE = 171
-const UA_TYPES_MONITOREDITEMMODIFYREQUEST = 172
-const UA_TYPES_MONITOREDITEMMODIFYRESULT = 173
-const UA_TYPES_MODIFYMONITOREDITEMSREQUEST = 174
-const UA_TYPES_MODIFYMONITOREDITEMSRESPONSE = 175
-const UA_TYPES_SETMONITORINGMODEREQUEST = 176
-const UA_TYPES_SETMONITORINGMODERESPONSE = 177
-const UA_TYPES_SETTRIGGERINGREQUEST = 178
-const UA_TYPES_SETTRIGGERINGRESPONSE = 179
-const UA_TYPES_DELETEMONITOREDITEMSREQUEST = 180
-const UA_TYPES_DELETEMONITOREDITEMSRESPONSE = 181
-const UA_TYPES_CREATESUBSCRIPTIONREQUEST = 182
-const UA_TYPES_CREATESUBSCRIPTIONRESPONSE = 183
-const UA_TYPES_MODIFYSUBSCRIPTIONREQUEST = 184
-const UA_TYPES_MODIFYSUBSCRIPTIONRESPONSE = 185
-const UA_TYPES_SETPUBLISHINGMODEREQUEST = 186
-const UA_TYPES_SETPUBLISHINGMODERESPONSE = 187
-const UA_TYPES_NOTIFICATIONMESSAGE = 188
-const UA_TYPES_MONITOREDITEMNOTIFICATION = 189
-const UA_TYPES_EVENTFIELDLIST = 190
-const UA_TYPES_HISTORYEVENTFIELDLIST = 191
-const UA_TYPES_STATUSCHANGENOTIFICATION = 192
-const UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT = 193
-const UA_TYPES_PUBLISHREQUEST = 194
-const UA_TYPES_PUBLISHRESPONSE = 195
-const UA_TYPES_REPUBLISHREQUEST = 196
-const UA_TYPES_REPUBLISHRESPONSE = 197
-const UA_TYPES_TRANSFERRESULT = 198
-const UA_TYPES_TRANSFERSUBSCRIPTIONSREQUEST = 199
-const UA_TYPES_TRANSFERSUBSCRIPTIONSRESPONSE = 200
-const UA_TYPES_DELETESUBSCRIPTIONSREQUEST = 201
-const UA_TYPES_DELETESUBSCRIPTIONSRESPONSE = 202
-const UA_TYPES_BUILDINFO = 203
-const UA_TYPES_REDUNDANCYSUPPORT = 204
-const UA_TYPES_SERVERSTATE = 205
-const UA_TYPES_SERVERDIAGNOSTICSSUMMARYDATATYPE = 206
-const UA_TYPES_SERVERSTATUSDATATYPE = 207
-const UA_TYPES_SESSIONSECURITYDIAGNOSTICSDATATYPE = 208
-const UA_TYPES_SERVICECOUNTERDATATYPE = 209
-const UA_TYPES_SUBSCRIPTIONDIAGNOSTICSDATATYPE = 210
-const UA_TYPES_RANGE = 211
-const UA_TYPES_EUINFORMATION = 212
-const UA_TYPES_AXISSCALEENUMERATION = 213
-const UA_TYPES_COMPLEXNUMBERTYPE = 214
-const UA_TYPES_DOUBLECOMPLEXNUMBERTYPE = 215
-const UA_TYPES_AXISINFORMATION = 216
-const UA_TYPES_XVTYPE = 217
-const UA_TYPES_ENUMDEFINITION = 218
-const UA_TYPES_READEVENTDETAILS = 219
-const UA_TYPES_READPROCESSEDDETAILS = 220
-const UA_TYPES_MODIFICATIONINFO = 221
-const UA_TYPES_HISTORYMODIFIEDDATA = 222
-const UA_TYPES_HISTORYEVENT = 223
-const UA_TYPES_DATACHANGENOTIFICATION = 224
-const UA_TYPES_EVENTNOTIFICATIONLIST = 225
-const UA_TYPES_SESSIONDIAGNOSTICSDATATYPE = 226
+const UA_TYPES_ENUMERATION = 26
+const UA_TYPES_IMAGEBMP = 27
+const UA_TYPES_IMAGEGIF = 28
+const UA_TYPES_IMAGEJPG = 29
+const UA_TYPES_IMAGEPNG = 30
+const UA_TYPES_AUDIODATATYPE = 31
+const UA_TYPES_URISTRING = 32
+const UA_TYPES_BITFIELDMASKDATATYPE = 33
+const UA_TYPES_SEMANTICVERSIONSTRING = 34
+const UA_TYPES_KEYVALUEPAIR = 35
+const UA_TYPES_ADDITIONALPARAMETERSTYPE = 36
+const UA_TYPES_EPHEMERALKEYTYPE = 37
+const UA_TYPES_RATIONALNUMBER = 38
+const UA_TYPES_THREEDVECTOR = 39
+const UA_TYPES_THREEDCARTESIANCOORDINATES = 40
+const UA_TYPES_THREEDORIENTATION = 41
+const UA_TYPES_THREEDFRAME = 42
+const UA_TYPES_OPENFILEMODE = 43
+const UA_TYPES_IDENTITYCRITERIATYPE = 44
+const UA_TYPES_IDENTITYMAPPINGRULETYPE = 45
+const UA_TYPES_CURRENCYUNITTYPE = 46
+const UA_TYPES_TRUSTLISTMASKS = 47
+const UA_TYPES_TRUSTLISTDATATYPE = 48
+const UA_TYPES_DECIMALDATATYPE = 49
+const UA_TYPES_DATATYPEDESCRIPTION = 50
+const UA_TYPES_SIMPLETYPEDESCRIPTION = 51
+const UA_TYPES_PORTABLEQUALIFIEDNAME = 52
+const UA_TYPES_PORTABLENODEID = 53
+const UA_TYPES_UNSIGNEDRATIONALNUMBER = 54
+const UA_TYPES_PUBSUBSTATE = 55
+const UA_DATASETFIELDFLAGS_NONE = 0
+const UA_DATASETFIELDFLAGS_PROMOTEDFIELD = 1
+const UA_TYPES_DATASETFIELDFLAGS = 56
+const UA_TYPES_CONFIGURATIONVERSIONDATATYPE = 57
+const UA_TYPES_PUBLISHEDVARIABLEDATATYPE = 58
+const UA_TYPES_PUBLISHEDDATAITEMSDATATYPE = 59
+const UA_TYPES_PUBLISHEDDATASETCUSTOMSOURCEDATATYPE = 60
+const UA_DATASETFIELDCONTENTMASK_NONE = 0
+const UA_DATASETFIELDCONTENTMASK_STATUSCODE = 1
+const UA_DATASETFIELDCONTENTMASK_SOURCETIMESTAMP = 2
+const UA_DATASETFIELDCONTENTMASK_SERVERTIMESTAMP = 4
+const UA_DATASETFIELDCONTENTMASK_SOURCEPICOSECONDS = 8
+const UA_DATASETFIELDCONTENTMASK_SERVERPICOSECONDS = 16
+const UA_DATASETFIELDCONTENTMASK_RAWDATA = 32
+const UA_TYPES_DATASETFIELDCONTENTMASK = 61
+const UA_TYPES_DATASETWRITERDATATYPE = 62
+const UA_TYPES_NETWORKADDRESSDATATYPE = 63
+const UA_TYPES_NETWORKADDRESSURLDATATYPE = 64
+const UA_TYPES_OVERRIDEVALUEHANDLING = 65
+const UA_TYPES_STANDALONESUBSCRIBEDDATASETREFDATATYPE = 66
+const UA_TYPES_DATASETORDERINGTYPE = 67
+const UA_UADPNETWORKMESSAGECONTENTMASK_NONE = 0
+const UA_UADPNETWORKMESSAGECONTENTMASK_PUBLISHERID = 1
+const UA_UADPNETWORKMESSAGECONTENTMASK_GROUPHEADER = 2
+const UA_UADPNETWORKMESSAGECONTENTMASK_WRITERGROUPID = 4
+const UA_UADPNETWORKMESSAGECONTENTMASK_GROUPVERSION = 8
+const UA_UADPNETWORKMESSAGECONTENTMASK_NETWORKMESSAGENUMBER = 16
+const UA_UADPNETWORKMESSAGECONTENTMASK_SEQUENCENUMBER = 32
+const UA_UADPNETWORKMESSAGECONTENTMASK_PAYLOADHEADER = 64
+const UA_UADPNETWORKMESSAGECONTENTMASK_TIMESTAMP = 128
+const UA_UADPNETWORKMESSAGECONTENTMASK_PICOSECONDS = 256
+const UA_UADPNETWORKMESSAGECONTENTMASK_DATASETCLASSID = 512
+const UA_UADPNETWORKMESSAGECONTENTMASK_PROMOTEDFIELDS = 1024
+const UA_TYPES_UADPNETWORKMESSAGECONTENTMASK = 68
+const UA_TYPES_UADPWRITERGROUPMESSAGEDATATYPE = 69
+const UA_UADPDATASETMESSAGECONTENTMASK_NONE = 0
+const UA_UADPDATASETMESSAGECONTENTMASK_TIMESTAMP = 1
+const UA_UADPDATASETMESSAGECONTENTMASK_PICOSECONDS = 2
+const UA_UADPDATASETMESSAGECONTENTMASK_STATUS = 4
+const UA_UADPDATASETMESSAGECONTENTMASK_MAJORVERSION = 8
+const UA_UADPDATASETMESSAGECONTENTMASK_MINORVERSION = 16
+const UA_UADPDATASETMESSAGECONTENTMASK_SEQUENCENUMBER = 32
+const UA_TYPES_UADPDATASETMESSAGECONTENTMASK = 70
+const UA_TYPES_UADPDATASETWRITERMESSAGEDATATYPE = 71
+const UA_TYPES_UADPDATASETREADERMESSAGEDATATYPE = 72
+const UA_JSONNETWORKMESSAGECONTENTMASK_NONE = 0
+const UA_JSONNETWORKMESSAGECONTENTMASK_NETWORKMESSAGEHEADER = 1
+const UA_JSONNETWORKMESSAGECONTENTMASK_DATASETMESSAGEHEADER = 2
+const UA_JSONNETWORKMESSAGECONTENTMASK_SINGLEDATASETMESSAGE = 4
+const UA_JSONNETWORKMESSAGECONTENTMASK_PUBLISHERID = 8
+const UA_JSONNETWORKMESSAGECONTENTMASK_DATASETCLASSID = 16
+const UA_JSONNETWORKMESSAGECONTENTMASK_REPLYTO = 32
+const UA_TYPES_JSONNETWORKMESSAGECONTENTMASK = 73
+const UA_TYPES_JSONWRITERGROUPMESSAGEDATATYPE = 74
+const UA_JSONDATASETMESSAGECONTENTMASK_NONE = 0
+const UA_JSONDATASETMESSAGECONTENTMASK_DATASETWRITERID = 1
+const UA_JSONDATASETMESSAGECONTENTMASK_METADATAVERSION = 2
+const UA_JSONDATASETMESSAGECONTENTMASK_SEQUENCENUMBER = 4
+const UA_JSONDATASETMESSAGECONTENTMASK_TIMESTAMP = 8
+const UA_JSONDATASETMESSAGECONTENTMASK_STATUS = 16
+const UA_JSONDATASETMESSAGECONTENTMASK_MESSAGETYPE = 32
+const UA_JSONDATASETMESSAGECONTENTMASK_DATASETWRITERNAME = 64
+const UA_JSONDATASETMESSAGECONTENTMASK_REVERSIBLEFIELDENCODING = 128
+const UA_TYPES_JSONDATASETMESSAGECONTENTMASK = 75
+const UA_TYPES_JSONDATASETWRITERMESSAGEDATATYPE = 76
+const UA_TYPES_JSONDATASETREADERMESSAGEDATATYPE = 77
+const UA_TYPES_TRANSMITQOSPRIORITYDATATYPE = 78
+const UA_TYPES_RECEIVEQOSPRIORITYDATATYPE = 79
+const UA_TYPES_DATAGRAMCONNECTIONTRANSPORTDATATYPE = 80
+const UA_TYPES_DATAGRAMCONNECTIONTRANSPORT2DATATYPE = 81
+const UA_TYPES_DATAGRAMWRITERGROUPTRANSPORTDATATYPE = 82
+const UA_TYPES_DATAGRAMWRITERGROUPTRANSPORT2DATATYPE = 83
+const UA_TYPES_DATAGRAMDATASETREADERTRANSPORTDATATYPE = 84
+const UA_TYPES_BROKERCONNECTIONTRANSPORTDATATYPE = 85
+const UA_TYPES_BROKERTRANSPORTQUALITYOFSERVICE = 86
+const UA_TYPES_BROKERWRITERGROUPTRANSPORTDATATYPE = 87
+const UA_TYPES_BROKERDATASETWRITERTRANSPORTDATATYPE = 88
+const UA_TYPES_BROKERDATASETREADERTRANSPORTDATATYPE = 89
+const UA_PUBSUBCONFIGURATIONREFMASK_NONE = 0
+const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTADD = 1
+const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTMATCH = 2
+const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTMODIFY = 4
+const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTREMOVE = 8
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEWRITER = 16
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEREADER = 32
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEWRITERGROUP = 64
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEREADERGROUP = 128
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCECONNECTION = 256
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEPUBDATASET = 512
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCESUBDATASET = 1024
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCESECURITYGROUP = 2048
+const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEPUSHTARGET = 4096
+const UA_TYPES_PUBSUBCONFIGURATIONREFMASK = 90
+const UA_TYPES_PUBSUBCONFIGURATIONREFDATATYPE = 91
+const UA_TYPES_PUBSUBCONFIGURATIONVALUEDATATYPE = 92
+const UA_TYPES_DIAGNOSTICSLEVEL = 93
+const UA_TYPES_PUBSUBDIAGNOSTICSCOUNTERCLASSIFICATION = 94
+const UA_TYPES_ALIASNAMEDATATYPE = 95
+const UA_PASSWORDOPTIONSMASK_NONE = 0
+const UA_PASSWORDOPTIONSMASK_SUPPORTINITIALPASSWORDCHANGE = 1
+const UA_PASSWORDOPTIONSMASK_SUPPORTDISABLEUSER = 2
+const UA_PASSWORDOPTIONSMASK_SUPPORTDISABLEDELETEFORUSER = 4
+const UA_PASSWORDOPTIONSMASK_SUPPORTNOCHANGEFORUSER = 8
+const UA_PASSWORDOPTIONSMASK_SUPPORTDESCRIPTIONFORUSER = 16
+const UA_PASSWORDOPTIONSMASK_REQUIRESUPPERCASECHARACTERS = 32
+const UA_PASSWORDOPTIONSMASK_REQUIRESLOWERCASECHARACTERS = 64
+const UA_PASSWORDOPTIONSMASK_REQUIRESDIGITCHARACTERS = 128
+const UA_PASSWORDOPTIONSMASK_REQUIRESSPECIALCHARACTERS = 256
+const UA_TYPES_PASSWORDOPTIONSMASK = 96
+const UA_USERCONFIGURATIONMASK_NONE = 0
+const UA_USERCONFIGURATIONMASK_NODELETE = 1
+const UA_USERCONFIGURATIONMASK_DISABLED = 2
+const UA_USERCONFIGURATIONMASK_NOCHANGEBYUSER = 4
+const UA_USERCONFIGURATIONMASK_MUSTCHANGEPASSWORD = 8
+const UA_TYPES_USERCONFIGURATIONMASK = 97
+const UA_TYPES_USERMANAGEMENTDATATYPE = 98
+const UA_TYPES_DUPLEX = 99
+const UA_TYPES_INTERFACEADMINSTATUS = 100
+const UA_TYPES_INTERFACEOPERSTATUS = 101
+const UA_TYPES_NEGOTIATIONSTATUS = 102
+const UA_TYPES_TSNFAILURECODE = 103
+const UA_TYPES_TSNSTREAMSTATE = 104
+const UA_TYPES_TSNTALKERSTATUS = 105
+const UA_TYPES_TSNLISTENERSTATUS = 106
+const UA_TYPES_PRIORITYMAPPINGENTRYTYPE = 107
+const UA_TYPES_IDTYPE = 108
+const UA_TYPES_NODECLASS = 109
+const UA_PERMISSIONTYPE_NONE = 0
+const UA_PERMISSIONTYPE_BROWSE = 1
+const UA_PERMISSIONTYPE_READROLEPERMISSIONS = 2
+const UA_PERMISSIONTYPE_WRITEATTRIBUTE = 4
+const UA_PERMISSIONTYPE_WRITEROLEPERMISSIONS = 8
+const UA_PERMISSIONTYPE_WRITEHISTORIZING = 16
+const UA_PERMISSIONTYPE_READ = 32
+const UA_PERMISSIONTYPE_WRITE = 64
+const UA_PERMISSIONTYPE_READHISTORY = 128
+const UA_PERMISSIONTYPE_INSERTHISTORY = 256
+const UA_PERMISSIONTYPE_MODIFYHISTORY = 512
+const UA_PERMISSIONTYPE_DELETEHISTORY = 1024
+const UA_PERMISSIONTYPE_RECEIVEEVENTS = 2048
+const UA_PERMISSIONTYPE_CALL = 4096
+const UA_PERMISSIONTYPE_ADDREFERENCE = 8192
+const UA_PERMISSIONTYPE_REMOVEREFERENCE = 16384
+const UA_PERMISSIONTYPE_DELETENODE = 32768
+const UA_PERMISSIONTYPE_ADDNODE = 65536
+const UA_TYPES_PERMISSIONTYPE = 110
+const UA_ACCESSLEVELTYPE_NONE = 0
+const UA_ACCESSLEVELTYPE_CURRENTREAD = 1
+const UA_ACCESSLEVELTYPE_CURRENTWRITE = 2
+const UA_ACCESSLEVELTYPE_HISTORYREAD = 4
+const UA_ACCESSLEVELTYPE_HISTORYWRITE = 8
+const UA_ACCESSLEVELTYPE_SEMANTICCHANGE = 16
+const UA_ACCESSLEVELTYPE_STATUSWRITE = 32
+const UA_ACCESSLEVELTYPE_TIMESTAMPWRITE = 64
+const UA_TYPES_ACCESSLEVELTYPE = 111
+const UA_ACCESSLEVELEXTYPE_NONE = 0
+const UA_ACCESSLEVELEXTYPE_CURRENTREAD = 1
+const UA_ACCESSLEVELEXTYPE_CURRENTWRITE = 2
+const UA_ACCESSLEVELEXTYPE_HISTORYREAD = 4
+const UA_ACCESSLEVELEXTYPE_HISTORYWRITE = 8
+const UA_ACCESSLEVELEXTYPE_SEMANTICCHANGE = 16
+const UA_ACCESSLEVELEXTYPE_STATUSWRITE = 32
+const UA_ACCESSLEVELEXTYPE_TIMESTAMPWRITE = 64
+const UA_ACCESSLEVELEXTYPE_NONATOMICREAD = 256
+const UA_ACCESSLEVELEXTYPE_NONATOMICWRITE = 512
+const UA_ACCESSLEVELEXTYPE_WRITEFULLARRAYONLY = 1024
+const UA_ACCESSLEVELEXTYPE_NOSUBDATATYPES = 2048
+const UA_ACCESSLEVELEXTYPE_NONVOLATILE = 4096
+const UA_ACCESSLEVELEXTYPE_CONSTANT = 8192
+const UA_TYPES_ACCESSLEVELEXTYPE = 112
+const UA_EVENTNOTIFIERTYPE_NONE = 0
+const UA_EVENTNOTIFIERTYPE_SUBSCRIBETOEVENTS = 1
+const UA_EVENTNOTIFIERTYPE_HISTORYREAD = 4
+const UA_EVENTNOTIFIERTYPE_HISTORYWRITE = 8
+const UA_TYPES_EVENTNOTIFIERTYPE = 113
+const UA_ACCESSRESTRICTIONTYPE_NONE = 0
+const UA_ACCESSRESTRICTIONTYPE_SIGNINGREQUIRED = 1
+const UA_ACCESSRESTRICTIONTYPE_ENCRYPTIONREQUIRED = 2
+const UA_ACCESSRESTRICTIONTYPE_SESSIONREQUIRED = 4
+const UA_ACCESSRESTRICTIONTYPE_APPLYRESTRICTIONSTOBROWSE = 8
+const UA_TYPES_ACCESSRESTRICTIONTYPE = 114
+const UA_TYPES_ROLEPERMISSIONTYPE = 115
+const UA_TYPES_STRUCTURETYPE = 116
+const UA_TYPES_STRUCTUREFIELD = 117
+const UA_TYPES_STRUCTUREDEFINITION = 118
+const UA_TYPES_REFERENCENODE = 119
+const UA_TYPES_ARGUMENT = 120
+const UA_TYPES_ENUMVALUETYPE = 121
+const UA_TYPES_ENUMFIELD = 122
+const UA_TYPES_OPTIONSET = 123
+const UA_TYPES_NORMALIZEDSTRING = 124
+const UA_TYPES_DECIMALSTRING = 125
+const UA_TYPES_DURATIONSTRING = 126
+const UA_TYPES_TIMESTRING = 127
+const UA_TYPES_DATESTRING = 128
+const UA_TYPES_DURATION = 129
+const UA_TYPES_UTCTIME = 130
+const UA_TYPES_LOCALEID = 131
+const UA_TYPES_TIMEZONEDATATYPE = 132
+const UA_TYPES_INDEX = 133
+const UA_TYPES_INTEGERID = 134
+const UA_TYPES_APPLICATIONTYPE = 135
+const UA_TYPES_APPLICATIONDESCRIPTION = 136
+const UA_TYPES_REQUESTHEADER = 137
+const UA_TYPES_RESPONSEHEADER = 138
+const UA_TYPES_VERSIONTIME = 139
+const UA_TYPES_SERVICEFAULT = 140
+const UA_TYPES_SESSIONLESSINVOKEREQUESTTYPE = 141
+const UA_TYPES_SESSIONLESSINVOKERESPONSETYPE = 142
+const UA_TYPES_FINDSERVERSREQUEST = 143
+const UA_TYPES_FINDSERVERSRESPONSE = 144
+const UA_TYPES_SERVERONNETWORK = 145
+const UA_TYPES_FINDSERVERSONNETWORKREQUEST = 146
+const UA_TYPES_FINDSERVERSONNETWORKRESPONSE = 147
+const UA_TYPES_APPLICATIONINSTANCECERTIFICATE = 148
+const UA_TYPES_MESSAGESECURITYMODE = 149
+const UA_TYPES_USERTOKENTYPE = 150
+const UA_TYPES_USERTOKENPOLICY = 151
+const UA_TYPES_ENDPOINTDESCRIPTION = 152
+const UA_TYPES_GETENDPOINTSREQUEST = 153
+const UA_TYPES_GETENDPOINTSRESPONSE = 154
+const UA_TYPES_REGISTEREDSERVER = 155
+const UA_TYPES_REGISTERSERVERREQUEST = 156
+const UA_TYPES_REGISTERSERVERRESPONSE = 157
+const UA_TYPES_MDNSDISCOVERYCONFIGURATION = 158
+const UA_TYPES_REGISTERSERVER2REQUEST = 159
+const UA_TYPES_REGISTERSERVER2RESPONSE = 160
+const UA_TYPES_SECURITYTOKENREQUESTTYPE = 161
+const UA_TYPES_CHANNELSECURITYTOKEN = 162
+const UA_TYPES_OPENSECURECHANNELREQUEST = 163
+const UA_TYPES_OPENSECURECHANNELRESPONSE = 164
+const UA_TYPES_CLOSESECURECHANNELREQUEST = 165
+const UA_TYPES_CLOSESECURECHANNELRESPONSE = 166
+const UA_TYPES_SIGNEDSOFTWARECERTIFICATE = 167
+const UA_TYPES_SESSIONAUTHENTICATIONTOKEN = 168
+const UA_TYPES_SIGNATUREDATA = 169
+const UA_TYPES_CREATESESSIONREQUEST = 170
+const UA_TYPES_CREATESESSIONRESPONSE = 171
+const UA_TYPES_USERIDENTITYTOKEN = 172
+const UA_TYPES_ANONYMOUSIDENTITYTOKEN = 173
+const UA_TYPES_USERNAMEIDENTITYTOKEN = 174
+const UA_TYPES_X509IDENTITYTOKEN = 175
+const UA_TYPES_ISSUEDIDENTITYTOKEN = 176
+const UA_TYPES_RSAENCRYPTEDSECRET = 177
+const UA_TYPES_ECCENCRYPTEDSECRET = 178
+const UA_TYPES_ACTIVATESESSIONREQUEST = 179
+const UA_TYPES_ACTIVATESESSIONRESPONSE = 180
+const UA_TYPES_CLOSESESSIONREQUEST = 181
+const UA_TYPES_CLOSESESSIONRESPONSE = 182
+const UA_TYPES_CANCELREQUEST = 183
+const UA_TYPES_CANCELRESPONSE = 184
+const UA_TYPES_NODEATTRIBUTESMASK = 185
+const UA_TYPES_NODEATTRIBUTES = 186
+const UA_TYPES_OBJECTATTRIBUTES = 187
+const UA_TYPES_VARIABLEATTRIBUTES = 188
+const UA_TYPES_METHODATTRIBUTES = 189
+const UA_TYPES_OBJECTTYPEATTRIBUTES = 190
+const UA_TYPES_VARIABLETYPEATTRIBUTES = 191
+const UA_TYPES_REFERENCETYPEATTRIBUTES = 192
+const UA_TYPES_DATATYPEATTRIBUTES = 193
+const UA_TYPES_VIEWATTRIBUTES = 194
+const UA_TYPES_GENERICATTRIBUTEVALUE = 195
+const UA_TYPES_GENERICATTRIBUTES = 196
+const UA_TYPES_ADDNODESITEM = 197
+const UA_TYPES_ADDNODESRESULT = 198
+const UA_TYPES_ADDNODESREQUEST = 199
+const UA_TYPES_ADDNODESRESPONSE = 200
+const UA_TYPES_ADDREFERENCESITEM = 201
+const UA_TYPES_ADDREFERENCESREQUEST = 202
+const UA_TYPES_ADDREFERENCESRESPONSE = 203
+const UA_TYPES_DELETENODESITEM = 204
+const UA_TYPES_DELETENODESREQUEST = 205
+const UA_TYPES_DELETENODESRESPONSE = 206
+const UA_TYPES_DELETEREFERENCESITEM = 207
+const UA_TYPES_DELETEREFERENCESREQUEST = 208
+const UA_TYPES_DELETEREFERENCESRESPONSE = 209
+const UA_ATTRIBUTEWRITEMASK_NONE = 0
+const UA_ATTRIBUTEWRITEMASK_ACCESSLEVEL = 1
+const UA_ATTRIBUTEWRITEMASK_ARRAYDIMENSIONS = 2
+const UA_ATTRIBUTEWRITEMASK_BROWSENAME = 4
+const UA_ATTRIBUTEWRITEMASK_CONTAINSNOLOOPS = 8
+const UA_ATTRIBUTEWRITEMASK_DATATYPE = 16
+const UA_ATTRIBUTEWRITEMASK_DESCRIPTION = 32
+const UA_ATTRIBUTEWRITEMASK_DISPLAYNAME = 64
+const UA_ATTRIBUTEWRITEMASK_EVENTNOTIFIER = 128
+const UA_ATTRIBUTEWRITEMASK_EXECUTABLE = 256
+const UA_ATTRIBUTEWRITEMASK_HISTORIZING = 512
+const UA_ATTRIBUTEWRITEMASK_INVERSENAME = 1024
+const UA_ATTRIBUTEWRITEMASK_ISABSTRACT = 2048
+const UA_ATTRIBUTEWRITEMASK_MINIMUMSAMPLINGINTERVAL = 4096
+const UA_ATTRIBUTEWRITEMASK_NODECLASS = 8192
+const UA_ATTRIBUTEWRITEMASK_NODEID = 16384
+const UA_ATTRIBUTEWRITEMASK_SYMMETRIC = 32768
+const UA_ATTRIBUTEWRITEMASK_USERACCESSLEVEL = 65536
+const UA_ATTRIBUTEWRITEMASK_USEREXECUTABLE = 131072
+const UA_ATTRIBUTEWRITEMASK_USERWRITEMASK = 262144
+const UA_ATTRIBUTEWRITEMASK_VALUERANK = 524288
+const UA_ATTRIBUTEWRITEMASK_WRITEMASK = 1048576
+const UA_ATTRIBUTEWRITEMASK_VALUEFORVARIABLETYPE = 2097152
+const UA_ATTRIBUTEWRITEMASK_DATATYPEDEFINITION = 4194304
+const UA_ATTRIBUTEWRITEMASK_ROLEPERMISSIONS = 8388608
+const UA_ATTRIBUTEWRITEMASK_ACCESSRESTRICTIONS = 16777216
+const UA_ATTRIBUTEWRITEMASK_ACCESSLEVELEX = 33554432
+const UA_TYPES_ATTRIBUTEWRITEMASK = 210
+const UA_TYPES_BROWSEDIRECTION = 211
+const UA_TYPES_VIEWDESCRIPTION = 212
+const UA_TYPES_BROWSEDESCRIPTION = 213
+const UA_TYPES_BROWSERESULTMASK = 214
+const UA_TYPES_REFERENCEDESCRIPTION = 215
+const UA_TYPES_CONTINUATIONPOINT = 216
+const UA_TYPES_BROWSERESULT = 217
+const UA_TYPES_BROWSEREQUEST = 218
+const UA_TYPES_BROWSERESPONSE = 219
+const UA_TYPES_BROWSENEXTREQUEST = 220
+const UA_TYPES_BROWSENEXTRESPONSE = 221
+const UA_TYPES_RELATIVEPATHELEMENT = 222
+const UA_TYPES_RELATIVEPATH = 223
+const UA_TYPES_BROWSEPATH = 224
+const UA_TYPES_BROWSEPATHTARGET = 225
+const UA_TYPES_BROWSEPATHRESULT = 226
+const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST = 227
+const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE = 228
+const UA_TYPES_REGISTERNODESREQUEST = 229
+const UA_TYPES_REGISTERNODESRESPONSE = 230
+const UA_TYPES_UNREGISTERNODESREQUEST = 231
+const UA_TYPES_UNREGISTERNODESRESPONSE = 232
+const UA_TYPES_COUNTER = 233
+const UA_TYPES_OPAQUENUMERICRANGE = 234
+const UA_TYPES_ENDPOINTCONFIGURATION = 235
+const UA_TYPES_QUERYDATADESCRIPTION = 236
+const UA_TYPES_NODETYPEDESCRIPTION = 237
+const UA_TYPES_FILTEROPERATOR = 238
+const UA_TYPES_QUERYDATASET = 239
+const UA_TYPES_NODEREFERENCE = 240
+const UA_TYPES_CONTENTFILTERELEMENT = 241
+const UA_TYPES_CONTENTFILTER = 242
+const UA_TYPES_ELEMENTOPERAND = 243
+const UA_TYPES_LITERALOPERAND = 244
+const UA_TYPES_ATTRIBUTEOPERAND = 245
+const UA_TYPES_SIMPLEATTRIBUTEOPERAND = 246
+const UA_TYPES_CONTENTFILTERELEMENTRESULT = 247
+const UA_TYPES_CONTENTFILTERRESULT = 248
+const UA_TYPES_PARSINGRESULT = 249
+const UA_TYPES_QUERYFIRSTREQUEST = 250
+const UA_TYPES_QUERYFIRSTRESPONSE = 251
+const UA_TYPES_QUERYNEXTREQUEST = 252
+const UA_TYPES_QUERYNEXTRESPONSE = 253
+const UA_TYPES_TIMESTAMPSTORETURN = 254
+const UA_TYPES_READVALUEID = 255
+const UA_TYPES_READREQUEST = 256
+const UA_TYPES_READRESPONSE = 257
+const UA_TYPES_HISTORYREADVALUEID = 258
+const UA_TYPES_HISTORYREADRESULT = 259
+const UA_TYPES_READRAWMODIFIEDDETAILS = 260
+const UA_TYPES_READATTIMEDETAILS = 261
+const UA_TYPES_READANNOTATIONDATADETAILS = 262
+const UA_TYPES_HISTORYDATA = 263
+const UA_TYPES_HISTORYREADREQUEST = 264
+const UA_TYPES_HISTORYREADRESPONSE = 265
+const UA_TYPES_WRITEVALUE = 266
+const UA_TYPES_WRITEREQUEST = 267
+const UA_TYPES_WRITERESPONSE = 268
+const UA_TYPES_HISTORYUPDATEDETAILS = 269
+const UA_TYPES_HISTORYUPDATETYPE = 270
+const UA_TYPES_PERFORMUPDATETYPE = 271
+const UA_TYPES_UPDATEDATADETAILS = 272
+const UA_TYPES_UPDATESTRUCTUREDATADETAILS = 273
+const UA_TYPES_DELETERAWMODIFIEDDETAILS = 274
+const UA_TYPES_DELETEATTIMEDETAILS = 275
+const UA_TYPES_DELETEEVENTDETAILS = 276
+const UA_TYPES_HISTORYUPDATERESULT = 277
+const UA_TYPES_HISTORYUPDATEREQUEST = 278
+const UA_TYPES_HISTORYUPDATERESPONSE = 279
+const UA_TYPES_CALLMETHODREQUEST = 280
+const UA_TYPES_CALLMETHODRESULT = 281
+const UA_TYPES_CALLREQUEST = 282
+const UA_TYPES_CALLRESPONSE = 283
+const UA_TYPES_MONITORINGMODE = 284
+const UA_TYPES_DATACHANGETRIGGER = 285
+const UA_TYPES_DEADBANDTYPE = 286
+const UA_TYPES_DATACHANGEFILTER = 287
+const UA_TYPES_EVENTFILTER = 288
+const UA_TYPES_AGGREGATECONFIGURATION = 289
+const UA_TYPES_AGGREGATEFILTER = 290
+const UA_TYPES_EVENTFILTERRESULT = 291
+const UA_TYPES_AGGREGATEFILTERRESULT = 292
+const UA_TYPES_MONITORINGPARAMETERS = 293
+const UA_TYPES_MONITOREDITEMCREATEREQUEST = 294
+const UA_TYPES_MONITOREDITEMCREATERESULT = 295
+const UA_TYPES_CREATEMONITOREDITEMSREQUEST = 296
+const UA_TYPES_CREATEMONITOREDITEMSRESPONSE = 297
+const UA_TYPES_MONITOREDITEMMODIFYREQUEST = 298
+const UA_TYPES_MONITOREDITEMMODIFYRESULT = 299
+const UA_TYPES_MODIFYMONITOREDITEMSREQUEST = 300
+const UA_TYPES_MODIFYMONITOREDITEMSRESPONSE = 301
+const UA_TYPES_SETMONITORINGMODEREQUEST = 302
+const UA_TYPES_SETMONITORINGMODERESPONSE = 303
+const UA_TYPES_SETTRIGGERINGREQUEST = 304
+const UA_TYPES_SETTRIGGERINGRESPONSE = 305
+const UA_TYPES_DELETEMONITOREDITEMSREQUEST = 306
+const UA_TYPES_DELETEMONITOREDITEMSRESPONSE = 307
+const UA_TYPES_CREATESUBSCRIPTIONREQUEST = 308
+const UA_TYPES_CREATESUBSCRIPTIONRESPONSE = 309
+const UA_TYPES_MODIFYSUBSCRIPTIONREQUEST = 310
+const UA_TYPES_MODIFYSUBSCRIPTIONRESPONSE = 311
+const UA_TYPES_SETPUBLISHINGMODEREQUEST = 312
+const UA_TYPES_SETPUBLISHINGMODERESPONSE = 313
+const UA_TYPES_NOTIFICATIONMESSAGE = 314
+const UA_TYPES_MONITOREDITEMNOTIFICATION = 315
+const UA_TYPES_EVENTFIELDLIST = 316
+const UA_TYPES_HISTORYEVENTFIELDLIST = 317
+const UA_TYPES_STATUSCHANGENOTIFICATION = 318
+const UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT = 319
+const UA_TYPES_PUBLISHREQUEST = 320
+const UA_TYPES_PUBLISHRESPONSE = 321
+const UA_TYPES_REPUBLISHREQUEST = 322
+const UA_TYPES_REPUBLISHRESPONSE = 323
+const UA_TYPES_TRANSFERRESULT = 324
+const UA_TYPES_TRANSFERSUBSCRIPTIONSREQUEST = 325
+const UA_TYPES_TRANSFERSUBSCRIPTIONSRESPONSE = 326
+const UA_TYPES_DELETESUBSCRIPTIONSREQUEST = 327
+const UA_TYPES_DELETESUBSCRIPTIONSRESPONSE = 328
+const UA_TYPES_BUILDINFO = 329
+const UA_TYPES_REDUNDANCYSUPPORT = 330
+const UA_TYPES_SERVERSTATE = 331
+const UA_TYPES_REDUNDANTSERVERDATATYPE = 332
+const UA_TYPES_ENDPOINTURLLISTDATATYPE = 333
+const UA_TYPES_NETWORKGROUPDATATYPE = 334
+const UA_TYPES_SAMPLINGINTERVALDIAGNOSTICSDATATYPE = 335
+const UA_TYPES_SERVERDIAGNOSTICSSUMMARYDATATYPE = 336
+const UA_TYPES_SERVERSTATUSDATATYPE = 337
+const UA_TYPES_SESSIONSECURITYDIAGNOSTICSDATATYPE = 338
+const UA_TYPES_SERVICECOUNTERDATATYPE = 339
+const UA_TYPES_STATUSRESULT = 340
+const UA_TYPES_SUBSCRIPTIONDIAGNOSTICSDATATYPE = 341
+const UA_TYPES_MODELCHANGESTRUCTUREVERBMASK = 342
+const UA_TYPES_MODELCHANGESTRUCTUREDATATYPE = 343
+const UA_TYPES_SEMANTICCHANGESTRUCTUREDATATYPE = 344
+const UA_TYPES_RANGE = 345
+const UA_TYPES_EUINFORMATION = 346
+const UA_TYPES_AXISSCALEENUMERATION = 347
+const UA_TYPES_COMPLEXNUMBERTYPE = 348
+const UA_TYPES_DOUBLECOMPLEXNUMBERTYPE = 349
+const UA_TYPES_AXISINFORMATION = 350
+const UA_TYPES_XVTYPE = 351
+const UA_TYPES_PROGRAMDIAGNOSTICDATATYPE = 352
+const UA_TYPES_PROGRAMDIAGNOSTIC2DATATYPE = 353
+const UA_TYPES_ANNOTATION = 354
+const UA_TYPES_EXCEPTIONDEVIATIONFORMAT = 355
+const UA_TYPES_ENDPOINTTYPE = 356
+const UA_TYPES_STRUCTUREDESCRIPTION = 357
+const UA_TYPES_FIELDMETADATA = 358
+const UA_TYPES_PUBLISHEDEVENTSDATATYPE = 359
+const UA_TYPES_PUBSUBGROUPDATATYPE = 360
+const UA_TYPES_WRITERGROUPDATATYPE = 361
+const UA_TYPES_FIELDTARGETDATATYPE = 362
+const UA_TYPES_SUBSCRIBEDDATASETMIRRORDATATYPE = 363
+const UA_TYPES_SECURITYGROUPDATATYPE = 364
+const UA_TYPES_PUBSUBKEYPUSHTARGETDATATYPE = 365
+const UA_TYPES_ENUMDEFINITION = 366
+const UA_TYPES_READEVENTDETAILS = 367
+const UA_TYPES_READPROCESSEDDETAILS = 368
+const UA_TYPES_MODIFICATIONINFO = 369
+const UA_TYPES_HISTORYMODIFIEDDATA = 370
+const UA_TYPES_HISTORYEVENT = 371
+const UA_TYPES_UPDATEEVENTDETAILS = 372
+const UA_TYPES_DATACHANGENOTIFICATION = 373
+const UA_TYPES_EVENTNOTIFICATIONLIST = 374
+const UA_TYPES_SESSIONDIAGNOSTICSDATATYPE = 375
+const UA_TYPES_ENUMDESCRIPTION = 376
+const UA_TYPES_UABINARYFILEDATATYPE = 377
+const UA_TYPES_DATASETMETADATATYPE = 378
+const UA_TYPES_PUBLISHEDDATASETDATATYPE = 379
+const UA_TYPES_DATASETREADERDATATYPE = 380
+const UA_TYPES_TARGETVARIABLESDATATYPE = 381
+const UA_TYPES_STANDALONESUBSCRIBEDDATASETDATATYPE = 382
+const UA_TYPES_DATATYPESCHEMAHEADER = 383
+const UA_TYPES_READERGROUPDATATYPE = 384
+const UA_TYPES_PUBSUBCONNECTIONDATATYPE = 385
+const UA_TYPES_PUBSUBCONFIGURATIONDATATYPE = 386
+const UA_TYPES_PUBSUBCONFIGURATION2DATATYPE = 387
 const UA_PRINTF_STRING_FORMAT = "\"%.*s\""
 const UA_LOGCATEGORIES = 10
 const UA_REFERENCETYPEINDEX_REFERENCES = 0

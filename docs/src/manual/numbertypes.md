@@ -12,3 +12,8 @@ Adding other types is possible, but must rely on a custom datatype. See the [ope
 **Complex:**
 
   - Complex{Float32}, Complex{Float64}
+
+**Complex:**
+
+  - Rational{Int32}
+  - Rational{UInt32}
