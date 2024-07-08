@@ -4,7 +4,8 @@
 # We also check that setting a variable node with one type cannot be set to 
 # another type (e.g., integer variable node cannot be set to float64.)
 
-#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
+#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF16/F32/F64,
+# Rational{Int16/Int32}, Rational{UInt16, UInt32}
 
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
@@ -12,24 +13,18 @@ Distributed.addprocs(1) # Add a single worker process to run the server
 Distributed.@everywhere begin
     using Open62541, Test, Random
 
+    include("test_helpers.jl") #this will cause method re-definition warnings, because it has been included already in the scalar case, but it's not important here.
+
     # What types and sizes we are testing for: 
     types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
-        UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+        UInt64, Float32, Float64, String, ComplexF16, ComplexF32, ComplexF64, Rational{Int16}, Rational{Int32}, Rational{UInt16}, Rational{UInt32}]
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
     # Generate random input values and generate nodeid names
-    input_data = Tuple(Tuple(type != String ? rand(type, array_size) :
-                             reshape(
-                                 [randstring(rand(1:10))
-                                  for i in 1:prod(array_size)],
-                                 array_size...) for array_size in array_sizes) 
+    input_data = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) 
                                  for type in types)
 
-    input_data2 = Tuple(Tuple(type != String ? rand(type, array_size) :
-                             reshape(
-                                 [randstring(rand(1:10))
-                                  for i in 1:prod(array_size)],
-                                 array_size...) for array_size in array_sizes) 
+    input_data2 = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) 
                                  for type in types)
     varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable"
                    for type in types, array_size in array_sizes]
@@ -66,7 +61,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
             @test retval == UA_STATUSCODE_GOOD
             # Test whether the correct array is within the server (read from server)
             output_server = JUA_Server_readValue(server, varnodeid)
-            if type <: AbstractFloat
+            if type <: Union{AbstractFloat, Complex}
                 @test all(isapprox.(input, output_server))
             else
                 @test all(input .== output_server)
@@ -77,7 +72,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
             ret = JUA_Server_writeValue(server, varnodeid, input2)
             @test ret == UA_STATUSCODE_GOOD
             output_server2 = JUA_Server_readValue(server, varnodeid)
-            if type <: AbstractFloat
+            if type <: Union{AbstractFloat, Complex}
                 @test all(isapprox.(input2, output_server2))
             else
                 @test all(input2 .== output_server2)
@@ -129,14 +124,12 @@ end
 # Write new data 
 for (type_ind, type) in enumerate(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
-        new_input = type != String ? rand(type, array_size) :
-                    reshape(
-            [randstring(rand(1:10)) for i in 1:prod(array_size)], array_size...)
+        new_input = customrand(type, array_size)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
         @test retval == UA_STATUSCODE_GOOD
         output_client_new = JUA_Client_readValueAttribute(client, varnodeid)
-        if type <: AbstractFloat
+        if type <: Union{AbstractFloat, Complex}
             @test all(isapprox.(new_input, output_client_new))
         else
             @test all(new_input .== output_client_new)
@@ -147,16 +140,24 @@ end
 # Test wrong data type write errors 
 for type_ind in eachindex(types)
     for (array_size_ind, array_size) in enumerate(array_sizes)
-        if types[type_ind] == ComplexF64 || types[type_ind] == ComplexF32
+        if types[type_ind] <: Integer
             type = Float64
-        elseif types[type_ind] == String #XXX: This is likely a bug in open62541 (can write complex numbers to string type variable, probably, because extension objects are not recognized properly)
+        elseif types[type_ind] <: AbstractFloat
+            type = Int64
+        elseif types[type_ind] <: AbstractString
             type = Float64
-        else
-            type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
+        elseif types[type_ind] <: Rational{<:Unsigned}
+            type = Rational{Int32}
+        elseif types[type_ind] <: Rational{<:Signed}
+            type = Rational{UInt32}
+        elseif types[type_ind] <: Union{ComplexF16,ComplexF32}
+            type = ComplexF64
+        elseif types[type_ind] <: ComplexF64
+            type = ComplexF32
+        elseif types[type_ind] == Bool
+            type = Int64
         end
-        new_input = type != String ? rand(type, array_size) :
-                    reshape(
-            [randstring(rand(1:10)) for i in 1:prod(array_size)], array_size...)
+        new_input = customrand(type, array_size)
         varnodeid = JUA_NodeId(1, varnode_ids[type_ind, array_size_ind])
         @test_throws Open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(
             client, varnodeid, new_input)

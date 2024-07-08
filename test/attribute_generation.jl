@@ -3,6 +3,8 @@ using Open62541
 using Test
 using Random
 
+include("test_helpers.jl")
+
 #UA_VALUERANK
 @test UA_VALUERANK(1) == UA_VALUERANK_ONE_DIMENSION
 @test UA_VALUERANK(2) == UA_VALUERANK_TWO_DIMENSIONS
@@ -87,10 +89,9 @@ using Random
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
 types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
-    UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
-inputs = Tuple(Tuple(type != String ? rand(type, array_size) :
-                     reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)],
-                         array_size...) for array_size in array_sizes) for type in types)
+        UInt64, Float32, Float64, String, ComplexF16, ComplexF32, ComplexF64, 
+        Rational{Int16}, Rational{Int32}, Rational{UInt16}, Rational{UInt32}]
+inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -149,10 +150,9 @@ end
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
 types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
-    UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
-inputs = Tuple(Tuple(type != String ? rand(type, array_size) :
-                     reshape([randstring(Int64(rand(UInt8))) for i in 1:prod(array_size)],
-                         array_size...) for array_size in array_sizes) for type in types)
+        UInt64, Float32, Float64, String, ComplexF16, ComplexF32, ComplexF64, 
+        Rational{Int16}, Rational{Int32}, Rational{UInt16}, Rational{UInt32}]
+inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"

@@ -181,9 +181,18 @@ for (i, type_name) in enumerate(type_names)
             $(Symbol(type_name, "_clear"))(p::Ptr{$(type_name)})
         end
 
-        #TODO: add docstring
+        """
+        ```
+        $($(Symbol(type_name, "_equal")))(p1::Ptr{$($(type_name))}, p2::Ptr{$($(type_name))})::Bool
+        ```
+
+        compares `p1` and `p2` and returns `true` if they are equal. Also works 
+        with the corresponding high-level types (`JUA_xxx`) if they have been 
+        defined.
+
+        """
         function $(Symbol(type_name, "_equal"))(p1, p2)
-            return UA_order(p1, p2, UA_TYPES_PTRS[$(type_ind_name)]) == UA_ORDER_EQ
+            return UA_equal(p1, p2, UA_TYPES_PTRS[$(type_ind_name)])
         end
 
         function $(Symbol(type_name, "_Array_new"))(length::Integer)
@@ -307,6 +316,20 @@ Base.unsafe_string(s::Ptr{UA_String}) = Base.unsafe_string(unsafe_load(s))
 function Base.complex(x::T) where {T <:
                                    Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}}
     Complex(x.real, x.imaginary)
+end
+
+#adapt base complex method for interoperability between ua complex numbers and julia complex numbers
+function Base.Rational(x::UA_RationalNumber)
+    #XXX: Note that open62541 stores denominator as UA_UInt32; and promotion of 
+    # Int32 (denominator) and Int32 (numerator) tries forcing things to UInt32 
+    # (which errors for negative numerator) since typemax of UInt32 is larger 
+    # than typemax(Int32), this can be out of range... Could also convert to Int64 
+    # of course...
+    Rational(x.numerator, Int32(x.denominator)) 
+end
+
+function Base.Rational(x::UA_UnsignedRationalNumber)
+    Rational(x.numerator, x.denominator)
 end
 
 ## UA_BYTESTRING
@@ -690,10 +713,6 @@ function UA_EXPANDEDNODEID_NODEID(nodeid::Ptr{UA_NodeId},
     return id
 end
 
-# function UA_ExpandedNodeId_equal(n1, n2)
-#     return UA_ExpandedNodeId_order(n1, n2) == UA_ORDER_EQ
-# end
-
 ## QualifiedName
 function UA_QUALIFIEDNAME_ALLOC(nsIndex::Integer, s::AbstractString)
     ua_s = UA_STRING(s)
@@ -868,6 +887,15 @@ function UA_MonitoredItemCreateRequest_default(nodeId)
     return request
 end
 
+"""
+```
+UA_equal(p1::T, p2::T, T)::Bool
+```
+
+compares `p1` and `p2` and returns `true` if they are equal. This is a basic 
+functionality and it is usually more appropriate to use the fully typed versions, 
+for example `UA_String_equal` to compare to ´UA_String´s.
+"""
 function UA_equal(p1, p2, type)
     return UA_order(p1, p2, type) == UA_ORDER_EQ
 end

@@ -658,7 +658,7 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
 
     function JUA_Variant(value::AbstractArray{T, N},
             type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {
-            T <: Union{UA_NUMBER_TYPES, UA_String, UA_ComplexNumberType, UA_DoubleComplexNumberType}, N}
+            T <: Union{UA_NUMBER_TYPES, UA_String, UA_ComplexNumberType, UA_DoubleComplexNumberType, UA_RationalNumber, UA_UnsignedRationalNumber}, N}
         var = UA_Variant_new()
         var.type = type_ptr
         var.storageType = UA_VARIANT_DATA
@@ -673,7 +673,7 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
     end
 
     function JUA_Variant(value::T,
-            type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{UA_NUMBER_TYPES, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType}}
+            type_ptr::Ptr{UA_DataType} = ua_data_type_ptr_default(T)) where {T <: Union{UA_NUMBER_TYPES, Ptr{UA_String}, UA_ComplexNumberType, UA_DoubleComplexNumberType, UA_RationalNumber, UA_UnsignedRationalNumber}}
         var = UA_Variant_new()
         var.type = type_ptr
         var.storageType = UA_VARIANT_DATA
@@ -690,10 +690,29 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
         return obj
     end
 
-    function JUA_Variant(value::Complex{T}) where {T <: Union{Float32, Float64}}
-        f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    function JUA_Variant(value::Complex{T}) where {T <: AbstractFloat}
+        if sizeof(T) <= 4
+            f = UA_ComplexNumberType
+        else
+            f = UA_DoubleComplexNumberType
+        end   
         ua_c = f(reim(value)...)
         return JUA_Variant(ua_c)
+    end
+
+    function JUA_Variant(value::Rational{<:Unsigned})
+        v = UA_UnsignedRationalNumber(value.num, value.den)
+        return JUA_Variant(v)
+    end
+
+    function JUA_Variant(value::Rational{<:Signed})
+        v = UA_RationalNumber(value.num, value.den)
+        return JUA_Variant(v)
+    end
+
+    function JUA_Variant(value::Rational{<:AbstractFloat})
+        v = Rational(value)
+        return JUA_Variant(v)
     end
 
     function JUA_Variant(value::AbstractArray{<:AbstractString})
@@ -704,13 +723,34 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
         return JUA_Variant(a)
     end
 
-    function JUA_Variant(value::AbstractArray{<:Complex{T}}) where {T <:
-                                                                   Union{Float32, Float64}}
-        f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    function JUA_Variant(value::AbstractArray{<:Complex{T}}) where {T <: AbstractFloat}
+        if sizeof(T) <= 4
+            f = UA_ComplexNumberType
+        else
+            f = UA_DoubleComplexNumberType
+        end    
         a = similar(value, f)
         for i in eachindex(a)
             a[i] = f(reim(value[i])...)
         end
+        return JUA_Variant(a)
+    end
+
+    function JUA_Variant(value::AbstractArray{<:Rational{T}}) where {T <: Integer}
+        if T <: Signed 
+            f = UA_RationalNumber
+        else #decision to include Bool here.
+            f = UA_UnsignedRationalNumber
+        end    
+        a = similar(value, f)
+        for i in eachindex(a)
+            a[i] = f(value[i].num, value[i].den)
+        end
+        return JUA_Variant(a)
+    end
+
+    function JUA_Variant(value::AbstractArray{<:Complex{T}}) where {T <: Union{Integer, Rational}}
+        a = float(value)
         return JUA_Variant(a)
     end
 end

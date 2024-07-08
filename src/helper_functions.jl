@@ -27,6 +27,11 @@ function __get_juliavalues_from_variant(v, type)
     elseif typeof(wrapped) <: Array &&
            eltype(wrapped) <: Union{UA_ComplexNumberType, UA_DoubleComplexNumberType}
         r = complex.(wrapped)
+    elseif typeof(wrapped) <: Union{UA_RationalNumber, UA_UnsignedRationalNumber}
+        r = Rational(wrapped)
+    elseif typeof(wrapped) <: Array &&
+            eltype(wrapped) <: Union{UA_RationalNumber, UA_UnsignedRationalNumber}
+        r = Rational.(wrapped)
     elseif typeof(wrapped) == UA_String
         r = unsafe_string(wrapped)
     elseif typeof(wrapped) <: Array && eltype(wrapped) == UA_String
