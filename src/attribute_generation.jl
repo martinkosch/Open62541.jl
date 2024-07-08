@@ -386,7 +386,7 @@ function __generic_variable_attributes(displayname, description, localization,
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
         elseif type <: Rational && type.parameters[1] <: Signed
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-        elseif type <: Rational && type.parameters[1] <: Unsigned
+        elseif type <: Rational && type.parameters[1] <: Union{Unsigned, Bool}
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
         else
             attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
@@ -489,7 +489,7 @@ function __generic_variabletype_attributes(displayname, description, localizatio
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
             elseif type <: Rational && type.parameters[1] <: Signed
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-            elseif type <: Rational && type.parameters[1] <: Unsigned
+            elseif type <: Rational && type.parameters[1] <: Union{Unsigned, Bool}
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
             else
                 attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
