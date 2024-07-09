@@ -128,7 +128,7 @@ for node in nodes
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) || in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(client, node, out2), UA_StatusCode)
         end
-        # else
+        # else #TODO: re-consider this
         #     @show att
         #     @test_throws Open62541.AttributeReadWriteError eval(fun_name)(client, node, out2)
         # end

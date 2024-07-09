@@ -612,7 +612,7 @@ JUA_Variant()
 creates an empty `JUA_Variant`, equivalent to calling `UA_Variant_new()`.
 
 ```
-JUA_Variant(value::Union{T, AbstractArray{T}}) where T <: Union{UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64})
+JUA_Variant(value::Union{T, AbstractArray{T}}) where T <: Union{UA_NUMBER_TYPES, AbstractString, ComplexF32, ComplexF64, Rational{<:Integer}})
 ```
 
 creates a `JUA_Variant` containing `value`. All properties of the variant are set 
@@ -700,6 +700,11 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
         return JUA_Variant(ua_c)
     end
 
+    function JUA_Variant(value::Complex{T}) where {T <: Union{Integer, Rational}}
+        v = float(value)
+        return JUA_Variant(v)
+    end
+
     function JUA_Variant(value::Rational{<:Unsigned})
         v = UA_UnsignedRationalNumber(value.num, value.den)
         return JUA_Variant(v)
@@ -710,8 +715,8 @@ mutable struct JUA_Variant <: AbstractOpen62541Wrapper
         return JUA_Variant(v)
     end
 
-    function JUA_Variant(value::Rational{<:AbstractFloat})
-        v = Rational(value)
+    function JUA_Variant(value::Rational{Bool})
+        v = UA_UnsignedRationalNumber(value.num, value.den)
         return JUA_Variant(v)
     end
 
