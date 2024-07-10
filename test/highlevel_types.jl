@@ -26,16 +26,11 @@ v = UA_Variant_new()
 j2 = JUA_Variant(v)
 @test j2 isa JUA_Variant
 UA_Variant_delete(v)
-j3 = JUA_Variant(Rational(true, false))
-j4 = JUA_Variant([Complex(Rational(1, 2), Rational(3, 4)), Complex(Rational(5, 6), Rational(7, 8))])
-j5 = JUA_Variant([Complex(Int16(1), Int16(3)), Complex(Int32(4), Int32(5))])
-j6 = JUA_Variant(Complex(Int16(1), Int16(3)))
-j7 = JUA_Variant(Complex(Rational(1, 2), Rational(3, 4)))
-@test j3 isa JUA_Variant
-@test j4 isa JUA_Variant
-@test j5 isa JUA_Variant
-@test j6 isa JUA_Variant
-@test j7 isa JUA_Variant
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Rational(true, false))
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Rational(1, 2), Rational(3, 4)), Complex(Rational(5, 6), Rational(7, 8))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Int16(1), Int16(3)), Complex(Int32(4), Int32(5))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Int16(1), Int16(3)))
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Rational(1, 2), Rational(3, 4)))
 
 #JUA_NodeId
 j1 = JUA_NodeId()

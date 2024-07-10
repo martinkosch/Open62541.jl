@@ -16,8 +16,9 @@ Distributed.@everywhere begin
     include("test_helpers.jl") #this will cause method re-definition warnings, because it has been included already in the scalar case, but it's not important here.
 
     # What types and sizes we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
-        UInt64, Float32, Float64, String, ComplexF16, ComplexF32, ComplexF64, Rational{Int16}, Rational{Int32}, Rational{UInt16}, Rational{UInt32}]
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
+        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
+        Rational{UInt32}]
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
     # Generate random input values and generate nodeid names

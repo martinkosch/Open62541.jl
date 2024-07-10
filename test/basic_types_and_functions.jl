@@ -119,3 +119,11 @@ client = UA_Client_new()
 context = UA_Client_getContext(client)
 @test isa(context, Ptr{Ptr{Nothing}})
 UA_Client_delete(client)
+
+#Variant
+v = UA_Variant_new()
+@test v isa Ptr{UA_Variant}
+@test UA_Variant_isEmpty(v) == true
+UA_Variant_delete(v)
+j1 = JUA_Variant(1.0)
+@test UA_Variant_isScalar(Open62541.Jpointer(j1)) == true

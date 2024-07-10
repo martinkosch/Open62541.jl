@@ -195,7 +195,7 @@ function __set_generic_attributes!(attr,
 end
 
 function __set_scalar_attributes!(attr, value::T,
-        valuerank) where {T <: Union{AbstractFloat, Integer, Ptr{UA_String},
+        valuerank) where {T <: Union{UA_NUMBER_TYPES, Ptr{UA_String},
         UA_ComplexNumberType, UA_DoubleComplexNumberType, UA_RationalNumber, UA_UnsignedRationalNumber}}
     type_ptr = ua_data_type_ptr_default(T)
     attr.valueRank = valuerank
@@ -211,20 +211,16 @@ function __set_scalar_attributes!(attr, value::AbstractString, valuerank)
 end
 
 function __set_scalar_attributes!(
-        attr, value::Complex{T}, valuerank) where {T <: AbstractFloat}
-    if sizeof(T) <= 4 #Float32 has length of 4 bytes; everything smaller gets upconverted.
-        UA_T = UA_ComplexNumberType
-    else #for everything larger conversion to Float64 is attempted.
-        UA_T = UA_DoubleComplexNumberType
-    end
-    ua_c = UA_T(reim(value)...)
+        attr, value::Complex{T}, valuerank) where {T <: Union{Float32, Float64}}
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    ua_c = f(reim(value)...)
     __set_scalar_attributes!(attr, ua_c, valuerank)
     return nothing
 end
 
 function __set_scalar_attributes!(
-        attr, value::Rational{T}, valuerank) where {T <: Integer}
-    f = T <: Signed ? UA_RationalNumber : UA_UnsignedRationalNumber
+        attr, value::Rational{T}, valuerank) where {T <: Union{Int32, UInt32}}
+    f = T == Int32 ? UA_RationalNumber : UA_UnsignedRationalNumber
     ua_c = f(value.num, value.den)
     __set_scalar_attributes!(attr, ua_c, valuerank)
     return nothing
@@ -240,23 +236,19 @@ function __set_array_attributes!(attr, value::AbstractArray{<:AbstractString}, v
 end
 
 function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}},
-        valuerank) where {T <: AbstractFloat}
-    if sizeof(T) <= 4 #Float32 has length of 4 bytes; everything smaller gets upconverted.
-        UA_T = UA_ComplexNumberType
-    else #for everything larger conversion to Float64 is attempted.
-        UA_T = UA_DoubleComplexNumberType
-    end
-    a = similar(value, UA_T)
+        valuerank) where {T <: Union{Float32, Float64}}
+    f = T == Float32  ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    a = similar(value, f)
     for i in eachindex(a)
-        a[i] = UA_T(reim(value[i])...) #implicit conversion to Float32/64
+        a[i] = f(reim(value[i])...) #implicit conversion to Float32/64
     end
     __set_array_attributes!(attr, a, valuerank)
     return nothing
 end
 
 function __set_array_attributes!(attr, value::AbstractArray{<:Rational{T}},
-        valuerank) where {T <: Integer}
-    f = T <: Signed ? UA_RationalNumber : UA_UnsignedRationalNumber
+        valuerank) where {T <: Union{Int32, UInt32}}
+    f = T == Int32 ? UA_RationalNumber : UA_UnsignedRationalNumber
     a = similar(value, f)
     for i in eachindex(a)
         a[i] = f(value[i].num, value[i].den) #implicit conversion to (U)Int32
@@ -267,7 +259,7 @@ end
 
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
         valuerank) where {
-        T <: Union{AbstractFloat, Integer, UA_String,
+        T <: Union{UA_NUMBER_TYPES, UA_String,
             UA_ComplexNumberType, UA_DoubleComplexNumberType, UA_RationalNumber,
             UA_UnsignedRationalNumber},
         N}
@@ -299,7 +291,7 @@ UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
     useraccesslevel::Union{Nothing, UInt8} = nothing,
     minimumsamplinginterval::Union{Nothing, Float64} = nothing,
     historizing::Union{Nothing, Bool} = nothing,
-    valuerank::Union{Integer, Nothing} = nothing)::Ptr{UA_VariableAttributes} where {T <: Union{Rational, Complex, AbstractFloat, Integer, AbstractString}}
+    valuerank::Union{Integer, Nothing} = nothing)::Ptr{UA_VariableAttributes} where {T <: Union{UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}}
 ```
 
 generates a `UA_VariableAttributes` object. Memory for the object is allocated
@@ -324,11 +316,18 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         useraccesslevel::Union{Nothing, UInt8} = nothing,
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
-        valuerank::Union{Nothing, Integer} = nothing) where
-        {T <: Union{Rational, Complex, AbstractFloat, Integer, AbstractString}}
-    attr = __generate_variable_attributes(value, displayname, description,
+        valuerank::Union{Nothing, Integer} = nothing) where {T <: Union{Number, AbstractString}}
+    if T <: Union{UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}
+        attr = __generate_variable_attributes(value, displayname, description,
         localization, writemask, userwritemask, accesslevel, useraccesslevel,
         minimumsamplinginterval, historizing, valuerank)
+    else
+        #if number type not specifically reported (see union above) throw an informative exception.
+        err = UnsupportedNumberTypeError(T)
+        throw(err) 
+    end
+    
+        
     return attr
 end
 
@@ -380,13 +379,13 @@ function __generic_variable_attributes(displayname, description, localization,
         end
         if type <: AbstractString
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
-        elseif type <: Complex && sizeof(type) <= 8
+        elseif type == Complex{Float32}
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
-        elseif type <: Complex && sizeof(type) > 8
+        elseif type == Complex{Float64}
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
-        elseif type <: Rational && type.parameters[1] <: Signed
+        elseif type == Rational{Int32} 
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-        elseif type <: Rational && type.parameters[1] <: Union{Unsigned, Bool}
+        elseif type == Rational{UInt32}
             attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
         else
             attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
@@ -406,7 +405,7 @@ UA_VariableTypeAttributes_generate(; value::Union{Nothing, AbstractArray{T}, T} 
     writemask::Union{Nothing, UInt32} = nothing,
     userwritemask::Union{Nothing, UInt32} = nothing,
     valuerank::Union{Nothing, Integer} = nothing,
-    isabstract::Union{Nothing, Bool})::Ptr{UA_VariableTypeAttributes} where {T <: Union{Rational, Complex, AbstractFloat, Integer, AbstractString}}
+    isabstract::Union{Nothing, Bool})::Ptr{UA_VariableTypeAttributes} where {T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}}
 ```
 
 generates a `UA_VariableTypeAttributes` object. Memory for the object is allocated
@@ -428,16 +427,24 @@ function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T} 
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) where {T <: Union{Nothing, Rational, Complex, AbstractFloat, Integer, AbstractString}}
-    attr = __generate_variabletype_attributes(value, displayname, description,
+        isabstract::Union{Nothing, Bool} = nothing) where {T <: Union{Nothing, Number, AbstractString}}
+    if T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}
+        attr = __generate_variabletype_attributes(value, displayname, description,
         localization, writemask, userwritemask, valuerank, isabstract)
-    return attr
+        return attr
+    else
+        #if number type not specifically reported (see union above) throw an informative exception.
+        err = UnsupportedNumberTypeError(T)
+        throw(err) 
+    end
 end
 
 function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {
-        T <: Union{AbstractString, AbstractFloat, Integer, Complex, Rational}, N}
+        isabstract) where {T <: Union{UA_NUMBER_TYPES, Complex{Float32}, 
+                                Complex{Float64}, Rational{Int32}, Rational{UInt32}, 
+                                AbstractString}, 
+                           N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
@@ -449,8 +456,9 @@ end
 
 function __generate_variabletype_attributes(value::T, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T <: Union{
-        AbstractString, AbstractFloat, Integer, Complex, Rational}}
+        isabstract) where {T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, 
+                                Complex{Float64}, Rational{Int32}, Rational{UInt32}, 
+                                AbstractString}}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
@@ -483,13 +491,13 @@ function __generic_variabletype_attributes(displayname, description, localizatio
         if !isnothing(type)
             if type <: AbstractString
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
-            elseif type <: Complex && sizeof(type) <= 8
+            elseif type == Complex{Float32}
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
-            elseif type <: Complex && sizeof(type) > 8
+            elseif type == Complex{Float64}
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
-            elseif type <: Rational && type.parameters[1] <: Signed
+            elseif type == Rational{Int32} 
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-            elseif type <: Rational && type.parameters[1] <: Union{Unsigned, Bool}
+            elseif type == Rational{UInt32}
                 attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
             else
                 attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
