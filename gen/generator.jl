@@ -38,7 +38,7 @@ headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h
 
 #comment out two lines in util.h; 
 #these caused errors since open62541_jll is compiled without amalgamation (reason not clear to me)
-fn = joinpath(@__DIR__, "./headers/open62541/util.h")
+fn = joinpath(@__DIR__, "./headers/open62541/common.h")
 f = open(fn, "r")
 util_content = read(f, String)
 close(f)
@@ -62,6 +62,7 @@ function write_generated_defs(generated_defs_dir::String,
         type_names,
         julia_types)
     julia_types = replace("$julia_types", Regex("Main\\.Open62541\\.") => "")
+    types_ambiguous_ignorelist = type_names[1:end .∉ [unique_julia_types_ind]]
     type_string = """
     # Vector of all UA types
     const type_names = $type_names
@@ -73,7 +74,7 @@ function write_generated_defs(generated_defs_dir::String,
     const unique_julia_types_ind = unique(i -> julia_types[i], eachindex(julia_types))
 
     # Vector of types that are ambiguously defined via typedef and are not to be used as default type
-    types_ambiguous_ignorelist = [:UA_Duration, :UA_ByteString, :UA_XmlElement, :UA_LocaleId, :UA_DateTime, :UA_UtcTime, :UA_StatusCode]
+    types_ambiguous_ignorelist = type_names[1:end .∉ [unique_julia_types_ind]]
 
     """
 
@@ -81,15 +82,20 @@ function write_generated_defs(generated_defs_dir::String,
     # Vector of all inlined function names listed in the open62541 header files
     const inlined_funcs = $(extract_inlined_funcs(headers))
     """
-
+    
+    client_write = extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", headers)
+    push!(client_write, ["UA_Client_writeUserAccessLevelAttribute", "UserAccessLevel", "UA_Byte"])
+    push!(client_write, ["UA_Client_writeValueAttribute_scalar", "Value", "UA_DataType"])
+    push!(client_write, ["UA_Client_writeValueAttributeEx", "Value", "UA_DataValue"])
     data_UA_Client = """
     # UA_Client_ functions data 
     const attributes_UA_Client_Service = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", headers))
     const attributes_UA_Client_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", headers))
-    const attributes_UA_Client_write = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", headers))
+    const attributes_UA_Client_write = $(client_write)
     const attributes_UA_Client_read_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute_async)\([\s\S]+?\)[\s\S]+?{[\s\S]+?__UA_Client_readAttribute_async\s*\([\s\S]+?&UA_TYPES\[([\S]+?)\]", headers))
-    const attributes_UA_Client_write_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute_async)\s*\(UA_Client\s*\*client,\s*const\s*UA_NodeId\s*nodeId,\s*const\s*(\S*)", headers))
+    const attributes_UA_Client_write_async = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute_async)\s*\(\s*UA_Client\s*\*client,\s*const\s*UA_NodeId\s*nodeId,\s*const\s*(\S*)", headers))
     """
+
     #Get rid of unnecessary type unions
     data_UA_Client = replace(data_UA_Client,
         "Vector{Union{Nothing, SubString{String}}}" => "Vector{String}")
@@ -113,12 +119,15 @@ end
 
 function extract_inlined_funcs(headers)
     regex_inlined = r"UA_INLINE[\s]+(?:[\w\*]+[\s]*[\s\S]){0,3}((?:__)?UA_[\w]+)\("
+    regex_inlined2 = r"UA_INLINABLE\(\s*\S*\s*(\S*)\("
     inlined_funcs = String[]
     for i in eachindex(headers)
         open(headers[i], "r") do f
             data = read(f, String)
             append!(inlined_funcs,
                 vcat(getfield.(collect(eachmatch(regex_inlined, data)), :captures)...)) # Extract inlined functions from header file
+            append!(inlined_funcs,
+                vcat(getfield.(collect(eachmatch(regex_inlined2, data)), :captures)...)) # Extract inlined functions from header file
         end
     end
     return inlined_funcs
@@ -185,6 +194,44 @@ return guid_dst
 end"
 data = replace(data, orig=>new)
 
+#need to remove some buggy lines
+replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
+
+const UA_INT32_MAX = Clong(2147483647)
+
+const UA_UINT32_MIN = 0
+
+const UA_UINT32_MAX = Culong(4294967295)
+
+const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+
+const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+
+const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+
+const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+
+data = replace(data, replacestring=>"")
+
+#need to remove some buggy lines
+replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
+
+const UA_INT32_MAX = Clong(2147483647)
+
+const UA_UINT32_MIN = 0
+
+const UA_UINT32_MAX = Culong(4294967295)
+
+const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+
+const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+
+const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+
+const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+
+data = replace(data, replacestring=>"")
+
 #replace version number code (make the constants express the version of the _jll 
 #rather than hard coded numbers)
 version_regex = r"const UA_OPEN62541_VER_MAJOR = \d+\n
@@ -200,6 +247,7 @@ fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
+
 
 @warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
 @show "loading module"

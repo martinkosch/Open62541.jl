@@ -44,7 +44,7 @@ open62541_version_server = JUA_Client_readValueAttribute(client, nodeid)
 
 # Do version numbers agree?
 vn2string(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
-if VERSION < v"1.9"
+@static if VERSION < v"1.9"
     pkgdir_old(m::Core.Module) = abspath(Base.pathof(Base.moduleroot(m)), "..", "..")
     function pkgproject_old(m::Core.Module)
         Pkg.Operations.read_project(Pkg.Types.projectfile_path(pkgdir_old(m)))

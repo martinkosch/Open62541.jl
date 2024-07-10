@@ -32,6 +32,18 @@ function Base.showerror(io::IO, e::AttributeCopyError)
     print(io, msg)
 end
 
+#Unsupported Number type
+struct UnsupportedNumberTypeError <: Exception
+    type::DataType
+end
+
+function Base.showerror(io::IO, e::UnsupportedNumberTypeError)
+    msg = "The supplied number type ($(e.type)) is not supported within Open62541.jl
+        (nor open62541 for that matter). Natively supported number types are: 
+        $UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}."
+    print(io, msg)
+end
+
 #Callback generator argument error 
 #fields intentionally kept abstract; no specialization needed.
 struct CallbackGeneratorArgumentError <: Exception

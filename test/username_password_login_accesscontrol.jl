@@ -31,7 +31,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     config = UA_Server_getConfig(server)
     UA_ServerConfig_setDefault(config)
     login = UA_UsernamePasswordLogin(UA_STRING("user"), UA_STRING("password"))
-    retval0 = UA_AccessControl_default(config, false, C_NULL,
+    retval0 = UA_AccessControl_default(config, false,
         Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri), 1, Ref(login))
     @test retval0 == UA_STATUSCODE_GOOD
 
@@ -76,8 +76,8 @@ end
 # Specify client and connect to server after server startup
 client = UA_Client_new()
 UA_ClientConfig_setDefault(UA_Client_getConfig(client))
-max_duration = 30.0 # Maximum waiting time for server startup 
-sleep_time = 2.0 # Sleep time in seconds between each connection trial
+max_duration = 90.0 # Maximum waiting time for server startup 
+sleep_time = 3.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time

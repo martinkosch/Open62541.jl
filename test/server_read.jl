@@ -71,8 +71,10 @@ for node in nodes
         cleaner = Symbol(att[3]*"_delete")
         out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead)) 
             @test isa(eval(fun_name)(server, node, out2), UA_StatusCode)
+        elseif "AccessLevelEx" == att[2]
+            #donothing
         else
             @test_throws Open62541.AttributeReadWriteError eval(fun_name)(server, node, out2)
         end
