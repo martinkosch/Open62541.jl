@@ -91,10 +91,7 @@ UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::AbstractString,
 connects the `client` to the server with endpoint URL `endpointurl` and supplies
 `username` and `password` as login credentials.
 """
-function UA_Client_connectUsername(client::Ptr{UA_Client},
-        endpointurl::AbstractString,
-        username::AbstractString,
-        password::AbstractString)
+function UA_Client_connectUsername(client, endpointurl, username, password)
     cc = UA_Client_getConfig(client)
     res = UA_ClientConfig_setAuthenticationUsername(cc, username, password)
     if res != UA_STATUSCODE_GOOD

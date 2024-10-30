@@ -5,7 +5,7 @@ Jpointer(x::AbstractOpen62541Wrapper) = getfield(x, :ptr)
 Jpointer(x) = x
 
 function Base.getproperty(x::AbstractOpen62541Wrapper, f::Symbol)
-    unsafe_load(getproperty(Jpointer(x), f))
+    getproperty(Jpointer(x), f)
 end
 
 function Base.unsafe_convert(::Type{Ptr{T}}, obj::AbstractOpen62541Wrapper) where {T}
@@ -288,6 +288,36 @@ JUA_NodeId_equal(j1::JUA_NodeId, n2::JUA_NodeId)::Bool
 returns `true` if `j1` and `j2` are `JUA_NodeId`s with identical content.
 """
 JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
+
+"""
+```
+JUA_UsernamePasswordLogin 
+```
+
+TODO: COMPLETE docstring
+
+"""
+mutable struct JUA_UsernamePasswordLogin 
+    login::UA_UsernamePasswordLogin
+    username::Ptr{UA_String}
+    password::Ptr{UA_String}
+
+    function JUA_UsernamePasswordLogin(username::AbstractString, password::AbstractString)
+        un = UA_STRING(username)
+        pw = UA_STRING(password)        
+        obj = new(UA_UsernamePasswordLogin(un, pw), un, pw)
+        finalizer(release_handle, obj)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_UsernamePasswordLogin)
+    UA_String_delete(obj.username)
+    UA_String_delete(obj.password)
+end
+
+Base.unsafe_convert(::Type{UA_UsernamePasswordLogin}, x::JUA_UsernamePasswordLogin) = x.login
+
 
 #ExpandedNodeId
 """

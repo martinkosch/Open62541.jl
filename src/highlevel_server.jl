@@ -43,7 +43,19 @@ const JUA_ServerConfig_addAllSecureSecurityPolicies = UA_ServerConfig_addAllSecu
 const JUA_ServerConfig_addEndpoint = UA_ServerConfig_addEndpoint
 const JUA_ServerConfig_addAllEndpoints = UA_ServerConfig_addAllEndpoints
 const JUA_ServerConfig_addAllSecureEndpoints = UA_ServerConfig_addAllSecureEndpoints
-const JUA_ServerConfig_setMinimal = UA_ServerConfig_setMinimal
+
+"""
+```
+JUA_ServerConfig_setMinimal(config, portNumber[, certificate])
+```
+
+creates a new server config with one endpoint. The config will set the tcp
+network layer to the given port and adds a single endpoint with the security
+policy ``SecurityPolicy#None`` to the server. A server certificate may be
+supplied but is optional.
+"""
+JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_ServerConfig_setMinimal(config, portNumber, certificate)
+
 const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
 const JUA_ServerConfig_clean = UA_ServerConfig_clean
 const JUA_AccessControl_default = UA_AccessControl_default

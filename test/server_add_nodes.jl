@@ -514,7 +514,7 @@ retval = UA_Server_addMethodNode(server, methodid,
     helloAttr, helloWorldMethodCallback,
     1, inputArgument, 1, outputArgument, C_NULL, C_NULL)
 
-    @test retval == UA_STATUSCODE_GOOD
+@test retval == UA_STATUSCODE_GOOD
 
 inputArguments = UA_Variant_new()
 ua_s = UA_STRING("Peter")
@@ -525,10 +525,10 @@ req.methodId = methodid
 req.inputArgumentsSize = 1
 req.inputArguments = inputArguments
 
-    answer = UA_CallMethodResult_new()
-    UA_Server_call(server, req, answer)
-    @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-    @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
+answer = UA_CallMethodResult_new()
+UA_Server_call(server, req, answer)
+@test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
+@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
 
 #clean up
 UA_MethodAttributes_delete(helloAttr)
