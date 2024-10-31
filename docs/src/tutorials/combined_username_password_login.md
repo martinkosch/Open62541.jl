@@ -39,9 +39,19 @@ retval = JUA_Client_connectUsername(client,
             "BruceWayne",
             "IamBatman") #connect using the username and password
 
-JUA_Client_disconnect(client)
+JUA_Client_disconnect(client) #disconnect
 
+retval2 = JUA_Client_connectUsername(client,
+            "opc.tcp://localhost:4840",
+            "PeterParker",
+            "IamSpiderman") #try connecting using a wrong username/password
+
+JUA_Client_disconnect(client) #disconnect
+ 
 ```
+`retval` should be `UA_STATUSCODE_GOOD` (= 0) indicating that authentication was sucessful,
+whereas `retval2` should be `UA_STATUSCODE_BADUSERACCESSDENIED` (= 2149515264) indicating 
+that the second login attempt was rejected.
 
 Note that in this basic configuration the login credentials are transmitted unencrypted,
 which is obviously not recommended when network traffic is potentially exposed to 

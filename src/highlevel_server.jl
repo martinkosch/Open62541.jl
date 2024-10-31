@@ -58,14 +58,43 @@ JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_Serve
 
 const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
 const JUA_ServerConfig_clean = UA_ServerConfig_clean
-function JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin)
+
+"""
+```
+JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+    usernamePasswordLogin::Union{JUA_UsernamePasswordLogin, AbstractArray{JUA_UsernamePasswordLogin}}, 
+    [userTokenPolicyUri::AbstractString])::UA_StatusCode
+```
+
+sets default access control options in a server configuration.
+
+"""
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}})
     JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, 
         Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri)) 
 end
 
-function JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, userTokenPolicyUri)
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}}, userTokenPolicyUri::AbstractString)
+    ua_s = UA_STRING(userTokenPolicyUri)
+    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, ua_s)
+end
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+        usernamePasswordLogin::JUA_UsernamePasswordLogin, 
+        userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
     UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, 1, Ref(usernamePasswordLogin.login))
 end
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+        usernamePasswordLogin::AbstractArray{JUA_UsernamePasswordLogin}, 
+        userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
+    logins = [usernamePasswordLogin[i].login for i in eachindex(usernamePasswordLogin)]
+    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, length(logins), logins)
+end
+
     
 #const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback #TODO: complete this
 
