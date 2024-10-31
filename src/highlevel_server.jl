@@ -58,8 +58,16 @@ JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_Serve
 
 const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
 const JUA_ServerConfig_clean = UA_ServerConfig_clean
-const JUA_AccessControl_default = UA_AccessControl_default
-const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
+function JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin)
+    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, 
+        Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri)) 
+end
+
+function JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, userTokenPolicyUri)
+    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, 1, Ref(usernamePasswordLogin.login))
+end
+    
+#const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback #TODO: complete this
 
 function JUA_Server_runUntilInterrupt(server::JUA_Server)
     running = Ref(true)

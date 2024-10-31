@@ -290,14 +290,29 @@ returns `true` if `j1` and `j2` are `JUA_NodeId`s with identical content.
 JUA_NodeId_equal(j1, j2) = UA_NodeId_equal(j1, j2)
 
 """
+
 ```
 JUA_UsernamePasswordLogin 
 ```
 
-TODO: COMPLETE docstring
+creates a `JUA_UsernamePasswordLogin` object - the equivalent of a `UA_UsernamePasswordLogin` object, but with memory
+managed by Julia rather than C.
+
+The following methods are defined:
+
+```
+JUA_UsernamePasswordLogin(username::AbstractString, password::AbstractString)
+```
+
+Example:
+
+```
+j = JUA_UsernamePasswordLogin("PeterParker", "IamSpiderman")
+
+```
 
 """
-mutable struct JUA_UsernamePasswordLogin 
+mutable struct JUA_UsernamePasswordLogin #TODO: this is rather ugly, but prevents memory-leaking.
     login::UA_UsernamePasswordLogin
     username::Ptr{UA_String}
     password::Ptr{UA_String}
@@ -309,6 +324,17 @@ mutable struct JUA_UsernamePasswordLogin
         finalizer(release_handle, obj)
         return obj
     end
+end
+
+
+
+function Base.show(io::IO, a::MIME"text/plain", v::JUA_UsernamePasswordLogin)
+    print("JUA_UsernamePasswordLogin:\n")
+    print(io, "Username: ")
+    Base.show(io, a, unsafe_load(v.username))
+    print("\n")
+    print(io, "Password: ")
+    Base.show(io, a, unsafe_load(v.password))
 end
 
 function release_handle(obj::JUA_UsernamePasswordLogin)
