@@ -11,7 +11,7 @@ tutorials is of course written in C, many of the function names and approaches
 directly transfer over to Open62541.jl and are thus very useful to know.
 
 ## Examples in the open62541 source repository on Github
-The [examples](https://github.com/open62541/open62541/tree/master/examples)
+The [examples](https://github.com/open62541/open62541/tree/master/examples) provided in Github repository of the open62541 C-library can also be instructive. Many of the tests of the Julia library have been adapted from examples found in this folder, so it is useful to compare the two codes against each other.
 
 ## Tests in Open62541.jl
 Code changes implemented in Open62541.jl are continuously tested against a growing 
