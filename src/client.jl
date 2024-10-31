@@ -1,3 +1,78 @@
+# /* Configure Username/Password for the Session authentication. Also see
+#  * UA_ClientConfig_setAuthenticationCert for x509-based authentication, which is
+#  * implemented as a plugin (as it can be based on different crypto
+#  * libraries). */
+##TODO: ADD DOCSTRING
+function UA_ClientConfig_setAuthenticationUsername(config, username, password) 
+    identityToken = UA_UserNameIdentityToken_new()
+    if identityToken == C_NULL
+        return UA_STATUSCODE_BADOUTOFMEMORY
+    else
+        identityToken.userName = UA_STRING_ALLOC(username)
+        identityToken.password = UA_STRING_ALLOC(password)
+
+        UA_ExtensionObject_clear(config.userIdentityToken)
+        UA_ExtensionObject_setValue(config.userIdentityToken, identityToken,
+                                    UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN])
+        return UA_STATUSCODE_GOOD
+    end
+end
+
+# /* Connect to the server. First a SecureChannel is opened, then a Session. The
+#  * client configuration restricts the SecureChannel selection and contains the
+#  * UserIdentityToken for the Session.
+#  *
+#  * @param client to use
+#  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
+#  * @return Indicates whether the operation succeeded or returns an error code */
+ ##TODO: ADD DOCSTRING
+
+function UA_Client_connect(client, endpointUrl)
+    cc = UA_Client_getConfig(client)
+    cc.noSession = false
+    UA_String_clear(cc.endpointUrl)
+    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    return __UA_Client_connect(client, false)
+end
+
+# /* Connect async (non-blocking) to the server. After initiating the connection,
+#  * call UA_Client_run_iterate repeatedly until the connection is fully
+#  * established. You can set a callback to client->config.stateCallback to be
+#  * notified when the connection status changes. Or use UA_Client_getState to get
+#  * the state manually. */
+ ##TODO: ADD DOCSTRING
+function UA_Client_connectAsync(client::Ptr{UA_Client}, endpointUrl::AbstractString)
+    cc = UA_Client_getConfig(client)
+    cc.noSession = false
+    UA_String_clear(cc.endpointUrl)
+    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    return __UA_Client_connect(client, true)
+end
+
+
+# /* Connect to the server without creating a session
+#  *
+#  * @param client to use
+#  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
+#  * @return Indicates whether the operation succeeded or returns an error code */
+ ##TODO: ADD DOCSTRING
+function UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointUrl::AbstractString)
+    cc = UA_Client_getConfig(client)
+    cc.noSession = true
+    UA_String_clear(cc.endpointUrl)
+    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    return __UA_Client_connect(client, false)
+end
+
+# /* Connect async (non-blocking) only the SecureChannel */
+function UA_Client_connectSecureChannelAsync(client::Ptr{UA_Client}, endpointUrl::AbstractString)
+    cc = UA_Client_getConfig(client)
+    cc.noSession = true
+    UA_String_clear(cc.endpointUrl)
+    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    return __UA_Client_connect(client, true)
+end
+
 """
 ```
 UA_Client_getContext(client::Ptr{UA_Client})::Ptr{Ptr{Cvoid}}
@@ -16,20 +91,14 @@ UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::AbstractString,
 connects the `client` to the server with endpoint URL `endpointurl` and supplies
 `username` and `password` as login credentials.
 """
-function UA_Client_connectUsername(client::Ptr{UA_Client},
-        endpointurl::AbstractString,
-        username::AbstractString,
-        password::AbstractString)
-    identityToken = UA_UserNameIdentityToken_new()
-    identityToken == C_NULL && return UA_STATUSCODE_BADOUTOFMEMORY
-    identityToken.userName = UA_STRING_ALLOC(username)
-    identityToken.password = UA_STRING_ALLOC(password)
+function UA_Client_connectUsername(client, endpointurl, username, password)
     cc = UA_Client_getConfig(client)
-    UA_ExtensionObject_clear(cc.userIdentityToken)
-    cc.userIdentityToken.encoding = UA_EXTENSIONOBJECT_DECODED
-    cc.userIdentityToken.content.decoded.type = UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN]
-    cc.userIdentityToken.content.decoded.data = identityToken
-    return UA_Client_connect(client, endpointurl)
+    res = UA_ClientConfig_setAuthenticationUsername(cc, username, password)
+    if res != UA_STATUSCODE_GOOD
+        return res
+    else
+        return UA_Client_connect(client, endpointurl)
+    end
 end
 
 ## UA_Client_Service functions
@@ -80,7 +149,7 @@ for att in attributes_UA_Client_Service
     end
 end
 
-#TODO: add tests
+# #TODO: add tests
 """
 ```
 response::Ptr{UA_SetMonitoringModeResponse} = UA_Client_MonitoredItems_setMonitoringMode(client::Ptr{UA_Client}, 
@@ -109,7 +178,7 @@ function UA_Client_MonitoredItems_setMonitoringMode(client, request)
     return response
 end
 
-#TODO: add tests
+# #TODO: add tests
 """
 ```
 response::Ptr{UA_SetTriggeringResponse} = UA_Client_MonitoredItems_setTriggering(client::Ptr{UA_Client}, 
@@ -223,7 +292,7 @@ for nodeclass in instances(UA_NodeClass)
                         callback::UA_ClientAsyncAddNodesCallback, userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
                 ```
 
-                uses the aynchronous client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                uses the asynchronous client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
                 node to the `client`.
 
                 See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
@@ -273,7 +342,7 @@ for nodeclass in instances(UA_NodeClass)
                         userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
                 ```
 
-                uses the aynchronous client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
+                uses the asynchronous client API to add a $(lowercase(string($nodeclass_sym)[14:end])) 
                 node to the `client`.
 
                 See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
@@ -376,7 +445,7 @@ for att in attributes_UA_Client_write
     end
 end
 
-## Write attribute async functions
+# ## Write attribute async functions
 for att in attributes_UA_Client_write_async
     fun_name = Symbol(att[1])
     attr_name = Symbol(att[2])
@@ -419,31 +488,31 @@ for att in attributes_UA_Client_write_async
 end
 
 ## TODO: functions below here have no tests yet.
-"""
-```
-UA_Client_MonitoredItems_modify_async(client::Ptr{UA_Client}, 
-    request::Ptr{UA_ModifyMonitoredItemsRequest},
-    callback::UA_ClientAsyncServiceCallback,
-    userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
-```
+# """
+# ```
+# UA_Client_MonitoredItems_modify_async(client::Ptr{UA_Client}, 
+#     request::Ptr{UA_ModifyMonitoredItemsRequest},
+#     callback::UA_ClientAsyncServiceCallback,
+#     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
+# ```
 
-uses the asynchronous client API to modify monitored items. 
+# uses the asynchronous client API to modify monitored items. 
 
-See also:
+# See also:
 
-[Monitored item model at OPC Foundation](https://reference.opcfoundation.org/Core/Part4/v105/docs/5.12.1)
+# [Monitored item model at OPC Foundation](https://reference.opcfoundation.org/Core/Part4/v105/docs/5.12.1)
 
-[`UA_ModifyMonitoredItemsRequest`](@ref)
+# [`UA_ModifyMonitoredItemsRequest`](@ref)
 
-[`UA_ClientAsyncServiceCallback_generate`](@ref)
-"""
-function UA_Client_MonitoredItems_modify_async(client, request, callback, userdata,
-        requestId)
-    return __UA_Client_AsyncService(client, request,
-        UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSREQUEST], callback,
-        UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSRESPONSE],
-        userdata, requestId)
-end
+# [`UA_ClientAsyncServiceCallback_generate`](@ref)
+# """
+# function UA_Client_MonitoredItems_modify_async(client, request, callback, userdata,
+#         requestId)
+#     return __UA_Client_AsyncService(client, request,
+#         UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSREQUEST], callback,
+#         UA_TYPES_PTRS[UA_TYPES_MODIFYMONITOREDITEMSRESPONSE],
+#         userdata, requestId)
+# end
 
 """
 ```
@@ -574,24 +643,24 @@ function UA_Client_sendAsyncBrowseRequest(client, request, browseCallback,
         reqId)
 end
 
-"""
-```
-UA_Client_writeMinimumSamplingIntervalAttribute_async(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, 
-    newValue::Float64, callback::UA_ClientAsyncServiceCallback, userdata::Ptr{Cvoid},
-    requestId::UInt32)::UA_StatusCode
-```
+# """
+# ```
+# UA_Client_writeMinimumSamplingIntervalAttribute_async(client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId}, 
+#     newValue::Float64, callback::UA_ClientAsyncServiceCallback, userdata::Ptr{Cvoid},
+#     requestId::UInt32)::UA_StatusCode
+# ```
 
-Uses the asynchronous client API to write the value `newValue` to the attribute MinimumSamplingInterval
-of the NodeId `nodeId` accessed through the client `client`. 
+# Uses the asynchronous client API to write the value `newValue` to the attribute MinimumSamplingInterval
+# of the NodeId `nodeId` accessed through the client `client`. 
 
-"""
-function UA_Client_writeMinimumSamplingIntervalAttribute_async(client, nodeId,
-        outMinimumSamplingInterval, callback, userdata, reqId)
-    return __UA_Client_writeAttribute_async(client, nodeId,
-        UA_ATTRIBUTEID_MINIMUMSAMPLINGINTERVAL,
-        wrap_ref(outMinimumSamplingInterval), UA_TYPES_PTRS[UA_TYPES_DOUBLE], callback, userdata,
-        reqId)
-end
+# """
+# function UA_Client_writeMinimumSamplingIntervalAttribute_async(client, nodeId,
+#         outMinimumSamplingInterval, callback, userdata, reqId)
+#     return __UA_Client_writeAttribute_async(client, nodeId,
+#         UA_ATTRIBUTEID_MINIMUMSAMPLINGINTERVAL,
+#         wrap_ref(outMinimumSamplingInterval), UA_TYPES_PTRS[UA_TYPES_DOUBLE], callback, userdata,
+#         reqId)
+# end
 
 """
 ```
@@ -611,3 +680,25 @@ function UA_Client_call_async(client, objectId, methodId, inputSize, input,
     return __UA_Client_call_async(client, objectId, methodId, inputSize, input,
         reinterpret(UA_ClientAsyncServiceCallback, callback), userdata, reqId)
 end
+
+#TODO: IMPLEMENT
+# function UA_Client_Service_translateBrowsePathsToNodeIds(client, request)
+#     UA_TranslateBrowsePathsToNodeIdsResponse response;
+#     __UA_Client_Service(
+#         client, &request,
+#         &UA_TYPES[UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST],
+#         &response,
+#         &UA_TYPES[UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE]);
+#     return response
+# end
+
+#TODO: IMPLEMENT
+# UA_Client_sendAsyncBrowseNextRequest(
+#     UA_Client *client, UA_BrowseNextRequest *request,
+#     UA_ClientAsyncBrowseNextCallback browseNextCallback,
+#     void *userdata, UA_UInt32 *reqId) {
+#     return __UA_Client_AsyncService(
+#         client, request, &UA_TYPES[UA_TYPES_BROWSENEXTREQUEST],
+#         (UA_ClientAsyncServiceCallback)browseNextCallback,
+#         &UA_TYPES[UA_TYPES_BROWSENEXTRESPONSE], userdata, reqId);
+# }

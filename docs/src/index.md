@@ -58,3 +58,11 @@ The documentation has the following structure:
     
     The docstring situation is better on the handwritten functions contained in 
     the other source files.
+
+## How to contribute
+There is many ways one can contribute to the development of Open62541.jl (in order of increasing complexity):
+- Reporting bugs, issues and suggestions on the Github repository.
+- Improving the clarity of the existing documentation.
+- Adding new tutorials for more advanced functionality.
+- Adding/Improving docstrings, especially in the main file of the library src/Open62541.jl. It would be best if these are added automatically in the right spot during the code generation using Clang.jl (see gen/generator.jl). But improvements are welcome also if they are directly done in the src/Open62541.jl (existing contributors can help keeping things aligned).
+- Adding improvements to the high-level interface. It would be best to discuss ideas on this topic via the Github repository before embarking on larger changes.

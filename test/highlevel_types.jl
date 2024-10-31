@@ -2,9 +2,11 @@ using Open62541
 using Test
 
 #JUA_String
+j0 = JUA_String()
 j1 = JUA_String("test")
 u1 = UA_STRING("test")
 j2 = JUA_String(u1)
+@test j0 isa JUA_String
 @test j1 isa JUA_String
 @test j2 isa JUA_String
 UA_String_delete(u1)
@@ -24,6 +26,11 @@ v = UA_Variant_new()
 j2 = JUA_Variant(v)
 @test j2 isa JUA_Variant
 UA_Variant_delete(v)
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Rational(true, false))
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Rational(1, 2), Rational(3, 4)), Complex(Rational(5, 6), Rational(7, 8))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Int16(1), Int16(3)), Complex(Int32(4), Int32(5))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Int16(1), Int16(3)))
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Rational(1, 2), Rational(3, 4)))
 
 #JUA_NodeId
 j1 = JUA_NodeId()
@@ -32,6 +39,12 @@ j2 = JUA_NodeId(u1)
 @test j1 isa JUA_NodeId
 @test j2 isa JUA_NodeId
 UA_NodeId_delete(u1)
+
+#JUA_ExpandedNodeId
+j1 = JUA_ExpandedNodeId()
+@test j1 isa JUA_ExpandedNodeId
+j1 = 0
+GC.gc()
 
 #JUA_QualifiedName
 j1 = JUA_QualifiedName(1, "test")

@@ -4,7 +4,8 @@
 # We also check that setting a variable node with one type cannot be set to 
 # another type (e.g., integer variable node cannot be set to float64.)
 
-#Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF32/64
+# Types tested: Bool, Int8/16/32/64, UInt8/16/32/64, Float32/64, String, ComplexF16/F32/64
+# Rational{Int16/Int32}, Rational{UInt16, UInt32}
 
 using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
@@ -12,13 +13,15 @@ Distributed.addprocs(1) # Add a single worker process to run the server
 Distributed.@everywhere begin
     using Open62541, Test, Random
 
+    include("test_helpers.jl")
+
     # What types we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32,
-        UInt64, Float32, Float64, String, ComplexF32, ComplexF64]
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
+        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
+        Rational{UInt32}]
 
     # Generate random input values and generate nodeid names
-    input_data = Tuple(type != String ? rand(type) : randstring(rand(1:10))
-    for type in types)
+    input_data = Tuple(customrand(type) for type in types)
     varnode_ids = ["$(Symbol(type)) scalar variable" for type in types]
 end
 
@@ -51,7 +54,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
         @test retval == UA_STATUSCODE_GOOD
         # Test whether the correct array is within the server (read from server)
         output_server = JUA_Server_readValue(server, varnodeid)
-        if type <: AbstractFloat
+        if type <: Union{AbstractFloat, Complex}
             @test all(isapprox.(input, output_server))
         else
             @test all(input .== output_server)
@@ -88,7 +91,7 @@ for (type_ind, type) in enumerate(types)
     input = input_data[type_ind]
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     output_client = JUA_Client_readValueAttribute(client, varnodeid)
-    if type <: AbstractFloat
+    if type <: Union{AbstractFloat, Complex}
         @test all(isapprox.(input, output_client))
     else
         @test all(input .== output_client)
@@ -97,7 +100,7 @@ end
 
 # Write new data 
 for (type_ind, type) in enumerate(types)
-    new_input = type != String ? rand(type) : randstring(rand(1:10))
+    new_input = customrand(type)
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     retval = JUA_Client_writeValueAttribute(client, varnodeid, new_input)
     @test retval == UA_STATUSCODE_GOOD
@@ -111,8 +114,25 @@ end
 
 # Test wrong data type write errors 
 for type_ind in eachindex(types)
-    type = types[mod(type_ind, length(types)) + 1] # Select wrong data type
-    new_input = type != String ? rand(type) : randstring(rand(1:10))
+    if types[type_ind] <: Integer
+        type = Float64
+    elseif types[type_ind] <: AbstractFloat
+        type = Int64
+    elseif types[type_ind] <: AbstractString
+        type = Float64
+    elseif types[type_ind] <: Rational{<:Unsigned}
+        type = Rational{Int32}
+    elseif types[type_ind] <: Rational{<:Signed}
+        type = Rational{UInt32}
+    elseif types[type_ind] <: Union{ComplexF16,ComplexF32}
+        type = ComplexF64
+    elseif types[type_ind] <: ComplexF64
+        type = ComplexF32
+    elseif types[type_ind] == Bool
+        type = Int64
+    end
+
+    new_input = customrand(type)
     varnodeid = JUA_NodeId(1, varnode_ids[type_ind])
     @test_throws Open62541.AttributeReadWriteError JUA_Client_writeValueAttribute(client,
         varnodeid, new_input)

@@ -25,6 +25,7 @@ end
 
 const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
 const JUA_Client_connect = UA_Client_connect
+const JUA_Client_connectUsername = UA_Client_connectUsername
 const JUA_Client_disconnect = UA_Client_disconnect
 
 #Add node functions
@@ -154,7 +155,7 @@ end
 #Client read and write functions
 """
 ```
-value = JUA_Client_readValue(server::JUA_Client, nodeId::JUA_NodeId, type = Any)
+value = JUA_Client_readValueAttribute(client::JUA_Client, nodeId::JUA_NodeId, type = Any)
 ```
 
 uses the client API to read the value of `nodeId` from the server that the `client` 

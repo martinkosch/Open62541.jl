@@ -115,7 +115,7 @@ retval3 = JUA_Client_writeValueAttribute(client, id3, new3)
 
 Inspecting the return values (`retval1,2,3`) and the log and error messages in the 
 terminal (both server and client), you will see that writing `new2` to `id2` 
-failed with the statuscode "BadTypeMismatch" (`retval2a`). 
+failed with the statuscode "BadTypeMismatch" (`retval2`). 
 
 This is because in open62541 arrays are statically sized, both in terms of the 
 number of dimensions, as well as the number of elements along each dimension. 

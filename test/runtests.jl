@@ -41,6 +41,10 @@ end
     include("server_config.jl")
 end
 
+@safetestset "Server Access Control" begin
+    include("server_accesscontrol.jl")
+end
+
 @safetestset "Server Read Functions" begin
     include("server_read.jl")
 end

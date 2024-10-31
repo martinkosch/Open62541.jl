@@ -27,17 +27,76 @@ mutable struct JUA_ServerConfig <: AbstractOpen62541Wrapper
 end
 
 #aliasing functions that interact with server and serverconfig
-const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer
-const JUA_ServerConfig_setMinimal = UA_ServerConfig_setMinimal
-const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
+const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer 
+const JUA_ServerConfig_setDefaultWithSecurityPolicies = UA_ServerConfig_setDefaultWithSecurityPolicies
+const JUA_ServerConfig_setDefaultWithSecureSecurityPolicies = UA_ServerConfig_setDefaultWithSecureSecurityPolicies
 const JUA_ServerConfig_setBasics = UA_ServerConfig_setBasics
-const JUA_ServerConfig_addNetworkLayerTCP = UA_ServerConfig_addNetworkLayerTCP
+const JUA_ServerConfig_setBasics_withPort = UA_ServerConfig_setBasics_withPort
 const JUA_ServerConfig_addSecurityPolicyNone = UA_ServerConfig_addSecurityPolicyNone
+const JUA_ServerConfig_addSecurityPolicyBasic128Rsa15 = UA_ServerConfig_addSecurityPolicyBasic128Rsa15
+const JUA_ServerConfig_addSecurityPolicyBasic256 = UA_ServerConfig_addSecurityPolicyBasic256
+const JUA_ServerConfig_addSecurityPolicyBasic256Sha256 = UA_ServerConfig_addSecurityPolicyBasic256Sha256
+const JUA_ServerConfig_addSecurityPolicyAes128Sha256RsaOaep = UA_ServerConfig_addSecurityPolicyAes128Sha256RsaOaep
+const JUA_ServerConfig_addSecurityPolicyAes256Sha256RsaPss = UA_ServerConfig_addSecurityPolicyAes256Sha256RsaPss
+const JUA_ServerConfig_addAllSecurityPolicies = UA_ServerConfig_addAllSecurityPolicies
+const JUA_ServerConfig_addAllSecureSecurityPolicies = UA_ServerConfig_addAllSecureSecurityPolicies
 const JUA_ServerConfig_addEndpoint = UA_ServerConfig_addEndpoint
 const JUA_ServerConfig_addAllEndpoints = UA_ServerConfig_addAllEndpoints
+const JUA_ServerConfig_addAllSecureEndpoints = UA_ServerConfig_addAllSecureEndpoints
+
+"""
+```
+JUA_ServerConfig_setMinimal(config, portNumber[, certificate])
+```
+
+creates a new server config with one endpoint. The config will set the tcp
+network layer to the given port and adds a single endpoint with the security
+policy ``SecurityPolicy#None`` to the server. A server certificate may be
+supplied but is optional.
+"""
+JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_ServerConfig_setMinimal(config, portNumber, certificate)
+
+const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
 const JUA_ServerConfig_clean = UA_ServerConfig_clean
-const JUA_AccessControl_default = UA_AccessControl_default
-const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback
+
+"""
+```
+JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+    usernamePasswordLogin::Union{JUA_UsernamePasswordLogin, AbstractArray{JUA_UsernamePasswordLogin}}, 
+    [userTokenPolicyUri::AbstractString])::UA_StatusCode
+```
+
+sets default access control options in a server configuration.
+
+"""
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}})
+    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, 
+        Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri)) 
+end
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}}, userTokenPolicyUri::AbstractString)
+    ua_s = UA_STRING(userTokenPolicyUri)
+    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, ua_s)
+end
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+        usernamePasswordLogin::JUA_UsernamePasswordLogin, 
+        userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
+    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, 1, Ref(usernamePasswordLogin.login))
+end
+
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
+        usernamePasswordLogin::AbstractArray{JUA_UsernamePasswordLogin}, 
+        userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
+    logins = [usernamePasswordLogin[i].login for i in eachindex(usernamePasswordLogin)]
+    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, length(logins), logins)
+end
+
+    
+#const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback #TODO: complete this
 
 function JUA_Server_runUntilInterrupt(server::JUA_Server)
     running = Ref(true)

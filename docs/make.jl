@@ -20,7 +20,9 @@ makedocs(;
         "Tutorials" => [
             "tutorials/server_first_steps.md",
             "tutorials/client_first_steps.md",
-            "tutorials/combined_variables.md"
+            "tutorials/combined_variables.md",
+            "tutorials/combined_username_password_login.md",
+            "tutorials/further_resources.md"
         ],
         "Manual" => [
             "manual/numbertypes.md",
