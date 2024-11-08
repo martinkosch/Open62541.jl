@@ -826,27 +826,22 @@ JUA_Argument()
 creates an empty `JUA_Argument`, equivalent to calling `UA_Argument_new()`.
 
 ```
-JUA_Argument(example; name::Union{Nothing, AbstractString} = nothing, 
-        description::Union{AbstractString,Nothing} = nothing, 
+JUA_Argument(examplearg::Union{Nothing, AbstractArray{<: ARG_TYPEUNION}, ARG_TYPEUNION} = nothing; 
+        name::Union{Nothing, AbstractString} = nothing, 
+        description::Union{AbstractString, Nothing} = nothing, 
         localization::AbstractString = "en-US",
-        valuerank::Union{Integer,Nothing} = nothing, 
-        arraydimensionssize::Union{Integer,Nothing} = nothing,
-        arraydimensions::Union{AbstractArray{<: Integer},Nothing} = nothing)
+        datatype::Union{Nothing, ARG_TYPEUNION} = nothing,
+        valuerank::Union{Integer, Nothing} = nothing, 
+        arraydimensions::Union{Integer, AbstractArray{<: Integer}, Nothing} = nothing)
 ```
 
-TODO - constructor with example value
+creates a `JUA_Argument` based on the properties of `examplearg`. Specifically, the `datatype`,
+`valuerank`, and `arraydimensions` are automatically determined from `examplearg`. The `name`,
+`description` and `localization` keyword arguments can be used to describe the `JUA_Argument` 
+further.
 
-```
-JUA_Argument(; name::Union{Nothing, AbstractString} = nothing, 
-        description::Union{AbstractString,Nothing} = nothing, 
-        localization::AbstractString = "en-US",
-        datatype::Union{Nothing,DataType} = nothing,
-        valuerank::Union{Integer,Nothing} = nothing, 
-        arraydimensionssize::Union{Integer,Nothing} = nothing,
-        arraydimensions::Union{AbstractArray{<: Integer},Nothing} = nothing)
-```
+The `valuerank` and `arraydimensions` properties are explained here: [OPC Foundation Website](https://reference.opcfoundation.org/Core/Part3/v105/docs/8.6)
 
-TODO - constructor without example value
 
 ```
 JUA_Argument(argumentptr::Ptr{UA_Argument})
@@ -863,13 +858,18 @@ Examples:
 
 ```
 j = JUA_Argument()
-j = JUA_Argument(zeros(Float32, 2, 2), name = "fancy", description = "my fancy argument") 
+j = JUA_Argument(1.0) #will accept a Float64 scalar
+j = JUA_Argument(zeros(Float32, 2, 2)) #will exclusively accept Float32 arrays of size 2x2
+j = JUA_Argument(zeros(Float32, 2, 2), arraydimensions = [0, 0]) #will accept any 2D Float32 array.
+j = JUA_Argument(datatype = Float64, valuerank = 1, arraydimensions = 4) #will accept a Float64 vector with 4 elements.
+j = JUA_Argument(datatype = Float64, valuerank = 1, arraydimensions = 0) #will accept a Float64 vector of any length.
 ```
 """
 
 mutable struct JUA_Argument <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Argument}
-                                                        #TODO: This is stressing the compiler/VS-code; smarter way?
+    #TODO: The ARG_TYPEUNION is stressing the compiler and code-interpreter in VS-code; 
+    #is there a smarter way?
     function JUA_Argument(examplearg::Union{Nothing, AbstractArray{<: ARG_TYPEUNION}, ARG_TYPEUNION} = nothing; 
             name::Union{Nothing, AbstractString} = nothing, 
             description::Union{AbstractString, Nothing} = nothing, 
@@ -896,9 +896,11 @@ mutable struct JUA_Argument <: AbstractOpen62541Wrapper
         if !isnothing(examplearg)
             if isa(examplearg, AbstractArray)
                 s = size(examplearg)
-                arg.arrayDimensionsSize = length(s)
-                arg.arrayDimensions = UA_UInt32_Array_new(s) 
-                arg.valueRank = length(s)      
+                if isnothing(valuerank) || valuerank == length(s)
+                    arg.arrayDimensionsSize = length(s)
+                    arg.arrayDimensions = UA_UInt32_Array_new(s) 
+                    arg.valueRank = length(s)  
+                end     
                 arg.dataType = __determinetype(eltype(examplearg))                 
             else
                 arg.valueRank = -1
@@ -924,7 +926,6 @@ mutable struct JUA_Argument <: AbstractOpen62541Wrapper
         ads = unsafe_load(arg.arrayDimensionsSize)
         ad = unsafe_wrap(Array, unsafe_load(arg.arrayDimensions), ads)
         vr = unsafe_load(arg.valueRank)
-        @show vr, ads, ad
         consistent = __check_valuerank_arraydimensions_consistency(vr, ad)
         if consistent == true
             obj = new(arg)

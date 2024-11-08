@@ -166,12 +166,10 @@ jd = JUA_Argument(a, valuerank = -2)
 
 #check the consistency check function in helper_functions.jl
 @test isa(JUA_Argument(), JUA_Argument)
-@test isa(JUA_Argument(valureank = -3), JUA_Argument)
-@test isa(JUA_Argument(valureank = -2), JUA_Argument)
-@test isa(JUA_Argument(valureank = -1), JUA_Argument)
-@test isa(JUA_Argument(valureank = -3), JUA_Argument)
-
-
+@test isa(JUA_Argument(valuerank = -3), JUA_Argument)
+@test isa(JUA_Argument(valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(valuerank = -1), JUA_Argument)
+@test isa(JUA_Argument(valuerank = -3), JUA_Argument)
 
 #valurank = -3; scalar or one dim array
 @test isa(JUA_Argument("test", valuerank = -3), JUA_Argument)
@@ -192,7 +190,7 @@ jd = JUA_Argument(a, valuerank = -2)
 
 #valuerank = 1,2,3; array with num dimensions equal to valuerank
 @test isa(JUA_Argument(valuerank = 1, arraydimensions = 1), JUA_Argument)
-@test isa(JUA_Argument(1, valuerank = 1), JUA_Argument)
+@test isa(JUA_Argument([1], valuerank = 1), JUA_Argument)
 @test isa(JUA_Argument(ones(3,2), valuerank = 2), JUA_Argument)
 @test isa(JUA_Argument(ones(3,2,3), valuerank = 3), JUA_Argument)
 
@@ -205,5 +203,5 @@ jd = JUA_Argument(a, valuerank = -2)
     arraydimensions = [1, 2])
 @test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1, 
     arraydimensions = [1, 2])
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = 1, 
     arraydimensions = [1, 2])
