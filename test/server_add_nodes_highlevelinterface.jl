@@ -340,21 +340,8 @@ function helloWorld(server, sessionId, sessionHandle, methodId,
 end
 
 #TODO: code here is not yet part of the high level interface, but a mixture...
-inputArgument = UA_Argument_new()
-lt = JUA_LocalizedText("en-US", "A String")
-ua_s = JUA_String("MyInput")
-inputArgument.description = lt
-inputArgument.name = ua_s
-inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-inputArgument.valueRank = UA_VALUERANK_SCALAR
-
-outputArgument = UA_Argument_new()
-lt = JUA_LocalizedText("en-US", "A String")
-ua_s = JUA_String("MyOutput")
-outputArgument.description = lt
-outputArgument.name = ua_s
-outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-outputArgument.valueRank = UA_VALUERANK_SCALAR
+inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
+outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",
     displayname = "Hello World",
     executable = true,
@@ -394,7 +381,5 @@ UA_Server_call(server, req, answer)
 @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
 
 #clean up
-UA_Argument_delete(inputArgument)
-UA_Argument_delete(outputArgument)
 UA_CallMethodRequest_delete(req)
 UA_CallMethodResult_delete(answer)

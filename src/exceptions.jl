@@ -65,3 +65,16 @@ function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
     end
     print(io, msg)
 end
+
+#valuerank, arraysize error
+struct ValueRankArraySizeConsistencyError <: Exception
+    valuerank::Int64
+    arraydimensionsize::Any
+    arraydimensions::Any
+end
+
+function Base.showerror(io::IO, e::ValueRankArraySizeConsistencyError)
+    #TODO: should provide more informative error message based on inputs.
+    msg = "Inconsistency detected in valuerank, arraydimensionsize and arraydimensions."
+    print(io, msg)
+end
