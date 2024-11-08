@@ -135,3 +135,75 @@ UA_ReferenceTypeAttributes_delete(u5)
 UA_DataTypeAttributes_delete(u6)
 UA_ViewAttributes_delete(u7)
 UA_MethodAttributes_delete(u8)
+
+## JUA_Argument
+siz_a = [4, 4, 4]
+siz_b = [11, 2]
+siz_c = 3
+a = zeros(Float32, siz_a...)
+b = zeros(UInt8, siz_b...)
+c = ["first", "second", "third"]
+ja = JUA_Argument(a)
+jb = JUA_Argument(b)
+jc = JUA_Argument(c)
+jd = JUA_Argument(a, valuerank = -2)
+
+#check data types
+@test UA_NodeId_equal(ja.dataType, UA_NODEID("i="*string(UA_TYPES_FLOAT+1)))
+@test UA_NodeId_equal(jb.dataType, UA_NODEID("i="*string(UA_TYPES_BYTE+1)))
+@test UA_NodeId_equal(jc.dataType, UA_NODEID("i="*string(UA_TYPES_STRING+1)))
+
+#check array size information
+@test all(siz_a .== unsafe_wrap(Array, unsafe_load(ja.arrayDimensions), unsafe_load(ja.arrayDimensionsSize)))
+@test all(siz_b .== unsafe_wrap(Array, unsafe_load(jb.arrayDimensions), unsafe_load(jb.arrayDimensionsSize)))
+@test all(siz_c .== unsafe_wrap(Array, unsafe_load(jc.arrayDimensions), unsafe_load(jc.arrayDimensionsSize)))
+
+#check value rank
+@test length(siz_a) == unsafe_load(ja.valueRank)
+@test length(siz_b) == unsafe_load(jb.valueRank)
+@test length(siz_c) == unsafe_load(jc.valueRank)
+@test -2 == unsafe_load(jd.valueRank)
+
+#check the consistency check function in helper_functions.jl
+@test isa(JUA_Argument(), JUA_Argument)
+@test isa(JUA_Argument(valureank = -3), JUA_Argument)
+@test isa(JUA_Argument(valureank = -2), JUA_Argument)
+@test isa(JUA_Argument(valureank = -1), JUA_Argument)
+@test isa(JUA_Argument(valureank = -3), JUA_Argument)
+
+
+
+#valurank = -3; scalar or one dim array
+@test isa(JUA_Argument("test", valuerank = -3), JUA_Argument)
+@test isa(JUA_Argument(ones(3), valuerank = -3), JUA_Argument)
+
+#valuerank = -2; scalar or array of any dim
+@test isa(JUA_Argument(1, valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(ones(3), valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(ones(3,2), valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(ones(3,2,4), valuerank = -2), JUA_Argument)
+
+#valuerank = -1; scalar
+@test isa(JUA_Argument(1, valuerank = -1), JUA_Argument)
+
+#valuerank = 0; array of one or more dimensions
+@test isa(JUA_Argument(ones(3), valuerank = 0), JUA_Argument)
+@test isa(JUA_Argument(ones(3,2), valuerank = 0), JUA_Argument)
+
+#valuerank = 1,2,3; array with num dimensions equal to valuerank
+@test isa(JUA_Argument(valuerank = 1, arraydimensions = 1), JUA_Argument)
+@test isa(JUA_Argument(1, valuerank = 1), JUA_Argument)
+@test isa(JUA_Argument(ones(3,2), valuerank = 2), JUA_Argument)
+@test isa(JUA_Argument(ones(3,2,3), valuerank = 3), JUA_Argument)
+
+#Now test combinations that should throw an exception
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3, 
+    arraydimensions = [1])
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3, 
+    arraydimensions = [1, 2])
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -2, 
+    arraydimensions = [1, 2])
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1, 
+    arraydimensions = [1, 2])
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1, 
+    arraydimensions = [1, 2])

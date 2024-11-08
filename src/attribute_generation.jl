@@ -173,12 +173,7 @@ function UA_EVENTNOTIFIER(;
 end
 
 #function that allows setting attributes that occur in all node types
-function __set_generic_attributes!(attr,
-        name,
-        desc,
-        localization,
-        writemask,
-        userwritemask)
+function __set_generic_attributes!(attr, name, desc, localization, writemask, userwritemask)
     displayname = UA_LOCALIZEDTEXT(localization, name)
     description = UA_LOCALIZEDTEXT(localization, desc)
     UA_LocalizedText_copy(displayname, attr.displayName)
@@ -268,7 +263,7 @@ function __set_array_attributes!(attr, value::AbstractArray{T, N},
     #Note: need array dims twice, once to put into the variant, i.e., attr.value 
     #and once for the attr structure itself. If the same array is put into both 
     #places, using for example UA_VariableAttributes_delete(attr) leads to free-ing
-    #the same memory twice --> julia crash (hard to track down!)
+    #the same memory twice --> julia crash
     arraydims_variant = UA_UInt32_Array_new(reverse(size(value)))
     arraydims_attr = UA_UInt32_Array_new(reverse(size(value)))
     attr.arrayDimensions = arraydims_attr
@@ -325,9 +320,7 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         #if number type not specifically reported (see union above) throw an informative exception.
         err = UnsupportedNumberTypeError(T)
         throw(err) 
-    end
-    
-        
+    end            
     return attr
 end
 
@@ -377,19 +370,7 @@ function __generic_variable_attributes(displayname, description, localization,
         if !isnothing(historizing)
             attr.historizing = historizing
         end
-        if type <: AbstractString
-            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
-        elseif type == Complex{Float32}
-            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
-        elseif type == Complex{Float64}
-            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
-        elseif type == Rational{Int32} 
-            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-        elseif type == Rational{UInt32}
-            attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
-        else
-            attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
-        end
+        attr.dataType = __determinetype(type)
         return attr
     else
         err = AttributeCopyError(statuscode)
@@ -488,20 +469,8 @@ function __generic_variabletype_attributes(displayname, description, localizatio
         if !isnothing(isabstract)
             attr.isAbstract = isabstract
         end
-        if !isnothing(type)
-            if type <: AbstractString
-                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_STRING].typeId)
-            elseif type == Complex{Float32}
-                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
-            elseif type == Complex{Float64}
-                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
-            elseif type == Rational{Int32} 
-                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
-            elseif type == Rational{UInt32}
-                attr.dataType = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
-            else
-                attr.dataType = unsafe_load(ua_data_type_ptr_default(type).typeId)
-            end
+        if !isnothing(type)           
+            attr.dataType = __determinetype(type)
         end
         return attr
     else

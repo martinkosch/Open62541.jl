@@ -463,8 +463,8 @@ r4 = addPumpObjectInstance(server, "pump5", pumpTypeId) #should have status = tr
 #clean up pumpTypeId
 UA_NodeId_delete(pumpTypeId)
 
-    #add method node
-    #follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+#add method node
+#follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
 
 function helloWorld(server, sessionId, sessionHandle, methodId,
         methodContext, objectId, objectContext, inputSize, input, outputSize, output)

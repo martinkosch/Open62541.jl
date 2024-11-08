@@ -28,9 +28,9 @@ end
 #This creates a copy of the object to be assigned, so that the JUA_YYY object 
 #can be safely used multiple times in assignments without getting freed multiple 
 #times.
-for i in unique_julia_types_ind
+for i in UNIQUE_JULIA_TYPES_IND
     @eval begin
-        function Base.setproperty!(x::Ptr{$(julia_types[i])}, f::Symbol, v::T, nowarn::Bool = false) where T <: AbstractOpen62541Wrapper
+        function Base.setproperty!(x::Ptr{$(JULIA_TYPES[i])}, f::Symbol, v::T, nowarn::Bool = false) where T <: AbstractOpen62541Wrapper
             type_ptr = ua_data_type_ptr_default(typeof(Jpointer(v)))
             UA_clear(getproperty(x, f), type_ptr)
             UA_copy(Jpointer(v), getproperty(x, f), type_ptr)    
@@ -803,6 +803,149 @@ end
 
 function release_handle(obj::JUA_Variant)
     UA_Variant_delete(Jpointer(obj))
+end
+
+#Argument
+const ARG_TYPEUNION = Union{JULIA_TYPES..., Complex{Float32}, Complex{Float64}, Rational{Int32}, 
+            Rational{UInt32}, AbstractString}
+
+"""
+```
+JUA_Argument
+```
+
+A mutable struct that defines a `JUA_Argument` object - the equivalent of a 
+`UA_Argument`, but with memory managed by Julia rather than C (exceptions below). 
+
+The following constructor methods are defined:
+
+```
+JUA_Argument()
+```
+
+creates an empty `JUA_Argument`, equivalent to calling `UA_Argument_new()`.
+
+```
+JUA_Argument(example; name::Union{Nothing, AbstractString} = nothing, 
+        description::Union{AbstractString,Nothing} = nothing, 
+        localization::AbstractString = "en-US",
+        valuerank::Union{Integer,Nothing} = nothing, 
+        arraydimensionssize::Union{Integer,Nothing} = nothing,
+        arraydimensions::Union{AbstractArray{<: Integer},Nothing} = nothing)
+```
+
+TODO - constructor with example value
+
+```
+JUA_Argument(; name::Union{Nothing, AbstractString} = nothing, 
+        description::Union{AbstractString,Nothing} = nothing, 
+        localization::AbstractString = "en-US",
+        datatype::Union{Nothing,DataType} = nothing,
+        valuerank::Union{Integer,Nothing} = nothing, 
+        arraydimensionssize::Union{Integer,Nothing} = nothing,
+        arraydimensions::Union{AbstractArray{<: Integer},Nothing} = nothing)
+```
+
+TODO - constructor without example value
+
+```
+JUA_Argument(argumentptr::Ptr{UA_Argument})
+```
+
+creates a `JUA_Argument` based on the pointer `argumentptr`. This is a fallback 
+method that can be used to pass `UA_Argument`s generated via the low level interface 
+to the higher level functions. Note that memory management remains on the C side 
+when using this method, i.e., `argumentptr` needs to be manually cleaned up with 
+`UA_Argument_delete(argumentptr)` after the object is not needed anymore. It is up 
+to the user to ensure this.
+
+Examples:
+
+```
+j = JUA_Argument()
+j = JUA_Argument(zeros(Float32, 2, 2), name = "fancy", description = "my fancy argument") 
+```
+"""
+
+mutable struct JUA_Argument <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_Argument}
+                                                        #TODO: This is stressing the compiler/VS-code; smarter way?
+    function JUA_Argument(examplearg::Union{Nothing, AbstractArray{<: ARG_TYPEUNION}, ARG_TYPEUNION} = nothing; 
+            name::Union{Nothing, AbstractString} = nothing, 
+            description::Union{AbstractString, Nothing} = nothing, 
+            localization::AbstractString = "en-US",
+            datatype::Union{Nothing, ARG_TYPEUNION} = nothing,
+            valuerank::Union{Integer, Nothing} = nothing, 
+            arraydimensions::Union{Integer, AbstractArray{<: Integer}, Nothing} = nothing)
+        arg = UA_Argument_new() 
+        if isa(arraydimensions, Integer)
+            arraydimensions = [arraydimensions]
+        end
+        if !isnothing(name)
+            ua_s = UA_STRING(name)
+            UA_String_copy(ua_s, arg.name)
+            UA_String_delete(ua_s)
+        end
+        if !isnothing(description) 
+            lt = UA_LOCALIZEDTEXT(localization, description)
+            UA_LocalizedText_copy(lt, arg.description)
+            UA_LocalizedText_delete(lt)
+        end
+        
+        #determine type and array parameters based on example arg if given
+        if !isnothing(examplearg)
+            if isa(examplearg, AbstractArray)
+                s = size(examplearg)
+                arg.arrayDimensionsSize = length(s)
+                arg.arrayDimensions = UA_UInt32_Array_new(s) 
+                arg.valueRank = length(s)      
+                arg.dataType = __determinetype(eltype(examplearg))                 
+            else
+                arg.valueRank = -1
+                arg.dataType = __determinetype(typeof(examplearg))            
+            end
+        end
+
+        #allow type to be overwritten
+        if !isnothing(datatype)
+            arg.dataType = datatype
+        end
+
+        #allow array fields to be overwritten (to allow flexibility in terms of dimensions etc.)
+        if !isnothing(valuerank)
+            arg.valueRank = valuerank
+        end
+        if !isnothing(arraydimensions) 
+            arg.arrayDimensionsSize = length(arraydimensions)
+            arg.arrayDimensions = UA_UInt32_Array_new(arraydimensions)
+        end 
+        
+        #consistency check
+        ads = unsafe_load(arg.arrayDimensionsSize)
+        ad = unsafe_wrap(Array, unsafe_load(arg.arrayDimensions), ads)
+        vr = unsafe_load(arg.valueRank)
+        @show vr, ads, ad
+        consistent = __check_valuerank_arraydimensions_consistency(vr, ad)
+        if consistent == true
+            obj = new(arg)
+            finalizer(release_handle, obj)
+            return obj
+        else
+            #clean up and throw exception
+            UA_Argument_delete(arg)
+            err = ValueRankArraySizeConsistencyError(arg.valueRank, arg.arrayDimensionsSize, arg.arrayDimensions)
+            throw(err)
+        end        
+    end
+
+    function JUA_Argument(argumentptr::Ptr{UA_Argument})
+        obj = new(argumentptr)
+        return obj
+    end
+end
+
+function release_handle(obj::JUA_Argument)
+    UA_Argument_delete(Jpointer(obj))
 end
 
 #VariableAttributes

@@ -88,15 +88,15 @@ function UA_print(p::T,
     return s
 end
 
-for (i, type_name) in enumerate(type_names)
+for (i, type_name) in enumerate(TYPE_NAMES)
     type_ind_name = Symbol("UA_TYPES_", uppercase(String(type_name)[4:end]))
-    julia_type = julia_types[i]
+    julia_type = JULIA_TYPES[i]
     val_type = Val{type_name}
 
     @eval begin
         # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
-        if type_names[$(i)] ∉ types_ambiguous_ignorelist
+        if TYPE_NAMES[$(i)] ∉ types_ambiguous_ignorelist
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
