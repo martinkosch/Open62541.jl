@@ -861,20 +861,21 @@ j = JUA_Argument()
 j = JUA_Argument(1.0) #will accept a Float64 scalar
 j = JUA_Argument(zeros(Float32, 2, 2)) #will exclusively accept Float32 arrays of size 2x2
 j = JUA_Argument(zeros(Float32, 2, 2), arraydimensions = [0, 0]) #will accept any 2D Float32 array.
+j = JUA_Argument(datatype = Int8, valuerank = 1, arraydimensions = [2, 2]) #will accept a Int8 array of size 2 x 2.
 j = JUA_Argument(datatype = Float64, valuerank = 1, arraydimensions = 4) #will accept a Float64 vector with 4 elements.
 j = JUA_Argument(datatype = Float64, valuerank = 1, arraydimensions = 0) #will accept a Float64 vector of any length.
 ```
 """
-
 mutable struct JUA_Argument <: AbstractOpen62541Wrapper
     ptr::Ptr{UA_Argument}
-    #TODO: The ARG_TYPEUNION is stressing the compiler and code-interpreter in VS-code; 
-    #is there a smarter way?
-    function JUA_Argument(examplearg::Union{Nothing, AbstractArray{<: ARG_TYPEUNION}, ARG_TYPEUNION} = nothing; 
+    #Actually placing the type restrictions on examplearg and datatype like in the docstring 
+    #places a large burden on the VS code interpreter and the compiler (large union); to avoid
+    #this, we keep the arguments untyped.
+    function JUA_Argument(examplearg = nothing; 
             name::Union{Nothing, AbstractString} = nothing, 
             description::Union{AbstractString, Nothing} = nothing, 
             localization::AbstractString = "en-US",
-            datatype::Union{Nothing, ARG_TYPEUNION} = nothing,
+            datatype = nothing,
             valuerank::Union{Integer, Nothing} = nothing, 
             arraydimensions::Union{Integer, AbstractArray{<: Integer}, Nothing} = nothing)
         arg = UA_Argument_new() 
@@ -947,6 +948,113 @@ end
 
 function release_handle(obj::JUA_Argument)
     UA_Argument_delete(Jpointer(obj))
+end
+
+function __argsize(a::JUA_Argument)
+    return 1
+end
+
+function __argsize(a::AbstractArray{JUA_Argument})
+    return length(a)
+end
+
+#CallMethodRequest
+"""
+```
+JUA_CallMethodRequest
+```
+
+A mutable struct that defines a `JUA_CallMethodRequest` object - the equivalent of a 
+`UA_CallMethodRequest`, but with memory managed by Julia rather than C (exceptions below). 
+
+The following constructor methods are defined:
+
+```
+JUA_CallMethodRequest()
+```
+
+creates an empty `JUA_CallMethodRequest`, equivalent to calling `UA_CallMethodRequest_new()`.
+
+```
+TODO: describe the higher level constructor
+```
+
+TODO
+
+```
+JUA_CallMethodRequest(argumentptr::Ptr{UA_Argument})
+```
+
+TODO
+
+Examples:
+
+```
+j = JUA_CallMethodRequest()
+j = JUA_CallMethodRequest(objectid, methodid, inputarg)
+```
+"""
+mutable struct JUA_CallMethodRequest <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_CallMethodRequest}
+
+    function JUA_CallMethodRequest()
+        req = UA_CallMethodRequest_new()
+        obj = new(req)
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_CallMethodRequest(objectid::JUA_NodeId, methodid::JUA_NodeId, inputarg)
+        req = UA_CallMethodRequest_new()
+        req.objectId = objectid
+        req.methodId = methodid
+        if inputarg isa Tuple
+            variants = UA_Variant_Array_new(length(inputarg))
+            for i in eachindex(variants)
+                j = JUA_Variant(inputarg[i])
+                UA_Variant_copy(Jpointer(j), variants[i])
+            end      
+            req.inputArguments = variants
+            req.inputArgumentsSize = length(inputarg) 
+        else
+            j = JUA_Variant(inputarg)
+            v = UA_Variant_new()
+            UA_Variant_copy(Jpointer(j), v)
+            req.inputArguments = v
+            req.inputArgumentsSize = 1
+        end          
+        obj = new(req)
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_CallMethodRequest(ptr::Ptr{UA_CallMethodRequest})
+        return new(ptr) #no finalizer, see docstring
+    end
+end
+
+function release_handle(obj::JUA_CallMethodRequest)
+    UA_CallMethodRequest_delete(Jpointer(obj))
+end
+
+#CallMethodResult
+mutable struct JUA_CallMethodResult <: AbstractOpen62541Wrapper
+    ptr::Ptr{UA_CallMethodResult}
+
+    function JUA_CallMethodResult()
+        res = UA_CallMethodResult_new()
+        obj = new(res)
+        finalizer(release_handle, obj)
+        return obj
+    end
+
+    function JUA_CallMethodResult(ptr::Ptr{UA_CallMethodResult})
+        return new(ptr) #no finalizer, see docstring
+    end
+end
+
+function release_handle(obj::JUA_CallMethodResult)
+    UA_CallMethodResult_delete(Jpointer(obj))
 end
 
 #VariableAttributes

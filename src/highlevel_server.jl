@@ -140,24 +140,13 @@ TODO: Need to add docstring for method node addition once I have thought about t
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
-        attributes::JUA_MethodAttributes,
-        method, inputArgumentsSize, inputArguments, outputArgumentsSize,
-        outputArguments, nodeContext, outNewNodeId)
+        attributes::JUA_MethodAttributes, method, 
+        inputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument},
+        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, nodeContext, 
+        outNewNodeId)
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, Jpointer(attributes), method,
-        inputArgumentsSize, inputArguments, outputArgumentsSize,
-        outputArguments, nodeContext, outNewNodeId)
-end
-
-function JUA_Server_addNode(server, requestedNewNodeId,
-        parentNodeId, referenceTypeId, browseName,
-        attributes::JUA_MethodAttributes,
-        method::Function, inputArgumentsSize, inputArguments, outputArgumentsSize,
-        outputArguments, nodeContext, outNewNodeId) #TODO: consider whether we would like to go even higher level here (automatically generate inputArguments of the correct size etc.)
-    methodcb = UA_MethodCallback_generate(method)
-    return JUA_Server_addNode(server, requestedNewNodeId, parentNodeId,
-        referenceTypeId, browseName, attributes, methodcb,
-        inputArgumentsSize, inputArguments, outputArgumentsSize,
+        referenceTypeId, browseName, Jpointer(attributes), __callback_wrap(method),
+        __argsize(inputArguments), inputArguments, __argsize(outputArguments),
         outputArguments, nodeContext, outNewNodeId)
 end
 
