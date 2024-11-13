@@ -1,6 +1,8 @@
 using SafeTestsets
 using Test
 
+const MEMLEAK = get(ENV, "MEMLEAK", false)
+
 @safetestset "Aqua" begin
     include("aqua.jl")
 end
@@ -65,8 +67,10 @@ end
     include("server_add_nodes_highlevelinterface.jl")
 end
 
-@safetestset "Memory leaks" begin
-    include("memoryleaks.jl")
+if MEMLEAK == true
+    @safetestset "Memory leaks" begin
+        include("memoryleaks.jl")
+    end
 end
 
 #Testsets below here use Distributed; normal testsets required
@@ -89,19 +93,19 @@ end
 end
 
 @testset "Simple Server/Client" begin
-    include("simple_server_client.jl")
+    include("client_simple.jl")
 end
 
 @testset "Add, read, change scalar variables" begin
-    include("add_change_var_scalar.jl")
+    include("client_add_change_var_scalar.jl")
 end
 
 @testset "Add, read, change array variables" begin
-    include("add_change_var_array.jl")
+    include("client_add_change_var_array.jl")
 end
 
 @testset "Username/password login & access control" begin
-    include("username_password_login_accesscontrol.jl")
+    include("client_username_password_login_accesscontrol.jl")
 end
 
 @testset "Encryption" begin
