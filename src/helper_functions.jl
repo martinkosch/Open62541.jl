@@ -59,6 +59,14 @@ function __determinetype(type)
     return t
 end
 
+function __callback_wrap(method::Function) 
+    return UA_MethodCallback_generate(method)
+end
+
+function __callback_wrap(method)
+    return method
+end
+
 #checks the consistency of arraydimensionssize, arraydimensions and valuerank
 function __check_valuerank_arraydimensions_consistency(valuerank, arraydimensions)
     #see here for specification: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.6

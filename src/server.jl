@@ -211,7 +211,9 @@ uses the server API to process the method call request `request` on the `server`
 Note that `result` is mutated.
 """
 function UA_Server_call(server, request, result)
-    r = UA_Server_call(server, request) #TODO: introduce memory leak test to check whether r is correctly GC-ed or not.
-    UA_CallMethodResult_copy(r, result)
+    #XXX - this leaks memory, repeated use will lead to memory not being released.
+    #no workaround found yet.
+    r = UA_Server_call(server, request) 
+    UA_CallMethodResult_copy(r, Jpointer(result))
     return nothing
 end

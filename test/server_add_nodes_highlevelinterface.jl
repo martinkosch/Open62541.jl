@@ -339,7 +339,6 @@ function helloWorld(server, sessionId, sessionHandle, methodId,
     return UA_STATUSCODE_GOOD
 end
 
-#TODO: code here is not yet part of the high level interface, but a mixture...
 inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
 outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",
@@ -359,27 +358,17 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
             Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
 end
 browsename = JUA_QualifiedName(1, "hello world")
-retval = JUA_Server_addNode(server, methodid,
-    parentnodeid, parentreferencenodeid, browsename,
-    helloAttr, helloWorldMethodCallback,
-    1, inputArgument, 1, outputArgument, JUA_NodeId(), JUA_NodeId())
+retval = JUA_Server_addNode(server, methodid, parentnodeid, parentreferencenodeid, 
+    browsename, helloAttr, helloWorldMethodCallback, inputArgument, outputArgument, 
+    JUA_NodeId(), JUA_NodeId())
 
 @test retval == UA_STATUSCODE_GOOD
 
-inputArguments = UA_Variant_new()
-ua_s = UA_STRING("Peter")
-UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
-req = UA_CallMethodRequest_new()
-req.objectId = parentnodeid
-req.methodId = methodid
-req.inputArgumentsSize = 1
-req.inputArguments = inputArguments
-
-answer = UA_CallMethodResult_new()
+inputarg = "Peter"
+req = JUA_CallMethodRequest(parentnodeid, methodid, inputarg)
+answer = JUA_CallMethodResult()
 UA_Server_call(server, req, answer)
 @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
-
-#clean up
-UA_CallMethodRequest_delete(req)
-UA_CallMethodResult_delete(answer)
+#TODO: Still really ugly to get the actual string back; need another layer of simplification 
+#here.
+@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter" 
