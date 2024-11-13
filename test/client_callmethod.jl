@@ -100,3 +100,10 @@ inputs = ("Peter", "amazing")
 response = JUA_Client_call(client, parentnodeid, methodid, inputs)
 
 @test response == "Hello Peter, you are amazing"
+
+# Disconnect client
+JUA_Client_disconnect(client)
+
+println("Ungracefully kill server process...")
+Distributed.interrupt(Distributed.workers()[end])
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
