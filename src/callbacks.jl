@@ -93,8 +93,8 @@ function UA_MethodCallback_generate(f::Function)
         Csize_t, Ptr{UA_Variant})
     returntype = UA_StatusCode
     ret = Base.return_types(f, argtuple)
-    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
-       ret[1] == returntype
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret)
+       ret[1] == returntype 
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},

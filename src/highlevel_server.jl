@@ -141,12 +141,17 @@ TODO: Need to add docstring for method node addition once I have thought about t
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
         attributes::JUA_MethodAttributes, method, 
-        inputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument},
-        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, nodeContext, 
+        inputArguments::Union{UA_Array, JUA_Argument},
+        outputArguments::Union{UA_Array, JUA_Argument}, nodeContext, 
         outNewNodeId)
+    if inputArguments isa UA_Array
+        inputargs = inputArguments.ptr
+    else
+        inputargs = inputArguments
+    end
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, Jpointer(attributes), __callback_wrap(method),
-        __argsize(inputArguments), inputArguments, __argsize(outputArguments),
+        __argsize(inputArguments), inputargs, __argsize(outputArguments),
         outputArguments, nodeContext, outNewNodeId)
 end
 

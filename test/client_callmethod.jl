@@ -19,17 +19,29 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     #add method node
     #follows this: https://www.open62541.org/doc/1.3/tutorial_server_method.html
+    #TODO: it would be great to have another level of abstraction here, so that one only has 
+    #write a Julia function like this:
+    # function helloWorld(name, adjective)
+    #     assembledstring = "Hello "*name*", you are "*adjective
+    #     return assembledstring
+    # end
+    #and then doing the Open62541 specific handling automatically, instead as shown below.
 
     function helloWorld(server, sessionId, sessionHandle, methodId,
             methodContext, objectId, objectContext, inputSize, input, outputSize, output)
-        inputstr = unsafe_string(unsafe_wrap(input))
-        tmp = UA_STRING("Hello " * inputstr)
-        UA_Variant_setScalarCopy(output, tmp, UA_TYPES_PTRS[UA_TYPES_STRING])
-        UA_String_delete(tmp)
+        arr = UA_Array(input, Int64(inputSize))
+        strings = Open62541.__get_juliavalues_from_variant.(arr, Any)
+        assembledstring = "Hello "*strings[1]*", you are "*strings[2]
+        j = JUA_Variant(assembledstring)
+        UA_Variant_copy(Open62541.Jpointer(j), output)
         return UA_STATUSCODE_GOOD
     end
-
-    inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
+    
+    inputArgument = UA_Argument_Array_new(2)
+    j1 = JUA_Argument("examplestring", name = "MyInput", description = "A String")
+    j2 = JUA_Argument("examplestring", name = "MyInput", description = "A second String")
+    UA_Argument_copy(Open62541.Jpointer(j1), inputArgument[1])
+    UA_Argument_copy(Open62541.Jpointer(j2), inputArgument[2])
     outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
     helloAttr = JUA_MethodAttributes(description = "Say Hello World",
         displayname = "Hello World",
@@ -58,16 +70,33 @@ Distributed.@spawnat Distributed.workers()[end] begin
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
     println("Starting up the server...")
     JUA_Server_runUntilInterrupt(server)
+
+end
+
+client = JUA_Client()
+JUA_ClientConfig_setDefault(JUA_ClientConfig(client))
+max_duration = 90.0 # Maximum waiting time for server startup 
+sleep_time = 3.0 # Sleep time in seconds between each connection trial
+let trial
+    trial = 0
+    while trial < max_duration / sleep_time
+        retval = JUA_Client_connect(client, "opc.tcp://localhost:4842")
+        if retval == UA_STATUSCODE_GOOD
+            println("Connection established.")
+            break
+        end
+        sleep(sleep_time)
+        trial = trial + 1
+    end
+    @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
 
 
+#calling the method node with high level interface
+methodid = JUA_NodeId(1, 62541)
+parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
+inputs = ("Peter", "amazing")
+response = JUA_Client_call(client, parentnodeid, methodid, inputs)
 
-inputarg = "Peter"
-req = JUA_CallMethodRequest(parentnodeid, methodid, inputarg)
-answer = JUA_CallMethodResult()
-UA_Server_call(server, req, answer)
-@test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-#TODO: Still really ugly to get the actual string back; need another layer of simplification 
-#here.
-@test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter" 
+@test response == "Hello Peter, you are amazing"
