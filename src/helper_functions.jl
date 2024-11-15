@@ -37,9 +37,10 @@ function __get_juliavalues_from_variant(v, type)
     elseif typeof(wrapped) <: Array && eltype(wrapped) == UA_String
         r = unsafe_string.(wrapped)
     else
-        r = deepcopy(wrapped) #TODO: do I need to copy here? test for memory safety!
+        r = wrapped
     end
-    return r
+    r2 = deepcopy(r)
+    return r2
 end    
 
 function __determinetype(type)

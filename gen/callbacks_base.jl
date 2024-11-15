@@ -84,6 +84,7 @@ f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}
     methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   
     objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
     outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode
+```
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -101,6 +102,55 @@ function UA_MethodCallback_generate(f::Function)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
+    end
+end
+
+"""
+```
+UA_MethodCallback_wrap(f::Function)
+```
+
+wraps a simple Julia function that operates on inputs into the correct format to be supplied 
+to `UA_MethodCallback_generate`.
+
+`f` must be a Julia function with the following signature:
+```
+f(input1::Any, input2::Any, input3::Any, ...) -> output::Union{Any, Tuple{Any, ...}}
+```
+where `Any` means that in principle any type is allowed. However, since Open62541 is based 
+on C the corresponding method node is *always* configured to only work with a specific 
+combination of input types.
+
+If larger flexibility is needed than just working on the inputs given to a method node, see 
+`UA_MethodCallback_generate`.
+
+See also:
+
+[`UA_MethodCallback_generate`](@ref)
+
+[`JUA_Argument`](@ref)
+
+[`JUA_Server_addNode`](@ref)
+
+Example:
+```
+function simple_hello(name, adjective)
+    assembledstring = "Hello "*name*", you are "*adjective
+    return assembledstring
+end 
+```
+which can be attached to a a method node that expects a function that takes two strings as 
+inputs and one string as output.
+"""
+function UA_MethodCallback_wrap(fsimple)
+    function (server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+            objectContext, inputSize, input, outputSize, output)
+        arr = UA_Array(input, Int64(inputSize))
+        input_julia = Open62541.__get_juliavalues_from_variant.(arr, Any)
+        output_julia = fsimple(input_julia...)
+        j = JUA_Variant(output_julia)
+        UA_Variant_copy(Jpointer(j), output)
+        return UA_STATUSCODE_GOOD
     end
 end
 
