@@ -127,7 +127,7 @@ on how to define valid attributes.
 
 ```
 JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
-        parentNodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName,
+        parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName,
         attributes::Union{JUA_ObjectTypeAttributes, JUA_ReferenceTypeAttributes, JUA_DataTypeAttributes, JUA_ViewAttributes},
         outNewNodeId::JUA_NodeId, nodeContext::JUA_NodeId)::UA_StatusCode
 ```
@@ -136,7 +136,20 @@ uses the server API to add a ObjectType, ReferenceType, DataType, or View node t
 
 See [`JUA_ObjectTypeAttributes`](@ref), [`JUA_ReferenceTypeAttributes`](@ref), [`JUA_DataTypeAttributes`](@ref), and [`JUA_ViewAttributes`](@ref) on how to define valid attributes.
 
-TODO: Need to add docstring for method node addition once I have thought about the interface.
+```
+JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
+        parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName,
+        attributes::JUA_MethodAttributes, method::Union{Function, Ptr{Cvoid}, Base.CFunction},
+        outNewNodeId::JUA_NodeId, nodeContext::JUA_NodeId)::UA_StatusCode
+```
+
+uses the server API to add a Method node to the `server`.
+
+The method supplied
+
+See [`JUA_MethodAttributes`](@ref) on how to define valid attributes.
+
+
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
@@ -149,10 +162,15 @@ function JUA_Server_addNode(server, requestedNewNodeId,
     else
         inputargs = inputArguments
     end
+    if outputArguments isa UA_Array
+        outputargs = outputArguments.ptr
+    else
+        outputargs = outputArguments
+    end
     return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, Jpointer(attributes), __callback_wrap(method),
         __argsize(inputArguments), inputargs, __argsize(outputArguments),
-        outputArguments, nodeContext, outNewNodeId)
+        outputargs, nodeContext, outNewNodeId)
 end
 
 for nodeclass in instances(UA_NodeClass)

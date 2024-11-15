@@ -205,33 +205,26 @@ function JUA_Client_writeValueAttribute(client, nodeId, newvalue::JUA_Variant)
 end
 
 #Client call wrapper
-##TODO
 """
 ```
-value = JUA_Client_call(client::JUA_Client, nodeId::JUA_NodeId, type = Any)
+output::Union{Any, Tuple{Any, ...}} = JUA_Client_call(client::JUA_Client, 
+    parentnodeid::JUA_NodeId, methodid::JUA_NodeId, inputs::Union{Any, Tuple{Any, ...}})
 ```
 
-uses the client API to read the value of `nodeId` from the server that the `client` 
-is connected to. 
-
-The output `value` is automatically converted to a Julia type (such as Float64, String, Vector{String}, 
-etc.) if possible. Otherwise, open62541 composite types are returned.
-
-Note: Since it is unknown what type of value is stored within `nodeId` before reading 
-it, this function is inherently type unstable. 
-
-Type stability is improved if the optional argument `type` is provided, for example, 
-if you know that you have stored a Matrix{Float64} in `nodeId`, then you should 
-specify this. If the wrong type is specified, the function will throw a TypeError.
+uses the client API to call a method node (`methodid`) on the server the `client` is 
+connected with.  `inputs` can either be a single argument or a tuple of arguments. Depending 
+on the method called an apporpriate output or tuple of output arguments is returned. 
 
 """
-function JUA_Client_call(client::JUA_Client, parentnodeid::JUA_NodeId, inputs)
-    JUA_Client_call(client, parentnodeid, (inputs, ))
+function JUA_Client_call(client::JUA_Client, parentnodeid::JUA_NodeId, methodid::JUA_NodeId,
+        inputs)
+    JUA_Client_call(client, parentnodeid, methodid, (inputs, ))
 end
 
 function JUA_Client_call(client::JUA_Client, parentnodeid::JUA_NodeId, methodid::JUA_NodeId, 
         inputs::Tuple)
     #browse children nodes of methodid to infer properties of input and output arguments
+    e = nothing
     breq = UA_BrowseRequest_new()
     UA_BrowseRequest_init(breq)
     breq.requestedMaxReferencesPerNode = 0
@@ -257,12 +250,10 @@ function JUA_Client_call(client::JUA_Client, parentnodeid::JUA_NodeId, methodid:
             nodeid_inputargs = refs[j].nodeId.nodeId
             nodeid_outputargs = refs[k].nodeId.nodeId            
         else
-            #TODO: introduce better error handling here
-            error("something went wrong while browsing the nodes.") #TODO: need cleaning up in this case.
+            e = "something went wrong while browsing the nodes."
         end
     else
-        #TODO: introduce better error handling here
-        error("something went wrong while browsing the nodes.") #TODO: need cleaning up in this case.
+        e = "something went wrong while browsing the nodes."
     end
 
     inputarguments = JUA_Client_readValueAttribute(client, nodeid_inputargs)
@@ -277,14 +268,29 @@ function JUA_Client_call(client::JUA_Client, parentnodeid::JUA_NodeId, methodid:
         UA_Variant_copy(Open62541.Jpointer(JUA_Variant(inputs[i])), input_variants[i])
     end
 
-    #TODO: haven't made this work yet with multiple output arguments
-    output_variants = Ref(UA_Variant_new())
-    UA_Client_call(client, parentnodeid, methodid, length(inputs), input_variants.ptr, Ref(UInt64(length(outputarguments))), output_variants)
+    arr_output = UA_Variant_Array_new(length(outputarguments))
+    ref = Ref(arr_output[1])
+    sc = UA_Client_call(client, parentnodeid, methodid, length(inputs), input_variants.ptr, Ref(UInt64(length(outputarguments))), ref)
     
-    r = __get_juliavalues_from_variant(output_variants[], Any)
-    # UA_Variant_delete(v)
+    UA_BrowseRequest_delete(breq)
+    UA_Variant_Array_delete(input_variants)
 
-    #TODO: clean up properly
+    if !isnothing(e)
+        error(e)
+    end
 
-    return r
+    if sc != UA_STATUSCODE_GOOD
+        throw(ClientServiceRequestError("Calling method via Client API failed with statuscode \"$(UA_StatusCode_name_print(sc))\"."))
+        UA_Variant_Array_delete(input_variants)
+    else    
+        arr_output = UA_Array(ref[], length(outputarguments))
+        r = __get_juliavalues_from_variant.(arr_output, Any)
+
+        #TODO: need to do memory management here.
+        if length(outputarguments) == 1
+            return r[1]
+        else
+            return tuple(r...)
+        end
+    end
 end
