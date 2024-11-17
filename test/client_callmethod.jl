@@ -18,7 +18,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
     @test retval0 == UA_STATUSCODE_GOOD
 
     #add method node
-    #highest abstraction level
     function simple_one_in_one_out(name)
         assembledstring = "Hello "*name*"."
         return assembledstring

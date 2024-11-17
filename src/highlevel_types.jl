@@ -312,7 +312,7 @@ j = JUA_UsernamePasswordLogin("PeterParker", "IamSpiderman")
 ```
 
 """
-mutable struct JUA_UsernamePasswordLogin #TODO: this is rather ugly, but prevents memory-leaking.
+mutable struct JUA_UsernamePasswordLogin #This is rather ugly, but prevents memory-leaking.
     login::UA_UsernamePasswordLogin
     username::Ptr{UA_String}
     password::Ptr{UA_String}

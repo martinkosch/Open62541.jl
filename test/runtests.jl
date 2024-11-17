@@ -76,6 +76,15 @@ end
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
+
+@testset "Simple Server/Client" begin
+    include("client_simple.jl")
+end
+
+@testset "Client subscriptions" begin
+    include("client_subscriptions.jl")
+end
+
 @testset "Client read functions" begin
     include("client_read.jl")
 end
@@ -88,27 +97,20 @@ end
     include("client_service.jl")
 end
 
-@testset "Client subscriptions" begin
-    include("client_service.jl")
-end
 
 @testset "Client call method" begin
     include("client_callmethod.jl")
 end
 
-@testset "Simple Server/Client" begin
-    include("client_simple.jl")
-end
-
-@testset "Add, read, change scalar variables" begin
+@testset "Client Add, read, change scalar variables" begin
     include("client_add_change_var_scalar.jl")
 end
 
-@testset "Add, read, change array variables" begin
+@testset "Client Add, read, change array variables" begin
     include("client_add_change_var_array.jl")
 end
 
-@testset "Username/password login & access control" begin
+@testset "Client Username/password login & access control" begin
     include("client_username_password_login_accesscontrol.jl")
 end
 
