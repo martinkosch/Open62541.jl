@@ -69,6 +69,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     config.accessControl.allowAddReference = cb_allowAddReference
     config.accessControl.allowDeleteNode = cb_allowDeleteNode
     config.accessControl.allowDeleteReference = cb_allowDeleteReference
+    config.allowNonePolicyPassword = true #allow logging in with username/password on un-encrypted connections.
     UA_Server_run(server, Ref(true))
 end
 

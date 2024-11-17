@@ -32,6 +32,7 @@ using Open62541
 #initiate client, configure it and connect to server
 client = JUA_Client()
 config = JUA_ClientConfig(client)
+config.allowNonePolicyPassword = true #allow logging in with username/password on un-encrypted connections.
 JUA_ClientConfig_setDefault(config)
 
 retval = JUA_Client_connectUsername(client,
