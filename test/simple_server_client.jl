@@ -20,7 +20,7 @@ end
 # Specify client and connect to server after server startup
 client = JUA_Client()
 JUA_ClientConfig_setDefault(JUA_ClientConfig(client))
-max_duration = 30.0 # Maximum waiting time for server startup 
+max_duration = 90.0 # Maximum waiting time for server startup 
 sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0

@@ -103,3 +103,7 @@ end
 @testset "Username/password login & access control" begin
     include("username_password_login_accesscontrol.jl")
 end
+
+@testset "Encryption" begin
+    include("client_encryption.jl")
+end
