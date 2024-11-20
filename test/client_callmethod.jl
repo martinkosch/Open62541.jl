@@ -90,23 +90,40 @@ Distributed.@spawnat Distributed.workers()[end] begin
     parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 
     #prepare method callbacks
-    function wrap_method_by_architecture(method)
-        @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
-            res = UA_MethodCallback_generate(method)
-        else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
-            res = @cfunction(method, UA_StatusCode,
-                (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                    Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                    Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        end
-        return res
-    end
+    w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
+    w2 = UA_MethodCallback_wrap(simple_two_in_one_out)
+    w3 = UA_MethodCallback_wrap(simple_one_in_two_out)
+    w4 = UA_MethodCallback_wrap(simple_two_in_two_out)
+    w5 = UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type)
 
-    m1 = wrap_method_by_architecture(UA_MethodCallback_wrap(simple_one_in_one_out))
-    m2 = wrap_method_by_architecture(UA_MethodCallback_wrap(simple_two_in_one_out))
-    m3 = wrap_method_by_architecture(UA_MethodCallback_wrap(simple_one_in_two_out))
-    m4 = wrap_method_by_architecture(UA_MethodCallback_wrap(simple_two_in_two_out))
-    m5 = wrap_method_by_architecture(UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type))
+    @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+        m1 = UA_MethodCallback_generate(w1)
+        m2 = UA_MethodCallback_generate(w2)
+        m3 = UA_MethodCallback_generate(w3)
+        m4 = UA_MethodCallback_generate(w4)
+        m5 = UA_MethodCallback_generate(w5)
+    else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
+        m1 = @cfunction(w1, UA_StatusCode,
+            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+        m2 = @cfunction(w2, UA_StatusCode,
+            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+        m3 = @cfunction(w3, UA_StatusCode,
+            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+        m4 = @cfunction(w4, UA_StatusCode,
+            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+        m5 = @cfunction(w5, UA_StatusCode,
+            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))     
+    end
 
     #prepare browsenames
     browsename1 = JUA_QualifiedName(1, "Simple One in One Out")
