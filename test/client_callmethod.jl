@@ -39,8 +39,19 @@ function simple_two_in_two_out_mixed_type(name, number)
     return (out1, out2)
 end 
 
-#wrappers that we need to operate on Apple silicon 
+#prepare method callbacks
 @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+    w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
+    w2 = UA_MethodCallback_wrap(simple_two_in_one_out)
+    w3 = UA_MethodCallback_wrap(simple_one_in_two_out)
+    w4 = UA_MethodCallback_wrap(simple_two_in_two_out)
+    w5 = UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type)
+    m1 = UA_MethodCallback_generate(w1)
+    m2 = UA_MethodCallback_generate(w2)
+    m3 = UA_MethodCallback_generate(w3)
+    m4 = UA_MethodCallback_generate(w4)
+    m5 = UA_MethodCallback_generate(w5)
+else #we are on Apple Silicon and can't use a closure in @cfunction, have to do MUCH more work.
     function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
@@ -116,6 +127,26 @@ end
         end
         return UA_STATUSCODE_GOOD
     end
+    m1 = @cfunction(c1, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    m2 = @cfunction(c2, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    m3 = @cfunction(c3, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    m4 = @cfunction(c4, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    m5 = @cfunction(c5, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))     
 end
 
 Distributed.@spawnat Distributed.workers()[end] begin
@@ -156,41 +187,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
     parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
-
-    #prepare method callbacks
-    @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
-        w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
-        w2 = UA_MethodCallback_wrap(simple_two_in_one_out)
-        w3 = UA_MethodCallback_wrap(simple_one_in_two_out)
-        w4 = UA_MethodCallback_wrap(simple_two_in_two_out)
-        w5 = UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type)
-        m1 = UA_MethodCallback_generate(w1)
-        m2 = UA_MethodCallback_generate(w2)
-        m3 = UA_MethodCallback_generate(w3)
-        m4 = UA_MethodCallback_generate(w4)
-        m5 = UA_MethodCallback_generate(w5)
-    else #we are on Apple Silicon and can't use a closure in @cfunction, have to do MUCH more work.
-        m1 = @cfunction(c1, UA_StatusCode,
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m2 = @cfunction(c2, UA_StatusCode,
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m3 = @cfunction(c3, UA_StatusCode,
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m4 = @cfunction(c4, UA_StatusCode,
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m5 = @cfunction(c5, UA_StatusCode,
-            (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))     
-    end
 
     #prepare browsenames
     browsename1 = JUA_QualifiedName(1, "Simple One in One Out")
