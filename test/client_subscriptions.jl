@@ -5,7 +5,6 @@
 #Unmerged PR addressing this: https://github.com/open62541/open62541/pull/5905
 
 using Distributed
-using Printf
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
@@ -31,19 +30,12 @@ config = UA_Client_getConfig(client)
 UA_ClientConfig_setDefault(config)
 
 #define callbacks
-function handler_currentTimeChanged(client, subId, subContext, monId, monContext, 
+function handler_simple(client, subId, subContext, monId, monContext, 
         value)
-    @show "cb triggered.", UA_print(value.value)
-    if UA_Variant_hasScalarType(value.value, UA_TYPES_PTRS[UA_TYPES_DATETIME])
-        @show "inner"
-        raw_date = unsafe_wrap(value.value)
-        dts = UA_DateTime_toStruct(raw_date)
-        push!(container, Printf.@sprintf("current date and time (UTC) is: %u-%u-%u %u:%u:%u.%03u\n",
-        dts.day, dts.month, dts.year, dts.hour, dts.min, dts.sec, dts.milliSec))
-    end
+    push!(container, rand()) #we just collect a bunch of random numbers here.
     return nothing
 end
-handlercb = @cfunction(handler_currentTimeChanged, Cvoid, (Ptr{UA_Client}, UInt32, Ptr{Cvoid}, UInt32, Ptr{Cvoid}, UA_DataValue))
+handlercb = @cfunction(handler_simple, Cvoid, (Ptr{UA_Client}, UInt32, Ptr{Cvoid}, UInt32, Ptr{Cvoid}, UA_DataValue))
 
 #connect the client
 max_duration = 90.0 # Maximum waiting time for server startup 
@@ -61,7 +53,6 @@ let trial
     end
     @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
-sleep(2)
 
 #create a subscription
 request = UA_CreateSubscriptionRequest_default()
@@ -75,9 +66,9 @@ monResponse = UA_Client_MonitoredItems_createDataChange(client, response.subscri
     C_NULL, handlercb, C_NULL)
             
 #now interrogate the thing
-container = String[] #need to initialize variable here, otherwise error (use in handler_currentTimeChanged(...))
+container = Float64[] #need to initialize variable here, otherwise error (use in handler_currentTimeChanged(...))
 UA_Client_run_iterate(client, 1000)
-container = String[] 
+container = Float64[] 
 sleep(7) 
 UA_Client_run_iterate(client, 1000)
 #see UA_CreateSubscriptionRequest_default(); 
