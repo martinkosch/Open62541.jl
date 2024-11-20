@@ -1,4 +1,8 @@
 #adapted from: https://github.com/open62541/open62541/blob/master/examples/client_subscription_loop.c
+#the example (as of 2024-11-20) wants to create a subscription from within the 
+#callback, which is not allowed, see here:
+#https://github.com/open62541/open62541/issues/5816
+#Unmerged PR addressing this: https://github.com/open62541/open62541/pull/5905
 
 using Distributed
 using Printf
@@ -13,7 +17,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     #configure the server
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-        4842, C_NULL,  0, 0)
+        4843, C_NULL,  0, 0)
 
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
@@ -45,7 +49,7 @@ sleep_time = 3.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
-        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        retval = UA_Client_connect(client, "opc.tcp://localhost:4843")
         if retval == UA_STATUSCODE_GOOD
             println("Connection established.")
             break
@@ -68,8 +72,9 @@ monResponse = UA_Client_MonitoredItems_createDataChange(client, response.subscri
     C_NULL, handlercb, C_NULL)
             
 #now interrogate the thing
-UA_Client_run_iterate(client, 1000) 
-container = String[]
+container = String[] #need to initialize variable here, otherwise error (use in handler_currentTimeChanged(...))
+UA_Client_run_iterate(client, 1000)
+container = String[] 
 sleep(7) 
 UA_Client_run_iterate(client, 1000)
 #see UA_CreateSubscriptionRequest_default(); 
@@ -80,3 +85,7 @@ UA_Client_run_iterate(client, 1000)
 
 UA_Client_disconnect(client)
 UA_Client_delete(client) 
+
+println("Ungracefully kill server process...")
+Distributed.interrupt(Distributed.workers()[end])
+Distributed.rmprocs(Distributed.workers()[end]; waitfor = 0)
