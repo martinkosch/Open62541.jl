@@ -223,11 +223,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     j4 = JUA_Argument(25, name = "Number", description = "Number")
     UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg_mixed[1])
     UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
-   # Start up the server
-   Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
-   println("Starting up the server...")
-   JUA_Server_runUntilInterrupt(server)
-end
+   
     #add the nodes
     retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid, 
         browsename1, attr1, m1, oneinputarg, oneoutputarg, 
