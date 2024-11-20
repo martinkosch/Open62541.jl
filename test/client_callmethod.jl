@@ -74,8 +74,8 @@ Distributed.@spawnat Distributed.workers()[end] begin
         displayname = "Simple Two in Two Out",
         executable = true,
         userexecutable = true)
-    attr5 = JUA_MethodAttributes(description = "One in One Out",
-        displayname = "One in One Out",
+    attr5 = JUA_MethodAttributes(description = "Simple Two in Two Out - Mixed Types",
+        displayname = "Simple Two in Two Out - Mixed Types",
         executable = true,
         userexecutable = true)
 
@@ -94,7 +94,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
         @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
             res = UA_MethodCallback_generate(method)
         else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
-            res = @cfunction(helloWorld, UA_StatusCode,
+            res = @cfunction(method, UA_StatusCode,
                 (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                     Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                     Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
@@ -120,9 +120,10 @@ Distributed.@spawnat Distributed.workers()[end] begin
         description = "One input")
     twoinputarg = UA_Argument_Array_new(2)
     twoinputarg_mixed = UA_Argument_Array_new(2)
+    #TODO: this could be much nicer if UA_Argument_Array works nicely, see https://github.com/martinkosch/Open62541.jl/issues/37
     j1 = JUA_Argument("examplestring", name = "First input", description = "First input")
     j2 = JUA_Argument("examplestring", name = "Second input", description = "Second input")
-    UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1])
+    UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1]) 
     UA_Argument_copy(Open62541.Jpointer(j2), twoinputarg[2])
 
     j3 = JUA_Argument("examplestring", name = "Name", description = "Number")

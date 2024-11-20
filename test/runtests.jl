@@ -97,7 +97,6 @@ end
     include("client_service.jl")
 end
 
-
 @testset "Client call method" begin
     include("client_callmethod.jl")
 end

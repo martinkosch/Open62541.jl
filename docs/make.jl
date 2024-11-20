@@ -23,6 +23,7 @@ makedocs(;
             "tutorials/combined_variables.md",
             "tutorials/combined_username_password_login.md",
             "tutorials/combined_encrypted_un_pw_login.md",
+            "tutorials/combined_methodnode.md",
             "tutorials/further_resources.md"
         ],
         "Manual" => [
