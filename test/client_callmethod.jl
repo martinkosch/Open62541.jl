@@ -78,6 +78,21 @@ Distributed.@spawnat Distributed.workers()[end] begin
     parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
     parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 
+    function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+            objectContext, inputSize, input, outputSize, output)
+        arr_input = UA_Array(input, Int64(inputSize))
+        arr_output = UA_Array(output, Int64(outputSize))
+        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+        output_julia = simple_one_in_one_out(input_julia...)
+        if !isa(output_julia, Tuple)
+            output_julia = (output_julia,)
+        end
+        for i in 1:outputSize
+            j = JUA_Variant(output_julia[i])
+            UA_Variant_copy(Jpointer(j), arr_output[i])
+        end
+        return UA_STATUSCODE_GOOD
+    end
     #prepare method callbacks
     @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
         w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
@@ -91,21 +106,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
         m4 = UA_MethodCallback_generate(w4)
         m5 = UA_MethodCallback_generate(w5)
     else #we are on Apple Silicon and can't use a closure in @cfunction, have to do MUCH more work.
-        function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-                objectContext, inputSize, input, outputSize, output)
-            arr_input = UA_Array(input, Int64(inputSize))
-            arr_output = UA_Array(output, Int64(outputSize))
-            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-            output_julia = simple_one_in_one_out(input_julia...)
-            if !isa(output_julia, Tuple)
-                output_julia = (output_julia,)
-            end
-            for i in 1:outputSize
-                j = JUA_Variant(output_julia[i])
-                UA_Variant_copy(Jpointer(j), arr_output[i])
-            end
-            return UA_STATUSCODE_GOOD
-        end
         function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
                 objectContext, inputSize, input, outputSize, output)
             arr_input = UA_Array(input, Int64(inputSize))
