@@ -33,8 +33,9 @@ UA_ClientConfig_setDefault(config)
 #define callbacks
 function handler_currentTimeChanged(client, subId, subContext, monId, monContext, 
         value)
-    @show "cb triggered."
+    @show "cb triggered.", UA_print(value.value)
     if UA_Variant_hasScalarType(value.value, UA_TYPES_PTRS[UA_TYPES_DATETIME])
+        @show "inner"
         raw_date = unsafe_wrap(value.value)
         dts = UA_DateTime_toStruct(raw_date)
         push!(container, Printf.@sprintf("current date and time (UTC) is: %u-%u-%u %u:%u:%u.%03u\n",
