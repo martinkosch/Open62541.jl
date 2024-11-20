@@ -1,6 +1,6 @@
 # Check whether calling method nodes via the client works. 
 
-using Distributed, Open62541
+using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
@@ -43,7 +43,7 @@ function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId,
         objectContext, inputSize, input, outputSize, output)
     arr_input = UA_Array(input, Int64(inputSize))
     arr_output = UA_Array(output, Int64(outputSize))
-    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
     output_julia = simple_one_in_one_out(input_julia...)
     if !isa(output_julia, Tuple)
         output_julia = (output_julia,)
@@ -58,7 +58,7 @@ function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId,
         objectContext, inputSize, input, outputSize, output)
     arr_input = UA_Array(input, Int64(inputSize))
     arr_output = UA_Array(output, Int64(outputSize))
-    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
     output_julia = simple_two_in_one_out(input_julia...)
     if !isa(output_julia, Tuple)
         output_julia = (output_julia,)
@@ -73,7 +73,7 @@ function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId,
         objectContext, inputSize, input, outputSize, output)
     arr_input = UA_Array(input, Int64(inputSize))
     arr_output = UA_Array(output, Int64(outputSize))
-    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
     output_julia = simple_one_in_two_out(input_julia...)
     if !isa(output_julia, Tuple)
         output_julia = (output_julia,)
@@ -88,7 +88,7 @@ function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId,
         objectContext, inputSize, input, outputSize, output)
     arr_input = UA_Array(input, Int64(inputSize))
     arr_output = UA_Array(output, Int64(outputSize))
-    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
     output_julia = simple_two_in_two_out(input_julia...)
     if !isa(output_julia, Tuple)
         output_julia = (output_julia,)
@@ -103,7 +103,7 @@ function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId,
         objectContext, inputSize, input, outputSize, output)
     arr_input = UA_Array(input, Int64(inputSize))
     arr_output = UA_Array(output, Int64(outputSize))
-    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
     output_julia = simple_two_in_two_out_mixed_type(input_julia...)
     if !isa(output_julia, Tuple)
         output_julia = (output_julia,)
@@ -223,7 +223,11 @@ Distributed.@spawnat Distributed.workers()[end] begin
     j4 = JUA_Argument(25, name = "Number", description = "Number")
     UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg_mixed[1])
     UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
-
+   # Start up the server
+   Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
+   println("Starting up the server...")
+   JUA_Server_runUntilInterrupt(server)
+end
     #add the nodes
     retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid, 
         browsename1, attr1, m1, oneinputarg, oneoutputarg, 
