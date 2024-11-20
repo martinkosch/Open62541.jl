@@ -33,6 +33,7 @@ UA_ClientConfig_setDefault(config)
 #define callbacks
 function handler_currentTimeChanged(client, subId, subContext, monId, monContext, 
         value)
+    @show "cb triggered."
     if UA_Variant_hasScalarType(value.value, UA_TYPES_PTRS[UA_TYPES_DATETIME])
         raw_date = unsafe_wrap(value.value)
         dts = UA_DateTime_toStruct(raw_date)
@@ -59,6 +60,7 @@ let trial
     end
     @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
+sleep(2)
 
 #create a subscription
 request = UA_CreateSubscriptionRequest_default()

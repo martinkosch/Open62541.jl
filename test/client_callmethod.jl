@@ -151,7 +151,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
     server = JUA_Server()
     retval0 = JUA_ServerConfig_setMinimalCustomBuffer(JUA_ServerConfig(server),
         4842, C_NULL, 0, 0)
-    #@test retval0 == UA_STATUSCODE_GOOD
 
     #prepare method attributes
     attr1 = JUA_MethodAttributes(description = "Simple One in One Out",
@@ -237,11 +236,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
         browsename5, attr5, m5, twoinputarg_mixed, twooutputarg_mixed, 
         JUA_NodeId(), JUA_NodeId())  
 
-    # @test retval1 == UA_STATUSCODE_GOOD
-    # @test retval2 == UA_STATUSCODE_GOOD
-    # @test retval3 == UA_STATUSCODE_GOOD
-    # @test retval4 == UA_STATUSCODE_GOOD
-    # @test retval5 == UA_STATUSCODE_GOOD
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
     println("Starting up the server...")
