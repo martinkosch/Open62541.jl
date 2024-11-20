@@ -63,7 +63,7 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
         end
         for i in 1:outputSize
             j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Jpointer(j), arr_output[i])
+            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
         end
         return UA_STATUSCODE_GOOD
     end
@@ -78,7 +78,7 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
         end
         for i in 1:outputSize
             j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Jpointer(j), arr_output[i])
+            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
         end
         return UA_STATUSCODE_GOOD
     end
@@ -93,7 +93,7 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
         end
         for i in 1:outputSize
             j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Jpointer(j), arr_output[i])
+            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
         end
         return UA_STATUSCODE_GOOD
     end
@@ -108,7 +108,7 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
         end
         for i in 1:outputSize
             j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Jpointer(j), arr_output[i])
+            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
         end
         return UA_STATUSCODE_GOOD
     end
@@ -123,7 +123,7 @@ else #we are on Apple Silicon and can't use a closure in @cfunction, have to do 
         end
         for i in 1:outputSize
             j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Jpointer(j), arr_output[i])
+            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
         end
         return UA_STATUSCODE_GOOD
     end
