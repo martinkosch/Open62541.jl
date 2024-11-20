@@ -1,6 +1,6 @@
 # Check whether calling method nodes via the client works. 
 
-using Distributed
+using Distributed, Open62541
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
@@ -39,6 +39,82 @@ function simple_two_in_two_out_mixed_type(name, number)
     return (out1, out2)
 end 
 
+function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_one_in_one_out(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_two_in_one_out(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_one_in_two_out(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_two_in_two_out(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_two_in_two_out_mixed_type(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+
 #prepare method callbacks
 @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
     w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
@@ -52,81 +128,6 @@ end
     m4 = UA_MethodCallback_generate(w4)
     m5 = UA_MethodCallback_generate(w5)
 else #we are on Apple Silicon and can't use a closure in @cfunction, have to do MUCH more work.
-    function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr_input = UA_Array(input, Int64(inputSize))
-        arr_output = UA_Array(output, Int64(outputSize))
-        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-        output_julia = simple_one_in_one_out(input_julia...)
-        if !isa(output_julia, Tuple)
-            output_julia = (output_julia,)
-        end
-        for i in 1:outputSize
-            j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
-        end
-        return UA_STATUSCODE_GOOD
-    end
-    function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr_input = UA_Array(input, Int64(inputSize))
-        arr_output = UA_Array(output, Int64(outputSize))
-        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-        output_julia = simple_two_in_one_out(input_julia...)
-        if !isa(output_julia, Tuple)
-            output_julia = (output_julia,)
-        end
-        for i in 1:outputSize
-            j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
-        end
-        return UA_STATUSCODE_GOOD
-    end
-    function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr_input = UA_Array(input, Int64(inputSize))
-        arr_output = UA_Array(output, Int64(outputSize))
-        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-        output_julia = simple_one_in_two_out(input_julia...)
-        if !isa(output_julia, Tuple)
-            output_julia = (output_julia,)
-        end
-        for i in 1:outputSize
-            j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
-        end
-        return UA_STATUSCODE_GOOD
-    end
-    function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr_input = UA_Array(input, Int64(inputSize))
-        arr_output = UA_Array(output, Int64(outputSize))
-        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-        output_julia = simple_two_in_two_out(input_julia...)
-        if !isa(output_julia, Tuple)
-            output_julia = (output_julia,)
-        end
-        for i in 1:outputSize
-            j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
-        end
-        return UA_STATUSCODE_GOOD
-    end
-    function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr_input = UA_Array(input, Int64(inputSize))
-        arr_output = UA_Array(output, Int64(outputSize))
-        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
-        output_julia = simple_two_in_two_out_mixed_type(input_julia...)
-        if !isa(output_julia, Tuple)
-            output_julia = (output_julia,)
-        end
-        for i in 1:outputSize
-            j = JUA_Variant(output_julia[i])
-            UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
-        end
-        return UA_STATUSCODE_GOOD
-    end
     m1 = @cfunction(c1, UA_StatusCode,
         (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
             Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
