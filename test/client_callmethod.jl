@@ -45,17 +45,6 @@ Distributed.@spawnat Distributed.workers()[end] begin
         out2 = number*number
         return (out1, out2)
     end 
-
-    #lower level without abstraction
-    function two_in_one_out(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
-            objectContext, inputSize, input, outputSize, output)
-        arr = UA_Array(input, Int64(inputSize))
-        strings = Open62541.__get_juliavalues_from_variant.(arr, Any)
-        assembledstring = "Hello "*strings[1]*", you are "*strings[2]
-        j = JUA_Variant(assembledstring)
-        UA_Variant_copy(Open62541.Jpointer(j), output)
-        return UA_STATUSCODE_GOOD
-    end
     
     #prepare method attributes
     attr1 = JUA_MethodAttributes(description = "Simple One in One Out",
@@ -90,36 +79,110 @@ Distributed.@spawnat Distributed.workers()[end] begin
     parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 
     #prepare method callbacks
-    w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
-    w2 = UA_MethodCallback_wrap(simple_two_in_one_out)
-    w3 = UA_MethodCallback_wrap(simple_one_in_two_out)
-    w4 = UA_MethodCallback_wrap(simple_two_in_two_out)
-    w5 = UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type)
-
     @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+        w1 = UA_MethodCallback_wrap(simple_one_in_one_out)
+        w2 = UA_MethodCallback_wrap(simple_two_in_one_out)
+        w3 = UA_MethodCallback_wrap(simple_one_in_two_out)
+        w4 = UA_MethodCallback_wrap(simple_two_in_two_out)
+        w5 = UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type)
         m1 = UA_MethodCallback_generate(w1)
         m2 = UA_MethodCallback_generate(w2)
         m3 = UA_MethodCallback_generate(w3)
         m4 = UA_MethodCallback_generate(w4)
         m5 = UA_MethodCallback_generate(w5)
-    else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
-        m1 = @cfunction(w1, UA_StatusCode,
+    else #we are on Apple Silicon and can't use a closure in @cfunction, have to do MUCH more work.
+        function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+                objectContext, inputSize, input, outputSize, output)
+            arr_input = UA_Array(input, Int64(inputSize))
+            arr_output = UA_Array(output, Int64(outputSize))
+            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+            output_julia = simple_one_in_one_out(input_julia...)
+            if !isa(output_julia, Tuple)
+                output_julia = (output_julia,)
+            end
+            for i in 1:outputSize
+                j = JUA_Variant(output_julia[i])
+                UA_Variant_copy(Jpointer(j), arr_output[i])
+            end
+            return UA_STATUSCODE_GOOD
+        end
+        function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+                objectContext, inputSize, input, outputSize, output)
+            arr_input = UA_Array(input, Int64(inputSize))
+            arr_output = UA_Array(output, Int64(outputSize))
+            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+            output_julia = simple_two_in_one_out(input_julia...)
+            if !isa(output_julia, Tuple)
+                output_julia = (output_julia,)
+            end
+            for i in 1:outputSize
+                j = JUA_Variant(output_julia[i])
+                UA_Variant_copy(Jpointer(j), arr_output[i])
+            end
+            return UA_STATUSCODE_GOOD
+        end
+        function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+                objectContext, inputSize, input, outputSize, output)
+            arr_input = UA_Array(input, Int64(inputSize))
+            arr_output = UA_Array(output, Int64(outputSize))
+            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+            output_julia = simple_one_in_two_out(input_julia...)
+            if !isa(output_julia, Tuple)
+                output_julia = (output_julia,)
+            end
+            for i in 1:outputSize
+                j = JUA_Variant(output_julia[i])
+                UA_Variant_copy(Jpointer(j), arr_output[i])
+            end
+            return UA_STATUSCODE_GOOD
+        end
+        function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+                objectContext, inputSize, input, outputSize, output)
+            arr_input = UA_Array(input, Int64(inputSize))
+            arr_output = UA_Array(output, Int64(outputSize))
+            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+            output_julia = simple_two_in_two_out(input_julia...)
+            if !isa(output_julia, Tuple)
+                output_julia = (output_julia,)
+            end
+            for i in 1:outputSize
+                j = JUA_Variant(output_julia[i])
+                UA_Variant_copy(Jpointer(j), arr_output[i])
+            end
+            return UA_STATUSCODE_GOOD
+        end
+        function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+                objectContext, inputSize, input, outputSize, output)
+            arr_input = UA_Array(input, Int64(inputSize))
+            arr_output = UA_Array(output, Int64(outputSize))
+            input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+            output_julia = simple_two_in_two_out_mixed_type(input_julia...)
+            if !isa(output_julia, Tuple)
+                output_julia = (output_julia,)
+            end
+            for i in 1:outputSize
+                j = JUA_Variant(output_julia[i])
+                UA_Variant_copy(Jpointer(j), arr_output[i])
+            end
+            return UA_STATUSCODE_GOOD
+        end
+        m1 = @cfunction(c1, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m2 = @cfunction(w2, UA_StatusCode,
+        m2 = @cfunction(c2, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m3 = @cfunction(w3, UA_StatusCode,
+        m3 = @cfunction(c3, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m4 = @cfunction(w4, UA_StatusCode,
+        m4 = @cfunction(c4, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
-        m5 = @cfunction(w5, UA_StatusCode,
+        m5 = @cfunction(c5, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))     
