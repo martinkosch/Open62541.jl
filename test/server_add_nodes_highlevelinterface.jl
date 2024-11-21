@@ -341,34 +341,103 @@ end
 
 inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
 outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
+
+twoinputarg_mixed = UA_Argument_Array_new(2)
+j3 = JUA_Argument("examplestring", name = "Name", description = "Number")
+j4 = JUA_Argument(25, name = "Number", description = "Number")
+UA_Argument_copy(Open62541.Jpointer(j3), twoinputarg_mixed[1])
+UA_Argument_copy(Open62541.Jpointer(j4), twoinputarg_mixed[2])
+
+twooutputarg_mixed = UA_Argument_Array_new(2)
+j3 = JUA_Argument("examplestring", name = "Name", description = "Name")
+j4 = JUA_Argument(25, name = "Number", description = "Number")
+UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg_mixed[1])
+UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
+
+
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",
     displayname = "Hello World",
     executable = true,
     userexecutable = true)
 
+m2Attr = JUA_MethodAttributes(description = "method 2 in 2 out mixed",
+    displayname = "method 2 in 2 out mixed",
+    executable = true,
+    userexecutable = true)
+
+function simple_two_in_two_out_mixed_type(name, number)
+    out1 = "Hello "*name*"."
+    out2 = number*number
+    return (out1, out2)
+end
+
+function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_two_in_two_out_mixed_type(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+
 methodid = JUA_NodeId(1, 62541)
+methodid2 = JUA_NodeId(1, 62542)
 parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
-    helloWorldMethodCallback = UA_MethodCallback_generate(helloWorld)
+    helloWorldMethodCallback = UA_MethodCallback_generate(helloWorld)    
+    method2 = UA_MethodCallback_generate(UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type))
 else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
     helloWorldMethodCallback = @cfunction(helloWorld, UA_StatusCode,
         (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
             Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
             Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    method2 = @cfunction(c5, UA_StatusCode, (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+        Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+        Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
 end
+
 browsename = JUA_QualifiedName(1, "hello world")
+browsename2 = JUA_QualifiedName(1, "mixed")
+
 retval = JUA_Server_addNode(server, methodid, parentnodeid, parentreferencenodeid, 
     browsename, helloAttr, helloWorldMethodCallback, inputArgument, outputArgument, 
     JUA_NodeId(), JUA_NodeId())
 
+retval2 = JUA_Server_addNode(server, methodid2, parentnodeid, parentreferencenodeid, 
+    browsename2, m2Attr, method2, twoinputarg_mixed, twooutputarg_mixed, 
+    JUA_NodeId(), JUA_NodeId())
+
 @test retval == UA_STATUSCODE_GOOD
+@test retval2 == UA_STATUSCODE_GOOD
+
 
 inputarg = "Peter"
+two_inputs_mixed = ("Claudia", 25)
+
 req = JUA_CallMethodRequest(parentnodeid, methodid, inputarg)
 answer = JUA_CallMethodResult()
 UA_Server_call(server, req, answer)
 @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
-#TODO: Still really ugly to get the actual string back; need another layer of simplification 
-#here.
+#The ugly way of doing it
 @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter" 
+
+#Higher level with JUA_Server_call
+res1 = JUA_Server_call(server, req)
+@test res1 == "Hello Peter"
+
+#Even easier:
+res2 = JUA_Server_call(server, parentnodeid, methodid, inputarg)
+@test res2 == "Hello Peter"
+
+#two input, two output 
+res3 = JUA_Server_call(server, parentnodeid, methodid2, two_inputs_mixed)
+@test res3[1] == "Hello Claudia."
+@test res3[2] == 625
