@@ -41,14 +41,12 @@ See also:
 
 [`UA_MethodAttributes_generate`](@ref) to define valid attributes.
 
-[`UA_MethodAttributes_generate`](@ref) to generate a valid callback. 
-
+[`UA_MethodAttributes_generate`](@ref) to generate a valid callback.
 """
 function UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, attr, method,
         inputArgumentsSize, inputArguments, outputArgumentsSize,
         outputArguments, nodeContext, outNewNodeId)
-
     return UA_Server_addMethodNodeEx(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName, unsafe_load(attr),
         method, inputArgumentsSize, inputArguments,
@@ -97,7 +95,7 @@ for nodeclass in instances(UA_NodeClass)
                         requestedNewNodeId, parentNodeId, referenceTypeId,
                         browseName, typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], nodeContext, outNewNodeId)
-                end                
+                end
             end
         elseif funname_sym != :UA_Server_addMethodNode
             @eval begin
@@ -146,7 +144,7 @@ for att in attributes_UA_Server_read
         Uses the Server API to read the value of the attribute $($(String(attr_name))) 
         from the NodeId `nodeId` located on server `server`. The result is saved 
         into `out`.
-        
+
         Note that memory for `out` must be allocated by C before using this function. 
         This can be accomplished with `out = $($(String(ret_type)))()`. The 
         resulting object must be cleaned up via `$($(String(att[3])))_delete(out::Ptr{$($(String(att[3])))})`    
@@ -209,12 +207,11 @@ UA_Server_call(server::Ptr{UA_Server}, request::Ptr{UA_CallMethodRequest}, resul
 
 uses the server API to process the method call request `request` on the `server`.
 Note that `result` is mutated.
-
 """
 function UA_Server_call(server, request, result)
     #XXX - this leaks memory, repeated use will lead to memory not being released.
     #no workaround found yet.
-    r = UA_Server_call(server, request) 
+    r = UA_Server_call(server, request)
     UA_CallMethodResult_copy(r, Jpointer(result))
     return nothing
 end

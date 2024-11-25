@@ -27,7 +27,7 @@ mutable struct JUA_ServerConfig <: AbstractOpen62541Wrapper
 end
 
 #aliasing functions that interact with server and serverconfig
-const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer 
+const JUA_ServerConfig_setMinimalCustomBuffer = UA_ServerConfig_setMinimalCustomBuffer
 const JUA_ServerConfig_setDefaultWithSecurityPolicies = UA_ServerConfig_setDefaultWithSecurityPolicies
 const JUA_ServerConfig_setDefaultWithSecureSecurityPolicies = UA_ServerConfig_setDefaultWithSecureSecurityPolicies
 const JUA_ServerConfig_setBasics = UA_ServerConfig_setBasics
@@ -54,7 +54,8 @@ network layer to the given port and adds a single endpoint with the security
 policy ``SecurityPolicy#None`` to the server. A server certificate may be
 supplied but is optional.
 """
-JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_ServerConfig_setMinimal(config, portNumber, certificate)
+JUA_ServerConfig_setMinimal(config, portNumber, certificate = C_NULL) = UA_ServerConfig_setMinimal(
+    config, portNumber, certificate)
 
 const JUA_ServerConfig_setDefault = UA_ServerConfig_setDefault
 const JUA_ServerConfig_clean = UA_ServerConfig_clean
@@ -70,32 +71,35 @@ sets default access control options in a server configuration.
 
 """
 
-function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
-            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}})
-    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, 
-        Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri)) 
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool,
+        usernamePasswordLogin::Union{
+            JUA_UsernamePasswordLogin, AbstractArray{JUA_UsernamePasswordLogin}})
+    JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin,
+        Ref(unsafe_load(unsafe_load(config.securityPolicies)).policyUri))
 end
 
-function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
-            usernamePasswordLogin::Union{JUA_UsernamePasswordLogin,AbstractArray{JUA_UsernamePasswordLogin}}, userTokenPolicyUri::AbstractString)
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool,
+        usernamePasswordLogin::Union{
+            JUA_UsernamePasswordLogin, AbstractArray{JUA_UsernamePasswordLogin}}, userTokenPolicyUri::AbstractString)
     ua_s = UA_STRING(userTokenPolicyUri)
     JUA_AccessControl_default(config, allowAnonymous, usernamePasswordLogin, ua_s)
 end
 
-function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
-        usernamePasswordLogin::JUA_UsernamePasswordLogin, 
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool,
+        usernamePasswordLogin::JUA_UsernamePasswordLogin,
         userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
-    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, 1, Ref(usernamePasswordLogin.login))
+    UA_AccessControl_default(
+        config, allowAnonymous, userTokenPolicyUri, 1, Ref(usernamePasswordLogin.login))
 end
 
-function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool, 
-        usernamePasswordLogin::AbstractArray{JUA_UsernamePasswordLogin}, 
+function JUA_AccessControl_default(config::JUA_ServerConfig, allowAnonymous::Bool,
+        usernamePasswordLogin::AbstractArray{JUA_UsernamePasswordLogin},
         userTokenPolicyUri::Union{Ref{UA_String}, Ptr{UA_String}})
     logins = [usernamePasswordLogin[i].login for i in eachindex(usernamePasswordLogin)]
-    UA_AccessControl_default(config, allowAnonymous, userTokenPolicyUri, length(logins), logins)
+    UA_AccessControl_default(
+        config, allowAnonymous, userTokenPolicyUri, length(logins), logins)
 end
 
-    
 #const JUA_AccessControl_defaultWithLoginCallback = UA_AccessControl_defaultWithLoginCallback #TODO: complete this
 
 function JUA_Server_runUntilInterrupt(server::JUA_Server)
@@ -122,7 +126,7 @@ JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
 
 uses the server API to add a Variable, VariableType, or Object node to the `server`.
 
-See [`JUA_VariableAttributes`](@ref), [`JUA_VariableTypeAttributes`](@ref), and [`JUA_ObjectAttributes`](@ref) 
+See [`JUA_VariableAttributes`](@ref), [`JUA_VariableTypeAttributes`](@ref), and [`JUA_ObjectAttributes`](@ref)
 on how to define valid attributes.
 
 ```
@@ -148,14 +152,12 @@ uses the server API to add a Method node to the `server`.
 The method supplied
 
 See [`JUA_MethodAttributes`](@ref) on how to define valid attributes.
-
-
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
-        attributes::JUA_MethodAttributes, method, 
+        attributes::JUA_MethodAttributes, method,
         inputArguments::Union{UA_Array, JUA_Argument},
-        outputArguments::Union{UA_Array, JUA_Argument}, nodeContext, 
+        outputArguments::Union{UA_Array, JUA_Argument}, nodeContext,
         outNewNodeId)
     if inputArguments isa UA_Array
         inputargs = inputArguments.ptr
@@ -180,8 +182,8 @@ for nodeclass in instances(UA_NodeClass)
             "UA_Server_add" *
             titlecase(string(nodeclass_sym)[14:end]) *
             "Node",
-            "type" => "Type"))        
-        attributetype_sym_J = Symbol("J"*replace(
+            "type" => "Type"))
+        attributetype_sym_J = Symbol("J" * replace(
             "UA_" *
             titlecase(string(nodeclass_sym)[14:end]) *
             "Attributes",
@@ -224,17 +226,16 @@ end
 value = JUA_Server_readValue(server::JUA_Server, nodeId::JUA_NodeId, type = Any)
 ```
 
-uses the server API to read the value of `nodeId` from `server`. Output is 
-automatically converted to a Julia type (such as Float64, String, Vector{String}, 
+uses the server API to read the value of `nodeId` from `server`. Output is
+automatically converted to a Julia type (such as Float64, String, Vector{String},
 etc.) if possible. Otherwise, open62541 composite types are returned.
 
-Note: Since it is unknown what type of value is stored within `nodeId` before reading 
-it, this function is inherently type unstable. 
+Note: Since it is unknown what type of value is stored within `nodeId` before reading
+it, this function is inherently type unstable.
 
-Type stability is improved if the optional argument `type` is provided, for example, 
-if you know that you have stored a Matrix{Float64} in `nodeId`, then you should 
+Type stability is improved if the optional argument `type` is provided, for example,
+if you know that you have stored a Matrix{Float64} in `nodeId`, then you should
 specify this. If the wrong type is specified, the function will throw a TypeError.
-
 """
 function JUA_Server_readValue(server, nodeId, type::T = Any) where {T}
     v = UA_Variant_new()
@@ -249,12 +250,11 @@ end
 JUA_Server_writeValue(server::JUA_Server, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
 ```
 
-uses the server API to write the value `newvalue` to `nodeId` on `server`. 
-`new_value` must either be a `JUA_Variant` or a Julia value/array compatible with 
-any of its constructors. 
+uses the server API to write the value `newvalue` to `nodeId` on `server`.
+`new_value` must either be a `JUA_Variant` or a Julia value/array compatible with
+any of its constructors.
 
 See also [`JUA_Variant`](@ref)
-
 """
 function JUA_Server_writeValue(server, nodeId, newvalue)
     newvariant = JUA_Variant(newvalue)
@@ -271,9 +271,9 @@ end
 result::Union{Any, Tuple{Any, ...}} = JUA_Server_call(server::JUA_Server, request::JUA_CallMethodRequest)
 ```
 
-uses the server API to process the method call request `request` on the `server`. `result` 
-is the outputs generated by the method called. This is typically a number or a string (or an 
-Array thereof). If the method produces multiple outputs, they are returned as a tuple. 
+uses the server API to process the method call request `request` on the `server`. `result`
+is the outputs generated by the method called. This is typically a number or a string (or an
+Array thereof). If the method produces multiple outputs, they are returned as a tuple.
 
 ```
 result::Union{Any, Tuple{Any, ...}} = JUA_Server_call(server::JUA_Server, objectid::JUA_NodeId, 
@@ -284,24 +284,23 @@ An even higher level method that creates the `JUA_CallMethodRequest` internally.
 `JUA_Client_call` on the client side.
 
 See also:
-- [`JUA_CallMethodRequest`](@ref)
-- [`JUA_Client_call`](@ref)
 
-
+  - [`JUA_CallMethodRequest`](@ref)
+  - [`JUA_Client_call`](@ref)
 """
 function JUA_Server_call(server::JUA_Server, request::JUA_CallMethodRequest)
     answer = JUA_CallMethodResult()
     UA_Server_call(server, request, answer)
     sc = unsafe_load(answer.statusCode)
- 
+
     if sc != UA_STATUSCODE_GOOD
         error("Calling method via Server API failed with statuscode \"$(UA_StatusCode_name_print(sc))\".")
-    else    
+    else
         nargs = Int64(unsafe_load(answer.outputArgumentsSize))
         args = unsafe_load(answer.outputArguments)
         arr_output = UA_Array(args, nargs)
         r = __get_juliavalues_from_variant.(arr_output, Any)
- 
+
         if nargs == 1
             return r[1]
         else

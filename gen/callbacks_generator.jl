@@ -63,22 +63,22 @@ f(client::Ptr{UA_Client}, userdata::Ptr{Cvoid}, requestid::UA_UInt32,
 ```
 \"\"\"\n"
     global addedString = addedString * docstring *
-                  "function $(fun_name)(f)
-                      argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
-                          $attr_type)
-                      returntype = Nothing
-                      ret = Base.return_types(f, argtuple)
-                      if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret)  && ret[1] == returntype
-                          callback = @cfunction(\$f, Cvoid, 
-                              (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode, $attr_type)) 
-                          return callback
-                      else
-                          err = CallbackGeneratorArgumentError(f, argtuple, returntype)
-                          throw(err)
-                      end
-                  end
+                         "function $(fun_name)(f)
+                             argtuple = (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode,
+                                 $attr_type)
+                             returntype = Nothing
+                             ret = Base.return_types(f, argtuple)
+                             if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret)  && ret[1] == returntype
+                                 callback = @cfunction(\$f, Cvoid, 
+                                     (Ptr{UA_Client}, Ptr{Cvoid}, UA_UInt32, UA_StatusCode, $attr_type)) 
+                                 return callback
+                             else
+                                 err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+                                 throw(err)
+                             end
+                         end
 
-                  "
+                         "
 end
 write(f, orig_content * addedString)
 close(f)

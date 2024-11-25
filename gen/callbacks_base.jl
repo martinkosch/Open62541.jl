@@ -79,6 +79,7 @@ creates a `UA_MethodCallback` that can be attached to a method node using
 `UA_Server_addMethodNode`.
 
 `f` must be a Julia function with the following signature:
+
 ```
 f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}`, 
     methodId::Ptr{UA_NodeId}, methodContext::Ptr{Cvoid}, objectId::Ptr{UA_NodeId},   
@@ -110,18 +111,20 @@ end
 UA_MethodCallback_wrap(f::Function)
 ```
 
-wraps a simple Julia function that operates on inputs into the correct format to be supplied 
+wraps a simple Julia function that operates on inputs into the correct format to be supplied
 to `UA_MethodCallback_generate`.
 
 `f` must be a Julia function with the following signature:
+
 ```
 f(input1::Any, input2::Any, input3::Any, ...) -> output::Union{Any, Tuple{Any, ...}}
 ```
-where `Any` means that in principle any type is allowed. However, since Open62541 is based 
-on C the corresponding method node is *always* configured to only work with a specific 
+
+where `Any` means that in principle any type is allowed. However, since Open62541 is based
+on C the corresponding method node is *always* configured to only work with a specific
 combination of input types.
 
-If larger flexibility is needed than just working on the inputs given to a method node, see 
+If larger flexibility is needed than just working on the inputs given to a method node, see
 `UA_MethodCallback_generate`.
 
 See also:
@@ -133,17 +136,19 @@ See also:
 [`JUA_Server_addNode`](@ref)
 
 Example:
+
 ```
 function simple_hello(name, adjective)
     assembledstring = "Hello "*name*", you are "*adjective
     return assembledstring
 end 
 ```
-which can be attached to a a method node that expects a function that takes two strings as 
+
+which can be attached to a a method node that expects a function that takes two strings as
 inputs and one string as output.
 """
 function UA_MethodCallback_wrap(fsimple)
-    function (server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function (server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr = UA_Array(input, Int64(inputSize))
         input_julia = Open62541.__get_juliavalues_from_variant.(arr, Any)
@@ -334,7 +339,6 @@ function UA_ClientCallback_generate(f::Function)
     end
 end
 
-
 """
 ```
 UA_ClientAsyncServiceCallback_generate(f::Function)
@@ -375,7 +379,8 @@ function UA_ClientAsyncReadCallback_generate(f::Function)
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
-        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse}))
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -399,7 +404,8 @@ function UA_ClientAsyncWriteCallback_generate(f::Function)
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
-        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse}))
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -423,7 +429,8 @@ function UA_ClientAsyncBrowseCallback_generate(f::Function)
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
-        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse}))
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -447,7 +454,8 @@ function UA_ClientAsyncAddNodesCallback_generate(f::Function)
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
-        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse}))
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
@@ -471,7 +479,8 @@ function UA_ClientAsyncCallCallback_generate(f::Function)
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
-        callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse}))
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse}))
         return callback
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)

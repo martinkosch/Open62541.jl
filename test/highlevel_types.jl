@@ -27,10 +27,13 @@ j2 = JUA_Variant(v)
 @test j2 isa JUA_Variant
 UA_Variant_delete(v)
 @test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Rational(true, false))
-@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Rational(1, 2), Rational(3, 4)), Complex(Rational(5, 6), Rational(7, 8))])
-@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([Complex(Int16(1), Int16(3)), Complex(Int32(4), Int32(5))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([
+    Complex(Rational(1, 2), Rational(3, 4)), Complex(Rational(5, 6), Rational(7, 8))])
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant([
+    Complex(Int16(1), Int16(3)), Complex(Int32(4), Int32(5))])
 @test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Int16(1), Int16(3)))
-@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(Rational(1, 2), Rational(3, 4)))
+@test_throws Open62541.UnsupportedNumberTypeError JUA_Variant(Complex(
+    Rational(1, 2), Rational(3, 4)))
 
 #JUA_NodeId
 j1 = JUA_NodeId()
@@ -149,14 +152,17 @@ jc = JUA_Argument(c)
 jd = JUA_Argument(a, valuerank = -2)
 
 #check data types
-@test UA_NodeId_equal(ja.dataType, UA_NODEID("i="*string(UA_TYPES_FLOAT+1)))
-@test UA_NodeId_equal(jb.dataType, UA_NODEID("i="*string(UA_TYPES_BYTE+1)))
-@test UA_NodeId_equal(jc.dataType, UA_NODEID("i="*string(UA_TYPES_STRING+1)))
+@test UA_NodeId_equal(ja.dataType, UA_NODEID("i=" * string(UA_TYPES_FLOAT + 1)))
+@test UA_NodeId_equal(jb.dataType, UA_NODEID("i=" * string(UA_TYPES_BYTE + 1)))
+@test UA_NodeId_equal(jc.dataType, UA_NODEID("i=" * string(UA_TYPES_STRING + 1)))
 
 #check array size information
-@test all(siz_a .== unsafe_wrap(Array, unsafe_load(ja.arrayDimensions), unsafe_load(ja.arrayDimensionsSize)))
-@test all(siz_b .== unsafe_wrap(Array, unsafe_load(jb.arrayDimensions), unsafe_load(jb.arrayDimensionsSize)))
-@test all(siz_c .== unsafe_wrap(Array, unsafe_load(jc.arrayDimensions), unsafe_load(jc.arrayDimensionsSize)))
+@test all(siz_a .== unsafe_wrap(
+    Array, unsafe_load(ja.arrayDimensions), unsafe_load(ja.arrayDimensionsSize)))
+@test all(siz_b .== unsafe_wrap(
+    Array, unsafe_load(jb.arrayDimensions), unsafe_load(jb.arrayDimensionsSize)))
+@test all(siz_c .== unsafe_wrap(
+    Array, unsafe_load(jc.arrayDimensions), unsafe_load(jc.arrayDimensionsSize)))
 
 #check value rank
 @test length(siz_a) == unsafe_load(ja.valueRank)
@@ -178,30 +184,30 @@ jd = JUA_Argument(a, valuerank = -2)
 #valuerank = -2; scalar or array of any dim
 @test isa(JUA_Argument(1, valuerank = -2), JUA_Argument)
 @test isa(JUA_Argument(ones(3), valuerank = -2), JUA_Argument)
-@test isa(JUA_Argument(ones(3,2), valuerank = -2), JUA_Argument)
-@test isa(JUA_Argument(ones(3,2,4), valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(ones(3, 2), valuerank = -2), JUA_Argument)
+@test isa(JUA_Argument(ones(3, 2, 4), valuerank = -2), JUA_Argument)
 
 #valuerank = -1; scalar
 @test isa(JUA_Argument(1, valuerank = -1), JUA_Argument)
 
 #valuerank = 0; array of one or more dimensions
 @test isa(JUA_Argument(ones(3), valuerank = 0), JUA_Argument)
-@test isa(JUA_Argument(ones(3,2), valuerank = 0), JUA_Argument)
+@test isa(JUA_Argument(ones(3, 2), valuerank = 0), JUA_Argument)
 
 #valuerank = 1,2,3; array with num dimensions equal to valuerank
 @test isa(JUA_Argument(valuerank = 1, arraydimensions = 1), JUA_Argument)
 @test isa(JUA_Argument([1], valuerank = 1), JUA_Argument)
-@test isa(JUA_Argument(ones(3,2), valuerank = 2), JUA_Argument)
-@test isa(JUA_Argument(ones(3,2,3), valuerank = 3), JUA_Argument)
+@test isa(JUA_Argument(ones(3, 2), valuerank = 2), JUA_Argument)
+@test isa(JUA_Argument(ones(3, 2, 3), valuerank = 3), JUA_Argument)
 
 #Now test combinations that should throw an exception
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3,
     arraydimensions = [1])
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -3,
     arraydimensions = [1, 2])
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -2, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -2,
     arraydimensions = [1, 2])
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = -1,
     arraydimensions = [1, 2])
-@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = 1, 
+@test_throws Open62541.ValueRankArraySizeConsistencyError JUA_Argument(valuerank = 1,
     arraydimensions = [1, 2])

@@ -11,14 +11,14 @@ function customrand(type::Type{String})
 end
 
 #rational numbers
-function customrand(::Type{Rational{T}}, array_size) where T
+function customrand(::Type{Rational{T}}, array_size) where {T}
     num = rand(T, array_size)
     den = rand(T, array_size)
     r = Rational.(num, den)
     return r
 end
 
-function customrand(::Type{Rational{T}}) where T
+function customrand(::Type{Rational{T}}) where {T}
     num = rand(T)
     den = rand(T)
     r = Rational(num, den)
@@ -26,10 +26,10 @@ function customrand(::Type{Rational{T}}) where T
 end
 
 #For all other number types
-function customrand(type::Type{<:Number}, array_size) 
+function customrand(type::Type{<:Number}, array_size)
     return rand(type, array_size)
 end
 
-function customrand(type::Type{<:Number}) 
+function customrand(type::Type{<:Number})
     return rand(type)
 end

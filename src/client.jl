@@ -3,7 +3,7 @@
 #  * implemented as a plugin (as it can be based on different crypto
 #  * libraries). */
 ##TODO: ADD DOCSTRING
-function UA_ClientConfig_setAuthenticationUsername(config, username, password) 
+function UA_ClientConfig_setAuthenticationUsername(config, username, password)
     identityToken = UA_UserNameIdentityToken_new()
     if identityToken == C_NULL
         return UA_STATUSCODE_BADOUTOFMEMORY
@@ -13,7 +13,7 @@ function UA_ClientConfig_setAuthenticationUsername(config, username, password)
 
         UA_ExtensionObject_clear(config.userIdentityToken)
         UA_ExtensionObject_setValue(config.userIdentityToken, identityToken,
-                                    UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN])
+            UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN])
         return UA_STATUSCODE_GOOD
     end
 end
@@ -25,7 +25,7 @@ end
 #  * @param client to use
 #  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
 #  * @return Indicates whether the operation succeeded or returns an error code */
- ##TODO: ADD DOCSTRING
+##TODO: ADD DOCSTRING
 
 function UA_Client_connect(client, endpointUrl)
     cc = UA_Client_getConfig(client)
@@ -40,7 +40,7 @@ end
 #  * established. You can set a callback to client->config.stateCallback to be
 #  * notified when the connection status changes. Or use UA_Client_getState to get
 #  * the state manually. */
- ##TODO: ADD DOCSTRING
+##TODO: ADD DOCSTRING
 function UA_Client_connectAsync(client::Ptr{UA_Client}, endpointUrl::AbstractString)
     cc = UA_Client_getConfig(client)
     cc.noSession = false
@@ -49,13 +49,12 @@ function UA_Client_connectAsync(client::Ptr{UA_Client}, endpointUrl::AbstractStr
     return __UA_Client_connect(client, true)
 end
 
-
 # /* Connect to the server without creating a session
 #  *
 #  * @param client to use
 #  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
 #  * @return Indicates whether the operation succeeded or returns an error code */
- ##TODO: ADD DOCSTRING
+##TODO: ADD DOCSTRING
 function UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointUrl::AbstractString)
     cc = UA_Client_getConfig(client)
     cc.noSession = true
@@ -65,7 +64,8 @@ function UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointUrl::Abs
 end
 
 # /* Connect async (non-blocking) only the SecureChannel */
-function UA_Client_connectSecureChannelAsync(client::Ptr{UA_Client}, endpointUrl::AbstractString)
+function UA_Client_connectSecureChannelAsync(
+        client::Ptr{UA_Client}, endpointUrl::AbstractString)
     cc = UA_Client_getConfig(client)
     cc.noSession = true
     UA_String_clear(cc.endpointUrl)
@@ -106,7 +106,7 @@ for att in attributes_UA_Client_Service
     fun_name = Symbol(att[1])
     req_type = Symbol("UA_", uppercasefirst(att[2]), "Request")
     resp_type = Symbol("UA_", uppercasefirst(att[2]), "Response")
-    resp_gen =  Symbol(resp_type, "_new")
+    resp_gen = Symbol(resp_type, "_new")
     resp_del = Symbol(resp_type, "_delete")
     req_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "REQUEST")
     resp_type_ptr = Symbol("UA_TYPES_", uppercase(String(att[2])), "RESPONSE")
@@ -126,7 +126,7 @@ for att in attributes_UA_Client_Service
             !!! This is a low-level function within open62541. It is normally 
             much better and more convenient to use a more specific, high level 
             function.              
-            
+
             See also:
 
             [`$($resp_type)`](@ref)
@@ -136,7 +136,7 @@ for att in attributes_UA_Client_Service
             """
             function $(fun_name)(client, request)
                 response = $(resp_gen)()
-                statuscode = __UA_Client_Service(client, request, 
+                statuscode = __UA_Client_Service(client, request,
                     UA_TYPES_PTRS[$(req_type_ptr)], response,
                     UA_TYPES_PTRS[$(resp_type_ptr)])
                 if statuscode == UA_STATUSCODE_GOOD || isnothing(statuscode)
@@ -156,8 +156,8 @@ response::Ptr{UA_SetMonitoringModeResponse} = UA_Client_MonitoredItems_setMonito
     request::Ptr{UA_SetMonitoringModeRequest})
 ```
 
-uses the client API to set the monitoring mode on monitored items. Note that 
-memory for the response is allocated by C and needs to be cleaned up using 
+uses the client API to set the monitoring mode on monitored items. Note that
+memory for the response is allocated by C and needs to be cleaned up using
 `UA_SetMonitoringModeResponse_delete(response)` after its use.
 
 See also:
@@ -185,8 +185,8 @@ response::Ptr{UA_SetTriggeringResponse} = UA_Client_MonitoredItems_setTriggering
     request::Ptr{UA_SetTriggeringRequest}) 
 ```
 
-uses the client API to set the monitoring mode on monitored items. Note that 
-memory for the response is allocated by C and needs to be cleaned up using 
+uses the client API to set the monitoring mode on monitored items. Note that
+memory for the response is allocated by C and needs to be cleaned up using
 `UA_SetTriggeringResponse_delete(response)` after its use.
 
 See also:
@@ -199,7 +199,7 @@ See also:
 
 [`UA_SetTriggeringResponse`](@ref)
 """
-function UA_Client_MonitoredItems_setTriggering(client, request) 
+function UA_Client_MonitoredItems_setTriggering(client, request)
     response = UA_SetTriggeringResponse_new()
     __UA_Client_Service(client,
         request, UA_TYPES_PTRS[UA_TYPES_SETTRIGGERINGREQUEST],
@@ -214,8 +214,8 @@ response::Ptr{UA_SetPublishingModeResponse} = UA_Client_Subscriptions_setPublish
     request::Ptr{UA_SetPublishingModeRequest}) 
 ```
 
-uses the client API to set the publishing mode on subscriptions. Note that 
-memory for the response is allocated by C and needs to be cleaned up using 
+uses the client API to set the publishing mode on subscriptions. Note that
+memory for the response is allocated by C and needs to be cleaned up using
 `UA_SetPublishingModeResponse_delete(response)` after its use.
 
 See also:
@@ -274,11 +274,11 @@ for nodeclass in instances(UA_NodeClass)
                 See [`$($(attributetype_sym))_generate`](@ref) on how to define valid 
                 attributes.
                 """
-                function $(funname_sym)(client, requestedNewNodeId, parentNodeId, 
+                function $(funname_sym)(client, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, typeDefinition, attributes,
                         outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId, parentNodeId, referenceTypeId, 
+                        requestedNewNodeId, parentNodeId, referenceTypeId,
                         browseName, typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
@@ -299,13 +299,13 @@ for nodeclass in instances(UA_NodeClass)
                 attributes.
                 """
                 function $(funname_sym_async)(client, requestedNewNodeId,
-                        parentNodeId, referenceTypeId, browseName,  typeDefinition,
+                        parentNodeId, referenceTypeId, browseName, typeDefinition,
                         attributes, outNewNodeId, callback, userdata, reqId)
                     return __UA_Client_addNode_async(client, $(nodeclass_sym),
-                        requestedNewNodeId, parentNodeId, referenceTypeId, 
-                        browseName, typeDefinition, attributes, 
+                        requestedNewNodeId, parentNodeId, referenceTypeId,
+                        browseName, typeDefinition, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
-                        reinterpret(UA_ClientAsyncServiceCallback, callback), 
+                        reinterpret(UA_ClientAsyncServiceCallback, callback),
                         userdata, reqId)
                 end
             end
@@ -328,8 +328,8 @@ for nodeclass in instances(UA_NodeClass)
                 function $(funname_sym)(client, requestedNewNodeId, parentNodeId,
                         referenceTypeId, browseName, attributes, outNewNodeId)
                     return __UA_Client_addNode(client, $(nodeclass_sym),
-                        requestedNewNodeId, parentNodeId, referenceTypeId, 
-                        browseName, UA_NODEID_NULL, attributes, 
+                        requestedNewNodeId, parentNodeId, referenceTypeId,
+                        browseName, UA_NODEID_NULL, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId)
                 end
 
@@ -349,11 +349,11 @@ for nodeclass in instances(UA_NodeClass)
                 attributes.
                 """
                 function $(funname_sym_async)(client, requestedNewNodeId, parentNodeId,
-                        referenceTypeId, browseName, attributes, outNewNodeId, 
+                        referenceTypeId, browseName, attributes, outNewNodeId,
                         callback, userdata, reqId)
-                return __UA_Client_addNode_async(client, $(nodeclass_sym),
-                        requestedNewNodeId, parentNodeId, referenceTypeId, 
-                        browseName, UA_NODEID_NULL, attributes, 
+                    return __UA_Client_addNode_async(client, $(nodeclass_sym),
+                        requestedNewNodeId, parentNodeId, referenceTypeId,
+                        browseName, UA_NODEID_NULL, attributes,
                         UA_TYPES_PTRS[$(attributeptr_sym)], outNewNodeId,
                         reinterpret(UA_ClientAsyncServiceCallback, callback), userdata,
                         reqId)
@@ -452,7 +452,8 @@ for att in attributes_UA_Client_write_async
     attr_type = Symbol(att[3])
     attr_type_ptr = Symbol("UA_TYPES_", uppercase(String(attr_type)[4:end]))
     ua_attr_name = Symbol("UA_ATTRIBUTEID_", uppercase(att[2]))
-    cbtype = attr_name == :Value ? "UA_ClientAsyncWriteCallback" : "UA_ClientAsyncServiceCallback"
+    cbtype = attr_name == :Value ? "UA_ClientAsyncWriteCallback" :
+             "UA_ClientAsyncServiceCallback"
 
     @eval begin
         """
@@ -468,7 +469,7 @@ for att in attributes_UA_Client_write_async
         """
         function $(fun_name)(client, nodeId, newValue, callback, userdata, reqId)
             data_type_ptr = UA_TYPES_PTRS[$(attr_type_ptr)]
-            statuscode = __UA_Client_writeAttribute_async(client, nodeId, 
+            statuscode = __UA_Client_writeAttribute_async(client, nodeId,
                 $(ua_attr_name), newValue, data_type_ptr, callback, userdata, reqId)
             if statuscode == UA_STATUSCODE_GOOD
                 return statuscode
@@ -522,7 +523,7 @@ UA_Client_MonitoredItems_setMonitoringMode_async(client::Ptr{UA_Client},
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to set the monitoring mode on monitored items. 
+uses the asynchronous client API to set the monitoring mode on monitored items.
 
 See also:
 
@@ -550,7 +551,7 @@ UA_Client_MonitoredItems_setTriggering_async(client::Ptr{UA_Client},
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to set the triggering on monitored items. 
+uses the asynchronous client API to set the triggering on monitored items.
 
 See also:
 
@@ -578,7 +579,7 @@ UA_Client_sendAsyncReadRequest(client::Ptr{UA_Client},
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to send a read request. 
+uses the asynchronous client API to send a read request.
 
 See also:
 
@@ -602,7 +603,7 @@ UA_Client_sendAsyncWriteRequest(client::Ptr{UA_Client},
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to send a write request. 
+uses the asynchronous client API to send a write request.
 
 See also:
 
@@ -626,7 +627,7 @@ UA_Client_sendAsyncBrowseRequest(client::Ptr{UA_Client},
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to send a browse request. 
+uses the asynchronous client API to send a browse request.
 
 See also:
 
@@ -669,8 +670,8 @@ UA_Client_call_async(client::Ptr{UA_Client}, objectId::Ptr{UA_NodeId}, methodId:
     userdata::Ptr{Cvoid}, requestId::UInt32)::UA_StatusCode
 ```
 
-uses the asynchronous client API to call the method `methodId` on the server the 
-client is connected with. 
+uses the asynchronous client API to call the method `methodId` on the server the
+client is connected with.
 
 See also:
 [`UA_ClientAsyncCallCallback_generate`](@ref)

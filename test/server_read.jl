@@ -41,7 +41,7 @@ description = "This is a 2D point type."
 attr2 = UA_VariableTypeAttributes_generate(value = input,
     displayname = displayname,
     description = description)
-reqnewnodeid =  UA_NodeId_new()
+reqnewnodeid = UA_NodeId_new()
 parent2 = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 ref2 = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE)
 browse2 = UA_QUALIFIEDNAME_ALLOC(1, "2DPoint Type")
@@ -63,20 +63,21 @@ for node in nodes
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end 
+    end
     for att in Open62541.attributes_UA_Server_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
-        generator = Symbol(att[3]*"_new")
-        cleaner = Symbol(att[3]*"_delete")
+        generator = Symbol(att[3] * "_new")
+        cleaner = Symbol(att[3] * "_delete")
         out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead)) 
+           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(server, node, out2), UA_StatusCode)
         elseif "AccessLevelEx" == att[2]
             #donothing
         else
-            @test_throws Open62541.AttributeReadWriteError eval(fun_name)(server, node, out2)
+            @test_throws Open62541.AttributeReadWriteError eval(fun_name)(
+                server, node, out2)
         end
         eval(cleaner)(out2)
     end
@@ -86,15 +87,15 @@ end
 #clean up
 UA_Server_delete(server)
 UA_VariableAttributes_delete(attr)
-UA_NodeId_delete(variablenodeid) 
-UA_NodeId_delete(parentnodeid) 
+UA_NodeId_delete(variablenodeid)
+UA_NodeId_delete(parentnodeid)
 UA_NodeId_delete(parentreferencenodeid)
 UA_NodeId_delete(typedefinition)
-UA_QualifiedName_delete(browsename) 
-UA_NodeId_delete(variabletypenodeid) 
-UA_VariableTypeAttributes_delete(attr2) 
-UA_NodeId_delete(reqnewnodeid) 
-UA_NodeId_delete(parent2) 
-UA_NodeId_delete(ref2) 
-UA_QualifiedName_delete(browse2) 
+UA_QualifiedName_delete(browsename)
+UA_NodeId_delete(variabletypenodeid)
+UA_VariableTypeAttributes_delete(attr2)
+UA_NodeId_delete(reqnewnodeid)
+UA_NodeId_delete(parent2)
+UA_NodeId_delete(ref2)
+UA_QualifiedName_delete(browse2)
 UA_NodeId_delete(t2)

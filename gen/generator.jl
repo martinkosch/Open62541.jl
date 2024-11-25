@@ -82,9 +82,12 @@ function write_generated_defs(generated_defs_dir::String,
     # Vector of all inlined function names listed in the open62541 header files
     const inlined_funcs = $(extract_inlined_funcs(headers))
     """
-    
-    client_write = extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)", headers)
-    push!(client_write, ["UA_Client_writeUserAccessLevelAttribute", "UserAccessLevel", "UA_Byte"])
+
+    client_write = extract_header_data(
+        r"UA_INLINE[\s\S]{0,50}\s(UA_Client_write(\w*)Attribute)\((?:[\s\S]*?,\s*){2}const\s(\S*)",
+        headers)
+    push!(client_write,
+        ["UA_Client_writeUserAccessLevelAttribute", "UserAccessLevel", "UA_Byte"])
     push!(client_write, ["UA_Client_writeValueAttribute_scalar", "Value", "UA_DataType"])
     push!(client_write, ["UA_Client_writeValueAttributeEx", "Value", "UA_DataValue"])
     data_UA_Client = """
@@ -152,7 +155,7 @@ close(f)
 
 #remove inlined functions
 inlined_funcs = extract_inlined_funcs(headers)
-for i in eachindex(inlined_funcs) 
+for i in eachindex(inlined_funcs)
     @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
     global data = replace(data, r => "")
@@ -192,7 +195,7 @@ guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
 UA_Guid_copy(guid_src, guid_dst)
 return guid_dst
 end"
-data = replace(data, orig=>new)
+data = replace(data, orig => new)
 
 #need to remove some buggy lines
 replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
@@ -211,7 +214,7 @@ const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
 
 const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
 
-data = replace(data, replacestring=>"")
+data = replace(data, replacestring => "")
 
 #need to remove some buggy lines
 replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
@@ -230,7 +233,7 @@ const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
 
 const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
 
-data = replace(data, replacestring=>"")
+data = replace(data, replacestring => "")
 
 #replace version number code (make the constants express the version of the _jll 
 #rather than hard coded numbers)
@@ -247,7 +250,6 @@ fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "w")
 write(f, data)
 close(f)
-
 
 @warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
 @show "loading module"
@@ -342,4 +344,3 @@ format(joinpath(@__DIR__, "../src/callbacks.jl"))
 
 #delete headers directory
 Base.Filesystem.rm("headers", recursive = true)
-

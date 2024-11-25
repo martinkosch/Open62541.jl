@@ -16,17 +16,17 @@ Distributed.@everywhere begin
     include("test_helpers.jl") #this will cause method re-definition warnings, because it has been included already in the scalar case, but it's not important here.
 
     # What types and sizes we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
-        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64,
+        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32},
         Rational{UInt32}]
     array_sizes = (11, (2, 5), (3, 4, 5), (3, 4, 5, 6))
 
     # Generate random input values and generate nodeid names
-    input_data = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) 
-                                 for type in types)
+    input_data = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes)
+    for type in types)
 
-    input_data2 = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) 
-                                 for type in types)
+    input_data2 = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes)
+    for type in types)
     varnode_ids = ["$(string(array_size)) $(Symbol(type)) array variable"
                    for type in types, array_size in array_sizes]
 end
@@ -151,7 +151,7 @@ for type_ind in eachindex(types)
             type = Rational{Int32}
         elseif types[type_ind] <: Rational{<:Signed}
             type = Rational{UInt32}
-        elseif types[type_ind] <: Union{ComplexF16,ComplexF32}
+        elseif types[type_ind] <: Union{ComplexF16, ComplexF32}
             type = ComplexF64
         elseif types[type_ind] <: ComplexF64
             type = ComplexF32

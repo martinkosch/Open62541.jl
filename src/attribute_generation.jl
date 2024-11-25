@@ -232,7 +232,7 @@ end
 
 function __set_array_attributes!(attr, value::AbstractArray{<:Complex{T}},
         valuerank) where {T <: Union{Float32, Float64}}
-    f = T == Float32  ? UA_ComplexNumberType : UA_DoubleComplexNumberType
+    f = T == Float32 ? UA_ComplexNumberType : UA_DoubleComplexNumberType
     a = similar(value, f)
     for i in eachindex(a)
         a[i] = f(reim(value[i])...) #implicit conversion to Float32/64
@@ -249,7 +249,7 @@ function __set_array_attributes!(attr, value::AbstractArray{<:Rational{T}},
         a[i] = f(value[i].num, value[i].den) #implicit conversion to (U)Int32
     end
     __set_array_attributes!(attr, a, valuerank)
-return nothing
+    return nothing
 end
 
 function __set_array_attributes!(attr, value::AbstractArray{T, N},
@@ -311,16 +311,18 @@ function UA_VariableAttributes_generate(; value::Union{AbstractArray{T}, T},
         useraccesslevel::Union{Nothing, UInt8} = nothing,
         minimumsamplinginterval::Union{Nothing, Float64} = nothing,
         historizing::Union{Nothing, Bool} = nothing,
-        valuerank::Union{Nothing, Integer} = nothing) where {T <: Union{Number, AbstractString}}
-    if T <: Union{UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}
+        valuerank::Union{Nothing, Integer} = nothing) where {T <:
+                                                             Union{Number, AbstractString}}
+    if T <: Union{UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64},
+        Rational{Int32}, Rational{UInt32}, AbstractString}
         attr = __generate_variable_attributes(value, displayname, description,
-        localization, writemask, userwritemask, accesslevel, useraccesslevel,
-        minimumsamplinginterval, historizing, valuerank)
+            localization, writemask, userwritemask, accesslevel, useraccesslevel,
+            minimumsamplinginterval, historizing, valuerank)
     else
         #if number type not specifically reported (see union above) throw an informative exception.
         err = UnsupportedNumberTypeError(T)
-        throw(err) 
-    end            
+        throw(err)
+    end
     return attr
 end
 
@@ -408,24 +410,27 @@ function UA_VariableTypeAttributes_generate(; value::Union{AbstractArray{T}, T} 
         writemask::Union{Nothing, UInt32} = nothing,
         userwritemask::Union{Nothing, UInt32} = nothing,
         valuerank::Union{Nothing, Integer} = nothing,
-        isabstract::Union{Nothing, Bool} = nothing) where {T <: Union{Nothing, Number, AbstractString}}
-    if T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64}, Rational{Int32}, Rational{UInt32}, AbstractString}
+        isabstract::Union{Nothing, Bool} = nothing) where {T <: Union{
+        Nothing, Number, AbstractString}}
+    if T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, Complex{Float64},
+        Rational{Int32}, Rational{UInt32}, AbstractString}
         attr = __generate_variabletype_attributes(value, displayname, description,
-        localization, writemask, userwritemask, valuerank, isabstract)
+            localization, writemask, userwritemask, valuerank, isabstract)
         return attr
     else
         #if number type not specifically reported (see union above) throw an informative exception.
         err = UnsupportedNumberTypeError(T)
-        throw(err) 
+        throw(err)
     end
 end
 
 function __generate_variabletype_attributes(value::AbstractArray{T, N}, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T <: Union{UA_NUMBER_TYPES, Complex{Float32}, 
-                                Complex{Float64}, Rational{Int32}, Rational{UInt32}, 
-                                AbstractString}, 
-                           N}
+        isabstract) where {
+        T <: Union{UA_NUMBER_TYPES, Complex{Float32},
+            Complex{Float64}, Rational{Int32}, Rational{UInt32},
+            AbstractString},
+        N}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK(N)
     end
@@ -437,9 +442,9 @@ end
 
 function __generate_variabletype_attributes(value::T, displayname,
         description, localization, writemask, userwritemask, valuerank,
-        isabstract) where {T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32}, 
-                                Complex{Float64}, Rational{Int32}, Rational{UInt32}, 
-                                AbstractString}}
+        isabstract) where {T <: Union{Nothing, UA_NUMBER_TYPES, Complex{Float32},
+        Complex{Float64}, Rational{Int32}, Rational{UInt32},
+        AbstractString}}
     if isnothing(valuerank)
         valuerank = UA_VALUERANK_SCALAR
     end
@@ -469,7 +474,7 @@ function __generic_variabletype_attributes(displayname, description, localizatio
         if !isnothing(isabstract)
             attr.isAbstract = isabstract
         end
-        if !isnothing(type)           
+        if !isnothing(type)
             attr.dataType = __determinetype(type)
         end
         return attr

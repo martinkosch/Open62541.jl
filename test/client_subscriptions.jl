@@ -16,7 +16,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
     #configure the server
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-        4843, C_NULL,  0, 0)
+        4843, C_NULL, 0, 0)
 
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
@@ -30,12 +30,13 @@ config = UA_Client_getConfig(client)
 UA_ClientConfig_setDefault(config)
 
 #define callbacks
-function handler_simple(client, subId, subContext, monId, monContext, 
+function handler_simple(client, subId, subContext, monId, monContext,
         value)
     push!(container, rand()) #we just collect a bunch of random numbers here.
     return nothing
 end
-handlercb = @cfunction(handler_simple, Cvoid, (Ptr{UA_Client}, UInt32, Ptr{Cvoid}, UInt32, Ptr{Cvoid}, UA_DataValue))
+handlercb = @cfunction(handler_simple, Cvoid,
+    (Ptr{UA_Client}, UInt32, Ptr{Cvoid}, UInt32, Ptr{Cvoid}, UA_DataValue))
 
 #connect the client
 max_duration = 90.0 # Maximum waiting time for server startup 
@@ -56,7 +57,8 @@ end
 
 #create a subscription
 request = UA_CreateSubscriptionRequest_default()
-response = UA_Client_Subscriptions_create(client, unsafe_load(request), C_NULL, C_NULL, C_NULL)
+response = UA_Client_Subscriptions_create(
+    client, unsafe_load(request), C_NULL, C_NULL, C_NULL)
 
 #create a monitored item
 currentTimeNode = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME)
@@ -64,12 +66,12 @@ monRequest = UA_MonitoredItemCreateRequest_default(currentTimeNode)
 monResponse = UA_Client_MonitoredItems_createDataChange(client, response.subscriptionId,
     UA_TIMESTAMPSTORETURN_BOTH, unsafe_load(monRequest),
     C_NULL, handlercb, C_NULL)
-            
+
 #now interrogate the thing
 container = Float64[] #need to initialize variable here, otherwise error (use in handler_currentTimeChanged(...))
 UA_Client_run_iterate(client, 1000)
-container = Float64[] 
-sleep(7) 
+container = Float64[]
+sleep(7)
 UA_Client_run_iterate(client, 1000)
 #see UA_CreateSubscriptionRequest_default(); 
 # requestedPublishingInterval = 500.0
@@ -78,7 +80,7 @@ UA_Client_run_iterate(client, 1000)
 @test length(container) == 10
 
 UA_Client_disconnect(client)
-UA_Client_delete(client) 
+UA_Client_delete(client)
 
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])

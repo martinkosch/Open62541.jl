@@ -11,30 +11,30 @@ Distributed.@everywhere begin
 
     #create methods that will be used later
     function simple_one_in_one_out(name)
-        assembledstring = "Hello "*name*"."
+        assembledstring = "Hello " * name * "."
         return assembledstring
-    end 
+    end
     function simple_two_in_one_out(name, adjective)
-        assembledstring = "Hello "*name*", you are "*adjective*"."
+        assembledstring = "Hello " * name * ", you are " * adjective * "."
         return assembledstring
-    end 
+    end
     function simple_one_in_two_out(name)
-        out1 = "Hello "*name*"."
-        out2 = reverse(name)*" is "*name*" reversed."
+        out1 = "Hello " * name * "."
+        out2 = reverse(name) * " is " * name * " reversed."
         return (out1, out2)
-    end 
+    end
     function simple_two_in_two_out(name, adjective)
-        out1 = "Hello "*name*", you are "*adjective*"."
-        out2 = adjective*" is the adjective."
+        out1 = "Hello " * name * ", you are " * adjective * "."
+        out2 = adjective * " is the adjective."
         return (out1, out2)
-    end 
+    end
     function simple_two_in_two_out_mixed_type(name, number)
-        out1 = "Hello "*name*"."
-        out2 = number*number
+        out1 = "Hello " * name * "."
+        out2 = number * number
         return (out1, out2)
-    end 
+    end
 
-    function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function c1(server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
         arr_output = UA_Array(output, Int64(outputSize))
@@ -49,7 +49,7 @@ Distributed.@everywhere begin
         end
         return UA_STATUSCODE_GOOD
     end
-    function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function c2(server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
         arr_output = UA_Array(output, Int64(outputSize))
@@ -64,7 +64,7 @@ Distributed.@everywhere begin
         end
         return UA_STATUSCODE_GOOD
     end
-    function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function c3(server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
         arr_output = UA_Array(output, Int64(outputSize))
@@ -79,7 +79,7 @@ Distributed.@everywhere begin
         end
         return UA_STATUSCODE_GOOD
     end
-    function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function c4(server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
         arr_output = UA_Array(output, Int64(outputSize))
@@ -94,7 +94,7 @@ Distributed.@everywhere begin
         end
         return UA_STATUSCODE_GOOD
     end
-    function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId, 
+    function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
         arr_input = UA_Array(input, Int64(inputSize))
         arr_output = UA_Array(output, Int64(outputSize))
@@ -144,7 +144,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
         m5 = @cfunction(c5, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
-                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))     
+                Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
     end
 
     #configure server
@@ -192,26 +192,28 @@ Distributed.@spawnat Distributed.workers()[end] begin
     browsename5 = JUA_QualifiedName(1, "Simple Two in Two Out Mixed Type")
 
     #prepare input and output arguments
-    oneinputarg = JUA_Argument("examplestring", name = "One input", 
+    oneinputarg = JUA_Argument("examplestring", name = "One input",
         description = "One input")
     twoinputarg = UA_Argument_Array_new(2)
-    twoinputarg_mixed = UA_Argument_Array_new(2)
     #TODO: this could be much nicer if UA_Argument_Array works nicely, see https://github.com/martinkosch/Open62541.jl/issues/37
     j1 = JUA_Argument("examplestring", name = "First input", description = "First input")
     j2 = JUA_Argument("examplestring", name = "Second input", description = "Second input")
-    UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1]) 
+    UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1])
     UA_Argument_copy(Open62541.Jpointer(j2), twoinputarg[2])
 
+    twoinputarg_mixed = UA_Argument_Array_new(2)
     j3 = JUA_Argument("examplestring", name = "Name", description = "Number")
     j4 = JUA_Argument(25, name = "Number", description = "Number")
     UA_Argument_copy(Open62541.Jpointer(j3), twoinputarg_mixed[1])
     UA_Argument_copy(Open62541.Jpointer(j4), twoinputarg_mixed[2])
 
-    oneoutputarg = JUA_Argument("examplestring", name = "One output", description = "One output")
+    oneoutputarg = JUA_Argument(
+        "examplestring", name = "One output", description = "One output")
     twooutputarg = UA_Argument_Array_new(2)
     twooutputarg_mixed = UA_Argument_Array_new(2)
     j1 = JUA_Argument("examplestring", name = "First output", description = "First output")
-    j2 = JUA_Argument("examplestring", name = "Second output", description = "Second output")
+    j2 = JUA_Argument(
+        "examplestring", name = "Second output", description = "Second output")
     UA_Argument_copy(Open62541.Jpointer(j1), twooutputarg[1])
     UA_Argument_copy(Open62541.Jpointer(j2), twooutputarg[2])
     j3 = JUA_Argument("examplestring", name = "Name", description = "Name")
@@ -220,21 +222,21 @@ Distributed.@spawnat Distributed.workers()[end] begin
     UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
 
     #add the nodes
-    retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid, 
-        browsename1, attr1, m1, oneinputarg, oneoutputarg, 
+    retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid,
+        browsename1, attr1, m1, oneinputarg, oneoutputarg,
         JUA_NodeId(), JUA_NodeId())
-    retval2 = JUA_Server_addNode(server, methodid2, parentnodeid, parentreferencenodeid, 
-        browsename2, attr2, m2, twoinputarg, oneoutputarg, 
+    retval2 = JUA_Server_addNode(server, methodid2, parentnodeid, parentreferencenodeid,
+        browsename2, attr2, m2, twoinputarg, oneoutputarg,
         JUA_NodeId(), JUA_NodeId())
-    retval3 = JUA_Server_addNode(server, methodid3, parentnodeid, parentreferencenodeid, 
-        browsename3, attr3, m3, oneinputarg, twooutputarg, 
+    retval3 = JUA_Server_addNode(server, methodid3, parentnodeid, parentreferencenodeid,
+        browsename3, attr3, m3, oneinputarg, twooutputarg,
         JUA_NodeId(), JUA_NodeId())
-    retval4 = JUA_Server_addNode(server, methodid4, parentnodeid, parentreferencenodeid, 
-        browsename4, attr4, m4, twoinputarg, twooutputarg, 
-        JUA_NodeId(), JUA_NodeId())   
-    retval5 = JUA_Server_addNode(server, methodid5, parentnodeid, parentreferencenodeid, 
-        browsename5, attr5, m5, twoinputarg_mixed, twooutputarg_mixed, 
-        JUA_NodeId(), JUA_NodeId())  
+    retval4 = JUA_Server_addNode(server, methodid4, parentnodeid, parentreferencenodeid,
+        browsename4, attr4, m4, twoinputarg, twooutputarg,
+        JUA_NodeId(), JUA_NodeId())
+    retval5 = JUA_Server_addNode(server, methodid5, parentnodeid, parentreferencenodeid,
+        browsename5, attr5, m5, twoinputarg_mixed, twooutputarg_mixed,
+        JUA_NodeId(), JUA_NodeId())
 
     # Start up the server
     Distributed.@spawnat Distributed.workers()[end] redirect_stderr() # Turn off all error messages
@@ -283,7 +285,8 @@ response5 = JUA_Client_call(client, parentnodeid, methodid5, two_inputs_mixed)
 @test all(response4 .== ("Hello Bruce, you are amazing.", "amazing is the adjective."))
 @test all(response5 .== ("Hello Claudia.", 625))
 #test whether supplying wrong number of arguments throws:
-@test_throws Open62541.ClientServiceRequestError JUA_Client_call(client, parentnodeid, methodid1, two_inputs) 
+@test_throws Open62541.ClientServiceRequestError JUA_Client_call(
+    client, parentnodeid, methodid1, two_inputs)
 
 # Disconnect client
 JUA_Client_disconnect(client)

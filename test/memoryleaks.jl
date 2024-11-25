@@ -155,7 +155,8 @@ for j in eachindex(inputs)
         accesslevel = UA_ACCESSLEVEL(read = true, write = true)
         attr1 = UA_VariableAttributes_generate(value = inputs[j], displayname = "variable",
             description = "this is a variable", accesslevel = accesslevel)
-        attr2 = UA_VariableTypeAttributes_generate(value = inputs[j], displayname = "variabletype",
+        attr2 = UA_VariableTypeAttributes_generate(
+            value = inputs[j], displayname = "variabletype",
             description = "this is variabletype variable")
         UA_VariableAttributes_delete(attr1)
         UA_VariableTypeAttributes_delete(attr2)

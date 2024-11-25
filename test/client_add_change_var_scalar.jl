@@ -16,8 +16,8 @@ Distributed.@everywhere begin
     include("test_helpers.jl")
 
     # What types we are testing for: 
-    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
-        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
+    types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64,
+        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32},
         Rational{UInt32}]
 
     # Generate random input values and generate nodeid names
@@ -124,7 +124,7 @@ for type_ind in eachindex(types)
         type = Rational{Int32}
     elseif types[type_ind] <: Rational{<:Signed}
         type = Rational{UInt32}
-    elseif types[type_ind] <: Union{ComplexF16,ComplexF32}
+    elseif types[type_ind] <: Union{ComplexF16, ComplexF32}
         type = ComplexF64
     elseif types[type_ind] <: ComplexF64
         type = ComplexF32

@@ -30,7 +30,7 @@ function __get_juliavalues_from_variant(v, type)
     elseif typeof(wrapped) <: Union{UA_RationalNumber, UA_UnsignedRationalNumber}
         r = Rational(wrapped)
     elseif typeof(wrapped) <: Array &&
-            eltype(wrapped) <: Union{UA_RationalNumber, UA_UnsignedRationalNumber}
+           eltype(wrapped) <: Union{UA_RationalNumber, UA_UnsignedRationalNumber}
         r = Rational.(wrapped)
     elseif typeof(wrapped) == UA_String
         r = unsafe_string(wrapped)
@@ -41,7 +41,7 @@ function __get_juliavalues_from_variant(v, type)
     end
     r2 = deepcopy(r)
     return r2
-end    
+end
 
 function __determinetype(type)
     if type <: AbstractString
@@ -50,7 +50,7 @@ function __determinetype(type)
         t = unsafe_load(UA_TYPES_PTRS[UA_TYPES_COMPLEXNUMBERTYPE].typeId)
     elseif type == Complex{Float64}
         t = unsafe_load(UA_TYPES_PTRS[UA_TYPES_DOUBLECOMPLEXNUMBERTYPE].typeId)
-    elseif type == Rational{Int32} 
+    elseif type == Rational{Int32}
         t = unsafe_load(UA_TYPES_PTRS[UA_TYPES_RATIONALNUMBER].typeId)
     elseif type == Rational{UInt32}
         t = unsafe_load(UA_TYPES_PTRS[UA_TYPES_UNSIGNEDRATIONALNUMBER].typeId)
@@ -60,7 +60,7 @@ function __determinetype(type)
     return t
 end
 
-function __callback_wrap(method::Function) 
+function __callback_wrap(method::Function)
     return UA_MethodCallback_generate(method)
 end
 
@@ -72,9 +72,9 @@ end
 function __check_valuerank_arraydimensions_consistency(valuerank, arraydimensions)
     #see here for specification: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.6
     if valuerank >= -3 && valuerank <= 0 && length(arraydimensions) == 0 #scalar or array of one dimension
-        consistent = true    
+        consistent = true
     elseif valuerank > 0 && length(arraydimensions) == valuerank #array of valuerank dimension
-        consistent = true  
+        consistent = true
     else
         consistent = false
     end

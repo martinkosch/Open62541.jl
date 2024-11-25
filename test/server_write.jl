@@ -64,16 +64,16 @@ for node in nodes
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end 
+    end
     for att in Open62541.attributes_UA_Server_write
         fun_write = Symbol(att[1])
         fun_read = Symbol(replace(att[1], "write" => "read"))
         attr_name = Symbol(att[2])
-        generator = Symbol(att[3]*"_new")
-        cleaner = Symbol(att[3]*"_delete")
+        generator = Symbol(att[3] * "_new")
+        cleaner = Symbol(att[3] * "_delete")
         out2 = eval(generator)()
         if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             statuscode1 = eval(fun_read)(server, node, out2) #read
             @test statuscode1 == UA_STATUSCODE_GOOD
             if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545

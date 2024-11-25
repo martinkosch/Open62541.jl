@@ -45,7 +45,8 @@ var1 = UA_Variant_new()
 
 #AttributeReadWriteError - UA_Client_readX function 
 out2 = UA_Variant_new()
-@test_throws Open62541.AttributeReadWriteError UA_Client_readValueAttribute(client, bogusid, out2)
+@test_throws Open62541.AttributeReadWriteError UA_Client_readValueAttribute(
+    client, bogusid, out2)
 
 #AttributeReadWriteError - UA_Client_readX function 
 var2 = UA_Variant_new()

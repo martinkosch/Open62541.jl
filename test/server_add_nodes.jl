@@ -260,8 +260,8 @@ requestednewnodeid = UA_NodeId_new()
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT)
 browsename = UA_QUALIFIEDNAME(1, "ManufacturerName")
 typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-retval9 = UA_Server_addVariableNode(server, requestednewnodeid, 
-    deviceTypeId, parentreferencenodeid, browsename, typedefinition, 
+retval9 = UA_Server_addVariableNode(server, requestednewnodeid,
+    deviceTypeId, parentreferencenodeid, browsename, typedefinition,
     mnAttr, C_NULL, manufacturerNameId)
 @test retval9 == UA_STATUSCODE_GOOD
 
@@ -293,7 +293,7 @@ requestednewnodeid = UA_NodeId_new()
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT)
 browsename = UA_QUALIFIEDNAME(1, "ModelName")
 typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-retval11 = UA_Server_addVariableNode(server, requestednewnodeid, 
+retval11 = UA_Server_addVariableNode(server, requestednewnodeid,
     deviceTypeId, parentreferencenodeid, browsename,
     typedefinition, modelAttr, C_NULL, C_NULL)
 @test retval11 == UA_STATUSCODE_GOOD
@@ -332,8 +332,8 @@ requestednewnodeid = UA_NodeId_new()
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT)
 browsename = UA_QUALIFIEDNAME(1, "Status")
 typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-retval13 = UA_Server_addVariableNode(server, requestednewnodeid, 
-    pumpTypeId, parentreferencenodeid, browsename, typedefinition, 
+retval13 = UA_Server_addVariableNode(server, requestednewnodeid,
+    pumpTypeId, parentreferencenodeid, browsename, typedefinition,
     statusAttr, C_NULL, statusId)
 @test retval13 == UA_STATUSCODE_GOOD
 
@@ -365,8 +365,8 @@ requestednewnodeid = UA_NodeId_new()
 parentreferencenodeid = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT)
 browsename = UA_QUALIFIEDNAME(1, "MotorRPMs")
 typedefinition = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE)
-retval15 = UA_Server_addVariableNode(server, requestednewnodeid, 
-    pumpTypeId, parentreferencenodeid, browsename, 
+retval15 = UA_Server_addVariableNode(server, requestednewnodeid,
+    pumpTypeId, parentreferencenodeid, browsename,
     typedefinition, rpmAttr, C_NULL, C_NULL)
 @test retval15 == UA_STATUSCODE_GOOD
 
@@ -454,10 +454,10 @@ r2 = addPumpObjectInstance(server, "pump3", pumpTypeId) #should have status = fa
 addPumpTypeConstructor(server, pumpTypeId)
 r3 = addPumpObjectInstance(server, "pump4", pumpTypeId) #should have status = true
 r4 = addPumpObjectInstance(server, "pump5", pumpTypeId) #should have status = true
-@test  r1 == UA_STATUSCODE_GOOD
-@test  r2 == UA_STATUSCODE_GOOD
-@test  r3 == UA_STATUSCODE_GOOD
-@test  r4 == UA_STATUSCODE_GOOD
+@test r1 == UA_STATUSCODE_GOOD
+@test r2 == UA_STATUSCODE_GOOD
+@test r3 == UA_STATUSCODE_GOOD
+@test r4 == UA_STATUSCODE_GOOD
 #TODO: should actually check the status value and not just whether adding things went ok.
 
 #clean up pumpTypeId

@@ -325,7 +325,7 @@ function Base.Rational(x::UA_RationalNumber)
     # (which errors for negative numerator) since typemax of UInt32 is larger 
     # than typemax(Int32), this can be out of range... Could also convert to Int64 
     # of course...
-    Rational(x.numerator, Int32(x.denominator)) 
+    Rational(x.numerator, Int32(x.denominator))
 end
 
 function Base.Rational(x::UA_UnsignedRationalNumber)
@@ -427,7 +427,7 @@ UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
 creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})`
 after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
@@ -804,7 +804,7 @@ function Base.unsafe_wrap(v::UA_Variant)
         values_row_major = reshape(values, unsafe_size(v))
         if v.arrayDimensionsSize == 0
             return values_row_major
-        else 
+        else
             return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
         end
     end
@@ -838,8 +838,8 @@ end
 request::Ptr{UA_CreateSubscriptionRequest} = UA_CreateSubscriptionRequest_default()
 ```
 
-create a subscription create request to which monitored items can be added 
-subsequently. The subscription properties are set to their default values. 
+create a subscription create request to which monitored items can be added
+subsequently. The subscription properties are set to their default values.
 
 Note that memory for the response is allocated by C and needs to be cleaned up by
 using `UA_CreateSubscriptionRequest_delete(request)` after its use.
@@ -865,10 +865,10 @@ end
 request::Ptr{UA_MonitoredItemCreateRequest} = UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId})
 ```
 
-create a monitored item create request that monitors `nodeId`. The monitored item 
-properties are set to their default values. 
+create a monitored item create request that monitors `nodeId`. The monitored item
+properties are set to their default values.
 
-Note that memory for the request is allocated by C and needs to be cleaned up by 
+Note that memory for the request is allocated by C and needs to be cleaned up by
 using `UA_MonitoredItemCreateRequest_delete(request)` after its use.
 
 See also:
@@ -892,8 +892,8 @@ end
 UA_equal(p1::T, p2::T, T)::Bool
 ```
 
-compares `p1` and `p2` and returns `true` if they are equal. This is a basic 
-functionality and it is usually more appropriate to use the fully typed versions, 
+compares `p1` and `p2` and returns `true` if they are equal. This is a basic
+functionality and it is usually more appropriate to use the fully typed versions,
 for example `UA_String_equal` to compare to ´UA_String´s.
 """
 function UA_equal(p1, p2, type)

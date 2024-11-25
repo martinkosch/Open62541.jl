@@ -34,7 +34,7 @@ makedocs(;
             "manual/client.md"
         ],
         "Reference" => ["Low level interface" => "reference_lowlevel.md",
-                        "High level interface" => "reference_highlevel.md"]
+            "High level interface" => "reference_highlevel.md"]
     ],
     warnonly = Documenter.except(
         :autodocs_block,
