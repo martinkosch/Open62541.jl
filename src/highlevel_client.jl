@@ -260,12 +260,13 @@ function JUA_Client_call(
     outputarguments = JUA_Client_readValueAttribute(client, nodeid_outputargs)
 
     if length(inputarguments) != length(inputs)
-        #todo: throw informative exception
+        e = MethodNodeInputError(length(inputs), length(inputarguments))
+        throw(e)
     end
 
     input_variants = UA_Variant_Array_new(length(inputs))
     for i in 1:length(inputs)
-        UA_Variant_copy(Open62541.Jpointer(JUA_Variant(inputs[i])), input_variants[i])
+        UA_Variant_copy(Jpointer(JUA_Variant(inputs[i])), input_variants[i])
     end
 
     arr_output = UA_Variant_Array_new(length(outputarguments))
@@ -287,7 +288,7 @@ function JUA_Client_call(
         arr_output = UA_Array(ref[], length(outputarguments))
         r = __get_juliavalues_from_variant.(arr_output, Any)
 
-        #TODO: need to do memory management here.
+        #TODO: check that we clean up all the necessary variables.
         if length(outputarguments) == 1
             return r[1]
         else
