@@ -285,7 +285,7 @@ response5 = JUA_Client_call(client, parentnodeid, methodid5, two_inputs_mixed)
 @test all(response4 .== ("Hello Bruce, you are amazing.", "amazing is the adjective."))
 @test all(response5 .== ("Hello Claudia.", 625))
 #test whether supplying wrong number of arguments throws:
-@test_throws Open62541.ClientServiceRequestError JUA_Client_call(
+@test_throws Open62541.MethodNodeInputError JUA_Client_call(
     client, parentnodeid, methodid1, two_inputs)
 
 # Disconnect client

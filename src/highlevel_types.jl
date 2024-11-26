@@ -945,8 +945,7 @@ mutable struct JUA_Argument <: AbstractOpen62541Wrapper
         else
             #clean up and throw exception
             UA_Argument_delete(arg)
-            err = ValueRankArraySizeConsistencyError(
-                arg.valueRank, arg.arrayDimensionsSize, arg.arrayDimensions)
+            err = ValueRankArraySizeConsistencyError(arg.valueRank, arg.arrayDimensions)
             throw(err)
         end
     end

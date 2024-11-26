@@ -107,8 +107,7 @@ end
 function Base.showerror(io::IO, e::MethodNodeInputError)
     n1 = e.ninputsupplied
     n2 = e.ninputnode
-    p1 = n1 > 1 ? "s" : ""
-    p2 =  n2 > 1 ? "s have" : " has"
-    msg = "MethodNode expects $n2 input$p2, but $n1 input$p1 been supplied."
+    p1 = n1 > 1 ? "s have" : " has"
+    msg = "MethodNode expects $n2 input, but $n1 input$p1 been supplied."
     print(io, msg)
 end
