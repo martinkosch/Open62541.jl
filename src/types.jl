@@ -96,7 +96,7 @@ for (i, type_name) in enumerate(type_names)
     @eval begin
         # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
-        if type_names[$(i)] ∉ types_ambiguous_ignorelist
+        if type_names[$(i)] ∉ types_ambiguous_ignorelist && !(julia_types[$(i)] <: UA_NUMBER_TYPES)
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
