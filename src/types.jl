@@ -96,12 +96,14 @@ for (i, type_name) in enumerate(type_names)
     @eval begin
         # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
-        if type_names[$(i)] ∉ types_ambiguous_ignorelist && !(julia_types[$(i)] <: UA_NUMBER_TYPES)
+        if type_names[$(i)] ∉ types_ambiguous_ignorelist
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
             end
-            Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
+            if !(julia_types[$(i)] <: UA_NUMBER_TYPES)
+                Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
+            end
         end
 
         # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
