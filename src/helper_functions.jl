@@ -39,8 +39,9 @@ function __get_juliavalues_from_variant(v, type)
     else
         r = wrapped
     end
-    r2 = deepcopy(r)
-    return r2
+    # r2 = deepcopy(r) #don't need to copy due to Base.unsafe_wrap(p::Ptr{UA_Variant})
+    # using unsafe_load, which already copies (see types.jl)
+    return r
 end
 
 function __determinetype(type)
