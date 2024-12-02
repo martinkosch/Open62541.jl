@@ -86,6 +86,10 @@ f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}
     objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
     outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode
 ```
+
+If the output of `f` only depends on the inputs, but not on any session state variables, 
+consider using [`UA_MethodCallback_wrap`](@ref).
+
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},

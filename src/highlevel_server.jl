@@ -149,30 +149,49 @@ JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
 
 uses the server API to add a Method node to the `server`.
 
-The method supplied
+The `method` supplied can either be a Julia method #TODO: FIX THIS
 
 See [`JUA_MethodAttributes`](@ref) on how to define valid attributes.
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
         attributes::JUA_MethodAttributes, method,
-        inputArguments::Union{UA_Array, JUA_Argument},
-        outputArguments::Union{UA_Array, JUA_Argument}, nodeContext,
+        inputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument},
+        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, nodeContext,
         outNewNodeId)
-    if inputArguments isa UA_Array
-        inputargs = inputArguments.ptr
+    #TODO: should really refactor the below into a more general method and move it to 
+    #helper_functions.jl
+    if inputArguments isa AbstractArray
+        input_ptr = convert(Ptr{UA_Argument}, UA_Array_new(length(inputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT]))
+        inputargs_arr = UA_Array(input_ptr, length(inputArguments))
+        for i in eachindex(inputArguments)
+            UA_Argument_copy(Jpointer(inputArguments[i]), inputargs_arr[i])
+        end
+        inputargs = input_ptr
     else
         inputargs = inputArguments
     end
-    if outputArguments isa UA_Array
-        outputargs = outputArguments.ptr
+    if outputArguments isa AbstractArray
+        output_ptr = convert(Ptr{UA_Argument}, UA_Array_new(length(outputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT]))
+        outputargs_arr = UA_Array(output_ptr, length(outputArguments))
+        for i in eachindex(outputArguments)
+            UA_Argument_copy(Jpointer(outputArguments[i]), outputargs_arr[i])
+        end
+        outputargs = output_ptr
     else
         outputargs = outputArguments
     end
-    return UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
+    sc = UA_Server_addMethodNode(server, requestedNewNodeId, parentNodeId,
         referenceTypeId, browseName, Jpointer(attributes), __callback_wrap(method),
         __argsize(inputArguments), inputargs, __argsize(outputArguments),
         outputargs, nodeContext, outNewNodeId)
+    if inputArguments isa AbstractArray
+        UA_Array_delete(inputargs, length(inputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
+    end
+    if outputArguments isa AbstractArray
+        UA_Array_delete(outputargs, length(outputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
+    end
+    return sc
 end
 
 for nodeclass in instances(UA_NodeClass)

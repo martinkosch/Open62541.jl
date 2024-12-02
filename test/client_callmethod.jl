@@ -191,35 +191,26 @@ Distributed.@spawnat Distributed.workers()[end] begin
     browsename4 = JUA_QualifiedName(1, "Simple Two in Two Out")
     browsename5 = JUA_QualifiedName(1, "Simple Two in Two Out Mixed Type")
 
-    #prepare input and output arguments
+    #prepare input arguments
     oneinputarg = JUA_Argument("examplestring", name = "One input",
-        description = "One input")
-    twoinputarg = UA_Argument_Array_new(2)
-    #TODO: this could be much nicer if UA_Argument_Array works nicely, see https://github.com/martinkosch/Open62541.jl/issues/37
+        description = "One input")    
     j1 = JUA_Argument("examplestring", name = "First input", description = "First input")
     j2 = JUA_Argument("examplestring", name = "Second input", description = "Second input")
-    UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1])
-    UA_Argument_copy(Open62541.Jpointer(j2), twoinputarg[2])
-
-    twoinputarg_mixed = UA_Argument_Array_new(2)
+    twoinputarg = [j1, j2]    
     j3 = JUA_Argument("examplestring", name = "Name", description = "Number")
     j4 = JUA_Argument(25, name = "Number", description = "Number")
-    UA_Argument_copy(Open62541.Jpointer(j3), twoinputarg_mixed[1])
-    UA_Argument_copy(Open62541.Jpointer(j4), twoinputarg_mixed[2])
+    twoinputarg_mixed = [j3, j4]
 
+    #prepare output arguments
     oneoutputarg = JUA_Argument(
         "examplestring", name = "One output", description = "One output")
-    twooutputarg = UA_Argument_Array_new(2)
-    twooutputarg_mixed = UA_Argument_Array_new(2)
     j1 = JUA_Argument("examplestring", name = "First output", description = "First output")
     j2 = JUA_Argument(
         "examplestring", name = "Second output", description = "Second output")
-    UA_Argument_copy(Open62541.Jpointer(j1), twooutputarg[1])
-    UA_Argument_copy(Open62541.Jpointer(j2), twooutputarg[2])
+    twooutputarg = [j1, j2]
     j3 = JUA_Argument("examplestring", name = "Name", description = "Name")
     j4 = JUA_Argument(25, name = "Number", description = "Number")
-    UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg_mixed[1])
-    UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
+    twooutputarg_mixed = [j3, j4]
 
     #add the nodes
     retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid,

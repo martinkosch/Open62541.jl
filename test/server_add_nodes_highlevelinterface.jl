@@ -342,17 +342,13 @@ end
 inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
 outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
 
-twoinputarg_mixed = UA_Argument_Array_new(2)
 j3 = JUA_Argument("examplestring", name = "Name", description = "Number")
 j4 = JUA_Argument(25, name = "Number", description = "Number")
-UA_Argument_copy(Open62541.Jpointer(j3), twoinputarg_mixed[1])
-UA_Argument_copy(Open62541.Jpointer(j4), twoinputarg_mixed[2])
+twoinputarg_mixed = [j3, j4]
 
-twooutputarg_mixed = UA_Argument_Array_new(2)
-j3 = JUA_Argument("examplestring", name = "Name", description = "Name")
-j4 = JUA_Argument(25, name = "Number", description = "Number")
-UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg_mixed[1])
-UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg_mixed[2])
+j5 = JUA_Argument("examplestring", name = "Name", description = "Name")
+j6 = JUA_Argument(25, name = "Number", description = "Number")
+twooutputarg_mixed  = [j5, j6]
 
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",
     displayname = "Hello World",

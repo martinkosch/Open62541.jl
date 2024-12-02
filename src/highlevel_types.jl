@@ -964,7 +964,7 @@ function __argsize(a::JUA_Argument)
     return 1
 end
 
-function __argsize(a::UA_Array)
+function __argsize(a)
     return length(a)
 end
 

@@ -62,7 +62,13 @@ function __determinetype(type)
 end
 
 function __callback_wrap(method::Function)
-    return UA_MethodCallback_generate(method)
+    #detect whether we need to apply UA_MethodCallback_generate or UA_MethodCallback_wrap, 
+    #then ..._generate.
+    f = try UA_MethodCallback_generate(f::Function)
+    catch
+        UA_MethodCallback_generate(UA_MethodCallback_wrap(f))
+    end
+    return f
 end
 
 function __callback_wrap(method)

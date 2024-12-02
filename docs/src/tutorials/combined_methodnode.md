@@ -110,19 +110,15 @@ end
 
 #create example input and output arguments
 oneinputarg = JUA_Argument("examplestring", name = "One input", description = "One input")
-twoinputarg = UA_Argument_Array_new(2)
 j1 = JUA_Argument("examplestring", name = "Name", description = "Number")
 j2 = JUA_Argument(25, name = "Number", description = "Number")
-UA_Argument_copy(Open62541.Jpointer(j1), twoinputarg[1])
-UA_Argument_copy(Open62541.Jpointer(j2), twoinputarg[2])
+twoinputarg = [j1, j2]
 
 oneoutputarg = JUA_Argument(
     "examplestring", name = "One output", description = "One output")
-twooutputarg = UA_Argument_Array_new(2)
 j3 = JUA_Argument("examplestring", name = "Name", description = "Name")
 j4 = JUA_Argument(25, name = "Number", description = "Number")
-UA_Argument_copy(Open62541.Jpointer(j3), twooutputarg[1])
-UA_Argument_copy(Open62541.Jpointer(j4), twooutputarg[2])
+twooutputarg = [j3, j4]
 
 #Add the method nodes to the server
 retval1 = JUA_Server_addNode(server, methodid1, parentnodeid, parentreferencenodeid,
