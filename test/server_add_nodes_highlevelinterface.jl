@@ -237,11 +237,11 @@ retval12 = JUA_Server_addNode(server, JUA_NodeId(), pumpTypeId,
     statusAttr, JUA_NodeId(), statusId, JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE))
 @test retval12 == UA_STATUSCODE_GOOD
 
-#TODO: would need to introduce JUA_ExpandedNodeId in highlevel_types.jl before revising this
+#TODO: Check out UA_Server_addReference
 # Make the status variable mandatory */
 retval13 = UA_Server_addReference(server, Open62541.Jpointer(statusId),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE),
-    UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
+    JUA_NodeId(0, UA_NS0ID_HASMODELLINGRULE),
+    JUA_ExpandedNodeId(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
 @test retval13 == UA_STATUSCODE_GOOD
 
 rpmAttr = JUA_VariableAttributes(displayname = "MotorRPM",

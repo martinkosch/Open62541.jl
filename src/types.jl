@@ -30,6 +30,7 @@ struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     length::Int64
 end
 
+#todo: is this used anywhere?=
 function UA_Array(s::T, field::Symbol) where {T}
     size_fieldname = Symbol(field, :Size)
     ptr = getfield(s, field)
@@ -50,6 +51,9 @@ Base.setindex!(a::UA_Array, v, i::Int) = unsafe_store!(a.ptr, v, i)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
+function Base.unsafe_convert(::Type{Ptr{T}}, a::UA_Array) where {T}
+    Base.unsafe_convert(Ptr{T}, a.ptr)
+end
 Base.convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a)
 Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{Nothing}}) = a[begin] # Avoid method ambigutiy
 function Base.unsafe_convert(::Type{Ptr{Nothing}}, a::UA_Array)

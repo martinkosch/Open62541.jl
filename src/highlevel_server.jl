@@ -144,40 +144,38 @@ See [`JUA_ObjectTypeAttributes`](@ref), [`JUA_ReferenceTypeAttributes`](@ref), [
 JUA_Server_addNode(server::JUA_Server, requestedNewNodeId::JUA_NodeId,
         parentNodeId::JUA_NodeId, referenceTypeId::JUA_NodeId, browseName::JUA_QualifiedName,
         attributes::JUA_MethodAttributes, method::Union{Function, Ptr{Cvoid}, Base.CFunction},
+        inputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, 
+        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, 
         outNewNodeId::JUA_NodeId, nodeContext::JUA_NodeId)::UA_StatusCode
 ```
 
 uses the server API to add a Method node to the `server`.
 
-The `method` supplied can either be a Julia method #TODO: FIX THIS
+The `method` supplied can either be a Julia function that fulfills the requirements for 
+`UA_MethodCallback_wrap` or `UA_MethodCallback_generate`.
 
-See [`JUA_MethodAttributes`](@ref) on how to define valid attributes.
+See also:
+- [`JUA_MethodAttributes`](@ref) for how to define valid attributes.
+- [`JUA_MethodCallback_generate`](@ref) for requirements on `method`.
+- [`JUA_MethodCallback_wrap`](@ref) for requirements on `method`.
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
         attributes::JUA_MethodAttributes, method,
         inputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument},
-        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, nodeContext,
-        outNewNodeId)
-    #TODO: should really refactor the below into a more general method and move it to 
-    #helper_functions.jl
+        outputArguments::Union{AbstractArray{JUA_Argument}, JUA_Argument}, 
+        nodeContext, outNewNodeId) 
+    #todo: this if-else stuff could be done more elegantly with multiple dispatch (orthogonal 
+    #design)
     if inputArguments isa AbstractArray
-        input_ptr = convert(Ptr{UA_Argument}, UA_Array_new(length(inputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT]))
-        inputargs_arr = UA_Array(input_ptr, length(inputArguments))
-        for i in eachindex(inputArguments)
-            UA_Argument_copy(Jpointer(inputArguments[i]), inputargs_arr[i])
-        end
-        inputargs = input_ptr
+        inputargs_arr = __AbstractArray_to_UA_Array(inputArguments)
+        inputargs = inputargs_arr
     else
         inputargs = inputArguments
     end
     if outputArguments isa AbstractArray
-        output_ptr = convert(Ptr{UA_Argument}, UA_Array_new(length(outputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT]))
-        outputargs_arr = UA_Array(output_ptr, length(outputArguments))
-        for i in eachindex(outputArguments)
-            UA_Argument_copy(Jpointer(outputArguments[i]), outputargs_arr[i])
-        end
-        outputargs = output_ptr
+        outputargs_arr = __AbstractArray_to_UA_Array(outputArguments)
+        outputargs = outputargs_arr
     else
         outputargs = outputArguments
     end
@@ -186,10 +184,10 @@ function JUA_Server_addNode(server, requestedNewNodeId,
         __argsize(inputArguments), inputargs, __argsize(outputArguments),
         outputargs, nodeContext, outNewNodeId)
     if inputArguments isa AbstractArray
-        UA_Array_delete(inputargs, length(inputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
+        UA_Array_delete(inputargs.ptr, length(inputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
     end
     if outputArguments isa AbstractArray
-        UA_Array_delete(outputargs, length(outputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
+        UA_Array_delete(outputargs.ptr, length(outputArguments), UA_TYPES_PTRS[UA_TYPES_ARGUMENT])
     end
     return sc
 end

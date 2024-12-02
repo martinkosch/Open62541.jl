@@ -87,3 +87,16 @@ function __check_valuerank_arraydimensions_consistency(valuerank, arraydimension
     end
     return consistent
 end
+
+#TODO: This is quite similar to UA_Array_new (types.jl), but works element by element and also for 
+#AbstractOpen62541Wrapper's. 
+function __AbstractArray_to_UA_Array(A::AbstractArray, 
+        type_ptr = ua_data_type_ptr_default(eltype(Jpointer(A[1]))))
+    type = eltype(Jpointer(A[1]))
+    arr_ptr = convert(Ptr{type}, UA_Array_new(length(A), type_ptr))
+    UA_A = UA_Array(arr_ptr, length(A))
+    for i in eachindex(A)
+        UA_copy(Jpointer(A[i]), UA_A[i], type_ptr)
+    end
+    return UA_A
+end
