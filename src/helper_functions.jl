@@ -64,9 +64,9 @@ end
 function __callback_wrap(method::Function)
     #detect whether we need to apply UA_MethodCallback_generate or UA_MethodCallback_wrap, 
     #then ..._generate.
-    f = try UA_MethodCallback_generate(f::Function)
+    f = try UA_MethodCallback_generate(method)
     catch
-        UA_MethodCallback_generate(UA_MethodCallback_wrap(f))
+        UA_MethodCallback_generate(UA_MethodCallback_wrap(method))
     end
     return f
 end
@@ -89,7 +89,7 @@ function __check_valuerank_arraydimensions_consistency(valuerank, arraydimension
 end
 
 #TODO: This is quite similar to UA_Array_new (types.jl), but works element by element and also for 
-#AbstractOpen62541Wrapper's. 
+#AbstractOpen62541Wrapper's; could we merge functionality?
 function __AbstractArray_to_UA_Array(A::AbstractArray, 
         type_ptr = ua_data_type_ptr_default(eltype(Jpointer(A[1]))))
     type = eltype(Jpointer(A[1]))
