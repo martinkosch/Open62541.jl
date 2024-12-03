@@ -101,7 +101,9 @@ for (i, type_name) in enumerate(type_names)
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
             end
-            Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
+            if !(julia_types[$(i)] <: UA_NUMBER_TYPES)
+                Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
+            end
         end
 
         # Datatype specific constructors, destructors, initalizers, as well as clear and copy functions
