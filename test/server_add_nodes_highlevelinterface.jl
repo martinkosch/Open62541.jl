@@ -55,7 +55,7 @@ browsename = JUA_QualifiedName(1, varnodetext)
 nodecontext = JUA_NodeId()
 outnewnodeid = JUA_NodeId()
 retval2 = JUA_Server_addNode(server, varnodeid, parentnodeid,
-    parentreferencenodeid, browsename, attr, nodecontext, outnewnodeid, 
+    parentreferencenodeid, browsename, attr, nodecontext, outnewnodeid,
     typedefinition)
 # Test whether adding node to the server worked
 @test retval2 == UA_STATUSCODE_GOOD
@@ -102,7 +102,7 @@ browsename = JUA_QualifiedName(1, "2DPoint variable")
 nodecontext = JUA_NodeId()
 
 retval4 = JUA_Server_addNode(server, JUA_NodeId(), parentnodeid,
-    parentreferencenodeid, browsename, attr, nodecontext, pointvariableid1, 
+    parentreferencenodeid, browsename, attr, nodecontext, pointvariableid1,
     pointtypeid)
 # Test whether adding the variable type node to the server worked
 @test retval4 == UA_STATUSCODE_GOOD
@@ -196,7 +196,7 @@ referenceTypeId = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 browseName = JUA_QualifiedName(1, "ManufacturerName")
 typeDefinition = JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE)
 nodeContext = JUA_NodeId()
-retval9 = JUA_Server_addNode(server, requestedNewNodeid, deviceTypeId, 
+retval9 = JUA_Server_addNode(server, requestedNewNodeid, deviceTypeId,
     referenceTypeId, browseName, mnAttr, nodeContext, manufacturerNameId, typeDefinition)
 @test retval9 == UA_STATUSCODE_GOOD
 
@@ -237,11 +237,11 @@ retval12 = JUA_Server_addNode(server, JUA_NodeId(), pumpTypeId,
     statusAttr, JUA_NodeId(), statusId, JUA_NodeId(0, UA_NS0ID_BASEDATAVARIABLETYPE))
 @test retval12 == UA_STATUSCODE_GOOD
 
-#TODO: would need to introduce JUA_ExpandedNodeId in highlevel_types.jl before revising this
+#TODO: Check out UA_Server_addReference
 # Make the status variable mandatory */
 retval13 = UA_Server_addReference(server, Open62541.Jpointer(statusId),
-    UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE),
-    UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
+    JUA_NodeId(0, UA_NS0ID_HASMODELLINGRULE),
+    JUA_ExpandedNodeId(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true)
 @test retval13 == UA_STATUSCODE_GOOD
 
 rpmAttr = JUA_VariableAttributes(displayname = "MotorRPM",
@@ -321,10 +321,10 @@ r2 = addPumpObjectInstance(server, "pump3", pumpTypeId) #should have status = fa
 addPumpTypeConstructor(server, pumpTypeId)
 r3 = addPumpObjectInstance(server, "pump4", pumpTypeId) #should have status = true
 r4 = addPumpObjectInstance(server, "pump5", pumpTypeId) #should have status = true
-@test  r1 == UA_STATUSCODE_GOOD
-@test  r2 == UA_STATUSCODE_GOOD
-@test  r3 == UA_STATUSCODE_GOOD
-@test  r4 == UA_STATUSCODE_GOOD
+@test r1 == UA_STATUSCODE_GOOD
+@test r2 == UA_STATUSCODE_GOOD
+@test r3 == UA_STATUSCODE_GOOD
+@test r4 == UA_STATUSCODE_GOOD
 #TODO: should actually check the status value and not just whether adding things went ok.
 
 #add method node
@@ -339,62 +339,100 @@ function helloWorld(server, sessionId, sessionHandle, methodId,
     return UA_STATUSCODE_GOOD
 end
 
-#TODO: code here is not yet part of the high level interface, but a mixture...
-inputArgument = UA_Argument_new()
-lt = JUA_LocalizedText("en-US", "A String")
-ua_s = JUA_String("MyInput")
-inputArgument.description = lt
-inputArgument.name = ua_s
-inputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-inputArgument.valueRank = UA_VALUERANK_SCALAR
+inputArgument = JUA_Argument("examplestring", name = "MyInput", description = "A String")
+outputArgument = JUA_Argument("examplestring", name = "MyOutput", description = "A String")
 
-outputArgument = UA_Argument_new()
-lt = JUA_LocalizedText("en-US", "A String")
-ua_s = JUA_String("MyOutput")
-outputArgument.description = lt
-outputArgument.name = ua_s
-outputArgument.dataType = UA_TYPES_PTRS[UA_TYPES_STRING].typeId
-outputArgument.valueRank = UA_VALUERANK_SCALAR
+j3 = JUA_Argument("examplestring", name = "Name", description = "Number")
+j4 = JUA_Argument(25, name = "Number", description = "Number")
+twoinputarg_mixed = [j3, j4]
+
+j5 = JUA_Argument("examplestring", name = "Name", description = "Name")
+j6 = JUA_Argument(25, name = "Number", description = "Number")
+twooutputarg_mixed  = [j5, j6]
+
 helloAttr = JUA_MethodAttributes(description = "Say Hello World",
     displayname = "Hello World",
     executable = true,
     userexecutable = true)
 
+m2Attr = JUA_MethodAttributes(description = "method 2 in 2 out mixed",
+    displayname = "method 2 in 2 out mixed",
+    executable = true,
+    userexecutable = true)
+
+function simple_two_in_two_out_mixed_type(name, number)
+    out1 = "Hello " * name * "."
+    out2 = number * number
+    return (out1, out2)
+end
+
+function c5(server, sessionId, sessionHandle, methodId, methodContext, objectId,
+        objectContext, inputSize, input, outputSize, output)
+    arr_input = UA_Array(input, Int64(inputSize))
+    arr_output = UA_Array(output, Int64(outputSize))
+    input_julia = Open62541.__get_juliavalues_from_variant.(arr_input, Any)
+    output_julia = simple_two_in_two_out_mixed_type(input_julia...)
+    if !isa(output_julia, Tuple)
+        output_julia = (output_julia,)
+    end
+    for i in 1:outputSize
+        j = JUA_Variant(output_julia[i])
+        UA_Variant_copy(Open62541.Jpointer(j), arr_output[i])
+    end
+    return UA_STATUSCODE_GOOD
+end
+
 methodid = JUA_NodeId(1, 62541)
+methodid2 = JUA_NodeId(1, 62542)
 parentnodeid = JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER)
 parentreferencenodeid = JUA_NodeId(0, UA_NS0ID_HASCOMPONENT)
 @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
     helloWorldMethodCallback = UA_MethodCallback_generate(helloWorld)
+    method2 = UA_MethodCallback_generate(UA_MethodCallback_wrap(simple_two_in_two_out_mixed_type))
 else #we are on Apple Silicon and can't use a closure in @cfunction, have to do more work.
     helloWorldMethodCallback = @cfunction(helloWorld, UA_StatusCode,
         (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
             Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
             Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
+    method2 = @cfunction(c5, UA_StatusCode,
+        (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
+            Csize_t, Ptr{UA_Variant}, Csize_t, Ptr{UA_Variant}))
 end
+
 browsename = JUA_QualifiedName(1, "hello world")
-retval = JUA_Server_addNode(server, methodid,
-    parentnodeid, parentreferencenodeid, browsename,
-    helloAttr, helloWorldMethodCallback,
-    1, inputArgument, 1, outputArgument, JUA_NodeId(), JUA_NodeId())
+browsename2 = JUA_QualifiedName(1, "mixed")
+
+retval = JUA_Server_addNode(server, methodid, parentnodeid, parentreferencenodeid,
+    browsename, helloAttr, helloWorldMethodCallback, inputArgument, outputArgument,
+    JUA_NodeId(), JUA_NodeId())
+
+retval2 = JUA_Server_addNode(server, methodid2, parentnodeid, parentreferencenodeid,
+    browsename2, m2Attr, method2, twoinputarg_mixed, twooutputarg_mixed,
+    JUA_NodeId(), JUA_NodeId())
 
 @test retval == UA_STATUSCODE_GOOD
+@test retval2 == UA_STATUSCODE_GOOD
 
-inputArguments = UA_Variant_new()
-ua_s = UA_STRING("Peter")
-UA_Variant_setScalar(inputArguments, ua_s, UA_TYPES_PTRS[UA_TYPES_STRING])
-req = UA_CallMethodRequest_new()
-req.objectId = parentnodeid
-req.methodId = methodid
-req.inputArgumentsSize = 1
-req.inputArguments = inputArguments
+inputarg = "Peter"
+two_inputs_mixed = ("Claudia", 25)
 
-answer = UA_CallMethodResult_new()
+req = JUA_CallMethodRequest(parentnodeid, methodid, inputarg)
+answer = JUA_CallMethodResult()
 UA_Server_call(server, req, answer)
 @test unsafe_load(answer.statusCode) == UA_STATUSCODE_GOOD
+#The ugly way of doing it
 @test unsafe_string(unsafe_wrap(unsafe_load(answer.outputArguments))) == "Hello Peter"
 
-#clean up
-UA_Argument_delete(inputArgument)
-UA_Argument_delete(outputArgument)
-UA_CallMethodRequest_delete(req)
-UA_CallMethodResult_delete(answer)
+#Higher level with JUA_Server_call
+res1 = JUA_Server_call(server, req)
+@test res1 == "Hello Peter"
+
+#Even easier:
+res2 = JUA_Server_call(server, parentnodeid, methodid, inputarg)
+@test res2 == "Hello Peter"
+
+#two input, two output 
+res3 = JUA_Server_call(server, parentnodeid, methodid2, two_inputs_mixed)
+@test res3[1] == "Hello Claudia."
+@test res3[2] == 625

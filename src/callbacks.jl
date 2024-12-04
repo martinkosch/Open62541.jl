@@ -86,6 +86,10 @@ f(server::Ptr{UA_Server}, sessionId::Ptr{UA_NodeId}), sessionContext::Ptr{Cvoid}
     objectContext::Ptr{Cvoid}, inputSize::Csize_t, input::Ptr{UA_Variant},   
     outputSize::Csize_t, output::Ptr{UA_Variant})::UA_StatusCode
 ```
+
+If the output of `f` only depends on the inputs, but not on any session state variables, 
+consider using [`UA_MethodCallback_wrap`](@ref).
+
 """
 function UA_MethodCallback_generate(f::Function)
     argtuple = (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
@@ -93,8 +97,8 @@ function UA_MethodCallback_generate(f::Function)
         Csize_t, Ptr{UA_Variant})
     returntype = UA_StatusCode
     ret = Base.return_types(f, argtuple)
-    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
-       ret[1] == returntype
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret)
+        ret[1] == returntype
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
@@ -103,6 +107,65 @@ function UA_MethodCallback_generate(f::Function)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
+    end
+end
+
+"""
+```
+UA_MethodCallback_wrap(f::Function)
+```
+
+wraps a simple Julia function that operates on inputs into the correct format to be supplied
+to `UA_MethodCallback_generate`.
+
+`f` must be a Julia function with the following signature:
+
+```
+f(input1::Any, input2::Any, input3::Any, ...) -> output::Union{Any, Tuple{Any, ...}}
+```
+
+where `Any` means that in principle any type is allowed. However, since Open62541 is based
+on C the corresponding method node is *always* configured to only work with a specific
+combination of input types.
+
+If larger flexibility is needed than just working on the inputs given to a method node, see
+`UA_MethodCallback_generate`.
+
+See also:
+
+[`UA_MethodCallback_generate`](@ref)
+
+[`JUA_Argument`](@ref)
+
+[`JUA_Server_addNode`](@ref)
+
+Example:
+
+```
+function simple_hello(name, adjective)
+    assembledstring = "Hello "*name*", you are "*adjective
+    return assembledstring
+end 
+```
+
+which can be attached to a a method node that expects a function that takes two strings as
+inputs and one string as output.
+"""
+function UA_MethodCallback_wrap(fsimple)
+    function (server, sessionId, sessionHandle, methodId, methodContext, objectId,
+            objectContext, inputSize, input, outputSize, output)
+        arr_input = UA_Array(input, Int64(inputSize))
+        arr_output = UA_Array(output, Int64(outputSize))
+        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
+        output_julia = fsimple(input_julia...)
+        if !isa(output_julia, Tuple)
+            output_julia = (output_julia,)
+        end
+        for i in 1:outputSize
+            j = JUA_Variant(output_julia[i])
+            UA_Variant_copy(Jpointer(j), arr_output[i])
+        end
+        return UA_STATUSCODE_GOOD
     end
 end
 

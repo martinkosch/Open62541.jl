@@ -23,6 +23,7 @@ makedocs(;
             "tutorials/combined_variables.md",
             "tutorials/combined_username_password_login.md",
             "tutorials/combined_encrypted_un_pw_login.md",
+            "tutorials/combined_methodnode.md",
             "tutorials/further_resources.md"
         ],
         "Manual" => [
@@ -33,7 +34,7 @@ makedocs(;
             "manual/client.md"
         ],
         "Reference" => ["Low level interface" => "reference_lowlevel.md",
-                        "High level interface" => "reference_highlevel.md"]
+            "High level interface" => "reference_highlevel.md"]
     ],
     warnonly = Documenter.except(
         :autodocs_block,

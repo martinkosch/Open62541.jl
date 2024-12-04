@@ -12,25 +12,26 @@ Distributed.@spawnat Distributed.workers()[end] begin
     #generate a basic server certificate
     certificate = UA_ByteString_new()
     privateKey = UA_ByteString_new()
-    subject = UA_String_Array_new([UA_String_fromChars("C=DE"), 
-        UA_String_fromChars("O=SampleOrganization"), 
+    subject = UA_String_Array_new([UA_String_fromChars("C=DE"),
+        UA_String_fromChars("O=SampleOrganization"),
         UA_String_fromChars("CN=Open62541Server@localhost")])
     lenSubject = UA_UInt32(3)
-    subjectAltName = UA_String_Array_new([UA_String_fromChars("DNS:localhost"), 
+    subjectAltName = UA_String_Array_new([UA_String_fromChars("DNS:localhost"),
         UA_String_fromChars("URI:urn:open62541.server.application")])
     lenSubjectAltName = UA_UInt32(2)
     kvm = UA_KeyValueMap_new()
     expiresIn = UA_UInt16(14)
-    retval0 = UA_KeyValueMap_setScalar(kvm, JUA_QualifiedName(0, "expires-in-days"), Ref(expiresIn), UA_TYPES_PTRS[UA_TYPES_UINT16])
+    retval0 = UA_KeyValueMap_setScalar(kvm, JUA_QualifiedName(0, "expires-in-days"),
+        Ref(expiresIn), UA_TYPES_PTRS[UA_TYPES_UINT16])
     retval1 = UA_CreateCertificate(
-                UA_Log_Stdout_new(UA_LOGLEVEL_FATAL), subject.ptr, lenSubject, subjectAltName.ptr, lenSubjectAltName,
-                UA_CERTIFICATEFORMAT_DER, kvm, privateKey, certificate)
+        UA_Log_Stdout_new(UA_LOGLEVEL_FATAL), subject.ptr, lenSubject, subjectAltName.ptr, lenSubjectAltName,
+        UA_CERTIFICATEFORMAT_DER, kvm, privateKey, certificate)
 
     #configure server
     server = JUA_Server()
     config = JUA_ServerConfig(server)
     retval2 = JUA_ServerConfig_setDefault(config)
-    retval3 = JUA_ServerConfig_addSecurityPolicyBasic256Sha256(config, certificate, 
+    retval3 = JUA_ServerConfig_addSecurityPolicyBasic256Sha256(config, certificate,
         privateKey)
     retval4 = JUA_ServerConfig_addAllEndpoints(config)
     config.securityPolicyNoneDiscoveryOnly = true
@@ -58,27 +59,28 @@ config = UA_Client_getConfig(client)
 #generate a client certificate
 certificate = UA_ByteString_new()
 privateKey = UA_ByteString_new()
-subject = UA_String_Array_new([UA_String_fromChars("C=DE"), 
-    UA_String_fromChars("O=SampleOrganization"), 
+subject = UA_String_Array_new([UA_String_fromChars("C=DE"),
+    UA_String_fromChars("O=SampleOrganization"),
     UA_String_fromChars("CN=Open62541Client@localhost")])
 lenSubject = UA_UInt32(3)
-subjectAltName = UA_String_Array_new([UA_String_fromChars("DNS:localhost"), 
+subjectAltName = UA_String_Array_new([UA_String_fromChars("DNS:localhost"),
     UA_String_fromChars("URI:urn:open62541.client.application")])
 lenSubjectAltName = UA_UInt32(2)
 kvm = UA_KeyValueMap_new()
 expiresIn = UA_UInt16(14)
-retval0 = UA_KeyValueMap_setScalar(kvm, JUA_QualifiedName(0, "expires-in-days"), Ref(expiresIn), UA_TYPES_PTRS[UA_TYPES_UINT16])
+retval0 = UA_KeyValueMap_setScalar(kvm, JUA_QualifiedName(0, "expires-in-days"),
+    Ref(expiresIn), UA_TYPES_PTRS[UA_TYPES_UINT16])
 retval1 = UA_CreateCertificate(
-            UA_Log_Stdout_new(UA_LOGLEVEL_FATAL), subject.ptr, lenSubject, subjectAltName.ptr, lenSubjectAltName,
-            UA_CERTIFICATEFORMAT_DER, kvm, privateKey, certificate)
+    UA_Log_Stdout_new(UA_LOGLEVEL_FATAL), subject.ptr, lenSubject, subjectAltName.ptr, lenSubjectAltName,
+    UA_CERTIFICATEFORMAT_DER, kvm, privateKey, certificate)
 revocationList = UA_ByteString_new()
 revocationListSize = 0
 trustList = UA_ByteString_new()
 trustListSize = 0
 
 retval2 = UA_ClientConfig_setDefaultEncryption(config, certificate, privateKey,
-                                         trustList, trustListSize,
-                                         revocationList, revocationListSize)
+    trustList, trustListSize,
+    revocationList, revocationListSize)
 
 #clean up
 UA_ByteString_delete(revocationList)

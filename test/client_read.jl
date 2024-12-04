@@ -21,7 +21,7 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-        4842, C_NULL,  0, 0)
+        4842, C_NULL, 0, 0)
     @test retval == UA_STATUSCODE_GOOD
 
     # Add variable node containing a scalar to the server
@@ -38,13 +38,13 @@ Distributed.@spawnat Distributed.workers()[end] begin
     nodecontext1 = C_NULL
     outnewnodeid1 = C_NULL
     retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid1,
-        parentreferencenodeid1, browsename1, typedefinition1, attr1, nodecontext1, 
+        parentreferencenodeid1, browsename1, typedefinition1, attr1, nodecontext1,
         outnewnodeid1)
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
 
     #add a variabletype node
-    input = zeros(2)    
+    input = zeros(2)
     accesslevel = UA_ACCESSLEVEL(read = true)
     displayname = "2D point type"
     description = "This is a 2D point type."
@@ -58,9 +58,9 @@ Distributed.@spawnat Distributed.workers()[end] begin
     nodecontext2 = C_NULL
     outnewnodeid2 = C_NULL
     retval = UA_Server_addVariableTypeNode(server, variabletypenodeid, parentnodeid2,
-        parentreferencenodeid2, browsename2, typedefinition2, attr2, nodecontext2, 
+        parentreferencenodeid2, browsename2, typedefinition2, attr2, nodecontext2,
         outnewnodeid2)
-        
+
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
 
@@ -103,7 +103,6 @@ let trial
     @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
-
 #gather the previously defined nodes
 variablenodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
 variabletypenodeid = UA_NODEID_STRING_ALLOC(1, "variabletype 2Dpoint")
@@ -118,14 +117,15 @@ for node in nodes
         attributeset = UA_VariableAttributes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
-    end 
+    end
     for att in Open62541.attributes_UA_Client_read
         fun_name = Symbol(att[1])
         attr_type = Symbol(att[3])
-        generator = Symbol(att[3]*"_new")
-        cleaner = Symbol(att[3]*"_delete")
+        generator = Symbol(att[3] * "_new")
+        cleaner = Symbol(att[3] * "_delete")
         out2 = eval(generator)()
-        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) || in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
+           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
             @test isa(eval(fun_name)(client, node, out2), UA_StatusCode)
         end
         # else #TODO: re-consider this

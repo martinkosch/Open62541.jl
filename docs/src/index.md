@@ -1,5 +1,6 @@
 # Open62541.jl
-Welcome to the documentation of Open62541.jl. 
+
+Welcome to the documentation of Open62541.jl.
 
 Open62541.jl is a [Julia](https://julialang.org) package that interfaces with the [open62541](https://www.open62541.org/)
 library written in C ([source](https://github.com/open62541/open62541)).
@@ -20,12 +21,12 @@ At its current development stage the high level interface is implemented for a
 level interface that wraps all functionality of open62541 is, however, available.
 
 !!! warning
+    
     Note that Open62541.jl is still under active development and has not reached a maturity
     that would make it safe to use in a production environment.
-
+    
     The developers aim to observe [semantic versioning](https://semver.org/), but
     accidental breakage and evolutions of the API have to be expected.
-
 
 ## Installation
 
@@ -40,29 +41,34 @@ Pkg.add("Open62541")
 ```
 
 ## Structure of the documentation
+
 The documentation has the following structure:
 
-- Tutorials: Provides a few brief instructions that showcase basic functionality. 
-- Manual: Currently only slightly more than a reference, but intended to be more explanatory than the reference.
-- Reference: Low level interface: Contains a list of functions and types that ship with open62541.
-- Reference: High level interface: Contains a list of functions and types that constitute the higher level interface generated for Open62541.jl.
+  - Tutorials: Provides a few brief instructions that showcase basic functionality.
+  - Manual: Currently only slightly more than a reference, but intended to be more explanatory than the reference.
+  - Reference: Low level interface: Contains a list of functions and types that ship with open62541.
+  - Reference: High level interface: Contains a list of functions and types that constitute the higher level interface generated for Open62541.jl.
 
-!!! note 
-    The documentation is still a work in progress. To be concrete, many functions
-    within src/Open62541.jl are still without docstrings. These are thin wrappers 
-    to functions in open62541 generated through Clang.jl. Therefore, users who 
-    are familiar with open62541 should be aware of the functions; users unfamilar
-    with open62541 will have to resort to the source code for the time being.
-
-    Docstrings will be added (pull requests welcome!).
+!!! note
     
+
+The documentation is still a work in progress. To be concrete, many functions
+within src/Open62541.jl are still without docstrings. These are thin wrappers
+to functions in open62541 generated through Clang.jl. Therefore, users who
+are familiar with open62541 should be aware of the functions; users unfamilar
+with open62541 will have to resort to the source code for the time being.
+
+    Docstrings will be added over time (pull requests welcome!).
+
     The docstring situation is better on the handwritten functions contained in 
     the other source files.
 
 ## How to contribute
+
 There is many ways one can contribute to the development of Open62541.jl (in order of increasing complexity):
-- Reporting bugs, issues and suggestions on the Github repository.
-- Improving the clarity of the existing documentation.
-- Adding new tutorials for more advanced functionality.
-- Adding/Improving docstrings, especially in the main file of the library src/Open62541.jl. It would be best if these are added automatically in the right spot during the code generation using Clang.jl (see gen/generator.jl). But improvements are welcome also if they are directly done in the src/Open62541.jl (existing contributors can help keeping things aligned).
-- Adding improvements to the high-level interface. It would be best to discuss ideas on this topic via the Github repository before embarking on larger changes.
+
+  - Reporting bugs, issues and suggestions on the Github repository.
+  - Improving the clarity of the existing documentation.
+  - Adding new tutorials for more advanced functionality.
+  - Adding/Improving docstrings, especially in the main file of the library src/Open62541.jl. It would be best if these are added automatically in the right spot during the code generation using Clang.jl (see gen/generator.jl). But improvements are welcome also if they are directly done in the src/Open62541.jl (existing contributors can help keeping things aligned).
+  - Adding improvements to the high-level interface. It would be best to discuss ideas on this topic via the Github repository before embarking on larger changes.

@@ -58,10 +58,56 @@ function Base.showerror(io::IO, e::CallbackGeneratorArgumentError)
         msg = "The provided function ($(e.f)) has more than one method; it is 
         unclear which one should be used as basis of the callback."
     else
-        args_in = fieldtypes(getmethodindex(methods(e.f),1).sig)
+        args_in = fieldtypes(getmethodindex(methods(e.f), 1).sig)
         ret = Base.return_types(e.f, args_in[2:end])[1]
         msg = "Callback generator expected a method with f($(join([e.argtuple...], ", ")))::$(string(e.returntype)), 
             but received a method f($(join(args_in[2:end], ", ")))::$(string(ret))."
     end
+    print(io, msg)
+end
+
+#valuerank, arraysize error
+struct ValueRankArraySizeConsistencyError <: Exception
+    valuerank::Int64
+    arraydimensions::Any
+end
+
+function Base.showerror(io::IO, e::ValueRankArraySizeConsistencyError)
+    vr = e.valuerank
+    arrdim = e.arraydimensions
+    if vr < -3 
+        msg = "A valuerank of $vr has been provided, but valuerank must be >= -3. For further
+            details see: https://reference.opcfoundation.org/Core/Part3/v105/docs/8.6"
+    elseif vr >= -3 && vr <= 0
+        if vr == -3
+            t = " scalar or one-dimensional array"
+        elseif vr == -2
+            t = " scalar or an array of any dimensionality"
+        elseif vr == -1 
+            t = " scalar"
+        else
+            t = "n array of one OR more dimensions"
+        end
+        msg = "A valuerank of -3 has been provided, which indicates a$t. Therefore, no 
+            array dimensions should be provided, but $arrdim has been provided."
+    else
+        msg = "A valuerank of $vr has been provided, which indicates a $vr-dimensional array. 
+            Therefore, array dimensions should be a $vr-element vector, but $arrdim has been 
+            provided."
+    end
+    print(io, msg)
+end
+
+#MethodNodeInputError
+struct MethodNodeInputError <: Exception
+    ninputsupplied::Int64
+    ninputnode::Int64
+end
+
+function Base.showerror(io::IO, e::MethodNodeInputError)
+    n1 = e.ninputsupplied
+    n2 = e.ninputnode
+    p1 = n1 > 1 ? "s have" : " has"
+    msg = "MethodNode expects $n2 input, but $n1 input$p1 been supplied."
     print(io, msg)
 end

@@ -1,6 +1,8 @@
 using SafeTestsets
 using Test
 
+const MEMLEAK = get(ENV, "MEMLEAK", false)
+
 @safetestset "Aqua" begin
     include("aqua.jl")
 end
@@ -65,13 +67,30 @@ end
     include("server_add_nodes_highlevelinterface.jl")
 end
 
-@safetestset "Memory leaks" begin
-    include("memoryleaks.jl")
+if MEMLEAK == true
+    @safetestset "Server Memory leaks" begin
+        include("server_memoryleaks.jl")
+    end
 end
 
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
+
+if MEMLEAK == true
+    @testset "Client Memory Leaks" begin
+        include("client_memoryleaks.jl")
+    end
+end
+
+@testset "Simple Server/Client" begin
+    include("client_simple.jl")
+end
+
+@testset "Client subscriptions" begin
+    include("client_subscriptions.jl")
+end
+
 @testset "Client read functions" begin
     include("client_read.jl")
 end
@@ -84,24 +103,20 @@ end
     include("client_service.jl")
 end
 
-@testset "Client subscriptions" begin
-    include("client_service.jl")
+@testset "Client call method" begin
+    include("client_callmethod.jl")
 end
 
-@testset "Simple Server/Client" begin
-    include("simple_server_client.jl")
+@testset "Client Add, read, change scalar variables" begin
+    include("client_add_change_var_scalar.jl")
 end
 
-@testset "Add, read, change scalar variables" begin
-    include("add_change_var_scalar.jl")
+@testset "Client Add, read, change array variables" begin
+    include("client_add_change_var_array.jl")
 end
 
-@testset "Add, read, change array variables" begin
-    include("add_change_var_array.jl")
-end
-
-@testset "Username/password login & access control" begin
-    include("username_password_login_accesscontrol.jl")
+@testset "Client Username/password login & access control" begin
+    include("client_username_password_login_accesscontrol.jl")
 end
 
 @testset "Encryption" begin

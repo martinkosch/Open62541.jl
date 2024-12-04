@@ -21,17 +21,17 @@ Distributed.@spawnat Distributed.workers()[end] begin
 
     server = UA_Server_new()
     retval = UA_ServerConfig_setMinimalCustomBuffer(UA_Server_getConfig(server),
-        4842, C_NULL,  0, 0)
+        4842, C_NULL, 0, 0)
     @test retval == UA_STATUSCODE_GOOD
 
     # Add variable node containing a scalar to the server
     #add a variable node
     accesslevel = UA_ACCESSLEVEL(read = true, write = true)
     writemask = UA_WRITEMASK(; accesslevel = true, arraydimensions = true,
-          datatype = true,
-          description = true, displayname = true, isabstract = true, minimumsamplinginterval = true,
-          userwritemask = true, valuerank = true, historizing = true,
-          writemask = true)
+        datatype = true,
+        description = true, displayname = true, isabstract = true, minimumsamplinginterval = true,
+        userwritemask = true, valuerank = true, historizing = true,
+        writemask = true)
     userwritemask = writemask
     input = rand(Float64)
     attr1 = UA_VariableAttributes_generate(value = input, displayname = "scalar variable",
@@ -46,21 +46,22 @@ Distributed.@spawnat Distributed.workers()[end] begin
     nodecontext1 = C_NULL
     outnewnodeid1 = C_NULL
     retval = UA_Server_addVariableNode(server, variablenodeid, parentnodeid1,
-        parentreferencenodeid1, browsename1, typedefinition1, attr1, nodecontext1, 
+        parentreferencenodeid1, browsename1, typedefinition1, attr1, nodecontext1,
         outnewnodeid1)
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
 
     #add a variabletype node
-    input = zeros(2)    
+    input = zeros(2)
     accesslevel = UA_ACCESSLEVEL(read = true)
     displayname = "2D point type"
     description = "This is a 2D point type."
     writemask = UA_WRITEMASK(; arraydimensions = true,
-          datatype = true,
-          description = true, displayname = true, isabstract = true, minimumsamplinginterval = false, nodeclass = false,
-          userwritemask = true, valuerank = true,
-          writemask = true, valueforvariabletype = true)
+        datatype = true,
+        description = true, displayname = true, isabstract = true,
+        minimumsamplinginterval = false, nodeclass = false,
+        userwritemask = true, valuerank = true,
+        writemask = true, valueforvariabletype = true)
     userwritemask = writemask
     attr2 = UA_VariableTypeAttributes_generate(value = input,
         displayname = displayname,
@@ -74,9 +75,9 @@ Distributed.@spawnat Distributed.workers()[end] begin
     nodecontext2 = C_NULL
     outnewnodeid2 = C_NULL
     retval = UA_Server_addVariableTypeNode(server, variabletypenodeid, parentnodeid2,
-        parentreferencenodeid2, browsename2, typedefinition2, attr2, nodecontext2, 
+        parentreferencenodeid2, browsename2, typedefinition2, attr2, nodecontext2,
         outnewnodeid2)
-        
+
     #test whether adding node to the server worked    
     @test retval == UA_STATUSCODE_GOOD
 
@@ -120,7 +121,6 @@ let trial
     @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
 end
 
-
 #gather the previously defined nodes
 variablenodeid = UA_NODEID_STRING_ALLOC(1, "scalar variable")
 variabletypenodeid = UA_NODEID_STRING_ALLOC(1, "variabletype 2Dpoint")
@@ -139,16 +139,17 @@ for node in nodes
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
         attributeset = UA_VariableTypeAttributes
         nonvalidattr = (:NodeId, :NodeClass, :BrowseName, :UserWriteMask) #as above
-    end 
+    end
     for att in Open62541.attributes_UA_Client_write
         fun_write = Symbol(att[1])
         fun_read = Symbol(replace(att[1], "write" => "read"))
         attr_name = Symbol(att[2])
-        generator = Symbol(att[3]*"_new")
-        cleaner = Symbol(att[3]*"_delete")
+        generator = Symbol(att[3] * "_new")
+        cleaner = Symbol(att[3] * "_delete")
         if (in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))) && att[3] != "UA_DataType" && 
-            att[1] != "UA_Client_writeValueAttributeEx"
+            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))) &&
+           att[3] != "UA_DataType" &&
+           att[1] != "UA_Client_writeValueAttributeEx"
             out2 = eval(generator)()
             statuscode1 = eval(fun_read)(client, node, out2) #read
             @test statuscode1 == UA_STATUSCODE_GOOD

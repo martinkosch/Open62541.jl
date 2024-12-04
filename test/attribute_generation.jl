@@ -88,12 +88,13 @@ include("test_helpers.jl")
 #UA_VariableAttributes_generate
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
-types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
-        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
-        Rational{UInt32}]
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64,
+    Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32},
+    Rational{UInt32}]
 
 #TODO: Add tests for an unsupported number type, showing that exception is thrown and checking dispatch.
-inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) for type in types)
+inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes)
+for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"
@@ -151,10 +152,11 @@ end
 #UA_VariableTypeAttributes_generate
 #define different sized input cases to test both scalar and array codes
 array_sizes = [1, 2, (2, 3), (2, 3, 4)]
-types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, 
-        Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32}, 
-        Rational{UInt32}]
-inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes) for type in types)
+types = [Bool, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64,
+    Float32, Float64, String, ComplexF32, ComplexF64, Rational{Int32},
+    Rational{UInt32}]
+inputs = Tuple(Tuple(customrand(type, array_size) for array_size in array_sizes)
+for type in types)
 valueranks = [-1, 1, 2, 3]
 displayname = "whatever"
 description = "this is a whatever variable"

@@ -1,23 +1,25 @@
-# Reference: Low level interface 
+# Reference: Low level interface
 
 Lists types and functions that are part of the open62541 standard interface.
 
 ## open62541 types
+
 ```@autodocs
 Modules = [Open62541]
 Order = [:type]
 Filter = t -> startswith(string(t), "UA_")
-``` 
+```
 
 ## Memory allocation and management for open62541 types
-These are low level functions allowing to allocate and free (etc.) memory for 
+
+These are low level functions allowing to allocate and free (etc.) memory for
 open62541 types ("UA_...") on the C-side.
 
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_") && any(endswith.(string(t), ["_new", "_init", "_delete", "_clear", "_copy", "_deleteMembers"]))
-``` 
+```
 
 ## Convenience functions for generating strings/bytestrings & associated functions
 
@@ -33,26 +35,27 @@ UA_ByteString_equal
 ```
 
 ## Generation of (Expanded)NodeIds & associated functions
+
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_NODEID") 
-``` 
+```
 
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_EXPANDEDNODEID") 
-``` 
+```
 
 ```@docs
 UA_NodeId_equal
-``` 
+```
 
 ## Attribute generation
 
 Functions that allow generating attributes (used in node creation) in a convenient
- fashion:
+fashion:
 
 ```@docs
 UA_DataTypeAttributes_generate
@@ -66,6 +69,7 @@ UA_ViewAttributes_generate
 ```
 
 Helper functions for readmasks, valueranks, etc.:
+
 ```@docs
 UA_ACCESSLEVEL
 UA_EVENTNOTIFIER
@@ -81,7 +85,7 @@ UA_WRITEMASK
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_ServerConfig")
-``` 
+```
 
 ## Client API
 
@@ -89,7 +93,7 @@ Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_S
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_Client_")
-``` 
+```
 
 ## Asynchronous Client API
 
@@ -97,14 +101,14 @@ Filter = t -> startswith(string(t), "UA_Client_")
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
-``` 
+```
 
 ## Callback generation
 
 ```@autodocs
 Modules = [Open62541]
 Pages = ["callbacks.jl"]
-``` 
+```
 
 ## Miscellaneous
 

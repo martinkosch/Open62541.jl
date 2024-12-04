@@ -30,6 +30,7 @@ struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     length::Int64
 end
 
+#todo: is this used anywhere?=
 function UA_Array(s::T, field::Symbol) where {T}
     size_fieldname = Symbol(field, :Size)
     ptr = getfield(s, field)
@@ -50,6 +51,9 @@ Base.setindex!(a::UA_Array, v, i::Int) = unsafe_store!(a.ptr, v, i)
 Base.unsafe_wrap(a::UA_Array) = unsafe_wrap(Array, a[begin], size(a))
 Base.pointer(a::UA_Array) = a[begin]
 Base.convert(::Type{Ptr{T}}, a::UA_Array{Ptr{T}}) where {T} = a[begin]
+function Base.unsafe_convert(::Type{Ptr{T}}, a::UA_Array) where {T}
+    Base.unsafe_convert(Ptr{T}, a.ptr)
+end
 Base.convert(::Type{Ptr{Nothing}}, a::UA_Array) = Base.unsafe_convert(Ptr{Nothing}, a)
 Base.convert(::Type{Ptr{Nothing}}, a::UA_Array{Ptr{Nothing}}) = a[begin] # Avoid method ambigutiy
 function Base.unsafe_convert(::Type{Ptr{Nothing}}, a::UA_Array)
@@ -88,15 +92,15 @@ function UA_print(p::T,
     return s
 end
 
-for (i, type_name) in enumerate(type_names)
+for (i, type_name) in enumerate(TYPE_NAMES)
     type_ind_name = Symbol("UA_TYPES_", uppercase(String(type_name)[4:end]))
-    julia_type = julia_types[i]
+    julia_type = JULIA_TYPES[i]
     val_type = Val{type_name}
 
     @eval begin
         # Datatype map functions
         ua_data_type_ptr(::$(val_type)) = UA_TYPES_PTRS[$(i - 1)]
-        if type_names[$(i)] ∉ types_ambiguous_ignorelist
+        if TYPE_NAMES[$(i)] ∉ types_ambiguous_ignorelist
             ua_data_type_ptr_default(::Type{$(julia_type)}) = UA_TYPES_PTRS[$(i - 1)]
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
@@ -327,7 +331,7 @@ function Base.Rational(x::UA_RationalNumber)
     # (which errors for negative numerator) since typemax of UInt32 is larger 
     # than typemax(Int32), this can be out of range... Could also convert to Int64 
     # of course...
-    Rational(x.numerator, Int32(x.denominator)) 
+    Rational(x.numerator, Int32(x.denominator))
 end
 
 function Base.Rational(x::UA_UnsignedRationalNumber)
@@ -429,7 +433,7 @@ UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)::Ptr{UA_NodeId}
 ```
 
 creates a `UA_NodeId` object with namespace index `nsIndex` and numerical identifier `identifier`.
-Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})` 
+Memory is allocated by C and needs to be cleaned up using `UA_NodeId_delete(x::Ptr{UA_NodeId})`
 after the object is not used anymore.
 """
 function UA_NODEID_NUMERIC(nsIndex::Integer, identifier::Integer)
@@ -806,7 +810,7 @@ function Base.unsafe_wrap(v::UA_Variant)
         values_row_major = reshape(values, unsafe_size(v))
         if v.arrayDimensionsSize == 0
             return values_row_major
-        else 
+        else
             return permutedims(values_row_major, reverse(1:(Int64(v.arrayDimensionsSize)))) # To column major format; TODO: Which permutation is right? TODO: can make allocation free using PermutedDimsArray?
         end
     end
@@ -840,8 +844,8 @@ end
 request::Ptr{UA_CreateSubscriptionRequest} = UA_CreateSubscriptionRequest_default()
 ```
 
-create a subscription create request to which monitored items can be added 
-subsequently. The subscription properties are set to their default values. 
+create a subscription create request to which monitored items can be added
+subsequently. The subscription properties are set to their default values.
 
 Note that memory for the response is allocated by C and needs to be cleaned up by
 using `UA_CreateSubscriptionRequest_delete(request)` after its use.
@@ -867,10 +871,10 @@ end
 request::Ptr{UA_MonitoredItemCreateRequest} = UA_MonitoredItemCreateRequest_default(nodeId::Ptr{UA_NodeId})
 ```
 
-create a monitored item create request that monitors `nodeId`. The monitored item 
-properties are set to their default values. 
+create a monitored item create request that monitors `nodeId`. The monitored item
+properties are set to their default values.
 
-Note that memory for the request is allocated by C and needs to be cleaned up by 
+Note that memory for the request is allocated by C and needs to be cleaned up by
 using `UA_MonitoredItemCreateRequest_delete(request)` after its use.
 
 See also:
@@ -894,8 +898,8 @@ end
 UA_equal(p1::T, p2::T, T)::Bool
 ```
 
-compares `p1` and `p2` and returns `true` if they are equal. This is a basic 
-functionality and it is usually more appropriate to use the fully typed versions, 
+compares `p1` and `p2` and returns `true` if they are equal. This is a basic
+functionality and it is usually more appropriate to use the fully typed versions,
 for example `UA_String_equal` to compare to ´UA_String´s.
 """
 function UA_equal(p1, p2, type)
