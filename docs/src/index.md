@@ -58,7 +58,7 @@ to functions in open62541 generated through Clang.jl. Therefore, users who
 are familiar with open62541 should be aware of the functions; users unfamilar
 with open62541 will have to resort to the source code for the time being.
 
-    Docstrings will be added (pull requests welcome!).
+    Docstrings will be added over time (pull requests welcome!).
 
     The docstring situation is better on the handwritten functions contained in 
     the other source files.
