@@ -18,15 +18,15 @@ function UA_ClientConfig_setAuthenticationUsername(config, username, password)
     end
 end
 
-# /* Connect to the server. First a SecureChannel is opened, then a Session. The
-#  * client configuration restricts the SecureChannel selection and contains the
-#  * UserIdentityToken for the Session.
-#  *
-#  * @param client to use
-#  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
-#  * @return Indicates whether the operation succeeded or returns an error code */
-##TODO: ADD DOCSTRING
+"""
+```
+UA_Client_connect(client::Ptr{UA_Client}, endpointurl::AbstractString)::UA_StatusCode
+```
 
+connect the `client` to the server with `endpointurl`. This is an anonymous connection, i.e.,
+no username or password are used (some servers do not allow this).
+
+"""
 function UA_Client_connect(client, endpointUrl)
     cc = UA_Client_getConfig(client)
     cc.noSession = false

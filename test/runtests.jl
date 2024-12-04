@@ -68,14 +68,20 @@ end
 end
 
 if MEMLEAK == true
-    @safetestset "Memory leaks" begin
-        include("memoryleaks.jl")
+    @safetestset "Server Memory leaks" begin
+        include("server_memoryleaks.jl")
     end
 end
 
 #Testsets below here use Distributed; normal testsets required
 # !!! Leakage of variables must be assessed manually. !!!
 #see: https://github.com/YingboMa/SafeTestsets.jl/issues/13
+
+if MEMLEAK == true
+    @testset "Client Memory Leaks" begin
+        include("client_memoryleaks.jl")
+    end
+end
 
 @testset "Simple Server/Client" begin
     include("client_simple.jl")

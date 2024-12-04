@@ -24,8 +24,34 @@ mutable struct JUA_ClientConfig <: AbstractOpen62541Wrapper
 end
 
 const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
-const JUA_Client_connect = UA_Client_connect
-const JUA_Client_connectUsername = UA_Client_connectUsername
+"""
+```
+JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl`. This is an anonymous connection, i.e.,
+no username or password are used (some servers do not allow this).
+
+"""
+function JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)
+    UA_Client_connect(client, endpointurl)
+end
+
+"""
+```
+JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractString, 
+    username::AbstractString, password::AbstractString)::UA_StatusCode
+```
+
+connects the `client` to the server with endpoint URL `endpointurl` and supplies
+`username` and `password` as login credentials.
+
+"""
+function JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractString, 
+        username::AbstractString, password::AbstractString)
+    UA_Client_connectUsername(client, endpointurl, username, password)
+end
+
 const JUA_Client_disconnect = UA_Client_disconnect
 
 #Add node functions
@@ -275,6 +301,7 @@ function JUA_Client_call(
         input_variants.ptr, Ref(UInt64(length(outputarguments))), ref)
 
     UA_BrowseRequest_delete(breq)
+    UA_BrowseResponse_delete(bresp)
     UA_Variant_Array_delete(input_variants)
 
     if !isnothing(e)
@@ -283,12 +310,11 @@ function JUA_Client_call(
 
     if sc != UA_STATUSCODE_GOOD
         throw(ClientServiceRequestError("Calling method via Client API failed with statuscode \"$(UA_StatusCode_name_print(sc))\"."))
-        UA_Variant_Array_delete(input_variants)
     else
-        arr_output = UA_Array(ref[], length(outputarguments))
-        r = __get_juliavalues_from_variant.(arr_output, Any)
+        arr_output2 = UA_Array(ref[], length(outputarguments))
+        r = __get_juliavalues_from_variant.(arr_output2, Any)
 
-        #TODO: check that we clean up all the necessary variables.
+        UA_Variant_Array_delete(arr_output)
         if length(outputarguments) == 1
             return r[1]
         else
