@@ -105,7 +105,7 @@ for (i, type_name) in enumerate(TYPE_NAMES)
             function ua_data_type_ptr_default(::Type{Ptr{$julia_type}})
                 ua_data_type_ptr_default($julia_type)
             end
-            if !(julia_types[$(i)] <: UA_NUMBER_TYPES)
+            if !(JULIA_TYPES[$(i)] <: UA_NUMBER_TYPES)
                 Base.show(io::IO, ::MIME"text/plain", v::$(julia_type)) = print(io, UA_print(v))
             end
         end
