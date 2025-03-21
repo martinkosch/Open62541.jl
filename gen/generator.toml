@@ -318,7 +318,9 @@ field_access_method_list = [
     "UA_BrowseRequest", "UA_WriteRequest", "UA_AddNodesResponse", "UA_AttributeOperand", "UA_DataChangeFilter", "UA_EndpointDescription", 
     "UA_DeleteReferencesRequest", "UA_TranslateBrowsePathsToNodeIdsRequest", "UA_FindServersResponse", "UA_CreateSessionRequest", 
     "UA_ContentFilterElement", "UA_TranslateBrowsePathsToNodeIdsResponse", "UA_BrowseResponse", "UA_CreateSessionResponse", "UA_ContentFilter", 
-    "UA_GetEndpointsResponse", "UA_EventFilter", "UA_ServerConfig", "UA_AccessControl"
+    "UA_GetEndpointsResponse", "UA_EventFilter", "UA_ServerConfig", "UA_AccessControl", "UA_PubSubConnectionConfig",
+    "UA_NetworkAddressUrlDataType", "UA_PublishedVariableDataType", "UA_WriterGroupConfig", "UA_DataSetWriterConfig", 
+    "UA_UadpWriterGroupMessageDataType"
 ]
 
 # the generator will prefix the function argument names in the following list with a "_" to

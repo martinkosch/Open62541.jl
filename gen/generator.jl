@@ -14,7 +14,7 @@ cd(@__DIR__)
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 # Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
-# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
+# error on low memory machines. Implemented post Clang.jl removal using Regexp (see below), which is lower
 # memory requirement
 # append!(options["general"]["output_ignorelist"], extract_inlined_funcs(headers))
 
@@ -62,7 +62,6 @@ function write_generated_defs(generated_defs_dir::String,
         TYPE_NAMES,
         JULIA_TYPES)
     JULIA_TYPES = replace("$JULIA_TYPES", Regex("Main\\.Open62541\\.") => "")
-    types_ambiguous_ignorelist = TYPE_NAMES[1:end .∉ [UNIQUE_JULIA_TYPES_IND]]
     type_string = """
     # Vector of all UA types
     const TYPE_NAMES = $TYPE_NAMES
@@ -156,7 +155,6 @@ close(f)
 #remove inlined functions
 inlined_funcs = extract_inlined_funcs(headers)
 for i in eachindex(inlined_funcs)
-    @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
     global data = replace(data, r => "")
 end
@@ -198,6 +196,23 @@ end"
 data = replace(data, orig => new)
 
 #need to remove some buggy lines
+# replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
+
+# const UA_INT32_MAX = Clong(2147483647)
+
+# const UA_UINT32_MIN = 0
+
+# const UA_UINT32_MAX = Culong(4294967295)
+
+# const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+
+# const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+
+# const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+
+# const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+
+#for clang.jl 0.17 and Julia 1.10.x
 replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
 
 const UA_INT32_MAX = Clong(2147483647)
@@ -206,32 +221,13 @@ const UA_UINT32_MIN = 0
 
 const UA_UINT32_MAX = Culong(4294967295)
 
-const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+const UA_FLOAT_MIN = FLT_MIN
 
-const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+const UA_FLOAT_MAX = FLT_MAX
 
-const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+const UA_DOUBLE_MIN = DBL_MIN
 
-const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
-
-data = replace(data, replacestring => "")
-
-#need to remove some buggy lines
-replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
-
-const UA_INT32_MAX = Clong(2147483647)
-
-const UA_UINT32_MIN = 0
-
-const UA_UINT32_MAX = Culong(4294967295)
-
-const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
-
-const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
-
-const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
-
-const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+const UA_DOUBLE_MAX = DBL_MAX"
 
 data = replace(data, replacestring => "")
 
@@ -252,7 +248,7 @@ write(f, data)
 close(f)
 
 @warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
-@show "loading module"
+println("loading module")
 include("../src/Open62541.jl")
 
 # Get UA type names
@@ -318,7 +314,8 @@ close(f)
 #The wrapper has now some flexibility in terms of accepting different patch versions.
 #open62541_jll versions that are compatible with the same wrapper include: 
 #1.3.9, 1.3.10, 1.3.11 (and presumably future patch versions on 1.3 branch)
-#1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch)
+#1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch); the below commented code
+#is therefore not necessary anymore.
 
 # #set compat bound in Project.toml automatically to version that the generator ran on.
 # fn = joinpath(@__DIR__, "../Project.toml")

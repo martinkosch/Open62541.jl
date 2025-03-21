@@ -8,7 +8,6 @@ using CEnum
 using Dates
 using OffsetArrays
 using DocStringExtensions
-
 const UA_INT64_MAX = typemax(Int64)
 const UA_INT64_MIN = typemin(Int64)
 const UA_UINT64_MAX = typemax(UInt64)
@@ -43,7 +42,6 @@ else
     open62541_version = pkgversion(open62541_jll)
 end
 __versionnumbertostring(vn::VersionNumber) = "$(vn.major).$(vn.minor).$(vn.patch)"
-
 const UA_OPEN62541_VER_MAJOR = open62541_version.major
 const UA_OPEN62541_VER_MINOR = open62541_version.minor
 const UA_OPEN62541_VER_PATCH = open62541_version.patch
@@ -160,24 +158,24 @@ end
     UA_EXTENSIONOBJECT_DECODED_NODELETE = 4
 end
 
-struct __JL_Ctag_4508
+struct __JL_Ctag_4076
     data::NTuple{40, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4508}, f::Symbol)
-    f === :encoded && return Ptr{__JL_Ctag_4509}(x + 0)
-    f === :decoded && return Ptr{__JL_Ctag_4510}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4076}, f::Symbol)
+    f === :encoded && return Ptr{__JL_Ctag_4077}(x + 0)
+    f === :decoded && return Ptr{__JL_Ctag_4078}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4508, f::Symbol)
-    r = Ref{__JL_Ctag_4508}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4508}, r)
+function Base.getproperty(x::__JL_Ctag_4076, f::Symbol)
+    r = Ref{__JL_Ctag_4076}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4076}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4508}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4076}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -199,7 +197,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
-    f === :content && return Ptr{__JL_Ctag_4508}(x + 8)
+    f === :content && return Ptr{__JL_Ctag_4076}(x + 8)
     return getfield(x, f)
 end
 
@@ -301,11 +299,11 @@ const UA_UInt16 = UInt16
     UA_NODEIDTYPE_BYTESTRING = 5
 end
 
-struct __JL_Ctag_4501
+struct __JL_Ctag_4068
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4501}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4068}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
     f === :guid && return Ptr{UA_Guid}(x + 0)
@@ -313,14 +311,14 @@ function Base.getproperty(x::Ptr{__JL_Ctag_4501}, f::Symbol)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4501, f::Symbol)
-    r = Ref{__JL_Ctag_4501}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4501}, r)
+function Base.getproperty(x::__JL_Ctag_4068, f::Symbol)
+    r = Ref{__JL_Ctag_4068}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4068}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4501}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4068}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -344,7 +342,7 @@ end
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
     f === :identifierType && return Ptr{UA_NodeIdType}(x + 4)
-    f === :identifier && return Ptr{__JL_Ctag_4501}(x + 8)
+    f === :identifier && return Ptr{__JL_Ctag_4068}(x + 8)
     return getfield(x, f)
 end
 
@@ -677,6 +675,8 @@ struct UA_EventLoop
     eventSources::Ptr{UA_EventSource}
     registerEventSource::Ptr{Cvoid}
     deregisterEventSource::Ptr{Cvoid}
+    lock::Ptr{Cvoid}
+    unlock::Ptr{Cvoid}
 end
 
 """
@@ -4705,25 +4705,25 @@ end
     UA_VALUEBACKENDTYPE_EXTERNAL = 3
 end
 
-struct __JL_Ctag_4498
+struct __JL_Ctag_4070
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4498}, f::Symbol)
-    f === :internal && return Ptr{__JL_Ctag_4499}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4070}, f::Symbol)
+    f === :internal && return Ptr{__JL_Ctag_4071}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
-    f === :external && return Ptr{__JL_Ctag_4500}(x + 0)
+    f === :external && return Ptr{__JL_Ctag_4072}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4498, f::Symbol)
-    r = Ref{__JL_Ctag_4498}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4498}, r)
+function Base.getproperty(x::__JL_Ctag_4070, f::Symbol)
+    r = Ref{__JL_Ctag_4070}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4070}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4498}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4070}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -4745,7 +4745,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
-    f === :backend && return Ptr{__JL_Ctag_4498}(x + 8)
+    f === :backend && return Ptr{__JL_Ctag_4070}(x + 8)
     return getfield(x, f)
 end
 
@@ -5249,6 +5249,22 @@ struct UA_PubSubConnectionConfig
     connectionTransportSettings::UA_Variant
     eventLoop::Ptr{UA_EventLoop}
 end
+function Base.getproperty(x::Ptr{UA_PubSubConnectionConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :enabled && return Ptr{UA_Boolean}(x + 16)
+    f === :publisherIdType && return Ptr{UA_PublisherIdType}(x + 20)
+    f === :publisherId && return Ptr{UA_PublisherId}(x + 24)
+    f === :transportProfileUri && return Ptr{UA_String}(x + 40)
+    f === :address && return Ptr{UA_Variant}(x + 56)
+    f === :connectionProperties && return Ptr{UA_KeyValueMap}(x + 104)
+    f === :connectionTransportSettings && return Ptr{UA_Variant}(x + 120)
+    f === :eventLoop && return Ptr{Ptr{UA_EventLoop}}(x + 168)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubConnectionConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 function UA_Server_addPubSubConnection(server, connectionConfig, connectionIdentifier)
     @ccall libopen62541.UA_Server_addPubSubConnection(
@@ -5510,6 +5526,22 @@ struct UA_PublishedVariableDataType
     metaDataPropertiesSize::Csize_t
     metaDataProperties::Ptr{UA_QualifiedName}
 end
+function Base.getproperty(x::Ptr{UA_PublishedVariableDataType}, f::Symbol)
+    f === :publishedVariable && return Ptr{UA_NodeId}(x + 0)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 24)
+    f === :samplingIntervalHint && return Ptr{UA_Double}(x + 32)
+    f === :deadbandType && return Ptr{UA_UInt32}(x + 40)
+    f === :deadbandValue && return Ptr{UA_Double}(x + 48)
+    f === :indexRange && return Ptr{UA_String}(x + 56)
+    f === :substituteValue && return Ptr{UA_Variant}(x + 72)
+    f === :metaDataPropertiesSize && return Ptr{Csize_t}(x + 120)
+    f === :metaDataProperties && return Ptr{Ptr{UA_QualifiedName}}(x + 128)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishedVariableDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -5545,25 +5577,25 @@ struct UA_PublishedEventTemplateConfig
     filter::UA_ContentFilter
 end
 
-struct __JL_Ctag_4494
+struct __JL_Ctag_4069
     data::NTuple{208, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4494}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4069}, f::Symbol)
     f === :itemsTemplate && return Ptr{UA_PublishedDataItemsTemplateConfig}(x + 0)
     f === :event && return Ptr{UA_PublishedEventConfig}(x + 0)
     f === :eventTemplate && return Ptr{UA_PublishedEventTemplateConfig}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4494, f::Symbol)
-    r = Ref{__JL_Ctag_4494}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4494}, r)
+function Base.getproperty(x::__JL_Ctag_4069, f::Symbol)
+    r = Ref{__JL_Ctag_4069}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4069}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4494}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4069}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5579,7 +5611,7 @@ end
 function Base.getproperty(x::Ptr{UA_PublishedDataSetConfig}, f::Symbol)
     f === :name && return Ptr{UA_String}(x + 0)
     f === :publishedDataSetType && return Ptr{UA_PublishedDataSetType}(x + 16)
-    f === :config && return Ptr{__JL_Ctag_4494}(x + 24)
+    f === :config && return Ptr{__JL_Ctag_4069}(x + 24)
     return getfield(x, f)
 end
 
@@ -5633,26 +5665,26 @@ function UA_Server_removePublishedDataSet(server, pds)
         server::Ptr{UA_Server}, pds::UA_NodeId)::UA_StatusCode
 end
 
-struct __JL_Ctag_4493
+struct __JL_Ctag_4073
     rtFieldSourceEnabled::UA_Boolean
     rtInformationModelNode::UA_Boolean
     staticValueSource::Ptr{Ptr{UA_DataValue}}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4493}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4073}, f::Symbol)
     f === :rtFieldSourceEnabled && return Ptr{UA_Boolean}(x + 0)
     f === :rtInformationModelNode && return Ptr{UA_Boolean}(x + 1)
     f === :staticValueSource && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4493, f::Symbol)
-    r = Ref{__JL_Ctag_4493}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4493}, r)
+function Base.getproperty(x::__JL_Ctag_4073, f::Symbol)
+    r = Ref{__JL_Ctag_4073}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4073}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4493}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4073}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5670,7 +5702,7 @@ function Base.getproperty(x::Ptr{UA_DataSetVariableConfig}, f::Symbol)
     f === :fieldNameAlias && return Ptr{UA_String}(x + 8)
     f === :promotedField && return Ptr{UA_Boolean}(x + 24)
     f === :publishParameters && return Ptr{UA_PublishedVariableDataType}(x + 32)
-    f === :rtValueSource && return Ptr{__JL_Ctag_4493}(x + 168)
+    f === :rtValueSource && return Ptr{__JL_Ctag_4073}(x + 168)
     f === :maxStringLength && return Ptr{UA_UInt32}(x + 184)
     return getfield(x, f)
 end
@@ -5691,23 +5723,23 @@ end
     UA_PUBSUB_DATASETFIELD_EVENT = 1
 end
 
-struct __JL_Ctag_4507
+struct __JL_Ctag_4064
     data::NTuple{192, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4507}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4064}, f::Symbol)
     f === :variable && return Ptr{UA_DataSetVariableConfig}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4507, f::Symbol)
-    r = Ref{__JL_Ctag_4507}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4507}, r)
+function Base.getproperty(x::__JL_Ctag_4064, f::Symbol)
+    r = Ref{__JL_Ctag_4064}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4064}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4507}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4064}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -5722,7 +5754,7 @@ end
 
 function Base.getproperty(x::Ptr{UA_DataSetFieldConfig}, f::Symbol)
     f === :dataSetFieldType && return Ptr{UA_DataSetFieldType}(x + 0)
-    f === :field && return Ptr{__JL_Ctag_4507}(x + 8)
+    f === :field && return Ptr{__JL_Ctag_4064}(x + 8)
     return getfield(x, f)
 end
 
@@ -5790,7 +5822,7 @@ end
     UA_PUBSUB_RT_NONE = 0
     UA_PUBSUB_RT_DIRECT_VALUE_ACCESS = 1
     UA_PUBSUB_RT_FIXED_SIZE = 2
-    UA_PUBSUB_RT_DETERMINISTIC = 4
+    UA_PUBSUB_RT_DETERMINISTIC = 3
 end
 
 """
@@ -5813,6 +5845,27 @@ struct UA_WriterGroupConfig
     maxEncapsulatedDataSetMessageCount::UA_UInt16
     rtLevel::UA_PubSubRTLevel
     securityMode::UA_MessageSecurityMode
+end
+function Base.getproperty(x::Ptr{UA_WriterGroupConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :enabled && return Ptr{UA_Boolean}(x + 16)
+    f === :writerGroupId && return Ptr{UA_UInt16}(x + 18)
+    f === :publishingInterval && return Ptr{UA_Duration}(x + 24)
+    f === :keepAliveTime && return Ptr{UA_Double}(x + 32)
+    f === :priority && return Ptr{UA_Byte}(x + 40)
+    f === :transportSettings && return Ptr{UA_ExtensionObject}(x + 48)
+    f === :messageSettings && return Ptr{UA_ExtensionObject}(x + 96)
+    f === :groupProperties && return Ptr{UA_KeyValueMap}(x + 144)
+    f === :encodingMimeType && return Ptr{UA_PubSubEncodingType}(x + 160)
+    f === :pubsubManagerCallback && return Ptr{UA_PubSub_CallbackLifecycle}(x + 168)
+    f === :maxEncapsulatedDataSetMessageCount && return Ptr{UA_UInt16}(x + 192)
+    f === :rtLevel && return Ptr{UA_PubSubRTLevel}(x + 196)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 200)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_WriterGroupConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_WriterGroupConfig_clear(writerGroupConfig)
@@ -5905,6 +5958,21 @@ struct UA_DataSetWriterConfig
     transportSettings::UA_ExtensionObject
     dataSetName::UA_String
     dataSetWriterProperties::UA_KeyValueMap
+end
+function Base.getproperty(x::Ptr{UA_DataSetWriterConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :dataSetWriterId && return Ptr{UA_UInt16}(x + 16)
+    f === :dataSetFieldContentMask && return Ptr{UA_DataSetFieldContentMask}(x + 20)
+    f === :keyFrameCount && return Ptr{UA_UInt32}(x + 24)
+    f === :messageSettings && return Ptr{UA_ExtensionObject}(x + 32)
+    f === :transportSettings && return Ptr{UA_ExtensionObject}(x + 80)
+    f === :dataSetName && return Ptr{UA_String}(x + 128)
+    f === :dataSetWriterProperties && return Ptr{UA_KeyValueMap}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataSetWriterConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_DataSetWriterConfig_clear(pdsConfig)
@@ -6001,23 +6069,23 @@ end
     UA_PUBSUB_RT_RAW = 4
 end
 
-struct __JL_Ctag_4504
+struct __JL_Ctag_4079
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4504}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4079}, f::Symbol)
     f === :subscribedDataSetTarget && return Ptr{UA_TargetVariables}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4504, f::Symbol)
-    r = Ref{__JL_Ctag_4504}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4504}, r)
+function Base.getproperty(x::__JL_Ctag_4079, f::Symbol)
+    r = Ref{__JL_Ctag_4079}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4079}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4504}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4079}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6041,7 +6109,7 @@ function Base.getproperty(x::Ptr{UA_DataSetReaderConfig}, f::Symbol)
     f === :messageSettings && return Ptr{UA_ExtensionObject}(x + 240)
     f === :transportSettings && return Ptr{UA_ExtensionObject}(x + 288)
     f === :subscribedDataSetType && return Ptr{UA_SubscribedDataSetEnumType}(x + 336)
-    f === :subscribedDataSet && return Ptr{__JL_Ctag_4504}(x + 344)
+    f === :subscribedDataSet && return Ptr{__JL_Ctag_4079}(x + 344)
     f === :linkedStandaloneSubscribedDataSetName && return Ptr{UA_String}(x + 360)
     f === :expectedEncoding && return Ptr{UA_PubSubRtEncoding}(x + 376)
     return getfield(x, f)
@@ -6087,23 +6155,23 @@ function UA_Server_DataSetReader_getState(server, dataSetReaderIdentifier, state
         state::Ptr{UA_PubSubState})::UA_StatusCode
 end
 
-struct __JL_Ctag_4497
+struct __JL_Ctag_4067
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4497}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4067}, f::Symbol)
     f === :target && return Ptr{UA_TargetVariablesDataType}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4497, f::Symbol)
-    r = Ref{__JL_Ctag_4497}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4497}, r)
+function Base.getproperty(x::__JL_Ctag_4067, f::Symbol)
+    r = Ref{__JL_Ctag_4067}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4067}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4497}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4067}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -6119,7 +6187,7 @@ end
 function Base.getproperty(x::Ptr{UA_StandaloneSubscribedDataSetConfig}, f::Symbol)
     f === :name && return Ptr{UA_String}(x + 0)
     f === :subscribedDataSetType && return Ptr{UA_SubscribedDataSetEnumType}(x + 16)
-    f === :subscribedDataSet && return Ptr{__JL_Ctag_4497}(x + 24)
+    f === :subscribedDataSet && return Ptr{__JL_Ctag_4067}(x + 24)
     f === :dataSetMetaData && return Ptr{UA_DataSetMetaDataType}(x + 40)
     f === :isConnected && return Ptr{UA_Boolean}(x + 192)
     return getfield(x, f)
@@ -6917,6 +6985,15 @@ struct UA_NetworkAddressUrlDataType
     networkInterface::UA_String
     url::UA_String
 end
+function Base.getproperty(x::Ptr{UA_NetworkAddressUrlDataType}, f::Symbol)
+    f === :networkInterface && return Ptr{UA_String}(x + 0)
+    f === :url && return Ptr{UA_String}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_NetworkAddressUrlDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 struct static_assertion_failed_7
     static_assertion_failed_enum_must_be_32bit::Cuint
@@ -6956,6 +7033,20 @@ struct UA_UadpWriterGroupMessageDataType
     publishingOffsetSize::Csize_t
     publishingOffset::Ptr{UA_Double}
 end
+function Base.getproperty(x::Ptr{UA_UadpWriterGroupMessageDataType}, f::Symbol)
+    f === :groupVersion && return Ptr{UA_UInt32}(x + 0)
+    f === :dataSetOrdering && return Ptr{UA_DataSetOrderingType}(x + 4)
+    f === :networkMessageContentMask && return Ptr{UA_UadpNetworkMessageContentMask}(x + 8)
+    f === :samplingOffset && return Ptr{UA_Double}(x + 16)
+    f === :publishingOffsetSize && return Ptr{Csize_t}(x + 24)
+    f === :publishingOffset && return Ptr{Ptr{UA_Double}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UadpWriterGroupMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 const UA_UadpDataSetMessageContentMask = UA_UInt32
 
 """
@@ -10180,10 +10271,6 @@ function UA_ConnectionManager_new_POSIX_UDP(eventSourceName)
     @ccall libopen62541.UA_ConnectionManager_new_POSIX_UDP(eventSourceName::UA_String)::Ptr{UA_ConnectionManager}
 end
 
-function UA_ConnectionManager_new_POSIX_Ethernet(eventSourceName)
-    @ccall libopen62541.UA_ConnectionManager_new_POSIX_Ethernet(eventSourceName::UA_String)::Ptr{UA_ConnectionManager}
-end
-
 function UA_ConnectionManager_new_MQTT(eventSourceName)
     @ccall libopen62541.UA_ConnectionManager_new_MQTT(eventSourceName::UA_String)::Ptr{UA_ConnectionManager}
 end
@@ -10248,24 +10335,24 @@ struct UA_LocalizedTextListEntry
     localizedText::UA_LocalizedText
 end
 
-struct __JL_Ctag_4505
+struct __JL_Ctag_4074
     data::NTuple{16, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4505}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4074}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
-    f === :tree && return Ptr{__JL_Ctag_4506}(x + 0)
+    f === :tree && return Ptr{__JL_Ctag_4075}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4505, f::Symbol)
-    r = Ref{__JL_Ctag_4505}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4505}, r)
+function Base.getproperty(x::__JL_Ctag_4074, f::Symbol)
+    r = Ref{__JL_Ctag_4074}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4074}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4505}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4074}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -10274,7 +10361,7 @@ struct UA_NodeReferenceKind
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
-    f === :targets && return Ptr{__JL_Ctag_4505}(x + 0)
+    f === :targets && return Ptr{__JL_Ctag_4074}(x + 0)
     f === :targetsSize && return Ptr{Csize_t}(x + 16)
     f === :hasRefTree && return Ptr{UA_Boolean}(x + 24)
     f === :referenceTypeIndex && return Ptr{UA_Byte}(x + 25)
@@ -10390,23 +10477,23 @@ struct UA_ReferenceTarget
     targetNameHash::UA_UInt32
 end
 
-struct __JL_Ctag_4495
+struct __JL_Ctag_4065
     left::Ptr{Cvoid} # left::Ptr{UA_ReferenceTargetTreeElem}
     right::Ptr{Cvoid} # right::Ptr{UA_ReferenceTargetTreeElem}
 end
 
-function Base.getproperty(x::__JL_Ctag_4495, f::Symbol)
+function Base.getproperty(x::__JL_Ctag_4065, f::Symbol)
     f === :left && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     f === :right && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     return getfield(x, f)
 end
 
-struct __JL_Ctag_4496
+struct __JL_Ctag_4066
     left::Ptr{Cvoid} # left::Ptr{UA_ReferenceTargetTreeElem}
     right::Ptr{Cvoid} # right::Ptr{UA_ReferenceTargetTreeElem}
 end
 
-function Base.getproperty(x::__JL_Ctag_4496, f::Symbol)
+function Base.getproperty(x::__JL_Ctag_4066, f::Symbol)
     f === :left && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     f === :right && return Ptr{UA_ReferenceTargetTreeElem}(getfield(x, f))
     return getfield(x, f)
@@ -10468,24 +10555,24 @@ struct UA_ExternalValueCallback
     userWrite::Ptr{Cvoid}
 end
 
-struct __JL_Ctag_4511
+struct __JL_Ctag_4082
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4511}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_4512}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4082}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4083}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4511, f::Symbol)
-    r = Ref{__JL_Ctag_4511}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4511}, r)
+function Base.getproperty(x::__JL_Ctag_4082, f::Symbol)
+    r = Ref{__JL_Ctag_4082}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4082}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4511}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4082}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -10533,7 +10620,7 @@ function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 160)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 168)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 272)
-    f === :value && return Ptr{__JL_Ctag_4511}(x + 280)
+    f === :value && return Ptr{__JL_Ctag_4082}(x + 280)
     f === :accessLevel && return Ptr{UA_Byte}(x + 376)
     f === :minimumSamplingInterval && return Ptr{UA_Double}(x + 384)
     f === :historizing && return Ptr{UA_Boolean}(x + 392)
@@ -10552,24 +10639,24 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4502
+struct __JL_Ctag_4080
     data::NTuple{96, UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_4502}, f::Symbol)
-    f === :data && return Ptr{__JL_Ctag_4503}(x + 0)
+function Base.getproperty(x::Ptr{__JL_Ctag_4080}, f::Symbol)
+    f === :data && return Ptr{__JL_Ctag_4081}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4502, f::Symbol)
-    r = Ref{__JL_Ctag_4502}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4502}, r)
+function Base.getproperty(x::__JL_Ctag_4080, f::Symbol)
+    r = Ref{__JL_Ctag_4080}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4080}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4502}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4080}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
@@ -10613,7 +10700,7 @@ function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
     f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 160)
     f === :valueBackend && return Ptr{UA_ValueBackend}(x + 168)
     f === :valueSource && return Ptr{UA_ValueSource}(x + 272)
-    f === :value && return Ptr{__JL_Ctag_4502}(x + 280)
+    f === :value && return Ptr{__JL_Ctag_4080}(x + 280)
     f === :isAbstract && return Ptr{UA_Boolean}(x + 376)
     f === :lifecycle && return Ptr{UA_NodeTypeLifecycle}(x + 384)
     return getfield(x, f)
@@ -10951,150 +11038,150 @@ function UA_HistoryDatabase_default(gathering)
     @ccall libopen62541.UA_HistoryDatabase_default(gathering::UA_HistoryDataGathering)::UA_HistoryDatabase
 end
 
-struct __JL_Ctag_4499
+struct __JL_Ctag_4071
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4499}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4071}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4499, f::Symbol)
-    r = Ref{__JL_Ctag_4499}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4499}, r)
+function Base.getproperty(x::__JL_Ctag_4071, f::Symbol)
+    r = Ref{__JL_Ctag_4071}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4071}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4499}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4071}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4500
+struct __JL_Ctag_4072
     value::Ptr{Ptr{UA_DataValue}}
     callback::UA_ExternalValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4500}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4072}, f::Symbol)
     f === :value && return Ptr{Ptr{Ptr{UA_DataValue}}}(x + 0)
     f === :callback && return Ptr{UA_ExternalValueCallback}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4500, f::Symbol)
-    r = Ref{__JL_Ctag_4500}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4500}, r)
+function Base.getproperty(x::__JL_Ctag_4072, f::Symbol)
+    r = Ref{__JL_Ctag_4072}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4072}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4500}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4072}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4503
-    value::UA_DataValue
-    callback::UA_ValueCallback
-end
-function Base.getproperty(x::Ptr{__JL_Ctag_4503}, f::Symbol)
-    f === :value && return Ptr{UA_DataValue}(x + 0)
-    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::__JL_Ctag_4503, f::Symbol)
-    r = Ref{__JL_Ctag_4503}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4503}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{__JL_Ctag_4503}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct __JL_Ctag_4506
+struct __JL_Ctag_4075
     idRoot::Ptr{UA_ReferenceTargetTreeElem}
     nameRoot::Ptr{UA_ReferenceTargetTreeElem}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4506}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4075}, f::Symbol)
     f === :idRoot && return Ptr{Ptr{UA_ReferenceTargetTreeElem}}(x + 0)
     f === :nameRoot && return Ptr{Ptr{UA_ReferenceTargetTreeElem}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4506, f::Symbol)
-    r = Ref{__JL_Ctag_4506}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4506}, r)
+function Base.getproperty(x::__JL_Ctag_4075, f::Symbol)
+    r = Ref{__JL_Ctag_4075}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4075}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4506}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4075}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4509
+struct __JL_Ctag_4077
     typeId::UA_NodeId
     body::UA_ByteString
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4509}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4077}, f::Symbol)
     f === :typeId && return Ptr{UA_NodeId}(x + 0)
     f === :body && return Ptr{UA_ByteString}(x + 24)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4509, f::Symbol)
-    r = Ref{__JL_Ctag_4509}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4509}, r)
+function Base.getproperty(x::__JL_Ctag_4077, f::Symbol)
+    r = Ref{__JL_Ctag_4077}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4077}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4509}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4077}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4510
+struct __JL_Ctag_4078
     type::Ptr{UA_DataType}
     data::Ptr{Cvoid}
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4510}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4078}, f::Symbol)
     f === :type && return Ptr{Ptr{UA_DataType}}(x + 0)
     f === :data && return Ptr{Ptr{Cvoid}}(x + 8)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4510, f::Symbol)
-    r = Ref{__JL_Ctag_4510}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4510}, r)
+function Base.getproperty(x::__JL_Ctag_4078, f::Symbol)
+    r = Ref{__JL_Ctag_4078}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4078}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4510}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4078}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
-struct __JL_Ctag_4512
+struct __JL_Ctag_4081
     value::UA_DataValue
     callback::UA_ValueCallback
 end
-function Base.getproperty(x::Ptr{__JL_Ctag_4512}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_4081}, f::Symbol)
     f === :value && return Ptr{UA_DataValue}(x + 0)
     f === :callback && return Ptr{UA_ValueCallback}(x + 80)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_4512, f::Symbol)
-    r = Ref{__JL_Ctag_4512}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4512}, r)
+function Base.getproperty(x::__JL_Ctag_4081, f::Symbol)
+    r = Ref{__JL_Ctag_4081}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4081}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_4512}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_4081}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+struct __JL_Ctag_4083
+    value::UA_DataValue
+    callback::UA_ValueCallback
+end
+function Base.getproperty(x::Ptr{__JL_Ctag_4083}, f::Symbol)
+    f === :value && return Ptr{UA_DataValue}(x + 0)
+    f === :callback && return Ptr{UA_ValueCallback}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_4083, f::Symbol)
+    r = Ref{__JL_Ctag_4083}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_4083}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_4083}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 

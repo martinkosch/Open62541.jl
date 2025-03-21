@@ -154,11 +154,17 @@ inputs and one string as output.
 function UA_MethodCallback_wrap(fsimple)
     function (server, sessionId, sessionHandle, methodId, methodContext, objectId,
             objectContext, inputSize, input, outputSize, output)
-        arr = UA_Array(input, Int64(inputSize))
-        input_julia = Open62541.__get_juliavalues_from_variant.(arr, Any)
+        arr_input = UA_Array(input, Int64(inputSize))
+        arr_output = UA_Array(output, Int64(outputSize))
+        input_julia = __get_juliavalues_from_variant.(arr_input, Any)
         output_julia = fsimple(input_julia...)
-        j = JUA_Variant(output_julia)
-        UA_Variant_copy(Jpointer(j), output)
+        if !isa(output_julia, Tuple)
+            output_julia = (output_julia,)
+        end
+        for i in 1:outputSize
+            j = JUA_Variant(output_julia[i])
+            UA_Variant_copy(Jpointer(j), arr_output[i])
+        end
         return UA_STATUSCODE_GOOD
     end
 end
