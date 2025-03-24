@@ -5477,6 +5477,25 @@ struct UA_FieldMetaData
     propertiesSize::Csize_t
     properties::Ptr{UA_KeyValuePair}
 end
+function Base.getproperty(x::Ptr{UA_FieldMetaData}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :description && return Ptr{UA_LocalizedText}(x + 16)
+    f === :fieldFlags && return Ptr{UA_DataSetFieldFlags}(x + 48)
+    f === :builtInType && return Ptr{UA_Byte}(x + 50)
+    f === :dataType && return Ptr{UA_NodeId}(x + 56)
+    f === :valueRank && return Ptr{UA_Int32}(x + 80)
+    f === :arrayDimensionsSize && return Ptr{Csize_t}(x + 88)
+    f === :arrayDimensions && return Ptr{Ptr{UA_UInt32}}(x + 96)
+    f === :maxStringLength && return Ptr{UA_UInt32}(x + 104)
+    f === :dataSetFieldId && return Ptr{UA_Guid}(x + 108)
+    f === :propertiesSize && return Ptr{Csize_t}(x + 128)
+    f === :properties && return Ptr{Ptr{UA_KeyValuePair}}(x + 136)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_FieldMetaData}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -5508,6 +5527,27 @@ struct UA_DataSetMetaDataType
     fields::Ptr{UA_FieldMetaData}
     dataSetClassId::UA_Guid
     configurationVersion::UA_ConfigurationVersionDataType
+end
+function Base.getproperty(x::Ptr{UA_DataSetMetaDataType}, f::Symbol)
+    f === :namespacesSize && return Ptr{Csize_t}(x + 0)
+    f === :namespaces && return Ptr{Ptr{UA_String}}(x + 8)
+    f === :structureDataTypesSize && return Ptr{Csize_t}(x + 16)
+    f === :structureDataTypes && return Ptr{Ptr{UA_StructureDescription}}(x + 24)
+    f === :enumDataTypesSize && return Ptr{Csize_t}(x + 32)
+    f === :enumDataTypes && return Ptr{Ptr{UA_EnumDescription}}(x + 40)
+    f === :simpleDataTypesSize && return Ptr{Csize_t}(x + 48)
+    f === :simpleDataTypes && return Ptr{Ptr{UA_SimpleTypeDescription}}(x + 56)
+    f === :name && return Ptr{UA_String}(x + 64)
+    f === :description && return Ptr{UA_LocalizedText}(x + 80)
+    f === :fieldsSize && return Ptr{Csize_t}(x + 112)
+    f === :fields && return Ptr{Ptr{UA_FieldMetaData}}(x + 120)
+    f === :dataSetClassId && return Ptr{UA_Guid}(x + 128)
+    f === :configurationVersion && return Ptr{UA_ConfigurationVersionDataType}(x + 144)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataSetMetaDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -6232,6 +6272,19 @@ struct UA_ReaderGroupConfig
     encodingMimeType::UA_PubSubEncodingType
     transportSettings::UA_ExtensionObject
     securityMode::UA_MessageSecurityMode
+end
+function Base.getproperty(x::Ptr{UA_ReaderGroupConfig}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :rtLevel && return Ptr{UA_PubSubRTLevel}(x + 16)
+    f === :groupProperties && return Ptr{UA_KeyValueMap}(x + 24)
+    f === :encodingMimeType && return Ptr{UA_PubSubEncodingType}(x + 40)
+    f === :transportSettings && return Ptr{UA_ExtensionObject}(x + 48)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 96)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReaderGroupConfig}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_ReaderGroupConfig_clear(readerGroupConfig)
