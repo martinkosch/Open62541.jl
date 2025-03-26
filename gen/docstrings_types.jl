@@ -24,7 +24,6 @@ close(f)
 
 typenames = getfield.(collect(eachmatch(r"struct (\S*)\n", data)), :captures) #gets all typenames within Open62541.jl
 for type in typenames
-    @show type[1]
     if !any(startswith.(type[1], docstrings_types_ignore_keywords)) &&
        !any(contains.(type[1], docstrings_types_special)) #standard docstring
         global data = replace(

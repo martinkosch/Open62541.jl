@@ -29,7 +29,7 @@ connectionConfig.publisherIdType = UA_PUBLISHERIDTYPE_UINT32
 connectionConfig.publisherId.uint32 = UA_UInt32_random()
 
 connectionIdentifier = UA_NodeId_new()
-retval1 = UA_Server_addPubSubConnection(server, connectionConfig, connectionIdentifier) #TODO: test
+retval1 = UA_Server_addPubSubConnection(server, connectionConfig, connectionIdentifier) 
 @test retval1 == UA_STATUSCODE_GOOD
 
 #add published dataset
@@ -115,15 +115,104 @@ readerConfig.writerGroupId = 100
 readerConfig.dataSetWriterId = 62541
 
 #setting up Meta data configuration in DataSetReader
-p = readerConfig.dataSetMetaData
-p.name = UA_STRING("DataSet 1")
+pMetaData = readerConfig.dataSetMetaData
+UA_DataSetMetaDataType_init(pMetaData)
+pMetaData.name = UA_STRING("DataSet 1")
 
-#TODO: bring back the metadata stuff.
+# Static definition of number of fields size to 4 to create four different
+# targetVariables of distinct datatype
+# Currently the publisher sends only DateTime data type
+pMetaData.fieldsSize = 4
+pMetaData.fields = UA_Array_new(unsafe_load(pMetaData.fieldsSize),
+                        UA_TYPES_PTRS[UA_TYPES_FIELDMETADATA])
 
-retval7 = UA_Server_addDataSetReader(server, readerGroupIdentifier, readerConfig,
+arr = UA_Array(unsafe_load(pMetaData.fields), 4)
+
+# DateTime DataType
+UA_FieldMetaData_init(arr[1])
+retval7a = UA_NodeId_copy(UA_TYPES_PTRS[UA_TYPES_DATETIME].typeId,
+                arr[1].dataType)
+@test retval7a == UA_STATUSCODE_GOOD
+arr[1].builtInType = UA_NS0ID_DATETIME
+arr[1].name =  UA_String_fromChars("DateTime")
+arr[1].valueRank = -1 # scalar
+
+# Int32 DataType 
+UA_FieldMetaData_init(arr[2])
+retval7b = UA_NodeId_copy(UA_TYPES_PTRS[UA_TYPES_INT32].typeId,
+                arr[2].dataType)
+@test retval7b == UA_STATUSCODE_GOOD
+arr[2].builtInType = UA_NS0ID_INT32
+arr[2].name =  UA_String_fromChars("Int32")
+arr[2].valueRank = -1 # scalar
+
+# Int64 DataType
+UA_FieldMetaData_init(arr[3])
+UA_NodeId_copy(UA_TYPES_PTRS[UA_TYPES_INT32].typeId,
+                arr[3].dataType)
+arr[3].builtInType = UA_NS0ID_INT32
+arr[3].name =  UA_String_fromChars("Int64")
+arr[3].valueRank = -1 # scalar
+
+# Boolean DataType
+UA_FieldMetaData_init(&arr[4]);
+UA_NodeId_copy (&UA_TYPES[UA_TYPES_BOOLEAN].typeId,
+                &arr[4].dataType);
+arr[4].builtInType = UA_NS0ID_BOOLEAN;
+arr[4].name =  UA_STRING("BoolToggle");
+arr[4].valueRank = -1; # scalar
+
+retval8 = UA_Server_addDataSetReader(server, readerGroupIdentifier, readerConfig,
     readerIdentifier)
+@test retval8 == UA_STATUSCODE_GOOD
 
-@test retval7 == UA_STATUSCODE_GOOD
+#add Object to server
+dataSetReaderId = UA_NodeId_new()
+folderId = UA_NodeId_new()
+displayname = "Subscribed Variables"
+description = "Subscribed Variables"
+oAttr = JUA_ObjectAttributes(displayname = displayname, description = description)
+folderBrowseName = JUA_QualifiedName(1, displayname)
+retval9 = JUA_Server_addNode(server, JUA_NodeId(), JUA_NodeId(0, UA_NS0ID_OBJECTSFOLDER), 
+    JUA_NodeId(0, UA_NS0ID_ORGANIZES), folderBrowseName, oAttr, 
+    JUA_NodeId(0, UA_NS0ID_BASEOBJECTTYPE), C_NULL, folderId)
+@test retval9 == UA_STATUSCODE_GOOD
+
+#TODO: from here on still work to do
+/* Create the TargetVariables with respect to DataSetMetaData fields */
+UA_FieldTargetVariable *targetVars = (UA_FieldTargetVariable *)
+        UA_calloc(readerConfig.dataSetMetaData.fieldsSize, sizeof(UA_FieldTargetVariable));
+for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++) {
+    /* Variable to subscribe data */
+    UA_VariableAttributes vAttr = UA_VariableAttributes_default;
+    UA_LocalizedText_copy(&readerConfig.dataSetMetaData.fields[i].description,
+                          &vAttr.description);
+    vAttr.displayName.locale = UA_STRING("en-US");
+    vAttr.displayName.text = readerConfig.dataSetMetaData.fields[i].name;
+    vAttr.dataType = readerConfig.dataSetMetaData.fields[i].dataType;
+
+    UA_NodeId newNode;
+    retval |= UA_Server_addVariableNode(server, UA_NODEID_NUMERIC(1, (UA_UInt32)i + 50000),
+                                       folderId,
+                                       UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+                                       UA_QUALIFIEDNAME(1, (char *)readerConfig.dataSetMetaData.fields[i].name.data),
+                                       UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
+                                       vAttr, NULL, &newNode);
+
+    /* For creating Targetvariables */
+    UA_FieldTargetDataType_init(&targetVars[i].targetVariable);
+    targetVars[i].targetVariable.attributeId  = UA_ATTRIBUTEID_VALUE;
+    targetVars[i].targetVariable.targetNodeId = newNode;
+}
+
+retval = UA_Server_DataSetReader_createTargetVariables(server, dataSetReaderId,
+                                                       readerConfig.dataSetMetaData.fieldsSize, targetVars);
+for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++)
+    UA_FieldTargetDataType_clear(&targetVars[i].targetVariable);
+
+#UA_free(targetVars);
+#UA_free(readerConfig.dataSetMetaData.fields);
+
 
 #memory clean up; TODO: complete this section.
 UA_UadpWriterGroupMessageDataType_delete(writerGroupMessage) 

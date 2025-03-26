@@ -5468,12 +5468,14 @@ struct UA_FieldMetaData
     description::UA_LocalizedText
     fieldFlags::UA_DataSetFieldFlags
     builtInType::UA_Byte
+    padding1::NTuple{5, UInt8}
     dataType::UA_NodeId
     valueRank::UA_Int32
     arrayDimensionsSize::Csize_t
     arrayDimensions::Ptr{UA_UInt32}
     maxStringLength::UA_UInt32
     dataSetFieldId::UA_Guid
+    padding2::NTuple{4, UInt8}
     propertiesSize::Csize_t
     properties::Ptr{UA_KeyValuePair}
 end
