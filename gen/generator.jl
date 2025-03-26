@@ -22,41 +22,46 @@ options = load_options(joinpath(@__DIR__, "generator.toml"))
 args = get_default_args("x86_64-w64-mingw32")
 push!(args, "-Iheaders")
 push!(args, "-std=c99")
-push!(args, "-DUA_ARCHITECTURE_POSIX")
 
-include_dir = joinpath(open62541_jll.artifact_dir, "include") |> normpath
+# fetch Windows JLL and config macro defines
+push!(args, "-D_WIN32")
+include_dir = Generators.JLLEnvs.get_pkg_include_dir(open62541_jll, "x86_64-w64-mingw32") |> normpath
+@assert !isempty(include_dir)
+push!(args, "-I$include_dir")
 
 #copy header files to new directory
-Base.Filesystem.cptree(include_dir, "headers", force = true)
-chmod("headers", 0o777; recursive = true)
-headers = String[]
-for (root, dirs, files) in walkdir("headers")
-    for file in files
-        push!(headers, joinpath(root, file)) # path to files
-    end
-end
-headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h files around...
+# Base.Filesystem.cptree(include_dir, "headers", force = true)
+# chmod("headers", 0o777; recursive = true)
+# headers = String[]
+# for (root, dirs, files) in walkdir("headers")
+#     for file in files
+#         push!(headers, joinpath(root, file)) # path to files
+#     end
+# end
+# headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h files around...
 
-#comment out two lines in util.h; 
+#comment out two lines in util.h;
 #these caused errors since open62541_jll is compiled without amalgamation (reason not clear to me)
-fn = joinpath(@__DIR__, "./headers/open62541/common.h")
-f = open(fn, "r")
-util_content = read(f, String)
-close(f)
-orig = "struct UA_ServerConfig;
-typedef struct UA_ServerConfig UA_ServerConfig;"
-new = "//struct UA_ServerConfig;
-    //typedef struct UA_ServerConfig UA_ServerConfig;"
-util_content = replace(util_content, orig => new)
-f = open(fn, "w")
-write(f, util_content)
-close(f)
+# fn = joinpath(@__DIR__, "./headers/open62541/common.h")
+# f = open(fn, "r")
+# util_content = read(f, String)
+# close(f)
+# orig = "struct UA_ServerConfig;
+# typedef struct UA_ServerConfig UA_ServerConfig;"
+# new = "//struct UA_ServerConfig;
+#     //typedef struct UA_ServerConfig UA_ServerConfig;"
+# util_content = replace(util_content, orig => new)
+# f = open(fn, "w")
+# write(f, util_content)
+# close(f)
 
-# Create context
-ctx = create_context(headers, args, options)
+headers = detect_headers(include_dir, args, options)
 
-# Run generator
-build!(ctx)
+# # Create context
+# ctx = create_context(headers, args, options)
+
+# # Run generator
+# build!(ctx)
 
 function write_generated_defs(generated_defs_dir::String,
         headers,
@@ -92,7 +97,7 @@ function write_generated_defs(generated_defs_dir::String,
     push!(client_write, ["UA_Client_writeValueAttribute_scalar", "Value", "UA_DataType"])
     push!(client_write, ["UA_Client_writeValueAttributeEx", "Value", "UA_DataValue"])
     data_UA_Client = """
-    # UA_Client_ functions data 
+    # UA_Client_ functions data
     const attributes_UA_Client_Service = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_Service_(\w*))\((?:[\s\S]*?)\)(?:[\s\S]*?)UA_\S*", headers))
     const attributes_UA_Client_read = $(extract_header_data(r"UA_INLINE[\s\S]{0,50}\s(UA_Client_read(\w*)Attribute)\((?:[\s\S]*?,\s*){2}(\S*)", headers))
     const attributes_UA_Client_write = $(client_write)
@@ -163,11 +168,11 @@ for i in eachindex(inlined_funcs)
 end
 
 #alternative1: removes docstrings of just the inlined functions
-# for i in eachindex(inlined_funcs) 
+# for i in eachindex(inlined_funcs)
 #     @show i
 #     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
 #     data = replace(data, r => "")
-# end 
+# end
 
 #alternative2: automatically generated docstrings aren't really informative; removes them ALL.
 r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
@@ -236,7 +241,7 @@ const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
 
 data = replace(data, replacestring => "")
 
-#replace version number code (make the constants express the version of the _jll 
+#replace version number code (make the constants express the version of the _jll
 #rather than hard coded numbers)
 version_regex = r"const UA_OPEN62541_VER_MAJOR = \d+\n
 const UA_OPEN62541_VER_MINOR = \d+\n
@@ -317,7 +322,7 @@ write(f, new_content)
 close(f)
 
 #The wrapper has now some flexibility in terms of accepting different patch versions.
-#open62541_jll versions that are compatible with the same wrapper include: 
+#open62541_jll versions that are compatible with the same wrapper include:
 #1.3.9, 1.3.10, 1.3.11 (and presumably future patch versions on 1.3 branch)
 #1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch)
 
