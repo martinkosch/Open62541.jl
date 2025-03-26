@@ -19,9 +19,10 @@ options = load_options(joinpath(@__DIR__, "generator.toml"))
 # append!(options["general"]["output_ignorelist"], extract_inlined_funcs(headers))
 
 # Add compiler flags
-args = get_default_args()
+args = get_default_args("x86_64-w64-mingw32")
 push!(args, "-Iheaders")
 push!(args, "-std=c99")
+push!(args, "-DUA_ARCHITECTURE_POSIX")
 
 include_dir = joinpath(open62541_jll.artifact_dir, "include") |> normpath
 
@@ -343,4 +344,4 @@ format(joinpath(@__DIR__, "../src/Open62541.jl"))
 format(joinpath(@__DIR__, "../src/callbacks.jl"))
 
 #delete headers directory
-Base.Filesystem.rm("headers", recursive = true)
+# Base.Filesystem.rm("headers", recursive = true)

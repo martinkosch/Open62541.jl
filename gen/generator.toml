@@ -44,6 +44,8 @@ prologue_file_path = "./prologue.jl"
 # this is often used for applying custom patches.
 epilogue_file_path = ""
 
+no_audit = true
+
 # node with an id in the `output_ignorelist` will be ignored in the printing passes.
 # this is very useful for custom editing.
 output_ignorelist = [
