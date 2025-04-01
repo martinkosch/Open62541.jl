@@ -36,7 +36,7 @@ for (root, dirs, files) in walkdir("headers")
 end
 headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h files around...
 
-#comment out two lines in util.h; 
+#comment out two lines in common.h; 
 #these caused errors since open62541_jll is compiled without amalgamation (reason not clear to me)
 fn = joinpath(@__DIR__, "./headers/open62541/common.h")
 f = open(fn, "r")
@@ -159,6 +159,42 @@ for i in eachindex(inlined_funcs)
     global data = replace(data, r => "")
 end
 
+#Move UA_NS0ID constants from main Open62541.jl file to a separate file that will be included when epilogue gets added;
+#Ensures more manageable main file size.
+r = Regex("const UA_NS0ID_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_NS0ID.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
+
+#remove static_assertion_failed_X structs and access functions
+r = Regex("struct static_assertion_failed_[0-9]+\n.*\nend\n\n")
+r2 = Regex("function Base\\.getproperty\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol\\)\n[\\s\\S]*?\n(end)\n\n")
+r3 = Regex("function Base\\.getproperty\\(x::static_assertion_failed_[0-9]+, f::Symbol\\)\n[\\s\\S]*?(end\n\n)")
+r4 = Regex("function Base\\.setproperty!\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol, v\\)\n[\\s\\S]*?(end\n\n)")
+data = replace(data, r => "")
+data = replace(data, r2 => "")
+data = replace(data, r3 => "")
+data = replace(data, r4 => "")
+
+#add fieldnames functions for types 
+r = Regex("struct ([a-zA-Z_0-9]*)\n[\\s\\S]{0,50}?data::NTuple\\{[0-9]{1,3}, UInt8\\}\nend")
+structnames = collect(String[m.captures[1] for m in eachmatch(r, data)])
+for i in eachindex(structnames)
+    n = structnames[i]
+    r2 = Regex("function Base\\.getproperty\\(x::Ptr\\{$n\\}, f::Symbol\\)\n([\\s]*f === :[A-Za-z]*[\\s\\S]*?)\nend")
+    functionbody = String(match(r2, data).captures[1])
+    r3 = Regex("f === :([a-zA-Z0-9]*)")
+    fields = Tuple(Symbol.(String[m.captures[1] for m in eachmatch(r3, functionbody)]))
+    r4 = Regex("struct $n\n[\\s\\S]*?end")
+    m = match(r4, data).match
+    fieldnames1 = "Base.fieldnames(::Type{$n}) = $fields"
+    fieldnames2 = "Base.fieldnames(::Type{Ptr{$n}}) = $fields"
+    data = replace(data, m => "$m\n\n$fieldnames1\n$fieldnames2")
+end
+
 #alternative1: removes docstrings of just the inlined functions
 # for i in eachindex(inlined_funcs) 
 #     @show i
@@ -195,24 +231,7 @@ return guid_dst
 end"
 data = replace(data, orig => new)
 
-#need to remove some buggy lines
-# replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
-
-# const UA_INT32_MAX = Clong(2147483647)
-
-# const UA_UINT32_MIN = 0
-
-# const UA_UINT32_MAX = Culong(4294967295)
-
-# const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
-
-# const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
-
-# const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
-
-# const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
-
-#for clang.jl 0.17 and Julia 1.10.x
+#need to remove some buggy lines (included in prologue instead)
 replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
 
 const UA_INT32_MAX = Clong(2147483647)

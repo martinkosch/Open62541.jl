@@ -155,12 +155,12 @@ arr[3].name =  UA_String_fromChars("Int64")
 arr[3].valueRank = -1 # scalar
 
 # Boolean DataType
-UA_FieldMetaData_init(&arr[4]);
-UA_NodeId_copy (&UA_TYPES[UA_TYPES_BOOLEAN].typeId,
-                &arr[4].dataType);
-arr[4].builtInType = UA_NS0ID_BOOLEAN;
-arr[4].name =  UA_STRING("BoolToggle");
-arr[4].valueRank = -1; # scalar
+UA_FieldMetaData_init(arr[4]);
+UA_NodeId_copy(UA_TYPES_PTRS[UA_TYPES_BOOLEAN].typeId,
+                arr[4].dataType)
+arr[4].builtInType = UA_NS0ID_BOOLEAN
+arr[4].name =  UA_STRING("BoolToggle")
+arr[4].valueRank = -1 # scalar
 
 retval8 = UA_Server_addDataSetReader(server, readerGroupIdentifier, readerConfig,
     readerIdentifier)
@@ -179,40 +179,40 @@ retval9 = JUA_Server_addNode(server, JUA_NodeId(), JUA_NodeId(0, UA_NS0ID_OBJECT
 @test retval9 == UA_STATUSCODE_GOOD
 
 #TODO: from here on still work to do
-/* Create the TargetVariables with respect to DataSetMetaData fields */
-UA_FieldTargetVariable *targetVars = (UA_FieldTargetVariable *)
-        UA_calloc(readerConfig.dataSetMetaData.fieldsSize, sizeof(UA_FieldTargetVariable));
-for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++) {
-    /* Variable to subscribe data */
-    UA_VariableAttributes vAttr = UA_VariableAttributes_default;
-    UA_LocalizedText_copy(&readerConfig.dataSetMetaData.fields[i].description,
-                          &vAttr.description);
-    vAttr.displayName.locale = UA_STRING("en-US");
-    vAttr.displayName.text = readerConfig.dataSetMetaData.fields[i].name;
-    vAttr.dataType = readerConfig.dataSetMetaData.fields[i].dataType;
+# /* Create the TargetVariables with respect to DataSetMetaData fields */
+# UA_FieldTargetVariable *targetVars = (UA_FieldTargetVariable *)
+#         UA_calloc(readerConfig.dataSetMetaData.fieldsSize, sizeof(UA_FieldTargetVariable));
+# for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++) {
+#     /* Variable to subscribe data */
+#     UA_VariableAttributes vAttr = UA_VariableAttributes_default;
+#     UA_LocalizedText_copy(&readerConfig.dataSetMetaData.fields[i].description,
+#                           &vAttr.description);
+#     vAttr.displayName.locale = UA_STRING("en-US");
+#     vAttr.displayName.text = readerConfig.dataSetMetaData.fields[i].name;
+#     vAttr.dataType = readerConfig.dataSetMetaData.fields[i].dataType;
 
-    UA_NodeId newNode;
-    retval |= UA_Server_addVariableNode(server, UA_NODEID_NUMERIC(1, (UA_UInt32)i + 50000),
-                                       folderId,
-                                       UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
-                                       UA_QUALIFIEDNAME(1, (char *)readerConfig.dataSetMetaData.fields[i].name.data),
-                                       UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
-                                       vAttr, NULL, &newNode);
+#     UA_NodeId newNode;
+#     retval |= UA_Server_addVariableNode(server, UA_NODEID_NUMERIC(1, (UA_UInt32)i + 50000),
+#                                        folderId,
+#                                        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+#                                        UA_QUALIFIEDNAME(1, (char *)readerConfig.dataSetMetaData.fields[i].name.data),
+#                                        UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
+#                                        vAttr, NULL, &newNode);
 
-    /* For creating Targetvariables */
-    UA_FieldTargetDataType_init(&targetVars[i].targetVariable);
-    targetVars[i].targetVariable.attributeId  = UA_ATTRIBUTEID_VALUE;
-    targetVars[i].targetVariable.targetNodeId = newNode;
-}
+#     /* For creating Targetvariables */
+#     UA_FieldTargetDataType_init(&targetVars[i].targetVariable);
+#     targetVars[i].targetVariable.attributeId  = UA_ATTRIBUTEID_VALUE;
+#     targetVars[i].targetVariable.targetNodeId = newNode;
+# }
 
-retval = UA_Server_DataSetReader_createTargetVariables(server, dataSetReaderId,
-                                                       readerConfig.dataSetMetaData.fieldsSize, targetVars);
-for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++)
-    UA_FieldTargetDataType_clear(&targetVars[i].targetVariable);
+# retval = UA_Server_DataSetReader_createTargetVariables(server, dataSetReaderId,
+#                                                        readerConfig.dataSetMetaData.fieldsSize, targetVars);
+# for(size_t i = 0; i < readerConfig.dataSetMetaData.fieldsSize; i++)
+#     UA_FieldTargetDataType_clear(&targetVars[i].targetVariable);
 
-#UA_free(targetVars);
-#UA_free(readerConfig.dataSetMetaData.fields);
+# #UA_free(targetVars);
+# #UA_free(readerConfig.dataSetMetaData.fields);
 
 
-#memory clean up; TODO: complete this section.
-UA_UadpWriterGroupMessageDataType_delete(writerGroupMessage) 
+# #memory clean up; TODO: complete this section.
+# UA_UadpWriterGroupMessageDataType_delete(writerGroupMessage) 

@@ -67,6 +67,10 @@ end
     include("server_add_nodes_highlevelinterface.jl")
 end
 
+@safetestset "Server Pubsub tests" begin
+    include("server_pubsub.jl")
+end
+
 if MEMLEAK == true
     @safetestset "Server Memory leaks" begin
         include("server_memoryleaks.jl")
