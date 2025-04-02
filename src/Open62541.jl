@@ -191,7 +191,6 @@ Fields:
 - `encoding`
 
 - `content`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ExtensionObject
@@ -332,16 +331,16 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_43}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
 
 Fields:
 
-- `nameSpaceIndex`
+- `namespaceIndex`
 
 - `identifierType`
 
 - `identifier`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeId
@@ -378,10 +377,12 @@ Fields:
 - `memberName`
 
 - `memberType`
-- `padding`
-- `isArray`
-- `isOptional`
 
+- `padding`
+
+- `isArray`
+
+- `isOptional`
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataTypeMember
@@ -470,7 +471,6 @@ Fields:
 - `membersSize`
 
 - `members`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataType
@@ -542,6 +542,21 @@ function Base.setproperty!(x::Ptr{UA_DataType}, f::Symbol, v)
     end
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `next`
+
+- `typesSize`
+
+- `types`
+
+- `cleanup`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_DataTypeArray
     next::Ptr{UA_DataTypeArray}
     typesSize::Csize_t
@@ -708,9 +723,25 @@ struct UA_EventLoop
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `uri`
+
+- `verify`
+
+- `sign`
+
+- `getLocalSignatureSize`
+
+- `getRemoteSignatureSize`
+
+- `getLocalKeyLength`
+
+- `getRemoteKeyLength`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicySignatureAlgorithm
     data::NTuple{64, UInt8}
@@ -748,9 +779,25 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicySignatureAlgorithm}, f::Symbo
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `uri`
+
+- `encrypt`
+
+- `decrypt`
+
+- `getLocalKeyLength`
+
+- `getRemoteKeyLength`
+
+- `getRemoteBlockSize`
+
+- `getRemotePlainTextBlockSize`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyEncryptionAlgorithm
     data::NTuple{64, UInt8}
@@ -788,9 +835,15 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyEncryptionAlgorithm}, f::Symb
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `signatureAlgorithm`
+
+- `encryptionAlgorithm`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyCryptoModule
     data::NTuple{128, UInt8}
@@ -821,9 +874,17 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyCryptoModule}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `makeCertificateThumbprint`
+
+- `compareCertificateThumbprint`
+
+- `cryptoModule`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyAsymmetricModule
     data::NTuple{144, UInt8}
@@ -855,9 +916,19 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyAsymmetricModule}, f::Symbol,
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `generateKey`
+
+- `generateNonce`
+
+- `secureChannelNonceLength`
+
+- `cryptoModule`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicySymmetricModule
     data::NTuple{152, UInt8}
@@ -890,9 +961,29 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicySymmetricModule}, f::Symbol, 
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `newContext`
+
+- `deleteContext`
+
+- `setLocalSymEncryptingKey`
+
+- `setLocalSymSigningKey`
+
+- `setLocalSymIv`
+
+- `setRemoteSymEncryptingKey`
+
+- `setRemoteSymSigningKey`
+
+- `setRemoteSymIv`
+
+- `compareCertificate`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyChannelModule
     data::NTuple{72, UInt8}
@@ -934,9 +1025,31 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyChannelModule}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `policyContext`
+
+- `policyUri`
+
+- `localCertificate`
+
+- `asymmetricModule`
+
+- `symmetricModule`
+
+- `certificateSigningAlgorithm`
+
+- `channelModule`
+
+- `logger`
+
+- `updateCertificateAndPrivateKey`
+
+- `clear`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicy
     data::NTuple{496, UInt8}
@@ -997,9 +1110,81 @@ end
 const UA_LocaleId = UA_String
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `clientContext`
+
+- `logging`
+
+- `timeout`
+
+- `clientDescription`
+
+- `endpointUrl`
+
+- `userIdentityToken`
+
+- `securityMode`
+
+- `securityPolicyUri`
+
+- `noSession`
+
+- `noReconnect`
+
+- `noNewSession`
+
+- `endpoint`
+
+- `userTokenPolicy`
+
+- `applicationUri`
+
+- `customDataTypes`
+
+- `secureChannelLifeTime`
+
+- `requestedSessionTimeout`
+
+- `localConnectionConfig`
+
+- `connectivityCheckInterval`
+
+- `eventLoop`
+
+- `externalEventLoop`
+
+- `securityPoliciesSize`
+
+- `securityPolicies`
+
+- `certificateVerification`
+
+- `authSecurityPoliciesSize`
+
+- `authSecurityPolicies`
+
+- `authSecurityPolicyUri`
+
+- `stateCallback`
+
+- `inactivityCallback`
+
+- `outStandingPublishRequests`
+
+- `subscriptionInactivityCallback`
+
+- `sessionName`
+
+- `sessionLocaleIds`
+
+- `sessionLocaleIdsSize`
+
+- `privateKeyPasswordCallback`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ClientConfig
     data::NTuple{784, UInt8}
@@ -1392,9 +1577,21 @@ end
 const UA_HistoricalIteratorCallback = Ptr{Cvoid}
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `typeDefinitionId`
+
+- `browsePathSize`
+
+- `browsePath`
+
+- `attributeId`
+
+- `indexRange`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SimpleAttributeOperand
     data::NTuple{64, UInt8}
@@ -1553,9 +1750,35 @@ function UA_Client_HistoryRead_modified(
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `value`
+
+- `sourceTimestamp`
+
+- `serverTimestamp`
+
+- `sourcePicoseconds`
+
+- `serverPicoseconds`
+
+- `status`
+
+- `hasValue`
+
+- `hasStatus`
+
+- `hasSourceTimestamp`
+
+- `hasServerTimestamp`
+
+- `hasSourcePicoseconds`
+
+- `hasServerPicoseconds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataValue
     data::NTuple{80, UInt8}
@@ -1676,9 +1899,17 @@ function UA_Client_call(client, objectId, methodId, inputSize, input, outputSize
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `namespaceUri`
+
+- `serverIndex`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ExpandedNodeId
     data::NTuple{48, UInt8}
@@ -1739,6 +1970,23 @@ function UA_Client_deleteNode(client, nodeId, deleteTargetReferences)
         deleteTargetReferences::UA_Boolean)::UA_StatusCode
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `specifiedAttributes`
+
+- `displayName`
+
+- `description`
+
+- `writeMask`
+
+- `userWriteMask`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeAttributes
     specifiedAttributes::UA_UInt32
     displayName::UA_LocalizedText
@@ -1803,9 +2051,19 @@ const UA_ClientAsyncOperationCallback = Ptr{Cvoid}
 const UA_ClientAsyncReadAttributeCallback = Ptr{Cvoid}
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `attributeId`
+
+- `indexRange`
+
+- `dataEncoding`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadValueId
     data::NTuple{72, UInt8}
@@ -2129,9 +2387,25 @@ const UA_Client_DeleteSubscriptionCallback = Ptr{Cvoid}
 const UA_Client_StatusChangeNotificationCallback = Ptr{Cvoid}
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `authenticationToken`
+
+- `timestamp`
+
+- `requestHandle`
+
+- `returnDiagnostics`
+
+- `auditEntryId`
+
+- `timeoutHint`
+
+- `additionalHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RequestHeader
     data::NTuple{112, UInt8}
@@ -2169,9 +2443,25 @@ function Base.setproperty!(x::Ptr{UA_RequestHeader}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `requestedPublishingInterval`
+
+- `requestedLifetimeCount`
+
+- `requestedMaxKeepAliveCount`
+
+- `maxNotificationsPerPublish`
+
+- `publishingEnabled`
+
+- `priority`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSubscriptionRequest
     data::NTuple{136, UInt8}
@@ -2245,7 +2535,6 @@ Fields:
 - `innerStatusCode`
 
 - `innerDiagnosticInfo`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DiagnosticInfo
@@ -2325,9 +2614,25 @@ function Base.setproperty!(x::Ptr{UA_DiagnosticInfo}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `timestamp`
+
+- `requestHandle`
+
+- `serviceResult`
+
+- `serviceDiagnostics`
+
+- `stringTableSize`
+
+- `stringTable`
+
+- `additionalHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ResponseHeader
     data::NTuple{136, UInt8}
@@ -2365,9 +2670,21 @@ function Base.setproperty!(x::Ptr{UA_ResponseHeader}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `subscriptionId`
+
+- `revisedPublishingInterval`
+
+- `revisedLifetimeCount`
+
+- `revisedMaxKeepAliveCount`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSubscriptionResponse
     data::NTuple{160, UInt8}
@@ -2424,9 +2741,25 @@ function UA_Client_Subscriptions_create_async(
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `requestedPublishingInterval`
+
+- `requestedLifetimeCount`
+
+- `requestedMaxKeepAliveCount`
+
+- `maxNotificationsPerPublish`
+
+- `priority`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifySubscriptionRequest
     data::NTuple{144, UInt8}
@@ -2466,9 +2799,19 @@ function Base.setproperty!(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `revisedPublishingInterval`
+
+- `revisedLifetimeCount`
+
+- `revisedMaxKeepAliveCount`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifySubscriptionResponse
     data::NTuple{152, UInt8}
@@ -2516,9 +2859,17 @@ function UA_Client_Subscriptions_modify_async(
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionIdsSize`
+
+- `subscriptionIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteSubscriptionsRequest
     data::NTuple{128, UInt8}
@@ -2550,9 +2901,21 @@ function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteSubscriptionsResponse
     data::NTuple{168, UInt8}
@@ -2620,9 +2983,21 @@ const UA_Client_EventNotificationCallback = Ptr{Cvoid}
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `clientHandle`
+
+- `samplingInterval`
+
+- `filter`
+
+- `queueSize`
+
+- `discardOldest`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoringParameters
     data::NTuple{72, UInt8}
@@ -2656,9 +3031,17 @@ function Base.setproperty!(x::Ptr{UA_MonitoringParameters}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `itemToMonitor`
+
+- `monitoringMode`
+
+- `requestedParameters`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemCreateRequest
     data::NTuple{152, UInt8}
@@ -2690,9 +3073,21 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `timestampsToReturn`
+
+- `itemsToCreateSize`
+
+- `itemsToCreate`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateMonitoredItemsRequest
     data::NTuple{136, UInt8}
@@ -2728,9 +3123,21 @@ function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `monitoredItemId`
+
+- `revisedSamplingInterval`
+
+- `revisedQueueSize`
+
+- `filterResult`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemCreateResult
     data::NTuple{72, UInt8}
@@ -2766,9 +3173,21 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateMonitoredItemsResponse
     data::NTuple{168, UInt8}
@@ -2864,9 +3283,19 @@ function UA_Client_MonitoredItems_createEvent(
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `monitoredItemIdsSize`
+
+- `monitoredItemIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteMonitoredItemsRequest
     data::NTuple{136, UInt8}
@@ -2899,9 +3328,21 @@ function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteMonitoredItemsResponse
     data::NTuple{168, UInt8}
@@ -2954,9 +3395,15 @@ function UA_Client_MonitoredItems_deleteSingle(client, subscriptionId, monitored
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `monitoredItemId`
+
+- `requestedParameters`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemModifyRequest
     data::NTuple{80, UInt8}
@@ -2987,9 +3434,21 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `timestampsToReturn`
+
+- `itemsToModifySize`
+
+- `itemsToModify`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifyMonitoredItemsRequest
     data::NTuple{136, UInt8}
@@ -3025,9 +3484,19 @@ function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `revisedSamplingInterval`
+
+- `revisedQueueSize`
+
+- `filterResult`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemModifyResult
     data::NTuple{72, UInt8}
@@ -3060,9 +3529,21 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifyMonitoredItemsResponse
     data::NTuple{168, UInt8}
@@ -3282,6 +3763,39 @@ function Base.setproperty!(x::Ptr{UA_AccessControl}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `context`
+
+- `clear`
+
+- `newNode`
+
+- `deleteNode`
+
+- `getNode`
+
+- `getNodeFromPtr`
+
+- `releaseNode`
+
+- `getNodeCopy`
+
+- `insertNode`
+
+- `replaceNode`
+
+- `removeNode`
+
+- `getReferenceTypeId`
+
+- `iterate`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_Nodestore
     context::Ptr{Cvoid}
     clear::Ptr{Cvoid}
@@ -3642,9 +4156,19 @@ function __UA_Server_read(server, nodeId, attributeId, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `attributeId`
+
+- `indexRange`
+
+- `value`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteValue
     data::NTuple{128, UInt8}
@@ -3692,9 +4216,23 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `browseDirection`
+
+- `referenceTypeId`
+
+- `includeSubtypes`
+
+- `nodeClassMask`
+
+- `resultMask`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseDescription
     data::NTuple{72, UInt8}
@@ -3731,9 +4269,25 @@ function Base.setproperty!(x::Ptr{UA_BrowseDescription}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `referenceTypeId`
+
+- `isForward`
+
+- `nodeId`
+
+- `browseName`
+
+- `displayName`
+
+- `nodeClass`
+
+- `typeDefinition`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceDescription
     data::NTuple{192, UInt8}
@@ -3811,9 +4365,19 @@ function UA_Server_browseRecursive(server, bd, resultsSize, results)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `referenceTypeId`
+
+- `isInverse`
+
+- `includeSubtypes`
+
+- `targetName`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RelativePathElement
     data::NTuple{56, UInt8}
@@ -3865,9 +4429,15 @@ function Base.setproperty!(x::Ptr{UA_RelativePath}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `startingNode`
+
+- `relativePath`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowsePath
     data::NTuple{40, UInt8}
@@ -3894,9 +4464,15 @@ function Base.setproperty!(x::Ptr{UA_BrowsePath}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `targetId`
+
+- `remainingPathIndex`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowsePathTarget
     data::NTuple{56, UInt8}
@@ -3923,9 +4499,17 @@ function Base.setproperty!(x::Ptr{UA_BrowsePathTarget}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `targetsSize`
+
+- `targets`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowsePathResult
     statusCode::UA_StatusCode
@@ -3986,6 +4570,17 @@ function UA_Server_setAdminSessionContext(server, context)
         server::Ptr{UA_Server}, context::Ptr{Cvoid})::Cvoid
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `constructor`
+
+- `destructor`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeTypeLifecycle
     constructor::Ptr{Cvoid}
     destructor::Ptr{Cvoid}
@@ -4079,7 +4674,6 @@ Fields:
 - `backendType`
 
 - `backend`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ValueBackend
@@ -4138,9 +4732,19 @@ function UA_Server_getMethodNodeCallback(server, methodNodeId, outMethodCallback
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `objectId`
+
+- `methodId`
+
+- `inputArgumentsSize`
+
+- `inputArguments`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallMethodRequest
     data::NTuple{64, UInt8}
@@ -4236,9 +4840,39 @@ function __UA_Server_addNode(
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `specifiedAttributes`
+
+- `displayName`
+
+- `description`
+
+- `writeMask`
+
+- `userWriteMask`
+
+- `value`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `accessLevel`
+
+- `userAccessLevel`
+
+- `minimumSamplingInterval`
+
+- `historizing`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableAttributes
     data::NTuple{200, UInt8}
@@ -4329,9 +4963,23 @@ function Base.setproperty!(x::Ptr{UA_MethodAttributes}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `description`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_Argument
     data::NTuple{96, UInt8}
@@ -4483,7 +5131,6 @@ $(TYPEDEF)
 Fields:
 
 - `callMethodRequest`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AsyncOperationRequest
@@ -4516,7 +5163,6 @@ $(TYPEDEF)
 Fields:
 
 - `callMethodResult`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AsyncOperationResponse
@@ -4709,9 +5355,21 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `byte`
+
+- `uint16`
+
+- `uint32`
+
+- `uint64`
+
+- `string`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublisherId
     data::NTuple{16, UInt8}
@@ -4741,9 +5399,29 @@ function Base.setproperty!(x::Ptr{UA_PublisherId}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `publisherIdType`
+
+- `publisherId`
+
+- `transportProfileUri`
+
+- `address`
+
+- `connectionProperties`
+
+- `connectionTransportSettings`
+
+- `eventLoop`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PubSubConnectionConfig
     data::NTuple{176, UInt8}
@@ -4816,9 +5494,27 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `description`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `maxStringLength`
+
+- `isOptional`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureField
     data::NTuple{104, UInt8}
@@ -4857,9 +5553,21 @@ function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `defaultEncodingId`
+
+- `baseDataType`
+
+- `structureType`
+
+- `fieldsSize`
+
+- `fields`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureDefinition
     data::NTuple{72, UInt8}
@@ -4893,9 +5601,17 @@ function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `dataTypeId`
+
+- `name`
+
+- `structureDefinition`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureDescription
     data::NTuple{120, UInt8}
@@ -4971,9 +5687,19 @@ function Base.setproperty!(x::Ptr{UA_EnumDefinition}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `dataTypeId`
+
+- `name`
+
+- `enumDefinition`
+
+- `builtInType`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_EnumDescription
     data::NTuple{72, UInt8}
@@ -5006,9 +5732,19 @@ function Base.setproperty!(x::Ptr{UA_EnumDescription}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `dataTypeId`
+
+- `name`
+
+- `baseDataType`
+
+- `builtInType`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SimpleTypeDescription
     data::NTuple{80, UInt8}
@@ -5065,9 +5801,35 @@ function Base.setproperty!(x::Ptr{UA_Guid}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `description`
+
+- `fieldFlags`
+
+- `builtInType`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `maxStringLength`
+
+- `dataSetFieldId`
+
+- `propertiesSize`
+
+- `properties`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldMetaData
     data::NTuple{144, UInt8}
@@ -5165,9 +5927,29 @@ function Base.setproperty!(x::Ptr{UA_DataSetMetaDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `publishedVariable`
+
+- `attributeId`
+
+- `samplingIntervalHint`
+
+- `deadbandType`
+
+- `deadbandValue`
+
+- `indexRange`
+
+- `substituteValue`
+
+- `metaDataPropertiesSize`
+
+- `metaDataProperties`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedVariableDataType
     data::NTuple{136, UInt8}
@@ -5220,9 +6002,15 @@ struct UA_PublishedDataItemsTemplateConfig
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `eventNotfier`
+
+- `filter`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventConfig
     data::NTuple{40, UInt8}
@@ -5249,9 +6037,21 @@ function Base.setproperty!(x::Ptr{UA_PublishedEventConfig}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `metaData`
+
+- `eventNotfier`
+
+- `selectedFieldsSize`
+
+- `selectedFields`
+
+- `filter`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventTemplateConfig
     data::NTuple{208, UInt8}
@@ -5310,9 +6110,17 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_47}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `publishedDataSetType`
+
+- `config`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedDataSetConfig
     data::NTuple{232, UInt8}
@@ -5404,9 +6212,23 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_34}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `configurationVersion`
+
+- `fieldNameAlias`
+
+- `promotedField`
+
+- `publishParameters`
+
+- `rtValueSource`
+
+- `maxStringLength`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetVariableConfig
     data::NTuple{192, UInt8}
@@ -5471,9 +6293,15 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_52}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `dataSetFieldType`
+
+- `field`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetFieldConfig
     data::NTuple{200, UInt8}
@@ -5556,9 +6384,39 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `writerGroupId`
+
+- `publishingInterval`
+
+- `keepAliveTime`
+
+- `priority`
+
+- `transportSettings`
+
+- `messageSettings`
+
+- `groupProperties`
+
+- `encodingMimeType`
+
+- `pubsubManagerCallback`
+
+- `maxEncapsulatedDataSetMessageCount`
+
+- `rtLevel`
+
+- `securityMode`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriterGroupConfig
     data::NTuple{208, UInt8}
@@ -5683,9 +6541,27 @@ end
 const UA_DataSetFieldContentMask = UA_UInt32
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `dataSetWriterId`
+
+- `dataSetFieldContentMask`
+
+- `keyFrameCount`
+
+- `messageSettings`
+
+- `transportSettings`
+
+- `dataSetName`
+
+- `dataSetWriterProperties`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetWriterConfig
     data::NTuple{160, UInt8}
@@ -5765,9 +6641,25 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `dataSetFieldId`
+
+- `receiverIndexRange`
+
+- `targetNodeId`
+
+- `attributeId`
+
+- `writeIndexRange`
+
+- `overrideValueHandling`
+
+- `overrideValue`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldTargetDataType
     data::NTuple{136, UInt8}
@@ -5805,9 +6697,21 @@ function Base.setproperty!(x::Ptr{UA_FieldTargetDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `targetVariable`
+
+- `externalDataValue`
+
+- `targetVariableContext`
+
+- `beforeWrite`
+
+- `afterWrite`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldTargetVariable
     data::NTuple{168, UInt8}
@@ -5889,9 +6793,37 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_38}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `publisherId`
+
+- `writerGroupId`
+
+- `dataSetWriterId`
+
+- `dataSetMetaData`
+
+- `dataSetFieldContentMask`
+
+- `messageReceiveTimeout`
+
+- `messageSettings`
+
+- `transportSettings`
+
+- `subscribedDataSetType`
+
+- `subscribedDataSet`
+
+- `linkedStandaloneSubscribedDataSetName`
+
+- `expectedEncoding`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetReaderConfig
     data::NTuple{384, UInt8}
@@ -5991,9 +6923,21 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_53}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `subscribedDataSetType`
+
+- `subscribedDataSet`
+
+- `dataSetMetaData`
+
+- `isConnected`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StandaloneSubscribedDataSetConfig
     data::NTuple{200, UInt8}
@@ -6043,9 +6987,23 @@ function UA_Server_removeStandaloneSubscribedDataSet(server, sds)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `rtLevel`
+
+- `groupProperties`
+
+- `encodingMimeType`
+
+- `transportSettings`
+
+- `securityMode`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReaderGroupConfig
     data::NTuple{104, UInt8}
@@ -6718,6 +7676,17 @@ struct UA_DecimalDataType
     value::UA_ByteString
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `dataTypeId`
+
+- `name`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_DataTypeDescription
     data::NTuple{48, UInt8}
 end
@@ -6753,9 +7722,15 @@ struct UA_PortableQualifiedName
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `namespaceUri`
+
+- `identifier`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PortableNodeId
     data::NTuple{40, UInt8}
@@ -6811,9 +7786,31 @@ struct UA_PublishedDataSetCustomSourceDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `dataSetWriterId`
+
+- `dataSetFieldContentMask`
+
+- `keyFrameCount`
+
+- `dataSetName`
+
+- `dataSetWriterPropertiesSize`
+
+- `dataSetWriterProperties`
+
+- `transportSettings`
+
+- `messageSettings`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetWriterDataType
     data::NTuple{160, UInt8}
@@ -7007,9 +8004,13 @@ struct UA_ReceiveQosPriorityDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `discoveryAddress`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramConnectionTransportDataType
     data::NTuple{48, UInt8}
@@ -7035,9 +8036,23 @@ function Base.setproperty!(x::Ptr{UA_DatagramConnectionTransportDataType}, f::Sy
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `discoveryAddress`
+
+- `discoveryAnnounceRate`
+
+- `discoveryMaxMessageSize`
+
+- `qosCategory`
+
+- `datagramQosSize`
+
+- `datagramQos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramConnectionTransport2DataType
     data::NTuple{88, UInt8}
@@ -7084,9 +8099,27 @@ struct UA_DatagramWriterGroupTransportDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `messageRepeatCount`
+
+- `messageRepeatDelay`
+
+- `address`
+
+- `qosCategory`
+
+- `datagramQosSize`
+
+- `datagramQos`
+
+- `discoveryAnnounceRate`
+
+- `topic`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramWriterGroupTransport2DataType
     data::NTuple{120, UInt8}
@@ -7125,9 +8158,21 @@ function Base.setproperty!(x::Ptr{UA_DatagramWriterGroupTransport2DataType}, f::
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `address`
+
+- `qosCategory`
+
+- `datagramQosSize`
+
+- `datagramQos`
+
+- `topic`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramDataSetReaderTransportDataType
     data::NTuple{96, UInt8}
@@ -7395,9 +8440,15 @@ const UA_EventNotifierType = UA_Byte
 const UA_AccessRestrictionType = UA_UInt16
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `roleId`
+
+- `permissions`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RolePermissionType
     data::NTuple{32, UInt8}
@@ -7424,9 +8475,17 @@ function Base.setproperty!(x::Ptr{UA_RolePermissionType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `referenceTypeId`
+
+- `isInverse`
+
+- `targetId`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceNode
     data::NTuple{80, UInt8}
@@ -7511,9 +8570,13 @@ const UA_IntegerId = UA_UInt32
 const UA_VersionTime = UA_ByteString
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ServiceFault
     data::NTuple{136, UInt8}
@@ -7568,9 +8631,23 @@ struct UA_SessionlessInvokeResponseType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `endpointUrl`
+
+- `localeIdsSize`
+
+- `localeIds`
+
+- `serverUrisSize`
+
+- `serverUris`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersRequest
     data::NTuple{160, UInt8}
@@ -7605,9 +8682,17 @@ function Base.setproperty!(x::Ptr{UA_FindServersRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `serversSize`
+
+- `servers`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersResponse
     data::NTuple{152, UInt8}
@@ -7637,9 +8722,21 @@ function Base.setproperty!(x::Ptr{UA_FindServersResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `startingRecordId`
+
+- `maxRecordsToReturn`
+
+- `serverCapabilityFilterSize`
+
+- `serverCapabilityFilter`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersOnNetworkRequest
     data::NTuple{136, UInt8}
@@ -7675,9 +8772,19 @@ function Base.setproperty!(x::Ptr{UA_FindServersOnNetworkRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `lastCounterResetTime`
+
+- `serversSize`
+
+- `servers`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersOnNetworkResponse
     data::NTuple{160, UInt8}
@@ -7712,9 +8819,23 @@ end
 const UA_ApplicationInstanceCertificate = UA_ByteString
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `endpointUrl`
+
+- `localeIdsSize`
+
+- `localeIds`
+
+- `profileUrisSize`
+
+- `profileUris`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_GetEndpointsRequest
     data::NTuple{160, UInt8}
@@ -7751,9 +8872,17 @@ function Base.setproperty!(x::Ptr{UA_GetEndpointsRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `endpointsSize`
+
+- `endpoints`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_GetEndpointsResponse
     data::NTuple{152, UInt8}
@@ -7803,9 +8932,15 @@ struct UA_RegisteredServer
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `server`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServerRequest
     data::NTuple{224, UInt8}
@@ -7832,9 +8967,13 @@ function Base.setproperty!(x::Ptr{UA_RegisterServerRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServerResponse
     data::NTuple{136, UInt8}
@@ -7871,9 +9010,19 @@ struct UA_MdnsDiscoveryConfiguration
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `server`
+
+- `discoveryConfigurationSize`
+
+- `discoveryConfiguration`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServer2Request
     data::NTuple{240, UInt8}
@@ -7906,9 +9055,21 @@ function Base.setproperty!(x::Ptr{UA_RegisterServer2Request}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `configurationResultsSize`
+
+- `configurationResults`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServer2Response
     data::NTuple{168, UInt8}
@@ -7973,9 +9134,23 @@ function Base.setproperty!(x::Ptr{UA_ChannelSecurityToken}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `clientProtocolVersion`
+
+- `requestType`
+
+- `securityMode`
+
+- `clientNonce`
+
+- `requestedLifetime`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_OpenSecureChannelRequest
     data::NTuple{152, UInt8}
@@ -8012,9 +9187,19 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `serverProtocolVersion`
+
+- `securityToken`
+
+- `serverNonce`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_OpenSecureChannelResponse
     data::NTuple{184, UInt8}
@@ -8047,9 +9232,13 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSecureChannelRequest
     data::NTuple{112, UInt8}
@@ -8075,9 +9264,13 @@ function Base.setproperty!(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSecureChannelResponse
     data::NTuple{136, UInt8}
@@ -8143,9 +9336,29 @@ function Base.setproperty!(x::Ptr{UA_SignatureData}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `clientDescription`
+
+- `serverUri`
+
+- `endpointUrl`
+
+- `sessionName`
+
+- `clientNonce`
+
+- `clientCertificate`
+
+- `requestedSessionTimeout`
+
+- `maxResponseMessageSize`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSessionRequest
     data::NTuple{328, UInt8}
@@ -8187,9 +9400,35 @@ function Base.setproperty!(x::Ptr{UA_CreateSessionRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `sessionId`
+
+- `authenticationToken`
+
+- `revisedSessionTimeout`
+
+- `serverNonce`
+
+- `serverCertificate`
+
+- `serverEndpointsSize`
+
+- `serverEndpoints`
+
+- `serverSoftwareCertificatesSize`
+
+- `serverSoftwareCertificates`
+
+- `serverSignature`
+
+- `maxRequestMessageSize`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSessionResponse
     data::NTuple{296, UInt8}
@@ -8338,9 +9577,27 @@ const UA_RsaEncryptedSecret = UA_ByteString
 const UA_EccEncryptedSecret = UA_ByteString
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `clientSignature`
+
+- `clientSoftwareCertificatesSize`
+
+- `clientSoftwareCertificates`
+
+- `localeIdsSize`
+
+- `localeIds`
+
+- `userIdentityToken`
+
+- `userTokenSignature`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ActivateSessionRequest
     data::NTuple{256, UInt8}
@@ -8382,9 +9639,23 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `serverNonce`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ActivateSessionResponse
     data::NTuple{184, UInt8}
@@ -8421,9 +9692,15 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `deleteSubscriptions`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSessionRequest
     data::NTuple{120, UInt8}
@@ -8452,9 +9729,13 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSessionResponse
     data::NTuple{136, UInt8}
@@ -8480,9 +9761,15 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `requestHandle`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CancelRequest
     data::NTuple{120, UInt8}
@@ -8509,9 +9796,15 @@ function Base.setproperty!(x::Ptr{UA_CancelRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `cancelCount`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CancelResponse
     data::NTuple{144, UInt8}
@@ -8631,9 +9924,33 @@ function Base.setproperty!(x::Ptr{UA_ObjectTypeAttributes}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `specifiedAttributes`
+
+- `displayName`
+
+- `description`
+
+- `writeMask`
+
+- `userWriteMask`
+
+- `value`
+
+- `dataType`
+
+- `valueRank`
+
+- `arrayDimensionsSize`
+
+- `arrayDimensions`
+
+- `isAbstract`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableTypeAttributes
     data::NTuple{184, UInt8}
@@ -8705,6 +10022,25 @@ function Base.setproperty!(x::Ptr{UA_ReferenceTypeAttributes}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `specifiedAttributes`
+
+- `displayName`
+
+- `description`
+
+- `writeMask`
+
+- `userWriteMask`
+
+- `isAbstract`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_DataTypeAttributes
     specifiedAttributes::UA_UInt32
     displayName::UA_LocalizedText
@@ -8782,9 +10118,25 @@ struct UA_GenericAttributes
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `parentNodeId`
+
+- `referenceTypeId`
+
+- `requestedNewNodeId`
+
+- `browseName`
+
+- `nodeClass`
+
+- `nodeAttributes`
+
+- `typeDefinition`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesItem
     data::NTuple{248, UInt8}
@@ -8822,9 +10174,15 @@ function Base.setproperty!(x::Ptr{UA_AddNodesItem}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `addedNodeId`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesResult
     data::NTuple{32, UInt8}
@@ -8851,9 +10209,17 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `nodesToAddSize`
+
+- `nodesToAdd`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesRequest
     data::NTuple{128, UInt8}
@@ -8883,9 +10249,21 @@ function Base.setproperty!(x::Ptr{UA_AddNodesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesResponse
     data::NTuple{168, UInt8}
@@ -8919,9 +10297,23 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `sourceNodeId`
+
+- `referenceTypeId`
+
+- `isForward`
+
+- `targetServerUri`
+
+- `targetNodeId`
+
+- `targetNodeClass`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesItem
     data::NTuple{128, UInt8}
@@ -8958,9 +10350,17 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesItem}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `referencesToAddSize`
+
+- `referencesToAdd`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesRequest
     data::NTuple{128, UInt8}
@@ -8992,9 +10392,21 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesResponse
     data::NTuple{168, UInt8}
@@ -9028,9 +10440,15 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `deleteTargetReferences`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesItem
     data::NTuple{32, UInt8}
@@ -9057,9 +10475,17 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesItem}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `nodesToDeleteSize`
+
+- `nodesToDelete`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesRequest
     data::NTuple{128, UInt8}
@@ -9091,9 +10517,21 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesResponse
     data::NTuple{168, UInt8}
@@ -9127,9 +10565,21 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `sourceNodeId`
+
+- `referenceTypeId`
+
+- `isForward`
+
+- `targetNodeId`
+
+- `deleteBidirectional`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesItem
     data::NTuple{112, UInt8}
@@ -9163,9 +10613,17 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesItem}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `referencesToDeleteSize`
+
+- `referencesToDelete`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesRequest
     data::NTuple{128, UInt8}
@@ -9197,9 +10655,21 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesResponse
     data::NTuple{168, UInt8}
@@ -9234,9 +10704,17 @@ end
 const UA_AttributeWriteMask = UA_UInt32
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `viewId`
+
+- `timestamp`
+
+- `viewVersion`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ViewDescription
     data::NTuple{40, UInt8}
@@ -9280,9 +10758,21 @@ end
 const UA_ContinuationPoint = UA_ByteString
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `view`
+
+- `requestedMaxReferencesPerNode`
+
+- `nodesToBrowseSize`
+
+- `nodesToBrowse`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseRequest
     data::NTuple{176, UInt8}
@@ -9318,9 +10808,21 @@ function Base.setproperty!(x::Ptr{UA_BrowseRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseResponse
     data::NTuple{168, UInt8}
@@ -9354,9 +10856,19 @@ function Base.setproperty!(x::Ptr{UA_BrowseResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `releaseContinuationPoints`
+
+- `continuationPointsSize`
+
+- `continuationPoints`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseNextRequest
     data::NTuple{136, UInt8}
@@ -9391,9 +10903,21 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseNextResponse
     data::NTuple{168, UInt8}
@@ -9427,9 +10951,17 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `browsePathsSize`
+
+- `browsePaths`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TranslateBrowsePathsToNodeIdsRequest
     data::NTuple{128, UInt8}
@@ -9461,9 +10993,21 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::S
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TranslateBrowsePathsToNodeIdsResponse
     data::NTuple{168, UInt8}
@@ -9497,9 +11041,17 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `nodesToRegisterSize`
+
+- `nodesToRegister`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterNodesRequest
     data::NTuple{128, UInt8}
@@ -9531,9 +11083,17 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `registeredNodeIdsSize`
+
+- `registeredNodeIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterNodesResponse
     data::NTuple{152, UInt8}
@@ -9565,9 +11125,17 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `nodesToUnregisterSize`
+
+- `nodesToUnregister`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UnregisterNodesRequest
     data::NTuple{128, UInt8}
@@ -9599,9 +11167,13 @@ function Base.setproperty!(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UnregisterNodesResponse
     data::NTuple{136, UInt8}
@@ -9657,6 +11229,21 @@ struct UA_QueryDataDescription
     indexRange::UA_String
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `typeDefinitionNode`
+
+- `includeSubTypes`
+
+- `dataToReturnSize`
+
+- `dataToReturn`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeTypeDescription
     data::NTuple{72, UInt8}
 end
@@ -9688,9 +11275,19 @@ function Base.setproperty!(x::Ptr{UA_NodeTypeDescription}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `typeDefinitionNode`
+
+- `valuesSize`
+
+- `values`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryDataSet
     data::NTuple{112, UInt8}
@@ -9722,6 +11319,23 @@ function Base.setproperty!(x::Ptr{UA_QueryDataSet}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `nodeId`
+
+- `referenceTypeId`
+
+- `isForward`
+
+- `referencedNodeIdsSize`
+
+- `referencedNodeIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeReference
     data::NTuple{72, UInt8}
 end
@@ -9788,9 +11402,21 @@ function Base.setproperty!(x::Ptr{UA_LiteralOperand}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `alias`
+
+- `browsePath`
+
+- `attributeId`
+
+- `indexRange`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AttributeOperand
     data::NTuple{80, UInt8}
@@ -9885,9 +11511,25 @@ struct UA_ParsingResult
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `view`
+
+- `nodeTypesSize`
+
+- `nodeTypes`
+
+- `filter`
+
+- `maxDataSetsToReturn`
+
+- `maxReferencesToReturn`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryFirstRequest
     data::NTuple{192, UInt8}
@@ -9925,9 +11567,29 @@ function Base.setproperty!(x::Ptr{UA_QueryFirstRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `queryDataSetsSize`
+
+- `queryDataSets`
+
+- `continuationPoint`
+
+- `parsingResultsSize`
+
+- `parsingResults`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+
+- `filterResult`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryFirstResponse
     data::NTuple{232, UInt8}
@@ -9969,9 +11631,17 @@ function Base.setproperty!(x::Ptr{UA_QueryFirstResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `releaseContinuationPoint`
+
+- `continuationPoint`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryNextRequest
     data::NTuple{136, UInt8}
@@ -10003,9 +11673,19 @@ function Base.setproperty!(x::Ptr{UA_QueryNextRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `queryDataSetsSize`
+
+- `queryDataSets`
+
+- `revisedContinuationPoint`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryNextResponse
     data::NTuple{168, UInt8}
@@ -10038,9 +11718,21 @@ function Base.setproperty!(x::Ptr{UA_QueryNextResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `maxAge`
+
+- `timestampsToReturn`
+
+- `nodesToReadSize`
+
+- `nodesToRead`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadRequest
     data::NTuple{144, UInt8}
@@ -10074,9 +11766,21 @@ function Base.setproperty!(x::Ptr{UA_ReadRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadResponse
     data::NTuple{168, UInt8}
@@ -10110,9 +11814,19 @@ function Base.setproperty!(x::Ptr{UA_ReadResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `indexRange`
+
+- `dataEncoding`
+
+- `continuationPoint`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadValueId
     data::NTuple{80, UInt8}
@@ -10145,9 +11859,17 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadValueId}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `continuationPoint`
+
+- `historyData`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadResult
     data::NTuple{72, UInt8}
@@ -10223,9 +11945,23 @@ struct UA_HistoryData
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `historyReadDetails`
+
+- `timestampsToReturn`
+
+- `releaseContinuationPoints`
+
+- `nodesToReadSize`
+
+- `nodesToRead`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadRequest
     data::NTuple{184, UInt8}
@@ -10262,9 +11998,21 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadResponse
     data::NTuple{168, UInt8}
@@ -10298,9 +12046,17 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `nodesToWriteSize`
+
+- `nodesToWrite`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteRequest
     data::NTuple{128, UInt8}
@@ -10332,9 +12088,21 @@ function Base.setproperty!(x::Ptr{UA_WriteRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteResponse
     data::NTuple{168, UInt8}
@@ -10368,9 +12136,13 @@ function Base.setproperty!(x::Ptr{UA_WriteResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateDetails
     data::NTuple{24, UInt8}
@@ -10412,9 +12184,19 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `performInsertReplace`
+
+- `updateValuesSize`
+
+- `updateValues`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateDataDetails
     data::NTuple{48, UInt8}
@@ -10447,9 +12229,19 @@ function Base.setproperty!(x::Ptr{UA_UpdateDataDetails}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `performInsertReplace`
+
+- `updateValuesSize`
+
+- `updateValues`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateStructureDataDetails
     data::NTuple{48, UInt8}
@@ -10482,9 +12274,19 @@ function Base.setproperty!(x::Ptr{UA_UpdateStructureDataDetails}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `isDeleteModified`
+
+- `startTime`
+
+- `endTime`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteRawModifiedDetails
     data::NTuple{48, UInt8}
@@ -10517,9 +12319,17 @@ function Base.setproperty!(x::Ptr{UA_DeleteRawModifiedDetails}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `reqTimesSize`
+
+- `reqTimes`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteAtTimeDetails
     data::NTuple{40, UInt8}
@@ -10547,9 +12357,17 @@ function Base.setproperty!(x::Ptr{UA_DeleteAtTimeDetails}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `eventIdsSize`
+
+- `eventIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteEventDetails
     data::NTuple{40, UInt8}
@@ -10590,9 +12408,17 @@ struct UA_HistoryUpdateResult
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `historyUpdateDetailsSize`
+
+- `historyUpdateDetails`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateRequest
     data::NTuple{128, UInt8}
@@ -10624,9 +12450,21 @@ function Base.setproperty!(x::Ptr{UA_HistoryUpdateRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateResponse
     data::NTuple{168, UInt8}
@@ -10660,9 +12498,17 @@ function Base.setproperty!(x::Ptr{UA_HistoryUpdateResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `methodsToCallSize`
+
+- `methodsToCall`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallRequest
     data::NTuple{128, UInt8}
@@ -10694,9 +12540,21 @@ function Base.setproperty!(x::Ptr{UA_CallRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallResponse
     data::NTuple{168, UInt8}
@@ -10790,9 +12648,19 @@ function Base.setproperty!(x::Ptr{UA_AggregateConfiguration}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `startTime`
+
+- `aggregateType`
+
+- `processingInterval`
+
+- `aggregateConfiguration`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AggregateFilter
     data::NTuple{48, UInt8}
@@ -10850,9 +12718,17 @@ function Base.setproperty!(x::Ptr{UA_EventFilterResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `revisedStartTime`
+
+- `revisedProcessingInterval`
+
+- `revisedAggregateConfiguration`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AggregateFilterResult
     revisedStartTime::UA_DateTime
@@ -10861,9 +12737,21 @@ struct UA_AggregateFilterResult
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `monitoringMode`
+
+- `monitoredItemIdsSize`
+
+- `monitoredItemIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetMonitoringModeRequest
     data::NTuple{136, UInt8}
@@ -10899,9 +12787,21 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetMonitoringModeResponse
     data::NTuple{168, UInt8}
@@ -10935,9 +12835,25 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `triggeringItemId`
+
+- `linksToAddSize`
+
+- `linksToAdd`
+
+- `linksToRemoveSize`
+
+- `linksToRemove`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetTriggeringRequest
     data::NTuple{152, UInt8}
@@ -10975,9 +12891,29 @@ function Base.setproperty!(x::Ptr{UA_SetTriggeringRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `addResultsSize`
+
+- `addResults`
+
+- `addDiagnosticInfosSize`
+
+- `addDiagnosticInfos`
+
+- `removeResultsSize`
+
+- `removeResults`
+
+- `removeDiagnosticInfosSize`
+
+- `removeDiagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetTriggeringResponse
     data::NTuple{200, UInt8}
@@ -11019,9 +12955,19 @@ function Base.setproperty!(x::Ptr{UA_SetTriggeringResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `publishingEnabled`
+
+- `subscriptionIdsSize`
+
+- `subscriptionIds`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetPublishingModeRequest
     data::NTuple{136, UInt8}
@@ -11054,9 +13000,21 @@ function Base.setproperty!(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetPublishingModeResponse
     data::NTuple{168, UInt8}
@@ -11113,9 +13071,15 @@ function Base.setproperty!(x::Ptr{UA_NotificationMessage}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `clientHandle`
+
+- `value`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemNotification
     data::NTuple{88, UInt8}
@@ -11173,9 +13137,15 @@ struct UA_HistoryEventFieldList
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `status`
+
+- `diagnosticInfo`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StatusChangeNotification
     data::NTuple{64, UInt8}
@@ -11221,9 +13191,17 @@ function Base.setproperty!(x::Ptr{UA_SubscriptionAcknowledgement}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionAcknowledgementsSize`
+
+- `subscriptionAcknowledgements`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishRequest
     data::NTuple{128, UInt8}
@@ -11256,9 +13234,31 @@ function Base.setproperty!(x::Ptr{UA_PublishRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `subscriptionId`
+
+- `availableSequenceNumbersSize`
+
+- `availableSequenceNumbers`
+
+- `moreNotifications`
+
+- `notificationMessage`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishResponse
     data::NTuple{232, UInt8}
@@ -11301,9 +13301,17 @@ function Base.setproperty!(x::Ptr{UA_PublishResponse}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionId`
+
+- `retransmitSequenceNumber`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RepublishRequest
     data::NTuple{120, UInt8}
@@ -11335,9 +13343,15 @@ function Base.setproperty!(x::Ptr{UA_RepublishRequest}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `notificationMessage`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RepublishResponse
     data::NTuple{168, UInt8}
@@ -11385,9 +13399,19 @@ function Base.setproperty!(x::Ptr{UA_TransferResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `requestHeader`
+
+- `subscriptionIdsSize`
+
+- `subscriptionIds`
+
+- `sendInitialValues`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TransferSubscriptionsRequest
     data::NTuple{136, UInt8}
@@ -11420,9 +13444,21 @@ function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol, v
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `responseHeader`
+
+- `resultsSize`
+
+- `results`
+
+- `diagnosticInfosSize`
+
+- `diagnosticInfos`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TransferSubscriptionsResponse
     data::NTuple{168, UInt8}
@@ -11588,9 +13624,31 @@ function Base.setproperty!(x::Ptr{UA_ServerStatusDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `sessionId`
+
+- `clientUserIdOfSession`
+
+- `clientUserIdHistorySize`
+
+- `clientUserIdHistory`
+
+- `authenticationMechanism`
+
+- `encoding`
+
+- `transportProtocol`
+
+- `securityMode`
+
+- `securityPolicyUri`
+
+- `clientCertificate`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SessionSecurityDiagnosticsDataType
     data::NTuple{144, UInt8}
@@ -11643,9 +13701,15 @@ struct UA_ServiceCounterDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `statusCode`
+
+- `diagnosticInfo`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StatusResult
     data::NTuple{64, UInt8}
@@ -11672,9 +13736,73 @@ function Base.setproperty!(x::Ptr{UA_StatusResult}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `sessionId`
+
+- `subscriptionId`
+
+- `priority`
+
+- `publishingInterval`
+
+- `maxKeepAliveCount`
+
+- `maxLifetimeCount`
+
+- `maxNotificationsPerPublish`
+
+- `publishingEnabled`
+
+- `modifyCount`
+
+- `enableCount`
+
+- `disableCount`
+
+- `republishRequestCount`
+
+- `republishMessageRequestCount`
+
+- `republishMessageCount`
+
+- `transferRequestCount`
+
+- `transferredToAltClientCount`
+
+- `transferredToSameClientCount`
+
+- `publishRequestCount`
+
+- `dataChangeNotificationsCount`
+
+- `eventNotificationsCount`
+
+- `notificationsCount`
+
+- `latePublishRequestCount`
+
+- `currentKeepAliveCount`
+
+- `currentLifetimeCount`
+
+- `unacknowledgedMessageCount`
+
+- `discardedMessageCount`
+
+- `monitoredItemCount`
+
+- `disabledMonitoredItemCount`
+
+- `monitoringQueueOverflowCount`
+
+- `nextSequenceNumber`
+
+- `eventQueueOverFlowCount`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SubscriptionDiagnosticsDataType
     data::NTuple{152, UInt8}
@@ -11759,9 +13887,17 @@ end
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `affected`
+
+- `affectedType`
+
+- `verb`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModelChangeStructureDataType
     data::NTuple{56, UInt8}
@@ -11791,9 +13927,15 @@ function Base.setproperty!(x::Ptr{UA_ModelChangeStructureDataType}, f::Symbol, v
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `affected`
+
+- `affectedType`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SemanticChangeStructureDataType
     data::NTuple{48, UInt8}
@@ -11955,9 +14097,35 @@ function Base.setproperty!(x::Ptr{UA_XVType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `createSessionId`
+
+- `createClientName`
+
+- `invocationCreationTime`
+
+- `lastTransitionTime`
+
+- `lastMethodCall`
+
+- `lastMethodSessionId`
+
+- `lastMethodInputArgumentsSize`
+
+- `lastMethodInputArguments`
+
+- `lastMethodOutputArgumentsSize`
+
+- `lastMethodOutputArguments`
+
+- `lastMethodCallTime`
+
+- `lastMethodReturnStatus`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ProgramDiagnosticDataType
     data::NTuple{200, UInt8}
@@ -12004,9 +14172,43 @@ function Base.setproperty!(x::Ptr{UA_ProgramDiagnosticDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `createSessionId`
+
+- `createClientName`
+
+- `invocationCreationTime`
+
+- `lastTransitionTime`
+
+- `lastMethodCall`
+
+- `lastMethodSessionId`
+
+- `lastMethodInputArgumentsSize`
+
+- `lastMethodInputArguments`
+
+- `lastMethodOutputArgumentsSize`
+
+- `lastMethodOutputArguments`
+
+- `lastMethodInputValuesSize`
+
+- `lastMethodInputValues`
+
+- `lastMethodOutputValuesSize`
+
+- `lastMethodOutputValues`
+
+- `lastMethodCallTime`
+
+- `lastMethodReturnStatus`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ProgramDiagnostic2DataType
     data::NTuple{176, UInt8}
@@ -12093,9 +14295,19 @@ struct UA_EndpointType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `eventNotifier`
+
+- `selectedFieldsSize`
+
+- `selectedFields`
+
+- `filter`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventsDataType
     data::NTuple{56, UInt8}
@@ -12145,9 +14357,51 @@ struct UA_PubSubGroupDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `securityMode`
+
+- `securityGroupId`
+
+- `securityKeyServicesSize`
+
+- `securityKeyServices`
+
+- `maxNetworkMessageSize`
+
+- `groupPropertiesSize`
+
+- `groupProperties`
+
+- `writerGroupId`
+
+- `publishingInterval`
+
+- `keepAliveTime`
+
+- `priority`
+
+- `localeIdsSize`
+
+- `localeIds`
+
+- `headerLayoutUri`
+
+- `transportSettings`
+
+- `messageSettings`
+
+- `dataSetWritersSize`
+
+- `dataSetWriters`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriterGroupDataType
     data::NTuple{256, UInt8}
@@ -12314,9 +14568,21 @@ struct UA_HistoryEvent
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `nodeId`
+
+- `performInsertReplace`
+
+- `filter`
+
+- `eventDataSize`
+
+- `eventData`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateEventDetails
     data::NTuple{80, UInt8}
@@ -12392,9 +14658,99 @@ function Base.setproperty!(x::Ptr{UA_EventNotificationList}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `sessionId`
+
+- `sessionName`
+
+- `clientDescription`
+
+- `serverUri`
+
+- `endpointUrl`
+
+- `localeIdsSize`
+
+- `localeIds`
+
+- `actualSessionTimeout`
+
+- `maxResponseMessageSize`
+
+- `clientConnectionTime`
+
+- `clientLastContactTime`
+
+- `currentSubscriptionsCount`
+
+- `currentMonitoredItemsCount`
+
+- `currentPublishRequestsInQueue`
+
+- `totalRequestCount`
+
+- `unauthorizedRequestCount`
+
+- `readCount`
+
+- `historyReadCount`
+
+- `writeCount`
+
+- `historyUpdateCount`
+
+- `callCount`
+
+- `createMonitoredItemsCount`
+
+- `modifyMonitoredItemsCount`
+
+- `setMonitoringModeCount`
+
+- `setTriggeringCount`
+
+- `deleteMonitoredItemsCount`
+
+- `createSubscriptionCount`
+
+- `modifySubscriptionCount`
+
+- `setPublishingModeCount`
+
+- `publishCount`
+
+- `republishCount`
+
+- `transferSubscriptionsCount`
+
+- `deleteSubscriptionsCount`
+
+- `addNodesCount`
+
+- `addReferencesCount`
+
+- `deleteNodesCount`
+
+- `deleteReferencesCount`
+
+- `browseCount`
+
+- `browseNextCount`
+
+- `translateBrowsePathsToNodeIdsCount`
+
+- `queryFirstCount`
+
+- `queryNextCount`
+
+- `registerNodesCount`
+
+- `unregisterNodesCount`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SessionDiagnosticsDataType
     data::NTuple{488, UInt8}
@@ -12512,9 +14868,25 @@ struct UA_UABinaryFileDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `dataSetFolderSize`
+
+- `dataSetFolder`
+
+- `dataSetMetaData`
+
+- `extensionFieldsSize`
+
+- `extensionFields`
+
+- `dataSetSource`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedDataSetDataType
     data::NTuple{248, UInt8}
@@ -12552,9 +14924,49 @@ function Base.setproperty!(x::Ptr{UA_PublishedDataSetDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `publisherId`
+
+- `writerGroupId`
+
+- `dataSetWriterId`
+
+- `dataSetMetaData`
+
+- `dataSetFieldContentMask`
+
+- `messageReceiveTimeout`
+
+- `keyFrameCount`
+
+- `headerLayoutUri`
+
+- `securityMode`
+
+- `securityGroupId`
+
+- `securityKeyServicesSize`
+
+- `securityKeyServices`
+
+- `dataSetReaderPropertiesSize`
+
+- `dataSetReaderProperties`
+
+- `transportSettings`
+
+- `messageSettings`
+
+- `subscribedDataSet`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetReaderDataType
     data::NTuple{472, UInt8}
@@ -12620,9 +15032,21 @@ struct UA_TargetVariablesDataType
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `dataSetFolderSize`
+
+- `dataSetFolder`
+
+- `dataSetMetaData`
+
+- `subscribedDataSet`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StandaloneSubscribedDataSetDataType
     data::NTuple{232, UInt8}
@@ -12655,6 +15079,29 @@ function Base.setproperty!(x::Ptr{UA_StandaloneSubscribedDataSetDataType}, f::Sy
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `namespacesSize`
+
+- `namespaces`
+
+- `structureDataTypesSize`
+
+- `structureDataTypes`
+
+- `enumDataTypesSize`
+
+- `enumDataTypes`
+
+- `simpleDataTypesSize`
+
+- `simpleDataTypes`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_DataTypeSchemaHeader
     namespacesSize::Csize_t
     namespaces::Ptr{UA_String}
@@ -12667,9 +15114,37 @@ struct UA_DataTypeSchemaHeader
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `securityMode`
+
+- `securityGroupId`
+
+- `securityKeyServicesSize`
+
+- `securityKeyServices`
+
+- `maxNetworkMessageSize`
+
+- `groupPropertiesSize`
+
+- `groupProperties`
+
+- `transportSettings`
+
+- `messageSettings`
+
+- `dataSetReadersSize`
+
+- `dataSetReaders`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReaderGroupDataType
     data::NTuple{192, UInt8}
@@ -12717,9 +15192,35 @@ function Base.setproperty!(x::Ptr{UA_ReaderGroupDataType}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `name`
+
+- `enabled`
+
+- `publisherId`
+
+- `transportProfileUri`
+
+- `address`
+
+- `connectionPropertiesSize`
+
+- `connectionProperties`
+
+- `transportSettings`
+
+- `writerGroupsSize`
+
+- `writerGroups`
+
+- `readerGroupsSize`
+
+- `readerGroups`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PubSubConnectionDataType
     data::NTuple{232, UInt8}
@@ -13110,6 +15611,23 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_48}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `targets`
+
+- `targetsSize`
+
+- `hasRefTree`
+
+- `referenceTypeIndex`
+
+- `isInverse`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeReferenceKind
     data::NTuple{32, UInt8}
 end
@@ -13141,6 +15659,35 @@ function Base.setproperty!(x::Ptr{UA_NodeReferenceKind}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `nodeId`
+
+- `nodeClass`
+
+- `browseName`
+
+- `displayName`
+
+- `description`
+
+- `writeMask`
+
+- `referencesSize`
+
+- `references`
+
+- `context`
+
+- `constructed`
+
+- `monitoredItems`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_NodeHead
     data::NTuple{120, UInt8}
 end
@@ -13193,7 +15740,6 @@ Fields:
 - `expandedId`
 
 - `node`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodePointer
@@ -13257,9 +15803,15 @@ function UA_NodePointer_toNodeId(np)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `targetId`
+
+- `targetNameHash`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTarget
     data::NTuple{16, UInt8}
@@ -13308,9 +15860,19 @@ function Base.getproperty(x::__JL_Ctag_42, f::Symbol)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `target`
+
+- `targetIdHash`
+
+- `idTreeEntry`
+
+- `nameTreeEntry`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTargetTreeElem
     data::NTuple{56, UInt8}
@@ -13423,7 +15985,6 @@ Fields:
 - `historizing`
 
 - `isDynamic`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableNode
@@ -13517,7 +16078,6 @@ Fields:
 - `isAbstract`
 
 - `lifecycle`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableTypeNode
@@ -13559,9 +16119,19 @@ function Base.setproperty!(x::Ptr{UA_VariableTypeNode}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `head`
+
+- `executable`
+
+- `method`
+
+- `async`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MethodNode
     data::NTuple{144, UInt8}
@@ -13590,9 +16160,15 @@ function Base.setproperty!(x::Ptr{UA_MethodNode}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `head`
+
+- `eventNotifier`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ObjectNode
     data::NTuple{128, UInt8}
@@ -13619,9 +16195,17 @@ function Base.setproperty!(x::Ptr{UA_ObjectNode}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `head`
+
+- `isAbstract`
+
+- `lifecycle`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ObjectTypeNode
     data::NTuple{144, UInt8}
@@ -13649,9 +16233,23 @@ function Base.setproperty!(x::Ptr{UA_ObjectTypeNode}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `head`
+
+- `isAbstract`
+
+- `symmetric`
+
+- `inverseName`
+
+- `referenceTypeIndex`
+
+- `subTypes`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTypeNode
     data::NTuple{184, UInt8}
@@ -13685,6 +16283,17 @@ function Base.setproperty!(x::Ptr{UA_ReferenceTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+"""
+
+$(TYPEDEF)
+
+Fields:
+
+- `head`
+
+- `isAbstract`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+"""
 struct UA_DataTypeNode
     data::NTuple{128, UInt8}
 end
@@ -13710,9 +16319,17 @@ function Base.setproperty!(x::Ptr{UA_DataTypeNode}, f::Symbol, v)
 end
 
 """
+
 $(TYPEDEF)
+
 Fields:
-$(TYPEDFIELDS)
+
+- `head`
+
+- `eventNotifier`
+
+- `containsNoLoops`
+Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ViewNode
     data::NTuple{128, UInt8}
@@ -13762,7 +16379,6 @@ Fields:
 - `dataTypeNode`
 
 - `viewNode`
-
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_Node

@@ -211,9 +211,6 @@ f = open(fn, "w")
 write(f, data)
 close(f)
 
-#Bring back simple docstrings for structs
-include("docstrings_types.jl")
-
 #replace a specific function to make data handling more transparent
 fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
@@ -299,6 +296,9 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
     headers,
     TYPE_NAMES,
     JULIA_TYPES)
+
+#Bring back simple docstrings for structs
+include("docstrings_types.jl")
 
 # Now let's get the epilogue into the Open62541.jl filter
 # 1. Read original file content

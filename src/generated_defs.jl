@@ -7,7 +7,7 @@ const JULIA_TYPES = DataType[Bool, Int8, UInt8, Int16, UInt16, Int32, UInt32, In
 # Unique julia types
 const UNIQUE_JULIA_TYPES_IND = unique(i -> JULIA_TYPES[i], eachindex(JULIA_TYPES))
 
-    # Vector of types that are ambiguously defined via typedef and are not to be used as default type
+# Vector of types that are ambiguously defined via typedef and are not to be used as default type
 types_ambiguous_ignorelist = TYPE_NAMES[1:end .∉ [UNIQUE_JULIA_TYPES_IND]]
 
 # Vector of all inlined function names listed in the open62541 header files
