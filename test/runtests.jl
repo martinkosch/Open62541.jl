@@ -67,8 +67,12 @@ end
     include("server_add_nodes_highlevelinterface.jl")
 end
 
-@safetestset "Server Pubsub tests" begin
-    include("server_pubsub.jl")
+#PubSub tests run into networking issues on Github runners running Mac OS X. Only include
+#these tests when running locally or on Github runners that are non Mac OS X.
+if get(ENV, "GITHUB_ACTIONS", "false") == "false" || !Sys.isapple()
+    @safetestset "Server Pubsub tests" begin
+        include("server_pubsub.jl")
+    end
 end
 
 if MEMLEAK == true
