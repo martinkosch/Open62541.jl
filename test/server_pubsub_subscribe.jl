@@ -103,7 +103,7 @@ arr[4].builtInType = UA_NS0ID_BOOLEAN
 arr[4].name =  UA_STRING("BoolToggle")
 arr[4].valueRank = -1 # scalar
 
-retval5 = UA_Server_addDataSetReader(server, readerGroupIdentifier, readerConfig,
+retval6 = UA_Server_addDataSetReader(server, readerGroupIdentifier, readerConfig,
     readerIdentifier)
 @test retval6 == UA_STATUSCODE_GOOD
 
@@ -156,4 +156,4 @@ for i in 1:fieldSize
     UA_FieldTargetDataType_clear(targetVars[i].targetVariable)
 end
 
-Libc.free(targetVars)
+Libc.free(targetVars.ptr)
