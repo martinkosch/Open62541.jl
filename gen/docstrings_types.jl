@@ -15,13 +15,15 @@ unionstructnames = collect(String[m.captures[1] for m in eachmatch(r, data)])
 
 typenames = getfield.(collect(eachmatch(r"struct (\S*)\n", data)), :captures) #gets all typenames within Open62541.jl
 for type in typenames
-    if !any(startswith.(type[1], docstrings_types_ignore_keywords)) &&
-       !any(contains.(type[1], unionstructnames)) #standard docstring
-        global data = replace(
-            data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
-    elseif any(contains.(type[1], unionstructnames)) && !any(startswith.(type[1], docstrings_types_ignore_keywords))
+    if !any(startswith.(type[1], docstrings_types_ignore_keywords)) && !in(type[1], unionstructnames) #standard docstring
+        global data = replace(data, "struct $(type[1])\n" => "$standard_type_docstring\nstruct $(type[1])\n")
+    elseif in(type[1], unionstructnames) && !any(startswith.(type[1], docstrings_types_ignore_keywords))
         #import Open62541
-        t = join(fieldnames(getfield(Open62541, Symbol(type[1]))), "`\n\n- `")
+        rbits = Regex("struct $(type[1])\n[\\s]{1,50}?data::NTuple\\{([0-9]+), UInt8\\}\nend")
+        mbits = match(rbits, data)
+        nbits = parse(Int64, mbits.captures[1])
+        x = getfield(Open62541, Symbol(type[1]))(Tuple(zeros(UInt8, nbits)))
+        t = join(propertynames(x), "`\n\n- `")
         t = "\n\$(TYPEDEF)\n\nFields:\n\n- `"*t*"`\n"
         data = replace(data,
             "struct $(type[1])\n" => "\"\"\"\n$(t)\n$uniontype_warning\"\"\"\nstruct $(type[1])\n")

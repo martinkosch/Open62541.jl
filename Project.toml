@@ -1,7 +1,7 @@
 name = "Open62541"
 uuid = "e9b70463-8ccb-4e30-a2e2-0d1ec8db6536"
 authors = ["Martin Kosch <martin.kosch@gmail.com> and contributors"]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"

@@ -49,6 +49,11 @@ const UA_OPEN62541_VER_LABEL = ""
 const UA_OPEN62541_VER_COMMIT = __versionnumbertostring(open62541_version)
 const UA_OPEN62541_VERSION = __versionnumbertostring(open62541_version)
 
+#include various constants
+include("const_NS0ID.jl")
+include("const_statuscodes.jl")
+include("const_types.jl")
+
 mutable struct UA_Client end
 
 const UA_UInt64 = UInt64
@@ -162,9 +167,6 @@ struct __JL_Ctag_35
     data::NTuple{40, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_35}) = (:encoded, :decoded)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_35}}) = (:encoded, :decoded)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_35}, f::Symbol)
     f === :encoded && return Ptr{__JL_Ctag_36}(x + 0)
     f === :decoded && return Ptr{__JL_Ctag_37}(x + 0)
@@ -182,6 +184,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_35}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_35, private::Bool = false)
+    (:encoded, :decoded, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -191,14 +201,12 @@ Fields:
 - `encoding`
 
 - `content`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ExtensionObject
     data::NTuple{48, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ExtensionObject}) = (:encoding, :content)
-Base.fieldnames(::Type{Ptr{UA_ExtensionObject}}) = (:encoding, :content)
 
 function Base.getproperty(x::Ptr{UA_ExtensionObject}, f::Symbol)
     f === :encoding && return Ptr{UA_ExtensionObjectEncoding}(x + 0)
@@ -215,6 +223,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ExtensionObject}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ExtensionObject, private::Bool = false)
+    (:encoding, :content, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 @cenum UA_MessageSecurityMode::UInt32 begin
@@ -308,9 +324,6 @@ struct __JL_Ctag_43
     data::NTuple{16, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_43}) = (:numeric, :string, :guid, :byteString)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_43}}) = (:numeric, :string, :guid, :byteString)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_43}, f::Symbol)
     f === :numeric && return Ptr{UA_UInt32}(x + 0)
     f === :string && return Ptr{UA_String}(x + 0)
@@ -330,6 +343,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_43}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_43, private::Bool = false)
+    (:numeric, :string, :guid, :byteString, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -341,14 +362,12 @@ Fields:
 - `identifierType`
 
 - `identifier`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeId
     data::NTuple{24, UInt8}
 end
-
-Base.fieldnames(::Type{UA_NodeId}) = (:namespaceIndex, :identifierType, :identifier)
-Base.fieldnames(::Type{Ptr{UA_NodeId}}) = (:namespaceIndex, :identifierType, :identifier)
 
 function Base.getproperty(x::Ptr{UA_NodeId}, f::Symbol)
     f === :namespaceIndex && return Ptr{UA_UInt16}(x + 0)
@@ -368,6 +387,14 @@ function Base.setproperty!(x::Ptr{UA_NodeId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_NodeId, private::Bool = false)
+    (:namespaceIndex, :identifierType, :identifier, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -383,17 +410,11 @@ Fields:
 - `isArray`
 
 - `isOptional`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataTypeMember
     data::NTuple{24, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataTypeMember})
-    (:memberName, :memberType, :padding, :isArray, :isOptional)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataTypeMember}})
-    (:memberName, :memberType, :padding, :isArray, :isOptional)
 end
 
 function Base.getproperty(x::Ptr{UA_DataTypeMember}, f::Symbol)
@@ -448,6 +469,15 @@ function Base.setproperty!(x::Ptr{UA_DataTypeMember}, f::Symbol, v)
     end
 end
 
+function Base.propertynames(x::UA_DataTypeMember, private::Bool = false)
+    (:memberName, :memberType, :padding, :isArray,
+        :isOptional, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -471,19 +501,11 @@ Fields:
 - `membersSize`
 
 - `members`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataType
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataType})
-    (:typeName, :typeId, :binaryEncodingId, :memSize, :typeKind,
-        :pointerFree, :overlayable, :membersSize, :members)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataType}})
-    (:typeName, :typeId, :binaryEncodingId, :memSize, :typeKind,
-        :pointerFree, :overlayable, :membersSize, :members)
 end
 
 function Base.getproperty(x::Ptr{UA_DataType}, f::Symbol)
@@ -542,20 +564,19 @@ function Base.setproperty!(x::Ptr{UA_DataType}, f::Symbol, v)
     end
 end
 
+function Base.propertynames(x::UA_DataType, private::Bool = false)
+    (:typeName, :typeId, :binaryEncodingId, :memSize, :typeKind, :pointerFree,
+        :overlayable, :membersSize, :members, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `next`
-
-- `typesSize`
-
-- `types`
-
-- `cleanup`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_DataTypeArray
     next::Ptr{UA_DataTypeArray}
@@ -741,19 +762,11 @@ Fields:
 - `getLocalKeyLength`
 
 - `getRemoteKeyLength`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicySignatureAlgorithm
     data::NTuple{64, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicySignatureAlgorithm})
-    (:uri, :verify, :sign, :getLocalSignatureSize,
-        :getRemoteSignatureSize, :getLocalKeyLength, :getRemoteKeyLength)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicySignatureAlgorithm}})
-    (:uri, :verify, :sign, :getLocalSignatureSize,
-        :getRemoteSignatureSize, :getLocalKeyLength, :getRemoteKeyLength)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicySignatureAlgorithm}, f::Symbol)
@@ -778,6 +791,15 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicySignatureAlgorithm}, f::Symbo
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SecurityPolicySignatureAlgorithm, private::Bool = false)
+    (:uri, :verify, :sign, :getLocalSignatureSize, :getRemoteSignatureSize,
+        :getLocalKeyLength, :getRemoteKeyLength, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -797,19 +819,11 @@ Fields:
 - `getRemoteBlockSize`
 
 - `getRemotePlainTextBlockSize`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyEncryptionAlgorithm
     data::NTuple{64, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicyEncryptionAlgorithm})
-    (:uri, :encrypt, :decrypt, :getLocalKeyLength, :getRemoteKeyLength,
-        :getRemoteBlockSize, :getRemotePlainTextBlockSize)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicyEncryptionAlgorithm}})
-    (:uri, :encrypt, :decrypt, :getLocalKeyLength, :getRemoteKeyLength,
-        :getRemoteBlockSize, :getRemotePlainTextBlockSize)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicyEncryptionAlgorithm}, f::Symbol)
@@ -834,6 +848,16 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyEncryptionAlgorithm}, f::Symb
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SecurityPolicyEncryptionAlgorithm, private::Bool = false)
+    (:uri, :encrypt, :decrypt, :getLocalKeyLength,
+        :getRemoteKeyLength, :getRemoteBlockSize,
+        :getRemotePlainTextBlockSize, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -843,17 +867,11 @@ Fields:
 - `signatureAlgorithm`
 
 - `encryptionAlgorithm`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyCryptoModule
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicyCryptoModule})
-    (:signatureAlgorithm, :encryptionAlgorithm)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicyCryptoModule}})
-    (:signatureAlgorithm, :encryptionAlgorithm)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicyCryptoModule}, f::Symbol)
@@ -873,6 +891,14 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyCryptoModule}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SecurityPolicyCryptoModule, private::Bool = false)
+    (:signatureAlgorithm, :encryptionAlgorithm, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -884,17 +910,11 @@ Fields:
 - `compareCertificateThumbprint`
 
 - `cryptoModule`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyAsymmetricModule
     data::NTuple{144, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicyAsymmetricModule})
-    (:makeCertificateThumbprint, :compareCertificateThumbprint, :cryptoModule)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicyAsymmetricModule}})
-    (:makeCertificateThumbprint, :compareCertificateThumbprint, :cryptoModule)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicyAsymmetricModule}, f::Symbol)
@@ -915,6 +935,15 @@ function Base.setproperty!(x::Ptr{UA_SecurityPolicyAsymmetricModule}, f::Symbol,
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SecurityPolicyAsymmetricModule, private::Bool = false)
+    (:makeCertificateThumbprint, :compareCertificateThumbprint,
+        :cryptoModule, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -928,17 +957,11 @@ Fields:
 - `secureChannelNonceLength`
 
 - `cryptoModule`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicySymmetricModule
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicySymmetricModule})
-    (:generateKey, :generateNonce, :secureChannelNonceLength, :cryptoModule)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicySymmetricModule}})
-    (:generateKey, :generateNonce, :secureChannelNonceLength, :cryptoModule)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicySymmetricModule}, f::Symbol)
@@ -958,6 +981,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SecurityPolicySymmetricModule}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SecurityPolicySymmetricModule, private::Bool = false)
+    (:generateKey, :generateNonce, :secureChannelNonceLength,
+        :cryptoModule, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -983,21 +1015,11 @@ Fields:
 - `setRemoteSymIv`
 
 - `compareCertificate`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicyChannelModule
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicyChannelModule})
-    (:newContext, :deleteContext, :setLocalSymEncryptingKey,
-        :setLocalSymSigningKey, :setLocalSymIv, :setRemoteSymEncryptingKey,
-        :setRemoteSymSigningKey, :setRemoteSymIv, :compareCertificate)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicyChannelModule}})
-    (:newContext, :deleteContext, :setLocalSymEncryptingKey,
-        :setLocalSymSigningKey, :setLocalSymIv, :setRemoteSymEncryptingKey,
-        :setRemoteSymSigningKey, :setRemoteSymIv, :compareCertificate)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicyChannelModule}, f::Symbol)
@@ -1022,6 +1044,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SecurityPolicyChannelModule}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SecurityPolicyChannelModule, private::Bool = false)
+    (:newContext, :deleteContext, :setLocalSymEncryptingKey, :setLocalSymSigningKey,
+        :setLocalSymIv, :setRemoteSymEncryptingKey, :setRemoteSymSigningKey,
+        :setRemoteSymIv, :compareCertificate, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -1049,21 +1081,11 @@ Fields:
 - `updateCertificateAndPrivateKey`
 
 - `clear`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SecurityPolicy
     data::NTuple{496, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SecurityPolicy})
-    (:policyContext, :policyUri, :localCertificate, :asymmetricModule,
-        :symmetricModule, :certificateSigningAlgorithm, :channelModule,
-        :logger, :updateCertificateAndPrivateKey, :clear)
-end
-function Base.fieldnames(::Type{Ptr{UA_SecurityPolicy}})
-    (:policyContext, :policyUri, :localCertificate, :asymmetricModule,
-        :symmetricModule, :certificateSigningAlgorithm, :channelModule,
-        :logger, :updateCertificateAndPrivateKey, :clear)
 end
 
 function Base.getproperty(x::Ptr{UA_SecurityPolicy}, f::Symbol)
@@ -1090,6 +1112,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SecurityPolicy}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SecurityPolicy, private::Bool = false)
+    (:policyContext, :policyUri, :localCertificate, :asymmetricModule,
+        :symmetricModule, :certificateSigningAlgorithm, :channelModule, :logger,
+        :updateCertificateAndPrivateKey, :clear, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -1184,33 +1216,11 @@ Fields:
 - `sessionLocaleIdsSize`
 
 - `privateKeyPasswordCallback`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ClientConfig
     data::NTuple{784, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ClientConfig})
-    (:clientContext, :logging, :timeout, :clientDescription, :endpointUrl,
-        :userIdentityToken, :securityMode, :securityPolicyUri, :noSession, :noReconnect,
-        :noNewSession, :endpoint, :userTokenPolicy, :applicationUri, :customDataTypes,
-        :secureChannelLifeTime, :requestedSessionTimeout, :localConnectionConfig,
-        :connectivityCheckInterval, :eventLoop, :externalEventLoop, :securityPoliciesSize,
-        :securityPolicies, :certificateVerification, :authSecurityPoliciesSize,
-        :authSecurityPolicies, :authSecurityPolicyUri, :stateCallback, :inactivityCallback,
-        :outStandingPublishRequests, :subscriptionInactivityCallback, :sessionName,
-        :sessionLocaleIds, :sessionLocaleIdsSize, :privateKeyPasswordCallback)
-end
-function Base.fieldnames(::Type{Ptr{UA_ClientConfig}})
-    (:clientContext, :logging, :timeout, :clientDescription, :endpointUrl,
-        :userIdentityToken, :securityMode, :securityPolicyUri, :noSession, :noReconnect,
-        :noNewSession, :endpoint, :userTokenPolicy, :applicationUri, :customDataTypes,
-        :secureChannelLifeTime, :requestedSessionTimeout, :localConnectionConfig,
-        :connectivityCheckInterval, :eventLoop, :externalEventLoop, :securityPoliciesSize,
-        :securityPolicies, :certificateVerification, :authSecurityPoliciesSize,
-        :authSecurityPolicies, :authSecurityPolicyUri, :stateCallback, :inactivityCallback,
-        :outStandingPublishRequests, :subscriptionInactivityCallback, :sessionName,
-        :sessionLocaleIds, :sessionLocaleIdsSize, :privateKeyPasswordCallback)
 end
 
 function Base.getproperty(x::Ptr{UA_ClientConfig}, f::Symbol)
@@ -1261,6 +1271,24 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ClientConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ClientConfig, private::Bool = false)
+    (:clientContext, :logging, :timeout, :clientDescription, :endpointUrl,
+        :userIdentityToken, :securityMode, :securityPolicyUri, :noSession,
+        :noReconnect, :noNewSession, :endpoint, :userTokenPolicy, :applicationUri,
+        :customDataTypes, :secureChannelLifeTime, :requestedSessionTimeout,
+        :localConnectionConfig, :connectivityCheckInterval, :eventLoop,
+        :externalEventLoop, :securityPoliciesSize, :securityPolicies,
+        :certificateVerification, :authSecurityPoliciesSize, :authSecurityPolicies,
+        :authSecurityPolicyUri, :stateCallback, :inactivityCallback,
+        :outStandingPublishRequests, :subscriptionInactivityCallback,
+        :sessionName, :sessionLocaleIds, :sessionLocaleIdsSize,
+        :privateKeyPasswordCallback, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 const UA_StatusCode = UInt32
@@ -1591,17 +1619,11 @@ Fields:
 - `attributeId`
 
 - `indexRange`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SimpleAttributeOperand
     data::NTuple{64, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SimpleAttributeOperand})
-    (:typeDefinitionId, :browsePathSize, :browsePath, :attributeId, :indexRange)
-end
-function Base.fieldnames(::Type{Ptr{UA_SimpleAttributeOperand}})
-    (:typeDefinitionId, :browsePathSize, :browsePath, :attributeId, :indexRange)
 end
 
 function Base.getproperty(x::Ptr{UA_SimpleAttributeOperand}, f::Symbol)
@@ -1622,6 +1644,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SimpleAttributeOperand}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SimpleAttributeOperand, private::Bool = false)
+    (:typeDefinitionId, :browsePathSize, :browsePath,
+        :attributeId, :indexRange, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 @cenum UA_FilterOperator::UInt32 begin
@@ -1778,21 +1809,11 @@ Fields:
 - `hasSourcePicoseconds`
 
 - `hasServerPicoseconds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataValue
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataValue})
-    (:value, :sourceTimestamp, :serverTimestamp, :sourcePicoseconds,
-        :serverPicoseconds, :status, :hasValue, :hasStatus, :hasSourceTimestamp,
-        :hasServerTimestamp, :hasSourcePicoseconds, :hasServerPicoseconds)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataValue}})
-    (:value, :sourceTimestamp, :serverTimestamp, :sourcePicoseconds,
-        :serverPicoseconds, :status, :hasValue, :hasStatus, :hasSourceTimestamp,
-        :hasServerTimestamp, :hasSourcePicoseconds, :hasServerPicoseconds)
 end
 
 function Base.getproperty(x::Ptr{UA_DataValue}, f::Symbol)
@@ -1854,6 +1875,16 @@ function Base.setproperty!(x::Ptr{UA_DataValue}, f::Symbol, v)
     end
 end
 
+function Base.propertynames(x::UA_DataValue, private::Bool = false)
+    (:value, :sourceTimestamp, :serverTimestamp, :sourcePicoseconds, :serverPicoseconds,
+        :status, :hasValue, :hasStatus, :hasSourceTimestamp, :hasServerTimestamp,
+        :hasSourcePicoseconds, :hasServerPicoseconds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 function UA_Client_HistoryUpdate_insert(client, nodeId, value)
     @ccall libopen62541.UA_Client_HistoryUpdate_insert(
         client::Ptr{UA_Client}, nodeId::Ptr{UA_NodeId},
@@ -1909,14 +1940,12 @@ Fields:
 - `namespaceUri`
 
 - `serverIndex`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ExpandedNodeId
     data::NTuple{48, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ExpandedNodeId}) = (:nodeId, :namespaceUri, :serverIndex)
-Base.fieldnames(::Type{Ptr{UA_ExpandedNodeId}}) = (:nodeId, :namespaceUri, :serverIndex)
 
 function Base.getproperty(x::Ptr{UA_ExpandedNodeId}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -1934,6 +1963,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ExpandedNodeId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ExpandedNodeId, private::Bool = false)
+    (:nodeId, :namespaceUri, :serverIndex, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 @cenum UA_NodeClass::UInt32 begin
@@ -1971,21 +2008,9 @@ function UA_Client_deleteNode(client, nodeId, deleteTargetReferences)
 end
 
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `specifiedAttributes`
-
-- `displayName`
-
-- `description`
-
-- `writeMask`
-
-- `userWriteMask`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_NodeAttributes
     specifiedAttributes::UA_UInt32
@@ -2063,17 +2088,11 @@ Fields:
 - `indexRange`
 
 - `dataEncoding`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadValueId
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReadValueId})
-    (:nodeId, :attributeId, :indexRange, :dataEncoding)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReadValueId}})
-    (:nodeId, :attributeId, :indexRange, :dataEncoding)
 end
 
 function Base.getproperty(x::Ptr{UA_ReadValueId}, f::Symbol)
@@ -2093,6 +2112,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReadValueId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReadValueId, private::Bool = false)
+    (:nodeId, :attributeId, :indexRange, :dataEncoding, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_Client_readAttribute_async(
@@ -2405,19 +2432,11 @@ Fields:
 - `timeoutHint`
 
 - `additionalHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RequestHeader
     data::NTuple{112, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RequestHeader})
-    (:authenticationToken, :timestamp, :requestHandle,
-        :returnDiagnostics, :auditEntryId, :timeoutHint, :additionalHeader)
-end
-function Base.fieldnames(::Type{Ptr{UA_RequestHeader}})
-    (:authenticationToken, :timestamp, :requestHandle,
-        :returnDiagnostics, :auditEntryId, :timeoutHint, :additionalHeader)
 end
 
 function Base.getproperty(x::Ptr{UA_RequestHeader}, f::Symbol)
@@ -2442,6 +2461,15 @@ function Base.setproperty!(x::Ptr{UA_RequestHeader}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RequestHeader, private::Bool = false)
+    (:authenticationToken, :timestamp, :requestHandle, :returnDiagnostics,
+        :auditEntryId, :timeoutHint, :additionalHeader, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -2461,21 +2489,11 @@ Fields:
 - `publishingEnabled`
 
 - `priority`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSubscriptionRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateSubscriptionRequest})
-    (:requestHeader, :requestedPublishingInterval,
-        :requestedLifetimeCount, :requestedMaxKeepAliveCount,
-        :maxNotificationsPerPublish, :publishingEnabled, :priority)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateSubscriptionRequest}})
-    (:requestHeader, :requestedPublishingInterval,
-        :requestedLifetimeCount, :requestedMaxKeepAliveCount,
-        :maxNotificationsPerPublish, :publishingEnabled, :priority)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateSubscriptionRequest}, f::Symbol)
@@ -2498,6 +2516,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CreateSubscriptionRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CreateSubscriptionRequest, private::Bool = false)
+    (:requestHeader, :requestedPublishingInterval, :requestedLifetimeCount,
+        :requestedMaxKeepAliveCount, :maxNotificationsPerPublish,
+        :publishingEnabled, :priority, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 const UA_Int32 = Int32
@@ -2535,21 +2563,11 @@ Fields:
 - `innerStatusCode`
 
 - `innerDiagnosticInfo`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DiagnosticInfo
     data::NTuple{56, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DiagnosticInfo})
-    (:hasSymbolicId, :hasNamespaceUri, :hasLocalizedText, :hasLocale, :hasAdditionalInfo,
-        :hasInnerStatusCode, :hasInnerDiagnosticInfo, :symbolicId, :namespaceUri,
-        :localizedText, :locale, :additionalInfo, :innerStatusCode, :innerDiagnosticInfo)
-end
-function Base.fieldnames(::Type{Ptr{UA_DiagnosticInfo}})
-    (:hasSymbolicId, :hasNamespaceUri, :hasLocalizedText, :hasLocale, :hasAdditionalInfo,
-        :hasInnerStatusCode, :hasInnerDiagnosticInfo, :symbolicId, :namespaceUri,
-        :localizedText, :locale, :additionalInfo, :innerStatusCode, :innerDiagnosticInfo)
 end
 
 function Base.getproperty(x::Ptr{UA_DiagnosticInfo}, f::Symbol)
@@ -2613,6 +2631,17 @@ function Base.setproperty!(x::Ptr{UA_DiagnosticInfo}, f::Symbol, v)
     end
 end
 
+function Base.propertynames(x::UA_DiagnosticInfo, private::Bool = false)
+    (:hasSymbolicId, :hasNamespaceUri, :hasLocalizedText, :hasLocale,
+        :hasAdditionalInfo, :hasInnerStatusCode, :hasInnerDiagnosticInfo,
+        :symbolicId, :namespaceUri, :localizedText, :locale, :additionalInfo,
+        :innerStatusCode, :innerDiagnosticInfo, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -2632,19 +2661,11 @@ Fields:
 - `stringTable`
 
 - `additionalHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ResponseHeader
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ResponseHeader})
-    (:timestamp, :requestHandle, :serviceResult, :serviceDiagnostics,
-        :stringTableSize, :stringTable, :additionalHeader)
-end
-function Base.fieldnames(::Type{Ptr{UA_ResponseHeader}})
-    (:timestamp, :requestHandle, :serviceResult, :serviceDiagnostics,
-        :stringTableSize, :stringTable, :additionalHeader)
 end
 
 function Base.getproperty(x::Ptr{UA_ResponseHeader}, f::Symbol)
@@ -2669,6 +2690,15 @@ function Base.setproperty!(x::Ptr{UA_ResponseHeader}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ResponseHeader, private::Bool = false)
+    (:timestamp, :requestHandle, :serviceResult, :serviceDiagnostics, :stringTableSize,
+        :stringTable, :additionalHeader, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -2684,19 +2714,11 @@ Fields:
 - `revisedLifetimeCount`
 
 - `revisedMaxKeepAliveCount`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSubscriptionResponse
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateSubscriptionResponse})
-    (:responseHeader, :subscriptionId, :revisedPublishingInterval,
-        :revisedLifetimeCount, :revisedMaxKeepAliveCount)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateSubscriptionResponse}})
-    (:responseHeader, :subscriptionId, :revisedPublishingInterval,
-        :revisedLifetimeCount, :revisedMaxKeepAliveCount)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateSubscriptionResponse}, f::Symbol)
@@ -2717,6 +2739,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CreateSubscriptionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CreateSubscriptionResponse, private::Bool = false)
+    (:responseHeader, :subscriptionId, :revisedPublishingInterval,
+        :revisedLifetimeCount, :revisedMaxKeepAliveCount, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_Subscriptions_create(
@@ -2759,21 +2790,11 @@ Fields:
 - `maxNotificationsPerPublish`
 
 - `priority`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifySubscriptionRequest
     data::NTuple{144, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ModifySubscriptionRequest})
-    (:requestHeader, :subscriptionId, :requestedPublishingInterval,
-        :requestedLifetimeCount, :requestedMaxKeepAliveCount,
-        :maxNotificationsPerPublish, :priority)
-end
-function Base.fieldnames(::Type{Ptr{UA_ModifySubscriptionRequest}})
-    (:requestHeader, :subscriptionId, :requestedPublishingInterval,
-        :requestedLifetimeCount, :requestedMaxKeepAliveCount,
-        :maxNotificationsPerPublish, :priority)
 end
 
 function Base.getproperty(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol)
@@ -2798,6 +2819,16 @@ function Base.setproperty!(x::Ptr{UA_ModifySubscriptionRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ModifySubscriptionRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :requestedPublishingInterval,
+        :requestedLifetimeCount, :requestedMaxKeepAliveCount,
+        :maxNotificationsPerPublish, :priority, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -2811,19 +2842,11 @@ Fields:
 - `revisedLifetimeCount`
 
 - `revisedMaxKeepAliveCount`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifySubscriptionResponse
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ModifySubscriptionResponse})
-    (:responseHeader, :revisedPublishingInterval,
-        :revisedLifetimeCount, :revisedMaxKeepAliveCount)
-end
-function Base.fieldnames(::Type{Ptr{UA_ModifySubscriptionResponse}})
-    (:responseHeader, :revisedPublishingInterval,
-        :revisedLifetimeCount, :revisedMaxKeepAliveCount)
 end
 
 function Base.getproperty(x::Ptr{UA_ModifySubscriptionResponse}, f::Symbol)
@@ -2843,6 +2866,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ModifySubscriptionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ModifySubscriptionResponse, private::Bool = false)
+    (:responseHeader, :revisedPublishingInterval, :revisedLifetimeCount,
+        :revisedMaxKeepAliveCount, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_Subscriptions_modify(client, request)
@@ -2869,17 +2901,11 @@ Fields:
 - `subscriptionIdsSize`
 
 - `subscriptionIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteSubscriptionsRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteSubscriptionsRequest})
-    (:requestHeader, :subscriptionIdsSize, :subscriptionIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteSubscriptionsRequest}})
-    (:requestHeader, :subscriptionIdsSize, :subscriptionIds)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol)
@@ -2900,6 +2926,15 @@ function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteSubscriptionsRequest, private::Bool = false)
+    (:requestHeader, :subscriptionIdsSize,
+        :subscriptionIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -2915,17 +2950,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteSubscriptionsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteSubscriptionsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteSubscriptionsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteSubscriptionsResponse}, f::Symbol)
@@ -2946,6 +2975,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DeleteSubscriptionsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DeleteSubscriptionsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_Subscriptions_delete(client, request)
@@ -2997,17 +3035,11 @@ Fields:
 - `queueSize`
 
 - `discardOldest`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoringParameters
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_MonitoringParameters})
-    (:clientHandle, :samplingInterval, :filter, :queueSize, :discardOldest)
-end
-function Base.fieldnames(::Type{Ptr{UA_MonitoringParameters}})
-    (:clientHandle, :samplingInterval, :filter, :queueSize, :discardOldest)
 end
 
 function Base.getproperty(x::Ptr{UA_MonitoringParameters}, f::Symbol)
@@ -3030,6 +3062,15 @@ function Base.setproperty!(x::Ptr{UA_MonitoringParameters}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MonitoringParameters, private::Bool = false)
+    (:clientHandle, :samplingInterval, :filter, :queueSize,
+        :discardOldest, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3041,17 +3082,11 @@ Fields:
 - `monitoringMode`
 
 - `requestedParameters`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemCreateRequest
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_MonitoredItemCreateRequest})
-    (:itemToMonitor, :monitoringMode, :requestedParameters)
-end
-function Base.fieldnames(::Type{Ptr{UA_MonitoredItemCreateRequest}})
-    (:itemToMonitor, :monitoringMode, :requestedParameters)
 end
 
 function Base.getproperty(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol)
@@ -3072,6 +3107,15 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MonitoredItemCreateRequest, private::Bool = false)
+    (:itemToMonitor, :monitoringMode, :requestedParameters,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3087,19 +3131,11 @@ Fields:
 - `itemsToCreateSize`
 
 - `itemsToCreate`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateMonitoredItemsRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateMonitoredItemsRequest})
-    (:requestHeader, :subscriptionId, :timestampsToReturn,
-        :itemsToCreateSize, :itemsToCreate)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateMonitoredItemsRequest}})
-    (:requestHeader, :subscriptionId, :timestampsToReturn,
-        :itemsToCreateSize, :itemsToCreate)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol)
@@ -3122,6 +3158,15 @@ function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CreateMonitoredItemsRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :timestampsToReturn,
+        :itemsToCreateSize, :itemsToCreate, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3137,19 +3182,11 @@ Fields:
 - `revisedQueueSize`
 
 - `filterResult`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemCreateResult
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_MonitoredItemCreateResult})
-    (:statusCode, :monitoredItemId, :revisedSamplingInterval,
-        :revisedQueueSize, :filterResult)
-end
-function Base.fieldnames(::Type{Ptr{UA_MonitoredItemCreateResult}})
-    (:statusCode, :monitoredItemId, :revisedSamplingInterval,
-        :revisedQueueSize, :filterResult)
 end
 
 function Base.getproperty(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol)
@@ -3172,6 +3209,15 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemCreateResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MonitoredItemCreateResult, private::Bool = false)
+    (:statusCode, :monitoredItemId, :revisedSamplingInterval,
+        :revisedQueueSize, :filterResult, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3187,17 +3233,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateMonitoredItemsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateMonitoredItemsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateMonitoredItemsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateMonitoredItemsResponse}, f::Symbol)
@@ -3218,6 +3258,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CreateMonitoredItemsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CreateMonitoredItemsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_MonitoredItems_createDataChanges(
@@ -3295,17 +3344,11 @@ Fields:
 - `monitoredItemIdsSize`
 
 - `monitoredItemIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteMonitoredItemsRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteMonitoredItemsRequest})
-    (:requestHeader, :subscriptionId, :monitoredItemIdsSize, :monitoredItemIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteMonitoredItemsRequest}})
-    (:requestHeader, :subscriptionId, :monitoredItemIdsSize, :monitoredItemIds)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol)
@@ -3327,6 +3370,15 @@ function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteMonitoredItemsRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :monitoredItemIdsSize,
+        :monitoredItemIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3342,17 +3394,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteMonitoredItemsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteMonitoredItemsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteMonitoredItemsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteMonitoredItemsResponse}, f::Symbol)
@@ -3373,6 +3419,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DeleteMonitoredItemsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DeleteMonitoredItemsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_MonitoredItems_delete(client, arg2)
@@ -3403,17 +3458,11 @@ Fields:
 - `monitoredItemId`
 
 - `requestedParameters`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemModifyRequest
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_MonitoredItemModifyRequest})
-    (:monitoredItemId, :requestedParameters)
-end
-function Base.fieldnames(::Type{Ptr{UA_MonitoredItemModifyRequest}})
-    (:monitoredItemId, :requestedParameters)
 end
 
 function Base.getproperty(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol)
@@ -3433,6 +3482,14 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MonitoredItemModifyRequest, private::Bool = false)
+    (:monitoredItemId, :requestedParameters, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3448,19 +3505,11 @@ Fields:
 - `itemsToModifySize`
 
 - `itemsToModify`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifyMonitoredItemsRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ModifyMonitoredItemsRequest})
-    (:requestHeader, :subscriptionId, :timestampsToReturn,
-        :itemsToModifySize, :itemsToModify)
-end
-function Base.fieldnames(::Type{Ptr{UA_ModifyMonitoredItemsRequest}})
-    (:requestHeader, :subscriptionId, :timestampsToReturn,
-        :itemsToModifySize, :itemsToModify)
 end
 
 function Base.getproperty(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol)
@@ -3483,6 +3532,15 @@ function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ModifyMonitoredItemsRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :timestampsToReturn,
+        :itemsToModifySize, :itemsToModify, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3496,17 +3554,11 @@ Fields:
 - `revisedQueueSize`
 
 - `filterResult`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemModifyResult
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_MonitoredItemModifyResult})
-    (:statusCode, :revisedSamplingInterval, :revisedQueueSize, :filterResult)
-end
-function Base.fieldnames(::Type{Ptr{UA_MonitoredItemModifyResult}})
-    (:statusCode, :revisedSamplingInterval, :revisedQueueSize, :filterResult)
 end
 
 function Base.getproperty(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol)
@@ -3528,6 +3580,15 @@ function Base.setproperty!(x::Ptr{UA_MonitoredItemModifyResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MonitoredItemModifyResult, private::Bool = false)
+    (:statusCode, :revisedSamplingInterval, :revisedQueueSize,
+        :filterResult, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -3543,17 +3604,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModifyMonitoredItemsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ModifyMonitoredItemsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_ModifyMonitoredItemsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_ModifyMonitoredItemsResponse}, f::Symbol)
@@ -3574,6 +3629,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ModifyMonitoredItemsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ModifyMonitoredItemsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Client_MonitoredItems_modify(client, request)
@@ -3764,37 +3828,9 @@ function Base.setproperty!(x::Ptr{UA_AccessControl}, f::Symbol, v)
 end
 
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `context`
-
-- `clear`
-
-- `newNode`
-
-- `deleteNode`
-
-- `getNode`
-
-- `getNodeFromPtr`
-
-- `releaseNode`
-
-- `getNodeCopy`
-
-- `insertNode`
-
-- `replaceNode`
-
-- `removeNode`
-
-- `getReferenceTypeId`
-
-- `iterate`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_Nodestore
     context::Ptr{Cvoid}
@@ -4168,14 +4204,12 @@ Fields:
 - `indexRange`
 
 - `value`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteValue
     data::NTuple{128, UInt8}
 end
-
-Base.fieldnames(::Type{UA_WriteValue}) = (:nodeId, :attributeId, :indexRange, :value)
-Base.fieldnames(::Type{Ptr{UA_WriteValue}}) = (:nodeId, :attributeId, :indexRange, :value)
 
 function Base.getproperty(x::Ptr{UA_WriteValue}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -4194,6 +4228,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_WriteValue}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_WriteValue, private::Bool = false)
+    (:nodeId, :attributeId, :indexRange, :value, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_Server_write(server, value)
@@ -4232,19 +4274,11 @@ Fields:
 - `nodeClassMask`
 
 - `resultMask`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseDescription
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_BrowseDescription})
-    (:nodeId, :browseDirection, :referenceTypeId,
-        :includeSubtypes, :nodeClassMask, :resultMask)
-end
-function Base.fieldnames(::Type{Ptr{UA_BrowseDescription}})
-    (:nodeId, :browseDirection, :referenceTypeId,
-        :includeSubtypes, :nodeClassMask, :resultMask)
 end
 
 function Base.getproperty(x::Ptr{UA_BrowseDescription}, f::Symbol)
@@ -4268,6 +4302,15 @@ function Base.setproperty!(x::Ptr{UA_BrowseDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowseDescription, private::Bool = false)
+    (:nodeId, :browseDirection, :referenceTypeId, :includeSubtypes,
+        :nodeClassMask, :resultMask, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -4287,19 +4330,11 @@ Fields:
 - `nodeClass`
 
 - `typeDefinition`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceDescription
     data::NTuple{192, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReferenceDescription})
-    (:referenceTypeId, :isForward, :nodeId, :browseName,
-        :displayName, :nodeClass, :typeDefinition)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReferenceDescription}})
-    (:referenceTypeId, :isForward, :nodeId, :browseName,
-        :displayName, :nodeClass, :typeDefinition)
 end
 
 function Base.getproperty(x::Ptr{UA_ReferenceDescription}, f::Symbol)
@@ -4322,6 +4357,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReferenceDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReferenceDescription, private::Bool = false)
+    (:referenceTypeId, :isForward, :nodeId, :browseName, :displayName,
+        :nodeClass, :typeDefinition, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -4377,17 +4421,11 @@ Fields:
 - `includeSubtypes`
 
 - `targetName`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RelativePathElement
     data::NTuple{56, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RelativePathElement})
-    (:referenceTypeId, :isInverse, :includeSubtypes, :targetName)
-end
-function Base.fieldnames(::Type{Ptr{UA_RelativePathElement}})
-    (:referenceTypeId, :isInverse, :includeSubtypes, :targetName)
 end
 
 function Base.getproperty(x::Ptr{UA_RelativePathElement}, f::Symbol)
@@ -4407,6 +4445,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_RelativePathElement}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_RelativePathElement, private::Bool = false)
+    (:referenceTypeId, :isInverse, :includeSubtypes,
+        :targetName, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -4437,14 +4484,12 @@ Fields:
 - `startingNode`
 
 - `relativePath`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowsePath
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_BrowsePath}) = (:startingNode, :relativePath)
-Base.fieldnames(::Type{Ptr{UA_BrowsePath}}) = (:startingNode, :relativePath)
 
 function Base.getproperty(x::Ptr{UA_BrowsePath}, f::Symbol)
     f === :startingNode && return Ptr{UA_NodeId}(x + 0)
@@ -4463,6 +4508,14 @@ function Base.setproperty!(x::Ptr{UA_BrowsePath}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowsePath, private::Bool = false)
+    (:startingNode, :relativePath, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -4472,14 +4525,12 @@ Fields:
 - `targetId`
 
 - `remainingPathIndex`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowsePathTarget
     data::NTuple{56, UInt8}
 end
-
-Base.fieldnames(::Type{UA_BrowsePathTarget}) = (:targetId, :remainingPathIndex)
-Base.fieldnames(::Type{Ptr{UA_BrowsePathTarget}}) = (:targetId, :remainingPathIndex)
 
 function Base.getproperty(x::Ptr{UA_BrowsePathTarget}, f::Symbol)
     f === :targetId && return Ptr{UA_ExpandedNodeId}(x + 0)
@@ -4498,18 +4549,18 @@ function Base.setproperty!(x::Ptr{UA_BrowsePathTarget}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowsePathTarget, private::Bool = false)
+    (:targetId, :remainingPathIndex, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `statusCode`
-
-- `targetsSize`
-
-- `targets`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_BrowsePathResult
     statusCode::UA_StatusCode
@@ -4571,15 +4622,9 @@ function UA_Server_setAdminSessionContext(server, context)
 end
 
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `constructor`
-
-- `destructor`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_NodeTypeLifecycle
     constructor::Ptr{Cvoid}
@@ -4644,9 +4689,6 @@ struct __JL_Ctag_44
     data::NTuple{96, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_44}) = (:internal, :dataSource, :external)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_44}}) = (:internal, :dataSource, :external)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_44}, f::Symbol)
     f === :internal && return Ptr{__JL_Ctag_45}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
@@ -4665,6 +4707,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_44}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_44, private::Bool = false)
+    (:internal, :dataSource, :external, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -4674,14 +4724,12 @@ Fields:
 - `backendType`
 
 - `backend`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ValueBackend
     data::NTuple{104, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ValueBackend}) = (:backendType, :backend)
-Base.fieldnames(::Type{Ptr{UA_ValueBackend}}) = (:backendType, :backend)
 
 function Base.getproperty(x::Ptr{UA_ValueBackend}, f::Symbol)
     f === :backendType && return Ptr{UA_ValueBackendType}(x + 0)
@@ -4698,6 +4746,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ValueBackend}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ValueBackend, private::Bool = false)
+    (:backendType, :backend, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_Server_setVariableNode_valueBackend(server, nodeId, valueBackend)
@@ -4744,17 +4800,11 @@ Fields:
 - `inputArgumentsSize`
 
 - `inputArguments`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallMethodRequest
     data::NTuple{64, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CallMethodRequest})
-    (:objectId, :methodId, :inputArgumentsSize, :inputArguments)
-end
-function Base.fieldnames(::Type{Ptr{UA_CallMethodRequest}})
-    (:objectId, :methodId, :inputArgumentsSize, :inputArguments)
 end
 
 function Base.getproperty(x::Ptr{UA_CallMethodRequest}, f::Symbol)
@@ -4774,6 +4824,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CallMethodRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CallMethodRequest, private::Bool = false)
+    (:objectId, :methodId, :inputArgumentsSize,
+        :inputArguments, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -4872,21 +4931,11 @@ Fields:
 - `minimumSamplingInterval`
 
 - `historizing`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableAttributes
     data::NTuple{200, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_VariableAttributes})
-    (:specifiedAttributes, :displayName, :description, :writeMask, :userWriteMask,
-        :value, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :accessLevel, :userAccessLevel, :minimumSamplingInterval, :historizing)
-end
-function Base.fieldnames(::Type{Ptr{UA_VariableAttributes}})
-    (:specifiedAttributes, :displayName, :description, :writeMask, :userWriteMask,
-        :value, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :accessLevel, :userAccessLevel, :minimumSamplingInterval, :historizing)
 end
 
 function Base.getproperty(x::Ptr{UA_VariableAttributes}, f::Symbol)
@@ -4916,6 +4965,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_VariableAttributes}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_VariableAttributes, private::Bool = false)
+    (:specifiedAttributes, :displayName, :description, :writeMask,
+        :userWriteMask, :value, :dataType, :valueRank, :arrayDimensionsSize,
+        :arrayDimensions, :accessLevel, :userAccessLevel,
+        :minimumSamplingInterval, :historizing, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Server_addDataSourceVariableNode(
@@ -4979,17 +5039,11 @@ Fields:
 - `arrayDimensions`
 
 - `description`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_Argument
     data::NTuple{96, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_Argument})
-    (:name, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions, :description)
-end
-function Base.fieldnames(::Type{Ptr{UA_Argument}})
-    (:name, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions, :description)
 end
 
 function Base.getproperty(x::Ptr{UA_Argument}, f::Symbol)
@@ -5011,6 +5065,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_Argument}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_Argument, private::Bool = false)
+    (:name, :dataType, :valueRank, :arrayDimensionsSize,
+        :arrayDimensions, :description, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Server_addMethodNodeEx(
@@ -5131,14 +5194,12 @@ $(TYPEDEF)
 Fields:
 
 - `callMethodRequest`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AsyncOperationRequest
     data::NTuple{64, UInt8}
 end
-
-Base.fieldnames(::Type{UA_AsyncOperationRequest}) = (:callMethodRequest,)
-Base.fieldnames(::Type{Ptr{UA_AsyncOperationRequest}}) = (:callMethodRequest,)
 
 function Base.getproperty(x::Ptr{UA_AsyncOperationRequest}, f::Symbol)
     f === :callMethodRequest && return Ptr{UA_CallMethodRequest}(x + 0)
@@ -5156,6 +5217,14 @@ function Base.setproperty!(x::Ptr{UA_AsyncOperationRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AsyncOperationRequest, private::Bool = false)
+    (:callMethodRequest, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -5163,14 +5232,12 @@ $(TYPEDEF)
 Fields:
 
 - `callMethodResult`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AsyncOperationResponse
     data::NTuple{56, UInt8}
 end
-
-Base.fieldnames(::Type{UA_AsyncOperationResponse}) = (:callMethodResult,)
-Base.fieldnames(::Type{Ptr{UA_AsyncOperationResponse}}) = (:callMethodResult,)
 
 function Base.getproperty(x::Ptr{UA_AsyncOperationResponse}, f::Symbol)
     f === :callMethodResult && return Ptr{UA_CallMethodResult}(x + 0)
@@ -5186,6 +5253,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_AsyncOperationResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_AsyncOperationResponse, private::Bool = false)
+    (:callMethodResult, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_Server_getAsyncOperationNonBlocking(server, type, request, context, timeout)
@@ -5369,14 +5444,12 @@ Fields:
 - `uint64`
 
 - `string`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublisherId
     data::NTuple{16, UInt8}
 end
-
-Base.fieldnames(::Type{UA_PublisherId}) = (:byte, :uint16, :uint32, :uint64, :string)
-Base.fieldnames(::Type{Ptr{UA_PublisherId}}) = (:byte, :uint16, :uint32, :uint64, :string)
 
 function Base.getproperty(x::Ptr{UA_PublisherId}, f::Symbol)
     f === :byte && return Ptr{UA_Byte}(x + 0)
@@ -5396,6 +5469,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PublisherId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PublisherId, private::Bool = false)
+    (:byte, :uint16, :uint32, :uint64, :string, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -5421,19 +5502,11 @@ Fields:
 - `connectionTransportSettings`
 
 - `eventLoop`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PubSubConnectionConfig
     data::NTuple{176, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PubSubConnectionConfig})
-    (:name, :enabled, :publisherIdType, :publisherId, :transportProfileUri,
-        :address, :connectionProperties, :connectionTransportSettings, :eventLoop)
-end
-function Base.fieldnames(::Type{Ptr{UA_PubSubConnectionConfig}})
-    (:name, :enabled, :publisherIdType, :publisherId, :transportProfileUri,
-        :address, :connectionProperties, :connectionTransportSettings, :eventLoop)
 end
 
 function Base.getproperty(x::Ptr{UA_PubSubConnectionConfig}, f::Symbol)
@@ -5458,6 +5531,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PubSubConnectionConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PubSubConnectionConfig, private::Bool = false)
+    (:name, :enabled, :publisherIdType, :publisherId, :transportProfileUri,
+        :address, :connectionProperties, :connectionTransportSettings,
+        :eventLoop, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_Server_addPubSubConnection(server, connectionConfig, connectionIdentifier)
@@ -5514,19 +5597,11 @@ Fields:
 - `maxStringLength`
 
 - `isOptional`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureField
     data::NTuple{104, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_StructureField})
-    (:name, :description, :dataType, :valueRank, :arrayDimensionsSize,
-        :arrayDimensions, :maxStringLength, :isOptional)
-end
-function Base.fieldnames(::Type{Ptr{UA_StructureField}})
-    (:name, :description, :dataType, :valueRank, :arrayDimensionsSize,
-        :arrayDimensions, :maxStringLength, :isOptional)
 end
 
 function Base.getproperty(x::Ptr{UA_StructureField}, f::Symbol)
@@ -5552,6 +5627,15 @@ function Base.setproperty!(x::Ptr{UA_StructureField}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_StructureField, private::Bool = false)
+    (:name, :description, :dataType, :valueRank, :arrayDimensionsSize,
+        :arrayDimensions, :maxStringLength, :isOptional, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -5567,17 +5651,11 @@ Fields:
 - `fieldsSize`
 
 - `fields`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureDefinition
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_StructureDefinition})
-    (:defaultEncodingId, :baseDataType, :structureType, :fieldsSize, :fields)
-end
-function Base.fieldnames(::Type{Ptr{UA_StructureDefinition}})
-    (:defaultEncodingId, :baseDataType, :structureType, :fieldsSize, :fields)
 end
 
 function Base.getproperty(x::Ptr{UA_StructureDefinition}, f::Symbol)
@@ -5600,6 +5678,15 @@ function Base.setproperty!(x::Ptr{UA_StructureDefinition}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_StructureDefinition, private::Bool = false)
+    (:defaultEncodingId, :baseDataType, :structureType,
+        :fieldsSize, :fields, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -5611,17 +5698,11 @@ Fields:
 - `name`
 
 - `structureDefinition`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StructureDescription
     data::NTuple{120, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_StructureDescription})
-    (:dataTypeId, :name, :structureDefinition)
-end
-function Base.fieldnames(::Type{Ptr{UA_StructureDescription}})
-    (:dataTypeId, :name, :structureDefinition)
 end
 
 function Base.getproperty(x::Ptr{UA_StructureDescription}, f::Symbol)
@@ -5640,6 +5721,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_StructureDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_StructureDescription, private::Bool = false)
+    (:dataTypeId, :name, :structureDefinition, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 const UA_Int64 = Int64
@@ -5699,17 +5788,11 @@ Fields:
 - `enumDefinition`
 
 - `builtInType`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_EnumDescription
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_EnumDescription})
-    (:dataTypeId, :name, :enumDefinition, :builtInType)
-end
-function Base.fieldnames(::Type{Ptr{UA_EnumDescription}})
-    (:dataTypeId, :name, :enumDefinition, :builtInType)
 end
 
 function Base.getproperty(x::Ptr{UA_EnumDescription}, f::Symbol)
@@ -5731,6 +5814,14 @@ function Base.setproperty!(x::Ptr{UA_EnumDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_EnumDescription, private::Bool = false)
+    (:dataTypeId, :name, :enumDefinition, :builtInType, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -5744,17 +5835,11 @@ Fields:
 - `baseDataType`
 
 - `builtInType`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SimpleTypeDescription
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SimpleTypeDescription})
-    (:dataTypeId, :name, :baseDataType, :builtInType)
-end
-function Base.fieldnames(::Type{Ptr{UA_SimpleTypeDescription}})
-    (:dataTypeId, :name, :baseDataType, :builtInType)
 end
 
 function Base.getproperty(x::Ptr{UA_SimpleTypeDescription}, f::Symbol)
@@ -5774,6 +5859,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SimpleTypeDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SimpleTypeDescription, private::Bool = false)
+    (:dataTypeId, :name, :baseDataType, :builtInType, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 const UA_DataSetFieldFlags = UA_UInt16
 
@@ -5829,21 +5922,11 @@ Fields:
 - `propertiesSize`
 
 - `properties`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldMetaData
     data::NTuple{144, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FieldMetaData})
-    (:name, :description, :fieldFlags, :builtInType, :dataType,
-        :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :maxStringLength, :dataSetFieldId, :propertiesSize, :properties)
-end
-function Base.fieldnames(::Type{Ptr{UA_FieldMetaData}})
-    (:name, :description, :fieldFlags, :builtInType, :dataType,
-        :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :maxStringLength, :dataSetFieldId, :propertiesSize, :properties)
 end
 
 function Base.getproperty(x::Ptr{UA_FieldMetaData}, f::Symbol)
@@ -5871,6 +5954,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_FieldMetaData}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_FieldMetaData, private::Bool = false)
+    (:name, :description, :fieldFlags, :builtInType, :dataType, :valueRank,
+        :arrayDimensionsSize, :arrayDimensions, :maxStringLength, :dataSetFieldId,
+        :propertiesSize, :properties, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -5949,21 +6042,11 @@ Fields:
 - `metaDataPropertiesSize`
 
 - `metaDataProperties`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedVariableDataType
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishedVariableDataType})
-    (:publishedVariable, :attributeId, :samplingIntervalHint,
-        :deadbandType, :deadbandValue, :indexRange, :substituteValue,
-        :metaDataPropertiesSize, :metaDataProperties)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishedVariableDataType}})
-    (:publishedVariable, :attributeId, :samplingIntervalHint,
-        :deadbandType, :deadbandValue, :indexRange, :substituteValue,
-        :metaDataPropertiesSize, :metaDataProperties)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishedVariableDataType}, f::Symbol)
@@ -5990,6 +6073,16 @@ function Base.setproperty!(x::Ptr{UA_PublishedVariableDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_PublishedVariableDataType, private::Bool = false)
+    (:publishedVariable, :attributeId, :samplingIntervalHint, :deadbandType,
+        :deadbandValue, :indexRange, :substituteValue, :metaDataPropertiesSize,
+        :metaDataProperties, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 $(TYPEDEF)
 Fields:
@@ -6010,14 +6103,12 @@ Fields:
 - `eventNotfier`
 
 - `filter`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventConfig
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_PublishedEventConfig}) = (:eventNotfier, :filter)
-Base.fieldnames(::Type{Ptr{UA_PublishedEventConfig}}) = (:eventNotfier, :filter)
 
 function Base.getproperty(x::Ptr{UA_PublishedEventConfig}, f::Symbol)
     f === :eventNotfier && return Ptr{UA_NodeId}(x + 0)
@@ -6036,6 +6127,14 @@ function Base.setproperty!(x::Ptr{UA_PublishedEventConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_PublishedEventConfig, private::Bool = false)
+    (:eventNotfier, :filter, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -6051,17 +6150,11 @@ Fields:
 - `selectedFields`
 
 - `filter`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventTemplateConfig
     data::NTuple{208, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishedEventTemplateConfig})
-    (:metaData, :eventNotfier, :selectedFieldsSize, :selectedFields, :filter)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishedEventTemplateConfig}})
-    (:metaData, :eventNotfier, :selectedFieldsSize, :selectedFields, :filter)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishedEventTemplateConfig}, f::Symbol)
@@ -6084,12 +6177,18 @@ function Base.setproperty!(x::Ptr{UA_PublishedEventTemplateConfig}, f::Symbol, v
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_PublishedEventTemplateConfig, private::Bool = false)
+    (:metaData, :eventNotfier, :selectedFieldsSize,
+        :selectedFields, :filter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 struct __JL_Ctag_47
     data::NTuple{208, UInt8}
 end
-
-Base.fieldnames(::Type{__JL_Ctag_47}) = (:itemsTemplate, :event, :eventTemplate)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_47}}) = (:itemsTemplate, :event, :eventTemplate)
 
 function Base.getproperty(x::Ptr{__JL_Ctag_47}, f::Symbol)
     f === :itemsTemplate && return Ptr{UA_PublishedDataItemsTemplateConfig}(x + 0)
@@ -6109,6 +6208,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_47}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_47, private::Bool = false)
+    (:itemsTemplate, :event, :eventTemplate, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -6120,15 +6227,11 @@ Fields:
 - `publishedDataSetType`
 
 - `config`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedDataSetConfig
     data::NTuple{232, UInt8}
-end
-
-Base.fieldnames(::Type{UA_PublishedDataSetConfig}) = (:name, :publishedDataSetType, :config)
-function Base.fieldnames(::Type{Ptr{UA_PublishedDataSetConfig}})
-    (:name, :publishedDataSetType, :config)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishedDataSetConfig}, f::Symbol)
@@ -6147,6 +6250,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PublishedDataSetConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PublishedDataSetConfig, private::Bool = false)
+    (:name, :publishedDataSetType, :config, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_PublishedDataSetConfig_clear(pdsConfig)
@@ -6228,19 +6339,11 @@ Fields:
 - `rtValueSource`
 
 - `maxStringLength`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetVariableConfig
     data::NTuple{192, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataSetVariableConfig})
-    (:configurationVersion, :fieldNameAlias, :promotedField,
-        :publishParameters, :rtValueSource, :maxStringLength)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataSetVariableConfig}})
-    (:configurationVersion, :fieldNameAlias, :promotedField,
-        :publishParameters, :rtValueSource, :maxStringLength)
 end
 
 function Base.getproperty(x::Ptr{UA_DataSetVariableConfig}, f::Symbol)
@@ -6264,6 +6367,15 @@ function Base.setproperty!(x::Ptr{UA_DataSetVariableConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DataSetVariableConfig, private::Bool = false)
+    (:configurationVersion, :fieldNameAlias, :promotedField, :publishParameters,
+        :rtValueSource, :maxStringLength, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 @cenum UA_DataSetFieldType::UInt32 begin
     UA_PUBSUB_DATASETFIELD_VARIABLE = 0
     UA_PUBSUB_DATASETFIELD_EVENT = 1
@@ -6272,9 +6384,6 @@ end
 struct __JL_Ctag_52
     data::NTuple{192, UInt8}
 end
-
-Base.fieldnames(::Type{__JL_Ctag_52}) = (:variable,)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_52}}) = (:variable,)
 
 function Base.getproperty(x::Ptr{__JL_Ctag_52}, f::Symbol)
     f === :variable && return Ptr{UA_DataSetVariableConfig}(x + 0)
@@ -6292,6 +6401,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_52}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_52, private::Bool = false)
+    (:variable, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -6301,14 +6418,12 @@ Fields:
 - `dataSetFieldType`
 
 - `field`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetFieldConfig
     data::NTuple{200, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DataSetFieldConfig}) = (:dataSetFieldType, :field)
-Base.fieldnames(::Type{Ptr{UA_DataSetFieldConfig}}) = (:dataSetFieldType, :field)
 
 function Base.getproperty(x::Ptr{UA_DataSetFieldConfig}, f::Symbol)
     f === :dataSetFieldType && return Ptr{UA_DataSetFieldType}(x + 0)
@@ -6325,6 +6440,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DataSetFieldConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DataSetFieldConfig, private::Bool = false)
+    (:dataSetFieldType, :field, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_DataSetFieldConfig_clear(dataSetFieldConfig)
@@ -6416,23 +6539,11 @@ Fields:
 - `rtLevel`
 
 - `securityMode`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriterGroupConfig
     data::NTuple{208, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_WriterGroupConfig})
-    (:name, :enabled, :writerGroupId, :publishingInterval,
-        :keepAliveTime, :priority, :transportSettings, :messageSettings,
-        :groupProperties, :encodingMimeType, :pubsubManagerCallback,
-        :maxEncapsulatedDataSetMessageCount, :rtLevel, :securityMode)
-end
-function Base.fieldnames(::Type{Ptr{UA_WriterGroupConfig}})
-    (:name, :enabled, :writerGroupId, :publishingInterval,
-        :keepAliveTime, :priority, :transportSettings, :messageSettings,
-        :groupProperties, :encodingMimeType, :pubsubManagerCallback,
-        :maxEncapsulatedDataSetMessageCount, :rtLevel, :securityMode)
 end
 
 function Base.getproperty(x::Ptr{UA_WriterGroupConfig}, f::Symbol)
@@ -6462,6 +6573,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_WriterGroupConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_WriterGroupConfig, private::Bool = false)
+    (:name, :enabled, :writerGroupId, :publishingInterval, :keepAliveTime,
+        :priority, :transportSettings, :messageSettings, :groupProperties,
+        :encodingMimeType, :pubsubManagerCallback, :maxEncapsulatedDataSetMessageCount,
+        :rtLevel, :securityMode, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_WriterGroupConfig_clear(writerGroupConfig)
@@ -6561,19 +6683,11 @@ Fields:
 - `dataSetName`
 
 - `dataSetWriterProperties`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetWriterConfig
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataSetWriterConfig})
-    (:name, :dataSetWriterId, :dataSetFieldContentMask, :keyFrameCount,
-        :messageSettings, :transportSettings, :dataSetName, :dataSetWriterProperties)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataSetWriterConfig}})
-    (:name, :dataSetWriterId, :dataSetFieldContentMask, :keyFrameCount,
-        :messageSettings, :transportSettings, :dataSetName, :dataSetWriterProperties)
 end
 
 function Base.getproperty(x::Ptr{UA_DataSetWriterConfig}, f::Symbol)
@@ -6597,6 +6711,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DataSetWriterConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DataSetWriterConfig, private::Bool = false)
+    (:name, :dataSetWriterId, :dataSetFieldContentMask, :keyFrameCount,
+        :messageSettings, :transportSettings, :dataSetName,
+        :dataSetWriterProperties, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_DataSetWriterConfig_clear(pdsConfig)
@@ -6659,19 +6783,11 @@ Fields:
 - `overrideValueHandling`
 
 - `overrideValue`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldTargetDataType
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FieldTargetDataType})
-    (:dataSetFieldId, :receiverIndexRange, :targetNodeId, :attributeId,
-        :writeIndexRange, :overrideValueHandling, :overrideValue)
-end
-function Base.fieldnames(::Type{Ptr{UA_FieldTargetDataType}})
-    (:dataSetFieldId, :receiverIndexRange, :targetNodeId, :attributeId,
-        :writeIndexRange, :overrideValueHandling, :overrideValue)
 end
 
 function Base.getproperty(x::Ptr{UA_FieldTargetDataType}, f::Symbol)
@@ -6696,6 +6812,15 @@ function Base.setproperty!(x::Ptr{UA_FieldTargetDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_FieldTargetDataType, private::Bool = false)
+    (:dataSetFieldId, :receiverIndexRange, :targetNodeId, :attributeId, :writeIndexRange,
+        :overrideValueHandling, :overrideValue, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -6711,17 +6836,11 @@ Fields:
 - `beforeWrite`
 
 - `afterWrite`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FieldTargetVariable
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FieldTargetVariable})
-    (:targetVariable, :externalDataValue, :targetVariableContext, :beforeWrite, :afterWrite)
-end
-function Base.fieldnames(::Type{Ptr{UA_FieldTargetVariable}})
-    (:targetVariable, :externalDataValue, :targetVariableContext, :beforeWrite, :afterWrite)
 end
 
 function Base.getproperty(x::Ptr{UA_FieldTargetVariable}, f::Symbol)
@@ -6742,6 +6861,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_FieldTargetVariable}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_FieldTargetVariable, private::Bool = false)
+    (:targetVariable, :externalDataValue, :targetVariableContext,
+        :beforeWrite, :afterWrite, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -6773,9 +6901,6 @@ struct __JL_Ctag_38
     data::NTuple{16, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_38}) = (:subscribedDataSetTarget,)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_38}}) = (:subscribedDataSetTarget,)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_38}, f::Symbol)
     f === :subscribedDataSetTarget && return Ptr{UA_TargetVariables}(x + 0)
     return getfield(x, f)
@@ -6790,6 +6915,14 @@ end
 
 function Base.setproperty!(x::Ptr{__JL_Ctag_38}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_38, private::Bool = false)
+    (:subscribedDataSetTarget, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -6823,23 +6956,11 @@ Fields:
 - `linkedStandaloneSubscribedDataSetName`
 
 - `expectedEncoding`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetReaderConfig
     data::NTuple{384, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataSetReaderConfig})
-    (:name, :publisherId, :writerGroupId, :dataSetWriterId, :dataSetMetaData,
-        :dataSetFieldContentMask, :messageReceiveTimeout, :messageSettings,
-        :transportSettings, :subscribedDataSetType, :subscribedDataSet,
-        :linkedStandaloneSubscribedDataSetName, :expectedEncoding)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataSetReaderConfig}})
-    (:name, :publisherId, :writerGroupId, :dataSetWriterId, :dataSetMetaData,
-        :dataSetFieldContentMask, :messageReceiveTimeout, :messageSettings,
-        :transportSettings, :subscribedDataSetType, :subscribedDataSet,
-        :linkedStandaloneSubscribedDataSetName, :expectedEncoding)
 end
 
 function Base.getproperty(x::Ptr{UA_DataSetReaderConfig}, f::Symbol)
@@ -6868,6 +6989,18 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DataSetReaderConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DataSetReaderConfig, private::Bool = false)
+    (:name, :publisherId, :writerGroupId, :dataSetWriterId,
+        :dataSetMetaData, :dataSetFieldContentMask, :messageReceiveTimeout,
+        :messageSettings, :transportSettings, :subscribedDataSetType,
+        :subscribedDataSet, :linkedStandaloneSubscribedDataSetName,
+        :expectedEncoding, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_DataSetReaderConfig_copy(src, dst)
@@ -6903,9 +7036,6 @@ struct __JL_Ctag_53
     data::NTuple{16, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_53}) = (:target,)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_53}}) = (:target,)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_53}, f::Symbol)
     f === :target && return Ptr{UA_TargetVariablesDataType}(x + 0)
     return getfield(x, f)
@@ -6920,6 +7050,14 @@ end
 
 function Base.setproperty!(x::Ptr{__JL_Ctag_53}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_53, private::Bool = false)
+    (:target, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -6937,17 +7075,11 @@ Fields:
 - `dataSetMetaData`
 
 - `isConnected`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StandaloneSubscribedDataSetConfig
     data::NTuple{200, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_StandaloneSubscribedDataSetConfig})
-    (:name, :subscribedDataSetType, :subscribedDataSet, :dataSetMetaData, :isConnected)
-end
-function Base.fieldnames(::Type{Ptr{UA_StandaloneSubscribedDataSetConfig}})
-    (:name, :subscribedDataSetType, :subscribedDataSet, :dataSetMetaData, :isConnected)
 end
 
 function Base.getproperty(x::Ptr{UA_StandaloneSubscribedDataSetConfig}, f::Symbol)
@@ -6968,6 +7100,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_StandaloneSubscribedDataSetConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_StandaloneSubscribedDataSetConfig, private::Bool = false)
+    (:name, :subscribedDataSetType, :subscribedDataSet,
+        :dataSetMetaData, :isConnected, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_StandaloneSubscribedDataSetConfig_clear(sdsConfig)
@@ -7003,19 +7144,11 @@ Fields:
 - `transportSettings`
 
 - `securityMode`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReaderGroupConfig
     data::NTuple{104, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReaderGroupConfig})
-    (:name, :rtLevel, :groupProperties, :encodingMimeType,
-        :transportSettings, :securityMode)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReaderGroupConfig}})
-    (:name, :rtLevel, :groupProperties, :encodingMimeType,
-        :transportSettings, :securityMode)
 end
 
 function Base.getproperty(x::Ptr{UA_ReaderGroupConfig}, f::Symbol)
@@ -7037,6 +7170,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReaderGroupConfig}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReaderGroupConfig, private::Bool = false)
+    (:name, :rtLevel, :groupProperties, :encodingMimeType,
+        :transportSettings, :securityMode, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 function UA_ReaderGroupConfig_clear(readerGroupConfig)
@@ -7685,14 +7827,12 @@ Fields:
 - `dataTypeId`
 
 - `name`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataTypeDescription
     data::NTuple{48, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DataTypeDescription}) = (:dataTypeId, :name)
-Base.fieldnames(::Type{Ptr{UA_DataTypeDescription}}) = (:dataTypeId, :name)
 
 function Base.getproperty(x::Ptr{UA_DataTypeDescription}, f::Symbol)
     f === :dataTypeId && return Ptr{UA_NodeId}(x + 0)
@@ -7709,6 +7849,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DataTypeDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DataTypeDescription, private::Bool = false)
+    (:dataTypeId, :name, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -7730,14 +7878,12 @@ Fields:
 - `namespaceUri`
 
 - `identifier`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PortableNodeId
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_PortableNodeId}) = (:namespaceUri, :identifier)
-Base.fieldnames(::Type{Ptr{UA_PortableNodeId}}) = (:namespaceUri, :identifier)
 
 function Base.getproperty(x::Ptr{UA_PortableNodeId}, f::Symbol)
     f === :namespaceUri && return Ptr{UA_String}(x + 0)
@@ -7754,6 +7900,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PortableNodeId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PortableNodeId, private::Bool = false)
+    (:namespaceUri, :identifier, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -7810,21 +7964,11 @@ Fields:
 - `transportSettings`
 
 - `messageSettings`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetWriterDataType
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataSetWriterDataType})
-    (:name, :enabled, :dataSetWriterId, :dataSetFieldContentMask,
-        :keyFrameCount, :dataSetName, :dataSetWriterPropertiesSize,
-        :dataSetWriterProperties, :transportSettings, :messageSettings)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataSetWriterDataType}})
-    (:name, :enabled, :dataSetWriterId, :dataSetFieldContentMask,
-        :keyFrameCount, :dataSetName, :dataSetWriterPropertiesSize,
-        :dataSetWriterProperties, :transportSettings, :messageSettings)
 end
 
 function Base.getproperty(x::Ptr{UA_DataSetWriterDataType}, f::Symbol)
@@ -7850,6 +7994,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DataSetWriterDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DataSetWriterDataType, private::Bool = false)
+    (:name, :enabled, :dataSetWriterId, :dataSetFieldContentMask, :keyFrameCount,
+        :dataSetName, :dataSetWriterPropertiesSize, :dataSetWriterProperties,
+        :transportSettings, :messageSettings, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -8010,14 +8164,12 @@ $(TYPEDEF)
 Fields:
 
 - `discoveryAddress`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramConnectionTransportDataType
     data::NTuple{48, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DatagramConnectionTransportDataType}) = (:discoveryAddress,)
-Base.fieldnames(::Type{Ptr{UA_DatagramConnectionTransportDataType}}) = (:discoveryAddress,)
 
 function Base.getproperty(x::Ptr{UA_DatagramConnectionTransportDataType}, f::Symbol)
     f === :discoveryAddress && return Ptr{UA_ExtensionObject}(x + 0)
@@ -8033,6 +8185,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DatagramConnectionTransportDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(
+        x::UA_DatagramConnectionTransportDataType, private::Bool = false)
+    (:discoveryAddress, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -8052,19 +8213,11 @@ Fields:
 - `datagramQosSize`
 
 - `datagramQos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramConnectionTransport2DataType
     data::NTuple{88, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DatagramConnectionTransport2DataType})
-    (:discoveryAddress, :discoveryAnnounceRate, :discoveryMaxMessageSize,
-        :qosCategory, :datagramQosSize, :datagramQos)
-end
-function Base.fieldnames(::Type{Ptr{UA_DatagramConnectionTransport2DataType}})
-    (:discoveryAddress, :discoveryAnnounceRate, :discoveryMaxMessageSize,
-        :qosCategory, :datagramQosSize, :datagramQos)
 end
 
 function Base.getproperty(x::Ptr{UA_DatagramConnectionTransport2DataType}, f::Symbol)
@@ -8086,6 +8239,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DatagramConnectionTransport2DataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(
+        x::UA_DatagramConnectionTransport2DataType, private::Bool = false)
+    (:discoveryAddress, :discoveryAnnounceRate, :discoveryMaxMessageSize,
+        :qosCategory, :datagramQosSize, :datagramQos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -8119,19 +8282,11 @@ Fields:
 - `discoveryAnnounceRate`
 
 - `topic`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramWriterGroupTransport2DataType
     data::NTuple{120, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DatagramWriterGroupTransport2DataType})
-    (:messageRepeatCount, :messageRepeatDelay, :address, :qosCategory,
-        :datagramQosSize, :datagramQos, :discoveryAnnounceRate, :topic)
-end
-function Base.fieldnames(::Type{Ptr{UA_DatagramWriterGroupTransport2DataType}})
-    (:messageRepeatCount, :messageRepeatDelay, :address, :qosCategory,
-        :datagramQosSize, :datagramQos, :discoveryAnnounceRate, :topic)
 end
 
 function Base.getproperty(x::Ptr{UA_DatagramWriterGroupTransport2DataType}, f::Symbol)
@@ -8157,6 +8312,16 @@ function Base.setproperty!(x::Ptr{UA_DatagramWriterGroupTransport2DataType}, f::
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(
+        x::UA_DatagramWriterGroupTransport2DataType, private::Bool = false)
+    (:messageRepeatCount, :messageRepeatDelay, :address, :qosCategory, :datagramQosSize,
+        :datagramQos, :discoveryAnnounceRate, :topic, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8172,17 +8337,11 @@ Fields:
 - `datagramQos`
 
 - `topic`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DatagramDataSetReaderTransportDataType
     data::NTuple{96, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DatagramDataSetReaderTransportDataType})
-    (:address, :qosCategory, :datagramQosSize, :datagramQos, :topic)
-end
-function Base.fieldnames(::Type{Ptr{UA_DatagramDataSetReaderTransportDataType}})
-    (:address, :qosCategory, :datagramQosSize, :datagramQos, :topic)
 end
 
 function Base.getproperty(x::Ptr{UA_DatagramDataSetReaderTransportDataType}, f::Symbol)
@@ -8203,6 +8362,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DatagramDataSetReaderTransportDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(
+        x::UA_DatagramDataSetReaderTransportDataType, private::Bool = false)
+    (:address, :qosCategory, :datagramQosSize, :datagramQos,
+        :topic, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -8448,14 +8617,12 @@ Fields:
 - `roleId`
 
 - `permissions`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RolePermissionType
     data::NTuple{32, UInt8}
 end
-
-Base.fieldnames(::Type{UA_RolePermissionType}) = (:roleId, :permissions)
-Base.fieldnames(::Type{Ptr{UA_RolePermissionType}}) = (:roleId, :permissions)
 
 function Base.getproperty(x::Ptr{UA_RolePermissionType}, f::Symbol)
     f === :roleId && return Ptr{UA_NodeId}(x + 0)
@@ -8474,6 +8641,14 @@ function Base.setproperty!(x::Ptr{UA_RolePermissionType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RolePermissionType, private::Bool = false)
+    (:roleId, :permissions, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8485,14 +8660,12 @@ Fields:
 - `isInverse`
 
 - `targetId`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceNode
     data::NTuple{80, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ReferenceNode}) = (:referenceTypeId, :isInverse, :targetId)
-Base.fieldnames(::Type{Ptr{UA_ReferenceNode}}) = (:referenceTypeId, :isInverse, :targetId)
 
 function Base.getproperty(x::Ptr{UA_ReferenceNode}, f::Symbol)
     f === :referenceTypeId && return Ptr{UA_NodeId}(x + 0)
@@ -8510,6 +8683,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReferenceNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReferenceNode, private::Bool = false)
+    (:referenceTypeId, :isInverse, :targetId, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -8576,14 +8757,12 @@ $(TYPEDEF)
 Fields:
 
 - `responseHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ServiceFault
     data::NTuple{136, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ServiceFault}) = (:responseHeader,)
-Base.fieldnames(::Type{Ptr{UA_ServiceFault}}) = (:responseHeader,)
 
 function Base.getproperty(x::Ptr{UA_ServiceFault}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -8599,6 +8778,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ServiceFault}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ServiceFault, private::Bool = false)
+    (:responseHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -8647,17 +8834,11 @@ Fields:
 - `serverUrisSize`
 
 - `serverUris`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersRequest
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FindServersRequest})
-    (:requestHeader, :endpointUrl, :localeIdsSize, :localeIds, :serverUrisSize, :serverUris)
-end
-function Base.fieldnames(::Type{Ptr{UA_FindServersRequest}})
-    (:requestHeader, :endpointUrl, :localeIdsSize, :localeIds, :serverUrisSize, :serverUris)
 end
 
 function Base.getproperty(x::Ptr{UA_FindServersRequest}, f::Symbol)
@@ -8681,6 +8862,15 @@ function Base.setproperty!(x::Ptr{UA_FindServersRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_FindServersRequest, private::Bool = false)
+    (:requestHeader, :endpointUrl, :localeIdsSize, :localeIds,
+        :serverUrisSize, :serverUris, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8692,15 +8882,11 @@ Fields:
 - `serversSize`
 
 - `servers`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersResponse
     data::NTuple{152, UInt8}
-end
-
-Base.fieldnames(::Type{UA_FindServersResponse}) = (:responseHeader, :serversSize, :servers)
-function Base.fieldnames(::Type{Ptr{UA_FindServersResponse}})
-    (:responseHeader, :serversSize, :servers)
 end
 
 function Base.getproperty(x::Ptr{UA_FindServersResponse}, f::Symbol)
@@ -8721,6 +8907,14 @@ function Base.setproperty!(x::Ptr{UA_FindServersResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_FindServersResponse, private::Bool = false)
+    (:responseHeader, :serversSize, :servers, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8736,19 +8930,11 @@ Fields:
 - `serverCapabilityFilterSize`
 
 - `serverCapabilityFilter`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersOnNetworkRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FindServersOnNetworkRequest})
-    (:requestHeader, :startingRecordId, :maxRecordsToReturn,
-        :serverCapabilityFilterSize, :serverCapabilityFilter)
-end
-function Base.fieldnames(::Type{Ptr{UA_FindServersOnNetworkRequest}})
-    (:requestHeader, :startingRecordId, :maxRecordsToReturn,
-        :serverCapabilityFilterSize, :serverCapabilityFilter)
 end
 
 function Base.getproperty(x::Ptr{UA_FindServersOnNetworkRequest}, f::Symbol)
@@ -8771,6 +8957,15 @@ function Base.setproperty!(x::Ptr{UA_FindServersOnNetworkRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_FindServersOnNetworkRequest, private::Bool = false)
+    (:requestHeader, :startingRecordId, :maxRecordsToReturn, :serverCapabilityFilterSize,
+        :serverCapabilityFilter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8784,17 +8979,11 @@ Fields:
 - `serversSize`
 
 - `servers`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_FindServersOnNetworkResponse
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_FindServersOnNetworkResponse})
-    (:responseHeader, :lastCounterResetTime, :serversSize, :servers)
-end
-function Base.fieldnames(::Type{Ptr{UA_FindServersOnNetworkResponse}})
-    (:responseHeader, :lastCounterResetTime, :serversSize, :servers)
 end
 
 function Base.getproperty(x::Ptr{UA_FindServersOnNetworkResponse}, f::Symbol)
@@ -8816,6 +9005,15 @@ function Base.setproperty!(x::Ptr{UA_FindServersOnNetworkResponse}, f::Symbol, v
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_FindServersOnNetworkResponse, private::Bool = false)
+    (:responseHeader, :lastCounterResetTime, :serversSize,
+        :servers, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 const UA_ApplicationInstanceCertificate = UA_ByteString
 
 """
@@ -8835,19 +9033,11 @@ Fields:
 - `profileUrisSize`
 
 - `profileUris`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_GetEndpointsRequest
     data::NTuple{160, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_GetEndpointsRequest})
-    (:requestHeader, :endpointUrl, :localeIdsSize,
-        :localeIds, :profileUrisSize, :profileUris)
-end
-function Base.fieldnames(::Type{Ptr{UA_GetEndpointsRequest}})
-    (:requestHeader, :endpointUrl, :localeIdsSize,
-        :localeIds, :profileUrisSize, :profileUris)
 end
 
 function Base.getproperty(x::Ptr{UA_GetEndpointsRequest}, f::Symbol)
@@ -8871,6 +9061,15 @@ function Base.setproperty!(x::Ptr{UA_GetEndpointsRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_GetEndpointsRequest, private::Bool = false)
+    (:requestHeader, :endpointUrl, :localeIdsSize, :localeIds,
+        :profileUrisSize, :profileUris, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8882,17 +9081,11 @@ Fields:
 - `endpointsSize`
 
 - `endpoints`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_GetEndpointsResponse
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_GetEndpointsResponse})
-    (:responseHeader, :endpointsSize, :endpoints)
-end
-function Base.fieldnames(::Type{Ptr{UA_GetEndpointsResponse}})
-    (:responseHeader, :endpointsSize, :endpoints)
 end
 
 function Base.getproperty(x::Ptr{UA_GetEndpointsResponse}, f::Symbol)
@@ -8911,6 +9104,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_GetEndpointsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_GetEndpointsResponse, private::Bool = false)
+    (:responseHeader, :endpointsSize, :endpoints, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -8940,14 +9141,12 @@ Fields:
 - `requestHeader`
 
 - `server`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServerRequest
     data::NTuple{224, UInt8}
 end
-
-Base.fieldnames(::Type{UA_RegisterServerRequest}) = (:requestHeader, :server)
-Base.fieldnames(::Type{Ptr{UA_RegisterServerRequest}}) = (:requestHeader, :server)
 
 function Base.getproperty(x::Ptr{UA_RegisterServerRequest}, f::Symbol)
     f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
@@ -8966,6 +9165,14 @@ function Base.setproperty!(x::Ptr{UA_RegisterServerRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RegisterServerRequest, private::Bool = false)
+    (:requestHeader, :server, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -8973,14 +9180,12 @@ $(TYPEDEF)
 Fields:
 
 - `responseHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServerResponse
     data::NTuple{136, UInt8}
 end
-
-Base.fieldnames(::Type{UA_RegisterServerResponse}) = (:responseHeader,)
-Base.fieldnames(::Type{Ptr{UA_RegisterServerResponse}}) = (:responseHeader,)
 
 function Base.getproperty(x::Ptr{UA_RegisterServerResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -8996,6 +9201,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_RegisterServerResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_RegisterServerResponse, private::Bool = false)
+    (:responseHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -9022,17 +9235,11 @@ Fields:
 - `discoveryConfigurationSize`
 
 - `discoveryConfiguration`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServer2Request
     data::NTuple{240, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RegisterServer2Request})
-    (:requestHeader, :server, :discoveryConfigurationSize, :discoveryConfiguration)
-end
-function Base.fieldnames(::Type{Ptr{UA_RegisterServer2Request}})
-    (:requestHeader, :server, :discoveryConfigurationSize, :discoveryConfiguration)
 end
 
 function Base.getproperty(x::Ptr{UA_RegisterServer2Request}, f::Symbol)
@@ -9054,6 +9261,15 @@ function Base.setproperty!(x::Ptr{UA_RegisterServer2Request}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RegisterServer2Request, private::Bool = false)
+    (:requestHeader, :server, :discoveryConfigurationSize,
+        :discoveryConfiguration, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9069,19 +9285,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterServer2Response
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RegisterServer2Response})
-    (:responseHeader, :configurationResultsSize,
-        :configurationResults, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_RegisterServer2Response}})
-    (:responseHeader, :configurationResultsSize,
-        :configurationResults, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_RegisterServer2Response}, f::Symbol)
@@ -9102,6 +9310,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_RegisterServer2Response}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_RegisterServer2Response, private::Bool = false)
+    (:responseHeader, :configurationResultsSize, :configurationResults,
+        :diagnosticInfosSize, :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 @cenum UA_SecurityTokenRequestType::UInt32 begin
@@ -9150,19 +9367,11 @@ Fields:
 - `clientNonce`
 
 - `requestedLifetime`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_OpenSecureChannelRequest
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_OpenSecureChannelRequest})
-    (:requestHeader, :clientProtocolVersion, :requestType,
-        :securityMode, :clientNonce, :requestedLifetime)
-end
-function Base.fieldnames(::Type{Ptr{UA_OpenSecureChannelRequest}})
-    (:requestHeader, :clientProtocolVersion, :requestType,
-        :securityMode, :clientNonce, :requestedLifetime)
 end
 
 function Base.getproperty(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol)
@@ -9186,6 +9395,15 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_OpenSecureChannelRequest, private::Bool = false)
+    (:requestHeader, :clientProtocolVersion, :requestType, :securityMode,
+        :clientNonce, :requestedLifetime, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9199,17 +9417,11 @@ Fields:
 - `securityToken`
 
 - `serverNonce`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_OpenSecureChannelResponse
     data::NTuple{184, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_OpenSecureChannelResponse})
-    (:responseHeader, :serverProtocolVersion, :securityToken, :serverNonce)
-end
-function Base.fieldnames(::Type{Ptr{UA_OpenSecureChannelResponse}})
-    (:responseHeader, :serverProtocolVersion, :securityToken, :serverNonce)
 end
 
 function Base.getproperty(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol)
@@ -9231,6 +9443,15 @@ function Base.setproperty!(x::Ptr{UA_OpenSecureChannelResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_OpenSecureChannelResponse, private::Bool = false)
+    (:responseHeader, :serverProtocolVersion, :securityToken,
+        :serverNonce, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9238,14 +9459,12 @@ $(TYPEDEF)
 Fields:
 
 - `requestHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSecureChannelRequest
     data::NTuple{112, UInt8}
 end
-
-Base.fieldnames(::Type{UA_CloseSecureChannelRequest}) = (:requestHeader,)
-Base.fieldnames(::Type{Ptr{UA_CloseSecureChannelRequest}}) = (:requestHeader,)
 
 function Base.getproperty(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol)
     f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
@@ -9263,6 +9482,14 @@ function Base.setproperty!(x::Ptr{UA_CloseSecureChannelRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CloseSecureChannelRequest, private::Bool = false)
+    (:requestHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9270,14 +9497,12 @@ $(TYPEDEF)
 Fields:
 
 - `responseHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSecureChannelResponse
     data::NTuple{136, UInt8}
 end
-
-Base.fieldnames(::Type{UA_CloseSecureChannelResponse}) = (:responseHeader,)
-Base.fieldnames(::Type{Ptr{UA_CloseSecureChannelResponse}}) = (:responseHeader,)
 
 function Base.getproperty(x::Ptr{UA_CloseSecureChannelResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -9293,6 +9518,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CloseSecureChannelResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CloseSecureChannelResponse, private::Bool = false)
+    (:responseHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -9358,21 +9591,11 @@ Fields:
 - `requestedSessionTimeout`
 
 - `maxResponseMessageSize`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSessionRequest
     data::NTuple{328, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateSessionRequest})
-    (:requestHeader, :clientDescription, :serverUri, :endpointUrl,
-        :sessionName, :clientNonce, :clientCertificate,
-        :requestedSessionTimeout, :maxResponseMessageSize)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateSessionRequest}})
-    (:requestHeader, :clientDescription, :serverUri, :endpointUrl,
-        :sessionName, :clientNonce, :clientCertificate,
-        :requestedSessionTimeout, :maxResponseMessageSize)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateSessionRequest}, f::Symbol)
@@ -9397,6 +9620,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CreateSessionRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CreateSessionRequest, private::Bool = false)
+    (:requestHeader, :clientDescription, :serverUri, :endpointUrl,
+        :sessionName, :clientNonce, :clientCertificate, :requestedSessionTimeout,
+        :maxResponseMessageSize, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -9428,23 +9661,11 @@ Fields:
 - `serverSignature`
 
 - `maxRequestMessageSize`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CreateSessionResponse
     data::NTuple{296, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CreateSessionResponse})
-    (:responseHeader, :sessionId, :authenticationToken,
-        :revisedSessionTimeout, :serverNonce, :serverCertificate,
-        :serverEndpointsSize, :serverEndpoints, :serverSoftwareCertificatesSize,
-        :serverSoftwareCertificates, :serverSignature, :maxRequestMessageSize)
-end
-function Base.fieldnames(::Type{Ptr{UA_CreateSessionResponse}})
-    (:responseHeader, :sessionId, :authenticationToken,
-        :revisedSessionTimeout, :serverNonce, :serverCertificate,
-        :serverEndpointsSize, :serverEndpoints, :serverSoftwareCertificatesSize,
-        :serverSoftwareCertificates, :serverSignature, :maxRequestMessageSize)
 end
 
 function Base.getproperty(x::Ptr{UA_CreateSessionResponse}, f::Symbol)
@@ -9473,6 +9694,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CreateSessionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CreateSessionResponse, private::Bool = false)
+    (:responseHeader, :sessionId, :authenticationToken, :revisedSessionTimeout,
+        :serverNonce, :serverCertificate, :serverEndpointsSize, :serverEndpoints,
+        :serverSoftwareCertificatesSize, :serverSoftwareCertificates,
+        :serverSignature, :maxRequestMessageSize, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -9597,21 +9829,11 @@ Fields:
 - `userIdentityToken`
 
 - `userTokenSignature`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ActivateSessionRequest
     data::NTuple{256, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ActivateSessionRequest})
-    (:requestHeader, :clientSignature, :clientSoftwareCertificatesSize,
-        :clientSoftwareCertificates, :localeIdsSize,
-        :localeIds, :userIdentityToken, :userTokenSignature)
-end
-function Base.fieldnames(::Type{Ptr{UA_ActivateSessionRequest}})
-    (:requestHeader, :clientSignature, :clientSoftwareCertificatesSize,
-        :clientSoftwareCertificates, :localeIdsSize,
-        :localeIds, :userIdentityToken, :userTokenSignature)
 end
 
 function Base.getproperty(x::Ptr{UA_ActivateSessionRequest}, f::Symbol)
@@ -9638,6 +9860,16 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ActivateSessionRequest, private::Bool = false)
+    (:requestHeader, :clientSignature, :clientSoftwareCertificatesSize,
+        :clientSoftwareCertificates, :localeIdsSize, :localeIds,
+        :userIdentityToken, :userTokenSignature, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9655,19 +9887,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ActivateSessionResponse
     data::NTuple{184, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ActivateSessionResponse})
-    (:responseHeader, :serverNonce, :resultsSize,
-        :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_ActivateSessionResponse}})
-    (:responseHeader, :serverNonce, :resultsSize,
-        :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_ActivateSessionResponse}, f::Symbol)
@@ -9691,6 +9915,15 @@ function Base.setproperty!(x::Ptr{UA_ActivateSessionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ActivateSessionResponse, private::Bool = false)
+    (:responseHeader, :serverNonce, :resultsSize, :results,
+        :diagnosticInfosSize, :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9700,15 +9933,11 @@ Fields:
 - `requestHeader`
 
 - `deleteSubscriptions`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSessionRequest
     data::NTuple{120, UInt8}
-end
-
-Base.fieldnames(::Type{UA_CloseSessionRequest}) = (:requestHeader, :deleteSubscriptions)
-function Base.fieldnames(::Type{Ptr{UA_CloseSessionRequest}})
-    (:requestHeader, :deleteSubscriptions)
 end
 
 function Base.getproperty(x::Ptr{UA_CloseSessionRequest}, f::Symbol)
@@ -9728,6 +9957,14 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CloseSessionRequest, private::Bool = false)
+    (:requestHeader, :deleteSubscriptions, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9735,14 +9972,12 @@ $(TYPEDEF)
 Fields:
 
 - `responseHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CloseSessionResponse
     data::NTuple{136, UInt8}
 end
-
-Base.fieldnames(::Type{UA_CloseSessionResponse}) = (:responseHeader,)
-Base.fieldnames(::Type{Ptr{UA_CloseSessionResponse}}) = (:responseHeader,)
 
 function Base.getproperty(x::Ptr{UA_CloseSessionResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -9760,6 +9995,14 @@ function Base.setproperty!(x::Ptr{UA_CloseSessionResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CloseSessionResponse, private::Bool = false)
+    (:responseHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9769,14 +10012,12 @@ Fields:
 - `requestHeader`
 
 - `requestHandle`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CancelRequest
     data::NTuple{120, UInt8}
 end
-
-Base.fieldnames(::Type{UA_CancelRequest}) = (:requestHeader, :requestHandle)
-Base.fieldnames(::Type{Ptr{UA_CancelRequest}}) = (:requestHeader, :requestHandle)
 
 function Base.getproperty(x::Ptr{UA_CancelRequest}, f::Symbol)
     f === :requestHeader && return Ptr{UA_RequestHeader}(x + 0)
@@ -9795,6 +10036,14 @@ function Base.setproperty!(x::Ptr{UA_CancelRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CancelRequest, private::Bool = false)
+    (:requestHeader, :requestHandle, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -9804,14 +10053,12 @@ Fields:
 - `responseHeader`
 
 - `cancelCount`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CancelResponse
     data::NTuple{144, UInt8}
 end
-
-Base.fieldnames(::Type{UA_CancelResponse}) = (:responseHeader, :cancelCount)
-Base.fieldnames(::Type{Ptr{UA_CancelResponse}}) = (:responseHeader, :cancelCount)
 
 function Base.getproperty(x::Ptr{UA_CancelResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -9828,6 +10075,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CancelResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CancelResponse, private::Bool = false)
+    (:responseHeader, :cancelCount, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 @cenum UA_NodeAttributesMask::UInt32 begin
@@ -9950,19 +10205,11 @@ Fields:
 - `arrayDimensions`
 
 - `isAbstract`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableTypeAttributes
     data::NTuple{184, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_VariableTypeAttributes})
-    (:specifiedAttributes, :displayName, :description, :writeMask, :userWriteMask,
-        :value, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions, :isAbstract)
-end
-function Base.fieldnames(::Type{Ptr{UA_VariableTypeAttributes}})
-    (:specifiedAttributes, :displayName, :description, :writeMask, :userWriteMask,
-        :value, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions, :isAbstract)
 end
 
 function Base.getproperty(x::Ptr{UA_VariableTypeAttributes}, f::Symbol)
@@ -9989,6 +10236,16 @@ end
 
 function Base.setproperty!(x::Ptr{UA_VariableTypeAttributes}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_VariableTypeAttributes, private::Bool = false)
+    (:specifiedAttributes, :displayName, :description, :writeMask,
+        :userWriteMask, :value, :dataType, :valueRank, :arrayDimensionsSize,
+        :arrayDimensions, :isAbstract, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -10023,23 +10280,9 @@ function Base.setproperty!(x::Ptr{UA_ReferenceTypeAttributes}, f::Symbol, v)
 end
 
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `specifiedAttributes`
-
-- `displayName`
-
-- `description`
-
-- `writeMask`
-
-- `userWriteMask`
-
-- `isAbstract`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_DataTypeAttributes
     specifiedAttributes::UA_UInt32
@@ -10136,19 +10379,11 @@ Fields:
 - `nodeAttributes`
 
 - `typeDefinition`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesItem
     data::NTuple{248, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AddNodesItem})
-    (:parentNodeId, :referenceTypeId, :requestedNewNodeId,
-        :browseName, :nodeClass, :nodeAttributes, :typeDefinition)
-end
-function Base.fieldnames(::Type{Ptr{UA_AddNodesItem}})
-    (:parentNodeId, :referenceTypeId, :requestedNewNodeId,
-        :browseName, :nodeClass, :nodeAttributes, :typeDefinition)
 end
 
 function Base.getproperty(x::Ptr{UA_AddNodesItem}, f::Symbol)
@@ -10173,6 +10408,15 @@ function Base.setproperty!(x::Ptr{UA_AddNodesItem}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddNodesItem, private::Bool = false)
+    (:parentNodeId, :referenceTypeId, :requestedNewNodeId, :browseName, :nodeClass,
+        :nodeAttributes, :typeDefinition, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10182,14 +10426,12 @@ Fields:
 - `statusCode`
 
 - `addedNodeId`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesResult
     data::NTuple{32, UInt8}
 end
-
-Base.fieldnames(::Type{UA_AddNodesResult}) = (:statusCode, :addedNodeId)
-Base.fieldnames(::Type{Ptr{UA_AddNodesResult}}) = (:statusCode, :addedNodeId)
 
 function Base.getproperty(x::Ptr{UA_AddNodesResult}, f::Symbol)
     f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
@@ -10208,6 +10450,14 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddNodesResult, private::Bool = false)
+    (:statusCode, :addedNodeId, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10219,15 +10469,11 @@ Fields:
 - `nodesToAddSize`
 
 - `nodesToAdd`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesRequest
     data::NTuple{128, UInt8}
-end
-
-Base.fieldnames(::Type{UA_AddNodesRequest}) = (:requestHeader, :nodesToAddSize, :nodesToAdd)
-function Base.fieldnames(::Type{Ptr{UA_AddNodesRequest}})
-    (:requestHeader, :nodesToAddSize, :nodesToAdd)
 end
 
 function Base.getproperty(x::Ptr{UA_AddNodesRequest}, f::Symbol)
@@ -10248,6 +10494,14 @@ function Base.setproperty!(x::Ptr{UA_AddNodesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddNodesRequest, private::Bool = false)
+    (:requestHeader, :nodesToAddSize, :nodesToAdd, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10263,17 +10517,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddNodesResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AddNodesResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_AddNodesResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_AddNodesResponse}, f::Symbol)
@@ -10296,6 +10544,15 @@ function Base.setproperty!(x::Ptr{UA_AddNodesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddNodesResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10313,19 +10570,11 @@ Fields:
 - `targetNodeId`
 
 - `targetNodeClass`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesItem
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AddReferencesItem})
-    (:sourceNodeId, :referenceTypeId, :isForward,
-        :targetServerUri, :targetNodeId, :targetNodeClass)
-end
-function Base.fieldnames(::Type{Ptr{UA_AddReferencesItem}})
-    (:sourceNodeId, :referenceTypeId, :isForward,
-        :targetServerUri, :targetNodeId, :targetNodeClass)
 end
 
 function Base.getproperty(x::Ptr{UA_AddReferencesItem}, f::Symbol)
@@ -10349,6 +10598,15 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesItem}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddReferencesItem, private::Bool = false)
+    (:sourceNodeId, :referenceTypeId, :isForward, :targetServerUri,
+        :targetNodeId, :targetNodeClass, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10360,17 +10618,11 @@ Fields:
 - `referencesToAddSize`
 
 - `referencesToAdd`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AddReferencesRequest})
-    (:requestHeader, :referencesToAddSize, :referencesToAdd)
-end
-function Base.fieldnames(::Type{Ptr{UA_AddReferencesRequest}})
-    (:requestHeader, :referencesToAddSize, :referencesToAdd)
 end
 
 function Base.getproperty(x::Ptr{UA_AddReferencesRequest}, f::Symbol)
@@ -10391,6 +10643,15 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddReferencesRequest, private::Bool = false)
+    (:requestHeader, :referencesToAddSize,
+        :referencesToAdd, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10406,17 +10667,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AddReferencesResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AddReferencesResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_AddReferencesResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_AddReferencesResponse}, f::Symbol)
@@ -10439,6 +10694,15 @@ function Base.setproperty!(x::Ptr{UA_AddReferencesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_AddReferencesResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10448,14 +10712,12 @@ Fields:
 - `nodeId`
 
 - `deleteTargetReferences`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesItem
     data::NTuple{32, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DeleteNodesItem}) = (:nodeId, :deleteTargetReferences)
-Base.fieldnames(::Type{Ptr{UA_DeleteNodesItem}}) = (:nodeId, :deleteTargetReferences)
 
 function Base.getproperty(x::Ptr{UA_DeleteNodesItem}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -10474,6 +10736,14 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesItem}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteNodesItem, private::Bool = false)
+    (:nodeId, :deleteTargetReferences, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10485,17 +10755,11 @@ Fields:
 - `nodesToDeleteSize`
 
 - `nodesToDelete`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteNodesRequest})
-    (:requestHeader, :nodesToDeleteSize, :nodesToDelete)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteNodesRequest}})
-    (:requestHeader, :nodesToDeleteSize, :nodesToDelete)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteNodesRequest}, f::Symbol)
@@ -10516,6 +10780,14 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteNodesRequest, private::Bool = false)
+    (:requestHeader, :nodesToDeleteSize, :nodesToDelete, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10531,17 +10803,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteNodesResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteNodesResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteNodesResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteNodesResponse}, f::Symbol)
@@ -10564,6 +10830,15 @@ function Base.setproperty!(x::Ptr{UA_DeleteNodesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteNodesResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10579,17 +10854,11 @@ Fields:
 - `targetNodeId`
 
 - `deleteBidirectional`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesItem
     data::NTuple{112, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteReferencesItem})
-    (:sourceNodeId, :referenceTypeId, :isForward, :targetNodeId, :deleteBidirectional)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteReferencesItem}})
-    (:sourceNodeId, :referenceTypeId, :isForward, :targetNodeId, :deleteBidirectional)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteReferencesItem}, f::Symbol)
@@ -10612,6 +10881,15 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesItem}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteReferencesItem, private::Bool = false)
+    (:sourceNodeId, :referenceTypeId, :isForward, :targetNodeId,
+        :deleteBidirectional, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10623,17 +10901,11 @@ Fields:
 - `referencesToDeleteSize`
 
 - `referencesToDelete`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteReferencesRequest})
-    (:requestHeader, :referencesToDeleteSize, :referencesToDelete)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteReferencesRequest}})
-    (:requestHeader, :referencesToDeleteSize, :referencesToDelete)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol)
@@ -10654,6 +10926,15 @@ function Base.setproperty!(x::Ptr{UA_DeleteReferencesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteReferencesRequest, private::Bool = false)
+    (:requestHeader, :referencesToDeleteSize,
+        :referencesToDelete, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10669,17 +10950,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteReferencesResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteReferencesResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteReferencesResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteReferencesResponse}, f::Symbol)
@@ -10701,6 +10976,15 @@ end
 function Base.setproperty!(x::Ptr{UA_DeleteReferencesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
+
+function Base.propertynames(x::UA_DeleteReferencesResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
 const UA_AttributeWriteMask = UA_UInt32
 
 """
@@ -10714,14 +10998,12 @@ Fields:
 - `timestamp`
 
 - `viewVersion`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ViewDescription
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ViewDescription}) = (:viewId, :timestamp, :viewVersion)
-Base.fieldnames(::Type{Ptr{UA_ViewDescription}}) = (:viewId, :timestamp, :viewVersion)
 
 function Base.getproperty(x::Ptr{UA_ViewDescription}, f::Symbol)
     f === :viewId && return Ptr{UA_NodeId}(x + 0)
@@ -10739,6 +11021,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ViewDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ViewDescription, private::Bool = false)
+    (:viewId, :timestamp, :viewVersion, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 @cenum UA_BrowseResultMask::UInt32 begin
@@ -10772,19 +11062,11 @@ Fields:
 - `nodesToBrowseSize`
 
 - `nodesToBrowse`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseRequest
     data::NTuple{176, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_BrowseRequest})
-    (:requestHeader, :view, :requestedMaxReferencesPerNode,
-        :nodesToBrowseSize, :nodesToBrowse)
-end
-function Base.fieldnames(::Type{Ptr{UA_BrowseRequest}})
-    (:requestHeader, :view, :requestedMaxReferencesPerNode,
-        :nodesToBrowseSize, :nodesToBrowse)
 end
 
 function Base.getproperty(x::Ptr{UA_BrowseRequest}, f::Symbol)
@@ -10807,6 +11089,15 @@ function Base.setproperty!(x::Ptr{UA_BrowseRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowseRequest, private::Bool = false)
+    (:requestHeader, :view, :requestedMaxReferencesPerNode,
+        :nodesToBrowseSize, :nodesToBrowse, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10822,17 +11113,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_BrowseResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_BrowseResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_BrowseResponse}, f::Symbol)
@@ -10855,6 +11140,15 @@ function Base.setproperty!(x::Ptr{UA_BrowseResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowseResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10868,19 +11162,11 @@ Fields:
 - `continuationPointsSize`
 
 - `continuationPoints`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseNextRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_BrowseNextRequest})
-    (:requestHeader, :releaseContinuationPoints,
-        :continuationPointsSize, :continuationPoints)
-end
-function Base.fieldnames(::Type{Ptr{UA_BrowseNextRequest}})
-    (:requestHeader, :releaseContinuationPoints,
-        :continuationPointsSize, :continuationPoints)
 end
 
 function Base.getproperty(x::Ptr{UA_BrowseNextRequest}, f::Symbol)
@@ -10902,6 +11188,15 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowseNextRequest, private::Bool = false)
+    (:requestHeader, :releaseContinuationPoints, :continuationPointsSize,
+        :continuationPoints, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10917,17 +11212,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_BrowseNextResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_BrowseNextResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_BrowseNextResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_BrowseNextResponse}, f::Symbol)
@@ -10950,6 +11239,15 @@ function Base.setproperty!(x::Ptr{UA_BrowseNextResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_BrowseNextResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -10961,17 +11259,11 @@ Fields:
 - `browsePathsSize`
 
 - `browsePaths`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TranslateBrowsePathsToNodeIdsRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_TranslateBrowsePathsToNodeIdsRequest})
-    (:requestHeader, :browsePathsSize, :browsePaths)
-end
-function Base.fieldnames(::Type{Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}})
-    (:requestHeader, :browsePathsSize, :browsePaths)
 end
 
 function Base.getproperty(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::Symbol)
@@ -10992,6 +11284,15 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsRequest}, f::S
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(
+        x::UA_TranslateBrowsePathsToNodeIdsRequest, private::Bool = false)
+    (:requestHeader, :browsePathsSize, :browsePaths, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11007,17 +11308,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TranslateBrowsePathsToNodeIdsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_TranslateBrowsePathsToNodeIdsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::Symbol)
@@ -11040,6 +11335,16 @@ function Base.setproperty!(x::Ptr{UA_TranslateBrowsePathsToNodeIdsResponse}, f::
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(
+        x::UA_TranslateBrowsePathsToNodeIdsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11051,17 +11356,11 @@ Fields:
 - `nodesToRegisterSize`
 
 - `nodesToRegister`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterNodesRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RegisterNodesRequest})
-    (:requestHeader, :nodesToRegisterSize, :nodesToRegister)
-end
-function Base.fieldnames(::Type{Ptr{UA_RegisterNodesRequest}})
-    (:requestHeader, :nodesToRegisterSize, :nodesToRegister)
 end
 
 function Base.getproperty(x::Ptr{UA_RegisterNodesRequest}, f::Symbol)
@@ -11082,6 +11381,15 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RegisterNodesRequest, private::Bool = false)
+    (:requestHeader, :nodesToRegisterSize,
+        :nodesToRegister, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11093,17 +11401,11 @@ Fields:
 - `registeredNodeIdsSize`
 
 - `registeredNodeIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RegisterNodesResponse
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RegisterNodesResponse})
-    (:responseHeader, :registeredNodeIdsSize, :registeredNodeIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_RegisterNodesResponse}})
-    (:responseHeader, :registeredNodeIdsSize, :registeredNodeIds)
 end
 
 function Base.getproperty(x::Ptr{UA_RegisterNodesResponse}, f::Symbol)
@@ -11124,6 +11426,15 @@ function Base.setproperty!(x::Ptr{UA_RegisterNodesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RegisterNodesResponse, private::Bool = false)
+    (:responseHeader, :registeredNodeIdsSize,
+        :registeredNodeIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11135,17 +11446,11 @@ Fields:
 - `nodesToUnregisterSize`
 
 - `nodesToUnregister`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UnregisterNodesRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_UnregisterNodesRequest})
-    (:requestHeader, :nodesToUnregisterSize, :nodesToUnregister)
-end
-function Base.fieldnames(::Type{Ptr{UA_UnregisterNodesRequest}})
-    (:requestHeader, :nodesToUnregisterSize, :nodesToUnregister)
 end
 
 function Base.getproperty(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol)
@@ -11166,6 +11471,15 @@ function Base.setproperty!(x::Ptr{UA_UnregisterNodesRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_UnregisterNodesRequest, private::Bool = false)
+    (:requestHeader, :nodesToUnregisterSize,
+        :nodesToUnregister, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11173,14 +11487,12 @@ $(TYPEDEF)
 Fields:
 
 - `responseHeader`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UnregisterNodesResponse
     data::NTuple{136, UInt8}
 end
-
-Base.fieldnames(::Type{UA_UnregisterNodesResponse}) = (:responseHeader,)
-Base.fieldnames(::Type{Ptr{UA_UnregisterNodesResponse}}) = (:responseHeader,)
 
 function Base.getproperty(x::Ptr{UA_UnregisterNodesResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -11196,6 +11508,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_UnregisterNodesResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_UnregisterNodesResponse, private::Bool = false)
+    (:responseHeader, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 const UA_Counter = UA_UInt32
 
@@ -11242,17 +11562,11 @@ Fields:
 - `dataToReturnSize`
 
 - `dataToReturn`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeTypeDescription
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_NodeTypeDescription})
-    (:typeDefinitionNode, :includeSubTypes, :dataToReturnSize, :dataToReturn)
-end
-function Base.fieldnames(::Type{Ptr{UA_NodeTypeDescription}})
-    (:typeDefinitionNode, :includeSubTypes, :dataToReturnSize, :dataToReturn)
 end
 
 function Base.getproperty(x::Ptr{UA_NodeTypeDescription}, f::Symbol)
@@ -11274,6 +11588,15 @@ function Base.setproperty!(x::Ptr{UA_NodeTypeDescription}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_NodeTypeDescription, private::Bool = false)
+    (:typeDefinitionNode, :includeSubTypes, :dataToReturnSize,
+        :dataToReturn, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11287,17 +11610,11 @@ Fields:
 - `valuesSize`
 
 - `values`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryDataSet
     data::NTuple{112, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_QueryDataSet})
-    (:nodeId, :typeDefinitionNode, :valuesSize, :values)
-end
-function Base.fieldnames(::Type{Ptr{UA_QueryDataSet}})
-    (:nodeId, :typeDefinitionNode, :valuesSize, :values)
 end
 
 function Base.getproperty(x::Ptr{UA_QueryDataSet}, f::Symbol)
@@ -11319,6 +11636,14 @@ function Base.setproperty!(x::Ptr{UA_QueryDataSet}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_QueryDataSet, private::Bool = false)
+    (:nodeId, :typeDefinitionNode, :valuesSize, :values, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11334,17 +11659,11 @@ Fields:
 - `referencedNodeIdsSize`
 
 - `referencedNodeIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeReference
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_NodeReference})
-    (:nodeId, :referenceTypeId, :isForward, :referencedNodeIdsSize, :referencedNodeIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_NodeReference}})
-    (:nodeId, :referenceTypeId, :isForward, :referencedNodeIdsSize, :referencedNodeIds)
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReference}, f::Symbol)
@@ -11365,6 +11684,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_NodeReference}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_NodeReference, private::Bool = false)
+    (:nodeId, :referenceTypeId, :isForward, :referencedNodeIdsSize,
+        :referencedNodeIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -11416,17 +11744,11 @@ Fields:
 - `attributeId`
 
 - `indexRange`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AttributeOperand
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AttributeOperand})
-    (:nodeId, :alias, :browsePath, :attributeId, :indexRange)
-end
-function Base.fieldnames(::Type{Ptr{UA_AttributeOperand}})
-    (:nodeId, :alias, :browsePath, :attributeId, :indexRange)
 end
 
 function Base.getproperty(x::Ptr{UA_AttributeOperand}, f::Symbol)
@@ -11447,6 +11769,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_AttributeOperand}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_AttributeOperand, private::Bool = false)
+    (:nodeId, :alias, :browsePath, :attributeId,
+        :indexRange, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -11529,19 +11860,11 @@ Fields:
 - `maxDataSetsToReturn`
 
 - `maxReferencesToReturn`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryFirstRequest
     data::NTuple{192, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_QueryFirstRequest})
-    (:requestHeader, :view, :nodeTypesSize, :nodeTypes,
-        :filter, :maxDataSetsToReturn, :maxReferencesToReturn)
-end
-function Base.fieldnames(::Type{Ptr{UA_QueryFirstRequest}})
-    (:requestHeader, :view, :nodeTypesSize, :nodeTypes,
-        :filter, :maxDataSetsToReturn, :maxReferencesToReturn)
 end
 
 function Base.getproperty(x::Ptr{UA_QueryFirstRequest}, f::Symbol)
@@ -11564,6 +11887,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_QueryFirstRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_QueryFirstRequest, private::Bool = false)
+    (:requestHeader, :view, :nodeTypesSize, :nodeTypes, :filter,
+        :maxDataSetsToReturn, :maxReferencesToReturn, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -11589,21 +11921,11 @@ Fields:
 - `diagnosticInfos`
 
 - `filterResult`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryFirstResponse
     data::NTuple{232, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_QueryFirstResponse})
-    (:responseHeader, :queryDataSetsSize, :queryDataSets,
-        :continuationPoint, :parsingResultsSize, :parsingResults,
-        :diagnosticInfosSize, :diagnosticInfos, :filterResult)
-end
-function Base.fieldnames(::Type{Ptr{UA_QueryFirstResponse}})
-    (:responseHeader, :queryDataSetsSize, :queryDataSets,
-        :continuationPoint, :parsingResultsSize, :parsingResults,
-        :diagnosticInfosSize, :diagnosticInfos, :filterResult)
 end
 
 function Base.getproperty(x::Ptr{UA_QueryFirstResponse}, f::Symbol)
@@ -11630,6 +11952,16 @@ function Base.setproperty!(x::Ptr{UA_QueryFirstResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_QueryFirstResponse, private::Bool = false)
+    (:responseHeader, :queryDataSetsSize, :queryDataSets, :continuationPoint,
+        :parsingResultsSize, :parsingResults, :diagnosticInfosSize,
+        :diagnosticInfos, :filterResult, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11641,17 +11973,11 @@ Fields:
 - `releaseContinuationPoint`
 
 - `continuationPoint`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryNextRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_QueryNextRequest})
-    (:requestHeader, :releaseContinuationPoint, :continuationPoint)
-end
-function Base.fieldnames(::Type{Ptr{UA_QueryNextRequest}})
-    (:requestHeader, :releaseContinuationPoint, :continuationPoint)
 end
 
 function Base.getproperty(x::Ptr{UA_QueryNextRequest}, f::Symbol)
@@ -11672,6 +11998,15 @@ function Base.setproperty!(x::Ptr{UA_QueryNextRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_QueryNextRequest, private::Bool = false)
+    (:requestHeader, :releaseContinuationPoint,
+        :continuationPoint, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11685,17 +12020,11 @@ Fields:
 - `queryDataSets`
 
 - `revisedContinuationPoint`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_QueryNextResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_QueryNextResponse})
-    (:responseHeader, :queryDataSetsSize, :queryDataSets, :revisedContinuationPoint)
-end
-function Base.fieldnames(::Type{Ptr{UA_QueryNextResponse}})
-    (:responseHeader, :queryDataSetsSize, :queryDataSets, :revisedContinuationPoint)
 end
 
 function Base.getproperty(x::Ptr{UA_QueryNextResponse}, f::Symbol)
@@ -11717,6 +12046,15 @@ function Base.setproperty!(x::Ptr{UA_QueryNextResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_QueryNextResponse, private::Bool = false)
+    (:responseHeader, :queryDataSetsSize, :queryDataSets,
+        :revisedContinuationPoint, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11732,17 +12070,11 @@ Fields:
 - `nodesToReadSize`
 
 - `nodesToRead`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadRequest
     data::NTuple{144, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReadRequest})
-    (:requestHeader, :maxAge, :timestampsToReturn, :nodesToReadSize, :nodesToRead)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReadRequest}})
-    (:requestHeader, :maxAge, :timestampsToReturn, :nodesToReadSize, :nodesToRead)
 end
 
 function Base.getproperty(x::Ptr{UA_ReadRequest}, f::Symbol)
@@ -11765,6 +12097,15 @@ function Base.setproperty!(x::Ptr{UA_ReadRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ReadRequest, private::Bool = false)
+    (:requestHeader, :maxAge, :timestampsToReturn, :nodesToReadSize,
+        :nodesToRead, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11780,17 +12121,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReadResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReadResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReadResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_ReadResponse}, f::Symbol)
@@ -11813,6 +12148,15 @@ function Base.setproperty!(x::Ptr{UA_ReadResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ReadResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11826,17 +12170,11 @@ Fields:
 - `dataEncoding`
 
 - `continuationPoint`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadValueId
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryReadValueId})
-    (:nodeId, :indexRange, :dataEncoding, :continuationPoint)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryReadValueId}})
-    (:nodeId, :indexRange, :dataEncoding, :continuationPoint)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryReadValueId}, f::Symbol)
@@ -11858,6 +12196,15 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadValueId}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_HistoryReadValueId, private::Bool = false)
+    (:nodeId, :indexRange, :dataEncoding,
+        :continuationPoint, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -11869,17 +12216,11 @@ Fields:
 - `continuationPoint`
 
 - `historyData`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadResult
     data::NTuple{72, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryReadResult})
-    (:statusCode, :continuationPoint, :historyData)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryReadResult}})
-    (:statusCode, :continuationPoint, :historyData)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryReadResult}, f::Symbol)
@@ -11898,6 +12239,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_HistoryReadResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_HistoryReadResult, private::Bool = false)
+    (:statusCode, :continuationPoint, :historyData, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -11961,19 +12310,11 @@ Fields:
 - `nodesToReadSize`
 
 - `nodesToRead`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadRequest
     data::NTuple{184, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryReadRequest})
-    (:requestHeader, :historyReadDetails, :timestampsToReturn,
-        :releaseContinuationPoints, :nodesToReadSize, :nodesToRead)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryReadRequest}})
-    (:requestHeader, :historyReadDetails, :timestampsToReturn,
-        :releaseContinuationPoints, :nodesToReadSize, :nodesToRead)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryReadRequest}, f::Symbol)
@@ -11997,6 +12338,16 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_HistoryReadRequest, private::Bool = false)
+    (:requestHeader, :historyReadDetails, :timestampsToReturn,
+        :releaseContinuationPoints, :nodesToReadSize,
+        :nodesToRead, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12012,17 +12363,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryReadResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryReadResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryReadResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryReadResponse}, f::Symbol)
@@ -12045,6 +12390,15 @@ function Base.setproperty!(x::Ptr{UA_HistoryReadResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_HistoryReadResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12056,17 +12410,11 @@ Fields:
 - `nodesToWriteSize`
 
 - `nodesToWrite`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_WriteRequest})
-    (:requestHeader, :nodesToWriteSize, :nodesToWrite)
-end
-function Base.fieldnames(::Type{Ptr{UA_WriteRequest}})
-    (:requestHeader, :nodesToWriteSize, :nodesToWrite)
 end
 
 function Base.getproperty(x::Ptr{UA_WriteRequest}, f::Symbol)
@@ -12087,6 +12435,14 @@ function Base.setproperty!(x::Ptr{UA_WriteRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_WriteRequest, private::Bool = false)
+    (:requestHeader, :nodesToWriteSize, :nodesToWrite, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12102,17 +12458,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriteResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_WriteResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_WriteResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_WriteResponse}, f::Symbol)
@@ -12135,6 +12485,15 @@ function Base.setproperty!(x::Ptr{UA_WriteResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_WriteResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12142,14 +12501,12 @@ $(TYPEDEF)
 Fields:
 
 - `nodeId`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateDetails
     data::NTuple{24, UInt8}
 end
-
-Base.fieldnames(::Type{UA_HistoryUpdateDetails}) = (:nodeId,)
-Base.fieldnames(::Type{Ptr{UA_HistoryUpdateDetails}}) = (:nodeId,)
 
 function Base.getproperty(x::Ptr{UA_HistoryUpdateDetails}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -12165,6 +12522,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_HistoryUpdateDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_HistoryUpdateDetails, private::Bool = false)
+    (:nodeId, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 @cenum UA_HistoryUpdateType::UInt32 begin
@@ -12196,17 +12561,11 @@ Fields:
 - `updateValuesSize`
 
 - `updateValues`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateDataDetails
     data::NTuple{48, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_UpdateDataDetails})
-    (:nodeId, :performInsertReplace, :updateValuesSize, :updateValues)
-end
-function Base.fieldnames(::Type{Ptr{UA_UpdateDataDetails}})
-    (:nodeId, :performInsertReplace, :updateValuesSize, :updateValues)
 end
 
 function Base.getproperty(x::Ptr{UA_UpdateDataDetails}, f::Symbol)
@@ -12228,6 +12587,15 @@ function Base.setproperty!(x::Ptr{UA_UpdateDataDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_UpdateDataDetails, private::Bool = false)
+    (:nodeId, :performInsertReplace, :updateValuesSize,
+        :updateValues, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12241,17 +12609,11 @@ Fields:
 - `updateValuesSize`
 
 - `updateValues`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateStructureDataDetails
     data::NTuple{48, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_UpdateStructureDataDetails})
-    (:nodeId, :performInsertReplace, :updateValuesSize, :updateValues)
-end
-function Base.fieldnames(::Type{Ptr{UA_UpdateStructureDataDetails}})
-    (:nodeId, :performInsertReplace, :updateValuesSize, :updateValues)
 end
 
 function Base.getproperty(x::Ptr{UA_UpdateStructureDataDetails}, f::Symbol)
@@ -12273,6 +12635,15 @@ function Base.setproperty!(x::Ptr{UA_UpdateStructureDataDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_UpdateStructureDataDetails, private::Bool = false)
+    (:nodeId, :performInsertReplace, :updateValuesSize,
+        :updateValues, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12286,17 +12657,11 @@ Fields:
 - `startTime`
 
 - `endTime`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteRawModifiedDetails
     data::NTuple{48, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DeleteRawModifiedDetails})
-    (:nodeId, :isDeleteModified, :startTime, :endTime)
-end
-function Base.fieldnames(::Type{Ptr{UA_DeleteRawModifiedDetails}})
-    (:nodeId, :isDeleteModified, :startTime, :endTime)
 end
 
 function Base.getproperty(x::Ptr{UA_DeleteRawModifiedDetails}, f::Symbol)
@@ -12318,6 +12683,14 @@ function Base.setproperty!(x::Ptr{UA_DeleteRawModifiedDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteRawModifiedDetails, private::Bool = false)
+    (:nodeId, :isDeleteModified, :startTime, :endTime, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12329,14 +12702,12 @@ Fields:
 - `reqTimesSize`
 
 - `reqTimes`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteAtTimeDetails
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DeleteAtTimeDetails}) = (:nodeId, :reqTimesSize, :reqTimes)
-Base.fieldnames(::Type{Ptr{UA_DeleteAtTimeDetails}}) = (:nodeId, :reqTimesSize, :reqTimes)
 
 function Base.getproperty(x::Ptr{UA_DeleteAtTimeDetails}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -12356,6 +12727,14 @@ function Base.setproperty!(x::Ptr{UA_DeleteAtTimeDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DeleteAtTimeDetails, private::Bool = false)
+    (:nodeId, :reqTimesSize, :reqTimes, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12367,14 +12746,12 @@ Fields:
 - `eventIdsSize`
 
 - `eventIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DeleteEventDetails
     data::NTuple{40, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DeleteEventDetails}) = (:nodeId, :eventIdsSize, :eventIds)
-Base.fieldnames(::Type{Ptr{UA_DeleteEventDetails}}) = (:nodeId, :eventIdsSize, :eventIds)
 
 function Base.getproperty(x::Ptr{UA_DeleteEventDetails}, f::Symbol)
     f === :nodeId && return Ptr{UA_NodeId}(x + 0)
@@ -12392,6 +12769,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_DeleteEventDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_DeleteEventDetails, private::Bool = false)
+    (:nodeId, :eventIdsSize, :eventIds, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -12418,17 +12803,11 @@ Fields:
 - `historyUpdateDetailsSize`
 
 - `historyUpdateDetails`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryUpdateRequest})
-    (:requestHeader, :historyUpdateDetailsSize, :historyUpdateDetails)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryUpdateRequest}})
-    (:requestHeader, :historyUpdateDetailsSize, :historyUpdateDetails)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryUpdateRequest}, f::Symbol)
@@ -12449,6 +12828,15 @@ function Base.setproperty!(x::Ptr{UA_HistoryUpdateRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_HistoryUpdateRequest, private::Bool = false)
+    (:requestHeader, :historyUpdateDetailsSize,
+        :historyUpdateDetails, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12464,17 +12852,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_HistoryUpdateResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_HistoryUpdateResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_HistoryUpdateResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_HistoryUpdateResponse}, f::Symbol)
@@ -12497,6 +12879,15 @@ function Base.setproperty!(x::Ptr{UA_HistoryUpdateResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_HistoryUpdateResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12508,17 +12899,11 @@ Fields:
 - `methodsToCallSize`
 
 - `methodsToCall`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CallRequest})
-    (:requestHeader, :methodsToCallSize, :methodsToCall)
-end
-function Base.fieldnames(::Type{Ptr{UA_CallRequest}})
-    (:requestHeader, :methodsToCallSize, :methodsToCall)
 end
 
 function Base.getproperty(x::Ptr{UA_CallRequest}, f::Symbol)
@@ -12539,6 +12924,14 @@ function Base.setproperty!(x::Ptr{UA_CallRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_CallRequest, private::Bool = false)
+    (:requestHeader, :methodsToCallSize, :methodsToCall, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12554,17 +12947,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_CallResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_CallResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_CallResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_CallResponse}, f::Symbol)
@@ -12585,6 +12972,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_CallResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_CallResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 @cenum UA_DataChangeTrigger::UInt32 begin
@@ -12660,17 +13056,11 @@ Fields:
 - `processingInterval`
 
 - `aggregateConfiguration`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_AggregateFilter
     data::NTuple{48, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_AggregateFilter})
-    (:startTime, :aggregateType, :processingInterval, :aggregateConfiguration)
-end
-function Base.fieldnames(::Type{Ptr{UA_AggregateFilter}})
-    (:startTime, :aggregateType, :processingInterval, :aggregateConfiguration)
 end
 
 function Base.getproperty(x::Ptr{UA_AggregateFilter}, f::Symbol)
@@ -12690,6 +13080,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_AggregateFilter}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_AggregateFilter, private::Bool = false)
+    (:startTime, :aggregateType, :processingInterval,
+        :aggregateConfiguration, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -12718,17 +13117,9 @@ function Base.setproperty!(x::Ptr{UA_EventFilterResult}, f::Symbol, v)
 end
 
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `revisedStartTime`
-
-- `revisedProcessingInterval`
-
-- `revisedAggregateConfiguration`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_AggregateFilterResult
     revisedStartTime::UA_DateTime
@@ -12751,19 +13142,11 @@ Fields:
 - `monitoredItemIdsSize`
 
 - `monitoredItemIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetMonitoringModeRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetMonitoringModeRequest})
-    (:requestHeader, :subscriptionId, :monitoringMode,
-        :monitoredItemIdsSize, :monitoredItemIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetMonitoringModeRequest}})
-    (:requestHeader, :subscriptionId, :monitoringMode,
-        :monitoredItemIdsSize, :monitoredItemIds)
 end
 
 function Base.getproperty(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol)
@@ -12786,6 +13169,15 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SetMonitoringModeRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :monitoringMode, :monitoredItemIdsSize,
+        :monitoredItemIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12801,17 +13193,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetMonitoringModeResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetMonitoringModeResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetMonitoringModeResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol)
@@ -12834,6 +13220,15 @@ function Base.setproperty!(x::Ptr{UA_SetMonitoringModeResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SetMonitoringModeResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12853,19 +13248,11 @@ Fields:
 - `linksToRemoveSize`
 
 - `linksToRemove`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetTriggeringRequest
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetTriggeringRequest})
-    (:requestHeader, :subscriptionId, :triggeringItemId,
-        :linksToAddSize, :linksToAdd, :linksToRemoveSize, :linksToRemove)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetTriggeringRequest}})
-    (:requestHeader, :subscriptionId, :triggeringItemId,
-        :linksToAddSize, :linksToAdd, :linksToRemoveSize, :linksToRemove)
 end
 
 function Base.getproperty(x::Ptr{UA_SetTriggeringRequest}, f::Symbol)
@@ -12888,6 +13275,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SetTriggeringRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SetTriggeringRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :triggeringItemId, :linksToAddSize, :linksToAdd,
+        :linksToRemoveSize, :linksToRemove, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -12913,21 +13309,11 @@ Fields:
 - `removeDiagnosticInfosSize`
 
 - `removeDiagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetTriggeringResponse
     data::NTuple{200, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetTriggeringResponse})
-    (:responseHeader, :addResultsSize, :addResults, :addDiagnosticInfosSize,
-        :addDiagnosticInfos, :removeResultsSize, :removeResults,
-        :removeDiagnosticInfosSize, :removeDiagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetTriggeringResponse}})
-    (:responseHeader, :addResultsSize, :addResults, :addDiagnosticInfosSize,
-        :addDiagnosticInfos, :removeResultsSize, :removeResults,
-        :removeDiagnosticInfosSize, :removeDiagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_SetTriggeringResponse}, f::Symbol)
@@ -12954,6 +13340,17 @@ function Base.setproperty!(x::Ptr{UA_SetTriggeringResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SetTriggeringResponse, private::Bool = false)
+    (:responseHeader, :addResultsSize, :addResults,
+        :addDiagnosticInfosSize, :addDiagnosticInfos,
+        :removeResultsSize, :removeResults, :removeDiagnosticInfosSize,
+        :removeDiagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -12967,17 +13364,11 @@ Fields:
 - `subscriptionIdsSize`
 
 - `subscriptionIds`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetPublishingModeRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetPublishingModeRequest})
-    (:requestHeader, :publishingEnabled, :subscriptionIdsSize, :subscriptionIds)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetPublishingModeRequest}})
-    (:requestHeader, :publishingEnabled, :subscriptionIdsSize, :subscriptionIds)
 end
 
 function Base.getproperty(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol)
@@ -12999,6 +13390,15 @@ function Base.setproperty!(x::Ptr{UA_SetPublishingModeRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SetPublishingModeRequest, private::Bool = false)
+    (:requestHeader, :publishingEnabled, :subscriptionIdsSize,
+        :subscriptionIds, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -13014,17 +13414,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SetPublishingModeResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SetPublishingModeResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_SetPublishingModeResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_SetPublishingModeResponse}, f::Symbol)
@@ -13045,6 +13439,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SetPublishingModeResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SetPublishingModeResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -13079,14 +13482,12 @@ Fields:
 - `clientHandle`
 
 - `value`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MonitoredItemNotification
     data::NTuple{88, UInt8}
 end
-
-Base.fieldnames(::Type{UA_MonitoredItemNotification}) = (:clientHandle, :value)
-Base.fieldnames(::Type{Ptr{UA_MonitoredItemNotification}}) = (:clientHandle, :value)
 
 function Base.getproperty(x::Ptr{UA_MonitoredItemNotification}, f::Symbol)
     f === :clientHandle && return Ptr{UA_UInt32}(x + 0)
@@ -13103,6 +13504,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_MonitoredItemNotification}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_MonitoredItemNotification, private::Bool = false)
+    (:clientHandle, :value, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -13145,14 +13554,12 @@ Fields:
 - `status`
 
 - `diagnosticInfo`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StatusChangeNotification
     data::NTuple{64, UInt8}
 end
-
-Base.fieldnames(::Type{UA_StatusChangeNotification}) = (:status, :diagnosticInfo)
-Base.fieldnames(::Type{Ptr{UA_StatusChangeNotification}}) = (:status, :diagnosticInfo)
 
 function Base.getproperty(x::Ptr{UA_StatusChangeNotification}, f::Symbol)
     f === :status && return Ptr{UA_StatusCode}(x + 0)
@@ -13169,6 +13576,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_StatusChangeNotification}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_StatusChangeNotification, private::Bool = false)
+    (:status, :diagnosticInfo, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -13201,17 +13616,11 @@ Fields:
 - `subscriptionAcknowledgementsSize`
 
 - `subscriptionAcknowledgements`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishRequest
     data::NTuple{128, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishRequest})
-    (:requestHeader, :subscriptionAcknowledgementsSize, :subscriptionAcknowledgements)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishRequest}})
-    (:requestHeader, :subscriptionAcknowledgementsSize, :subscriptionAcknowledgements)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishRequest}, f::Symbol)
@@ -13231,6 +13640,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PublishRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PublishRequest, private::Bool = false)
+    (:requestHeader, :subscriptionAcknowledgementsSize,
+        :subscriptionAcknowledgements, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -13258,21 +13676,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishResponse
     data::NTuple{232, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishResponse})
-    (:responseHeader, :subscriptionId, :availableSequenceNumbersSize,
-        :availableSequenceNumbers, :moreNotifications, :notificationMessage,
-        :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishResponse}})
-    (:responseHeader, :subscriptionId, :availableSequenceNumbersSize,
-        :availableSequenceNumbers, :moreNotifications, :notificationMessage,
-        :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishResponse}, f::Symbol)
@@ -13300,6 +13708,16 @@ function Base.setproperty!(x::Ptr{UA_PublishResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_PublishResponse, private::Bool = false)
+    (:responseHeader, :subscriptionId, :availableSequenceNumbersSize,
+        :availableSequenceNumbers, :moreNotifications, :notificationMessage, :resultsSize,
+        :results, :diagnosticInfosSize, :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -13311,17 +13729,11 @@ Fields:
 - `subscriptionId`
 
 - `retransmitSequenceNumber`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RepublishRequest
     data::NTuple{120, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_RepublishRequest})
-    (:requestHeader, :subscriptionId, :retransmitSequenceNumber)
-end
-function Base.fieldnames(::Type{Ptr{UA_RepublishRequest}})
-    (:requestHeader, :subscriptionId, :retransmitSequenceNumber)
 end
 
 function Base.getproperty(x::Ptr{UA_RepublishRequest}, f::Symbol)
@@ -13342,6 +13754,15 @@ function Base.setproperty!(x::Ptr{UA_RepublishRequest}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_RepublishRequest, private::Bool = false)
+    (:requestHeader, :subscriptionId, :retransmitSequenceNumber,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -13351,14 +13772,12 @@ Fields:
 - `responseHeader`
 
 - `notificationMessage`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_RepublishResponse
     data::NTuple{168, UInt8}
 end
-
-Base.fieldnames(::Type{UA_RepublishResponse}) = (:responseHeader, :notificationMessage)
-Base.fieldnames(::Type{Ptr{UA_RepublishResponse}}) = (:responseHeader, :notificationMessage)
 
 function Base.getproperty(x::Ptr{UA_RepublishResponse}, f::Symbol)
     f === :responseHeader && return Ptr{UA_ResponseHeader}(x + 0)
@@ -13375,6 +13794,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_RepublishResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_RepublishResponse, private::Bool = false)
+    (:responseHeader, :notificationMessage, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -13411,17 +13838,11 @@ Fields:
 - `subscriptionIds`
 
 - `sendInitialValues`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TransferSubscriptionsRequest
     data::NTuple{136, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_TransferSubscriptionsRequest})
-    (:requestHeader, :subscriptionIdsSize, :subscriptionIds, :sendInitialValues)
-end
-function Base.fieldnames(::Type{Ptr{UA_TransferSubscriptionsRequest}})
-    (:requestHeader, :subscriptionIdsSize, :subscriptionIds, :sendInitialValues)
 end
 
 function Base.getproperty(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol)
@@ -13443,6 +13864,15 @@ function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsRequest}, f::Symbol, v
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_TransferSubscriptionsRequest, private::Bool = false)
+    (:requestHeader, :subscriptionIdsSize, :subscriptionIds,
+        :sendInitialValues, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -13458,17 +13888,11 @@ Fields:
 - `diagnosticInfosSize`
 
 - `diagnosticInfos`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_TransferSubscriptionsResponse
     data::NTuple{168, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_TransferSubscriptionsResponse})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
-end
-function Base.fieldnames(::Type{Ptr{UA_TransferSubscriptionsResponse}})
-    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize, :diagnosticInfos)
 end
 
 function Base.getproperty(x::Ptr{UA_TransferSubscriptionsResponse}, f::Symbol)
@@ -13489,6 +13913,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_TransferSubscriptionsResponse}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_TransferSubscriptionsResponse, private::Bool = false)
+    (:responseHeader, :resultsSize, :results, :diagnosticInfosSize,
+        :diagnosticInfos, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 @cenum UA_RedundancySupport::UInt32 begin
@@ -13648,21 +14081,11 @@ Fields:
 - `securityPolicyUri`
 
 - `clientCertificate`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SessionSecurityDiagnosticsDataType
     data::NTuple{144, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SessionSecurityDiagnosticsDataType})
-    (:sessionId, :clientUserIdOfSession, :clientUserIdHistorySize,
-        :clientUserIdHistory, :authenticationMechanism, :encoding,
-        :transportProtocol, :securityMode, :securityPolicyUri, :clientCertificate)
-end
-function Base.fieldnames(::Type{Ptr{UA_SessionSecurityDiagnosticsDataType}})
-    (:sessionId, :clientUserIdOfSession, :clientUserIdHistorySize,
-        :clientUserIdHistory, :authenticationMechanism, :encoding,
-        :transportProtocol, :securityMode, :securityPolicyUri, :clientCertificate)
 end
 
 function Base.getproperty(x::Ptr{UA_SessionSecurityDiagnosticsDataType}, f::Symbol)
@@ -13690,6 +14113,16 @@ function Base.setproperty!(x::Ptr{UA_SessionSecurityDiagnosticsDataType}, f::Sym
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SessionSecurityDiagnosticsDataType, private::Bool = false)
+    (:sessionId, :clientUserIdOfSession, :clientUserIdHistorySize, :clientUserIdHistory,
+        :authenticationMechanism, :encoding, :transportProtocol, :securityMode,
+        :securityPolicyUri, :clientCertificate, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 $(TYPEDEF)
 Fields:
@@ -13709,14 +14142,12 @@ Fields:
 - `statusCode`
 
 - `diagnosticInfo`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StatusResult
     data::NTuple{64, UInt8}
 end
-
-Base.fieldnames(::Type{UA_StatusResult}) = (:statusCode, :diagnosticInfo)
-Base.fieldnames(::Type{Ptr{UA_StatusResult}}) = (:statusCode, :diagnosticInfo)
 
 function Base.getproperty(x::Ptr{UA_StatusResult}, f::Symbol)
     f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
@@ -13733,6 +14164,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_StatusResult}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_StatusResult, private::Bool = false)
+    (:statusCode, :diagnosticInfo, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -13802,33 +14241,11 @@ Fields:
 - `nextSequenceNumber`
 
 - `eventQueueOverFlowCount`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SubscriptionDiagnosticsDataType
     data::NTuple{152, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SubscriptionDiagnosticsDataType})
-    (:sessionId, :subscriptionId, :priority, :publishingInterval, :maxKeepAliveCount,
-        :maxLifetimeCount, :maxNotificationsPerPublish, :publishingEnabled, :modifyCount,
-        :enableCount, :disableCount, :republishRequestCount, :republishMessageRequestCount,
-        :republishMessageCount, :transferRequestCount, :transferredToAltClientCount,
-        :transferredToSameClientCount, :publishRequestCount, :dataChangeNotificationsCount,
-        :eventNotificationsCount, :notificationsCount, :latePublishRequestCount,
-        :currentKeepAliveCount, :currentLifetimeCount, :unacknowledgedMessageCount,
-        :discardedMessageCount, :monitoredItemCount, :disabledMonitoredItemCount,
-        :monitoringQueueOverflowCount, :nextSequenceNumber, :eventQueueOverFlowCount)
-end
-function Base.fieldnames(::Type{Ptr{UA_SubscriptionDiagnosticsDataType}})
-    (:sessionId, :subscriptionId, :priority, :publishingInterval, :maxKeepAliveCount,
-        :maxLifetimeCount, :maxNotificationsPerPublish, :publishingEnabled, :modifyCount,
-        :enableCount, :disableCount, :republishRequestCount, :republishMessageRequestCount,
-        :republishMessageCount, :transferRequestCount, :transferredToAltClientCount,
-        :transferredToSameClientCount, :publishRequestCount, :dataChangeNotificationsCount,
-        :eventNotificationsCount, :notificationsCount, :latePublishRequestCount,
-        :currentKeepAliveCount, :currentLifetimeCount, :unacknowledgedMessageCount,
-        :discardedMessageCount, :monitoredItemCount, :disabledMonitoredItemCount,
-        :monitoringQueueOverflowCount, :nextSequenceNumber, :eventQueueOverFlowCount)
 end
 
 function Base.getproperty(x::Ptr{UA_SubscriptionDiagnosticsDataType}, f::Symbol)
@@ -13877,6 +14294,23 @@ function Base.setproperty!(x::Ptr{UA_SubscriptionDiagnosticsDataType}, f::Symbol
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SubscriptionDiagnosticsDataType, private::Bool = false)
+    (:sessionId, :subscriptionId, :priority, :publishingInterval, :maxKeepAliveCount,
+        :maxLifetimeCount, :maxNotificationsPerPublish, :publishingEnabled,
+        :modifyCount, :enableCount, :disableCount, :republishRequestCount,
+        :republishMessageRequestCount, :republishMessageCount, :transferRequestCount,
+        :transferredToAltClientCount, :transferredToSameClientCount,
+        :publishRequestCount, :dataChangeNotificationsCount, :eventNotificationsCount,
+        :notificationsCount, :latePublishRequestCount, :currentKeepAliveCount,
+        :currentLifetimeCount, :unacknowledgedMessageCount, :discardedMessageCount,
+        :monitoredItemCount, :disabledMonitoredItemCount, :monitoringQueueOverflowCount,
+        :nextSequenceNumber, :eventQueueOverFlowCount, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 @cenum UA_ModelChangeStructureVerbMask::UInt32 begin
     UA_MODELCHANGESTRUCTUREVERBMASK_NODEADDED = 1
     UA_MODELCHANGESTRUCTUREVERBMASK_NODEDELETED = 2
@@ -13897,15 +14331,11 @@ Fields:
 - `affectedType`
 
 - `verb`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ModelChangeStructureDataType
     data::NTuple{56, UInt8}
-end
-
-Base.fieldnames(::Type{UA_ModelChangeStructureDataType}) = (:affected, :affectedType, :verb)
-function Base.fieldnames(::Type{Ptr{UA_ModelChangeStructureDataType}})
-    (:affected, :affectedType, :verb)
 end
 
 function Base.getproperty(x::Ptr{UA_ModelChangeStructureDataType}, f::Symbol)
@@ -13926,6 +14356,14 @@ function Base.setproperty!(x::Ptr{UA_ModelChangeStructureDataType}, f::Symbol, v
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ModelChangeStructureDataType, private::Bool = false)
+    (:affected, :affectedType, :verb, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -13935,15 +14373,11 @@ Fields:
 - `affected`
 
 - `affectedType`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SemanticChangeStructureDataType
     data::NTuple{48, UInt8}
-end
-
-Base.fieldnames(::Type{UA_SemanticChangeStructureDataType}) = (:affected, :affectedType)
-function Base.fieldnames(::Type{Ptr{UA_SemanticChangeStructureDataType}})
-    (:affected, :affectedType)
 end
 
 function Base.getproperty(x::Ptr{UA_SemanticChangeStructureDataType}, f::Symbol)
@@ -13961,6 +14395,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_SemanticChangeStructureDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_SemanticChangeStructureDataType, private::Bool = false)
+    (:affected, :affectedType, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -14125,23 +14567,11 @@ Fields:
 - `lastMethodCallTime`
 
 - `lastMethodReturnStatus`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ProgramDiagnosticDataType
     data::NTuple{200, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ProgramDiagnosticDataType})
-    (:createSessionId, :createClientName, :invocationCreationTime, :lastTransitionTime,
-        :lastMethodCall, :lastMethodSessionId, :lastMethodInputArgumentsSize,
-        :lastMethodInputArguments, :lastMethodOutputArgumentsSize,
-        :lastMethodOutputArguments, :lastMethodCallTime, :lastMethodReturnStatus)
-end
-function Base.fieldnames(::Type{Ptr{UA_ProgramDiagnosticDataType}})
-    (:createSessionId, :createClientName, :invocationCreationTime, :lastTransitionTime,
-        :lastMethodCall, :lastMethodSessionId, :lastMethodInputArgumentsSize,
-        :lastMethodInputArguments, :lastMethodOutputArgumentsSize,
-        :lastMethodOutputArguments, :lastMethodCallTime, :lastMethodReturnStatus)
 end
 
 function Base.getproperty(x::Ptr{UA_ProgramDiagnosticDataType}, f::Symbol)
@@ -14169,6 +14599,18 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ProgramDiagnosticDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ProgramDiagnosticDataType, private::Bool = false)
+    (:createSessionId, :createClientName, :invocationCreationTime,
+        :lastTransitionTime, :lastMethodCall, :lastMethodSessionId,
+        :lastMethodInputArgumentsSize, :lastMethodInputArguments,
+        :lastMethodOutputArgumentsSize, :lastMethodOutputArguments,
+        :lastMethodCallTime, :lastMethodReturnStatus, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14208,27 +14650,11 @@ Fields:
 - `lastMethodCallTime`
 
 - `lastMethodReturnStatus`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ProgramDiagnostic2DataType
     data::NTuple{176, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ProgramDiagnostic2DataType})
-    (:createSessionId, :createClientName, :invocationCreationTime,
-        :lastTransitionTime, :lastMethodCall, :lastMethodSessionId,
-        :lastMethodInputArgumentsSize, :lastMethodInputArguments,
-        :lastMethodOutputArgumentsSize, :lastMethodOutputArguments,
-        :lastMethodInputValuesSize, :lastMethodInputValues, :lastMethodOutputValuesSize,
-        :lastMethodOutputValues, :lastMethodCallTime, :lastMethodReturnStatus)
-end
-function Base.fieldnames(::Type{Ptr{UA_ProgramDiagnostic2DataType}})
-    (:createSessionId, :createClientName, :invocationCreationTime,
-        :lastTransitionTime, :lastMethodCall, :lastMethodSessionId,
-        :lastMethodInputArgumentsSize, :lastMethodInputArguments,
-        :lastMethodOutputArgumentsSize, :lastMethodOutputArguments,
-        :lastMethodInputValuesSize, :lastMethodInputValues, :lastMethodOutputValuesSize,
-        :lastMethodOutputValues, :lastMethodCallTime, :lastMethodReturnStatus)
 end
 
 function Base.getproperty(x::Ptr{UA_ProgramDiagnostic2DataType}, f::Symbol)
@@ -14260,6 +14686,19 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ProgramDiagnostic2DataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ProgramDiagnostic2DataType, private::Bool = false)
+    (:createSessionId, :createClientName, :invocationCreationTime, :lastTransitionTime,
+        :lastMethodCall, :lastMethodSessionId, :lastMethodInputArgumentsSize,
+        :lastMethodInputArguments, :lastMethodOutputArgumentsSize,
+        :lastMethodOutputArguments, :lastMethodInputValuesSize, :lastMethodInputValues,
+        :lastMethodOutputValuesSize, :lastMethodOutputValues, :lastMethodCallTime,
+        :lastMethodReturnStatus, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14307,17 +14746,11 @@ Fields:
 - `selectedFields`
 
 - `filter`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedEventsDataType
     data::NTuple{56, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishedEventsDataType})
-    (:eventNotifier, :selectedFieldsSize, :selectedFields, :filter)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishedEventsDataType}})
-    (:eventNotifier, :selectedFieldsSize, :selectedFields, :filter)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishedEventsDataType}, f::Symbol)
@@ -14337,6 +14770,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PublishedEventsDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PublishedEventsDataType, private::Bool = false)
+    (:eventNotifier, :selectedFieldsSize, :selectedFields,
+        :filter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14401,25 +14843,11 @@ Fields:
 - `dataSetWritersSize`
 
 - `dataSetWriters`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_WriterGroupDataType
     data::NTuple{256, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_WriterGroupDataType})
-    (:name, :enabled, :securityMode, :securityGroupId, :securityKeyServicesSize,
-        :securityKeyServices, :maxNetworkMessageSize, :groupPropertiesSize,
-        :groupProperties, :writerGroupId, :publishingInterval, :keepAliveTime,
-        :priority, :localeIdsSize, :localeIds, :headerLayoutUri,
-        :transportSettings, :messageSettings, :dataSetWritersSize, :dataSetWriters)
-end
-function Base.fieldnames(::Type{Ptr{UA_WriterGroupDataType}})
-    (:name, :enabled, :securityMode, :securityGroupId, :securityKeyServicesSize,
-        :securityKeyServices, :maxNetworkMessageSize, :groupPropertiesSize,
-        :groupProperties, :writerGroupId, :publishingInterval, :keepAliveTime,
-        :priority, :localeIdsSize, :localeIds, :headerLayoutUri,
-        :transportSettings, :messageSettings, :dataSetWritersSize, :dataSetWriters)
 end
 
 function Base.getproperty(x::Ptr{UA_WriterGroupDataType}, f::Symbol)
@@ -14455,6 +14883,18 @@ end
 
 function Base.setproperty!(x::Ptr{UA_WriterGroupDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_WriterGroupDataType, private::Bool = false)
+    (:name, :enabled, :securityMode, :securityGroupId, :securityKeyServicesSize,
+        :securityKeyServices, :maxNetworkMessageSize, :groupPropertiesSize,
+        :groupProperties, :writerGroupId, :publishingInterval, :keepAliveTime, :priority,
+        :localeIdsSize, :localeIds, :headerLayoutUri, :transportSettings, :messageSettings,
+        :dataSetWritersSize, :dataSetWriters, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14582,17 +15022,11 @@ Fields:
 - `eventDataSize`
 
 - `eventData`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_UpdateEventDetails
     data::NTuple{80, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_UpdateEventDetails})
-    (:nodeId, :performInsertReplace, :filter, :eventDataSize, :eventData)
-end
-function Base.fieldnames(::Type{Ptr{UA_UpdateEventDetails}})
-    (:nodeId, :performInsertReplace, :filter, :eventDataSize, :eventData)
 end
 
 function Base.getproperty(x::Ptr{UA_UpdateEventDetails}, f::Symbol)
@@ -14613,6 +15047,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_UpdateEventDetails}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_UpdateEventDetails, private::Bool = false)
+    (:nodeId, :performInsertReplace, :filter, :eventDataSize,
+        :eventData, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14750,41 +15193,11 @@ Fields:
 - `registerNodesCount`
 
 - `unregisterNodesCount`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_SessionDiagnosticsDataType
     data::NTuple{488, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_SessionDiagnosticsDataType})
-    (:sessionId, :sessionName, :clientDescription, :serverUri, :endpointUrl,
-        :localeIdsSize, :localeIds, :actualSessionTimeout, :maxResponseMessageSize,
-        :clientConnectionTime, :clientLastContactTime, :currentSubscriptionsCount,
-        :currentMonitoredItemsCount, :currentPublishRequestsInQueue,
-        :totalRequestCount, :unauthorizedRequestCount, :readCount,
-        :historyReadCount, :writeCount, :historyUpdateCount, :callCount,
-        :createMonitoredItemsCount, :modifyMonitoredItemsCount, :setMonitoringModeCount,
-        :setTriggeringCount, :deleteMonitoredItemsCount, :createSubscriptionCount,
-        :modifySubscriptionCount, :setPublishingModeCount, :publishCount,
-        :republishCount, :transferSubscriptionsCount, :deleteSubscriptionsCount,
-        :addNodesCount, :addReferencesCount, :deleteNodesCount, :deleteReferencesCount,
-        :browseCount, :browseNextCount, :translateBrowsePathsToNodeIdsCount,
-        :queryFirstCount, :queryNextCount, :registerNodesCount, :unregisterNodesCount)
-end
-function Base.fieldnames(::Type{Ptr{UA_SessionDiagnosticsDataType}})
-    (:sessionId, :sessionName, :clientDescription, :serverUri, :endpointUrl,
-        :localeIdsSize, :localeIds, :actualSessionTimeout, :maxResponseMessageSize,
-        :clientConnectionTime, :clientLastContactTime, :currentSubscriptionsCount,
-        :currentMonitoredItemsCount, :currentPublishRequestsInQueue,
-        :totalRequestCount, :unauthorizedRequestCount, :readCount,
-        :historyReadCount, :writeCount, :historyUpdateCount, :callCount,
-        :createMonitoredItemsCount, :modifyMonitoredItemsCount, :setMonitoringModeCount,
-        :setTriggeringCount, :deleteMonitoredItemsCount, :createSubscriptionCount,
-        :modifySubscriptionCount, :setPublishingModeCount, :publishCount,
-        :republishCount, :transferSubscriptionsCount, :deleteSubscriptionsCount,
-        :addNodesCount, :addReferencesCount, :deleteNodesCount, :deleteReferencesCount,
-        :browseCount, :browseNextCount, :translateBrowsePathsToNodeIdsCount,
-        :queryFirstCount, :queryNextCount, :registerNodesCount, :unregisterNodesCount)
 end
 
 function Base.getproperty(x::Ptr{UA_SessionDiagnosticsDataType}, f::Symbol)
@@ -14847,6 +15260,27 @@ function Base.setproperty!(x::Ptr{UA_SessionDiagnosticsDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_SessionDiagnosticsDataType, private::Bool = false)
+    (:sessionId, :sessionName, :clientDescription, :serverUri,
+        :endpointUrl, :localeIdsSize, :localeIds, :actualSessionTimeout,
+        :maxResponseMessageSize, :clientConnectionTime, :clientLastContactTime,
+        :currentSubscriptionsCount, :currentMonitoredItemsCount,
+        :currentPublishRequestsInQueue, :totalRequestCount, :unauthorizedRequestCount,
+        :readCount, :historyReadCount, :writeCount, :historyUpdateCount,
+        :callCount, :createMonitoredItemsCount, :modifyMonitoredItemsCount,
+        :setMonitoringModeCount, :setTriggeringCount, :deleteMonitoredItemsCount,
+        :createSubscriptionCount, :modifySubscriptionCount, :setPublishingModeCount,
+        :publishCount, :republishCount, :transferSubscriptionsCount,
+        :deleteSubscriptionsCount, :addNodesCount, :addReferencesCount,
+        :deleteNodesCount, :deleteReferencesCount, :browseCount, :browseNextCount,
+        :translateBrowsePathsToNodeIdsCount, :queryFirstCount, :queryNextCount,
+        :registerNodesCount, :unregisterNodesCount, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 $(TYPEDEF)
 Fields:
@@ -14886,19 +15320,11 @@ Fields:
 - `extensionFields`
 
 - `dataSetSource`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PublishedDataSetDataType
     data::NTuple{248, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PublishedDataSetDataType})
-    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData,
-        :extensionFieldsSize, :extensionFields, :dataSetSource)
-end
-function Base.fieldnames(::Type{Ptr{UA_PublishedDataSetDataType}})
-    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData,
-        :extensionFieldsSize, :extensionFields, :dataSetSource)
 end
 
 function Base.getproperty(x::Ptr{UA_PublishedDataSetDataType}, f::Symbol)
@@ -14921,6 +15347,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PublishedDataSetDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PublishedDataSetDataType, private::Bool = false)
+    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData, :extensionFieldsSize,
+        :extensionFields, :dataSetSource, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -14966,25 +15401,11 @@ Fields:
 - `messageSettings`
 
 - `subscribedDataSet`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataSetReaderDataType
     data::NTuple{472, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_DataSetReaderDataType})
-    (:name, :enabled, :publisherId, :writerGroupId, :dataSetWriterId,
-        :dataSetMetaData, :dataSetFieldContentMask, :messageReceiveTimeout,
-        :keyFrameCount, :headerLayoutUri, :securityMode, :securityGroupId,
-        :securityKeyServicesSize, :securityKeyServices, :dataSetReaderPropertiesSize,
-        :dataSetReaderProperties, :transportSettings, :messageSettings, :subscribedDataSet)
-end
-function Base.fieldnames(::Type{Ptr{UA_DataSetReaderDataType}})
-    (:name, :enabled, :publisherId, :writerGroupId, :dataSetWriterId,
-        :dataSetMetaData, :dataSetFieldContentMask, :messageReceiveTimeout,
-        :keyFrameCount, :headerLayoutUri, :securityMode, :securityGroupId,
-        :securityKeyServicesSize, :securityKeyServices, :dataSetReaderPropertiesSize,
-        :dataSetReaderProperties, :transportSettings, :messageSettings, :subscribedDataSet)
 end
 
 function Base.getproperty(x::Ptr{UA_DataSetReaderDataType}, f::Symbol)
@@ -15021,6 +15442,18 @@ function Base.setproperty!(x::Ptr{UA_DataSetReaderDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DataSetReaderDataType, private::Bool = false)
+    (:name, :enabled, :publisherId, :writerGroupId, :dataSetWriterId, :dataSetMetaData,
+        :dataSetFieldContentMask, :messageReceiveTimeout, :keyFrameCount, :headerLayoutUri,
+        :securityMode, :securityGroupId, :securityKeyServicesSize, :securityKeyServices,
+        :dataSetReaderPropertiesSize, :dataSetReaderProperties, :transportSettings,
+        :messageSettings, :subscribedDataSet, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 $(TYPEDEF)
 Fields:
@@ -15046,17 +15479,11 @@ Fields:
 - `dataSetMetaData`
 
 - `subscribedDataSet`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_StandaloneSubscribedDataSetDataType
     data::NTuple{232, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_StandaloneSubscribedDataSetDataType})
-    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData, :subscribedDataSet)
-end
-function Base.fieldnames(::Type{Ptr{UA_StandaloneSubscribedDataSetDataType}})
-    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData, :subscribedDataSet)
 end
 
 function Base.getproperty(x::Ptr{UA_StandaloneSubscribedDataSetDataType}, f::Symbol)
@@ -15079,28 +15506,20 @@ function Base.setproperty!(x::Ptr{UA_StandaloneSubscribedDataSetDataType}, f::Sy
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(
+        x::UA_StandaloneSubscribedDataSetDataType, private::Bool = false)
+    (:name, :dataSetFolderSize, :dataSetFolder, :dataSetMetaData,
+        :subscribedDataSet, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
-
 $(TYPEDEF)
-
 Fields:
-
-- `namespacesSize`
-
-- `namespaces`
-
-- `structureDataTypesSize`
-
-- `structureDataTypes`
-
-- `enumDataTypesSize`
-
-- `enumDataTypes`
-
-- `simpleDataTypesSize`
-
-- `simpleDataTypes`
-Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
+$(TYPEDFIELDS)
 """
 struct UA_DataTypeSchemaHeader
     namespacesSize::Csize_t
@@ -15144,23 +15563,11 @@ Fields:
 - `dataSetReadersSize`
 
 - `dataSetReaders`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReaderGroupDataType
     data::NTuple{192, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReaderGroupDataType})
-    (:name, :enabled, :securityMode, :securityGroupId,
-        :securityKeyServicesSize, :securityKeyServices, :maxNetworkMessageSize,
-        :groupPropertiesSize, :groupProperties, :transportSettings,
-        :messageSettings, :dataSetReadersSize, :dataSetReaders)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReaderGroupDataType}})
-    (:name, :enabled, :securityMode, :securityGroupId,
-        :securityKeyServicesSize, :securityKeyServices, :maxNetworkMessageSize,
-        :groupPropertiesSize, :groupProperties, :transportSettings,
-        :messageSettings, :dataSetReadersSize, :dataSetReaders)
 end
 
 function Base.getproperty(x::Ptr{UA_ReaderGroupDataType}, f::Symbol)
@@ -15189,6 +15596,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReaderGroupDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReaderGroupDataType, private::Bool = false)
+    (:name, :enabled, :securityMode, :securityGroupId, :securityKeyServicesSize,
+        :securityKeyServices, :maxNetworkMessageSize, :groupPropertiesSize,
+        :groupProperties, :transportSettings, :messageSettings,
+        :dataSetReadersSize, :dataSetReaders, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -15220,21 +15638,11 @@ Fields:
 - `readerGroupsSize`
 
 - `readerGroups`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_PubSubConnectionDataType
     data::NTuple{232, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_PubSubConnectionDataType})
-    (:name, :enabled, :publisherId, :transportProfileUri, :address,
-        :connectionPropertiesSize, :connectionProperties, :transportSettings,
-        :writerGroupsSize, :writerGroups, :readerGroupsSize, :readerGroups)
-end
-function Base.fieldnames(::Type{Ptr{UA_PubSubConnectionDataType}})
-    (:name, :enabled, :publisherId, :transportProfileUri, :address,
-        :connectionPropertiesSize, :connectionProperties, :transportSettings,
-        :writerGroupsSize, :writerGroups, :readerGroupsSize, :readerGroups)
 end
 
 function Base.getproperty(x::Ptr{UA_PubSubConnectionDataType}, f::Symbol)
@@ -15262,6 +15670,17 @@ end
 
 function Base.setproperty!(x::Ptr{UA_PubSubConnectionDataType}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_PubSubConnectionDataType, private::Bool = false)
+    (:name, :enabled, :publisherId, :transportProfileUri,
+        :address, :connectionPropertiesSize, :connectionProperties,
+        :transportSettings, :writerGroupsSize, :writerGroups,
+        :readerGroupsSize, :readerGroups, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -15591,9 +16010,6 @@ struct __JL_Ctag_48
     data::NTuple{16, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_48}) = (:array, :tree)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_48}}) = (:array, :tree)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_48}, f::Symbol)
     f === :array && return Ptr{Ptr{UA_ReferenceTarget}}(x + 0)
     f === :tree && return Ptr{__JL_Ctag_49}(x + 0)
@@ -15611,6 +16027,14 @@ function Base.setproperty!(x::Ptr{__JL_Ctag_48}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::__JL_Ctag_48, private::Bool = false)
+    (:array, :tree, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -15626,17 +16050,11 @@ Fields:
 - `referenceTypeIndex`
 
 - `isInverse`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeReferenceKind
     data::NTuple{32, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_NodeReferenceKind})
-    (:targets, :targetsSize, :hasRefTree, :referenceTypeIndex, :isInverse)
-end
-function Base.fieldnames(::Type{Ptr{UA_NodeReferenceKind}})
-    (:targets, :targetsSize, :hasRefTree, :referenceTypeIndex, :isInverse)
 end
 
 function Base.getproperty(x::Ptr{UA_NodeReferenceKind}, f::Symbol)
@@ -15657,6 +16075,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_NodeReferenceKind}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_NodeReferenceKind, private::Bool = false)
+    (:targets, :targetsSize, :hasRefTree, :referenceTypeIndex,
+        :isInverse, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 """
@@ -15686,19 +16113,11 @@ Fields:
 - `constructed`
 
 - `monitoredItems`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodeHead
     data::NTuple{120, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_NodeHead})
-    (:nodeId, :nodeClass, :browseName, :displayName, :description, :writeMask,
-        :referencesSize, :references, :context, :constructed, :monitoredItems)
-end
-function Base.fieldnames(::Type{Ptr{UA_NodeHead}})
-    (:nodeId, :nodeClass, :browseName, :displayName, :description, :writeMask,
-        :referencesSize, :references, :context, :constructed, :monitoredItems)
 end
 
 function Base.getproperty(x::Ptr{UA_NodeHead}, f::Symbol)
@@ -15727,6 +16146,16 @@ function Base.setproperty!(x::Ptr{UA_NodeHead}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_NodeHead, private::Bool = false)
+    (:nodeId, :nodeClass, :browseName, :displayName, :description,
+        :writeMask, :referencesSize, :references, :context,
+        :constructed, :monitoredItems, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -15740,14 +16169,12 @@ Fields:
 - `expandedId`
 
 - `node`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_NodePointer
     data::NTuple{8, UInt8}
 end
-
-Base.fieldnames(::Type{UA_NodePointer}) = (:immediate, :id, :expandedId, :node)
-Base.fieldnames(::Type{Ptr{UA_NodePointer}}) = (:immediate, :id, :expandedId, :node)
 
 function Base.getproperty(x::Ptr{UA_NodePointer}, f::Symbol)
     f === :immediate && return Ptr{Csize_t}(x + 0)
@@ -15766,6 +16193,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_NodePointer}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_NodePointer, private::Bool = false)
+    (:immediate, :id, :expandedId, :node, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 function UA_NodePointer_clear(np)
@@ -15811,14 +16246,12 @@ Fields:
 - `targetId`
 
 - `targetNameHash`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTarget
     data::NTuple{16, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ReferenceTarget}) = (:targetId, :targetNameHash)
-Base.fieldnames(::Type{Ptr{UA_ReferenceTarget}}) = (:targetId, :targetNameHash)
 
 function Base.getproperty(x::Ptr{UA_ReferenceTarget}, f::Symbol)
     f === :targetId && return Ptr{UA_NodePointer}(x + 0)
@@ -15835,6 +16268,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReferenceTarget}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReferenceTarget, private::Bool = false)
+    (:targetId, :targetNameHash, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 struct __JL_Ctag_41
@@ -15872,17 +16313,11 @@ Fields:
 - `idTreeEntry`
 
 - `nameTreeEntry`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTargetTreeElem
     data::NTuple{56, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReferenceTargetTreeElem})
-    (:target, :targetIdHash, :idTreeEntry, :nameTreeEntry)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReferenceTargetTreeElem}})
-    (:target, :targetIdHash, :idTreeEntry, :nameTreeEntry)
 end
 
 function Base.getproperty(x::Ptr{UA_ReferenceTargetTreeElem}, f::Symbol)
@@ -15902,6 +16337,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ReferenceTargetTreeElem}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ReferenceTargetTreeElem, private::Bool = false)
+    (:target, :targetIdHash, :idTreeEntry, :nameTreeEntry, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 # typedef void * ( * UA_NodeReferenceKind_iterateCallback ) ( void * context , UA_ReferenceTarget * target )
@@ -15936,9 +16379,6 @@ struct __JL_Ctag_39
     data::NTuple{96, UInt8}
 end
 
-Base.fieldnames(::Type{__JL_Ctag_39}) = (:data, :dataSource)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_39}}) = (:data, :dataSource)
-
 function Base.getproperty(x::Ptr{__JL_Ctag_39}, f::Symbol)
     f === :data && return Ptr{__JL_Ctag_40}(x + 0)
     f === :dataSource && return Ptr{UA_DataSource}(x + 0)
@@ -15954,6 +16394,14 @@ end
 
 function Base.setproperty!(x::Ptr{__JL_Ctag_39}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_39, private::Bool = false)
+    (:data, :dataSource, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -15985,21 +16433,11 @@ Fields:
 - `historizing`
 
 - `isDynamic`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableNode
     data::NTuple{400, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_VariableNode})
-    (:head, :dataType, :valueRank, :arrayDimensionsSize,
-        :arrayDimensions, :valueBackend, :valueSource, :value,
-        :accessLevel, :minimumSamplingInterval, :historizing, :isDynamic)
-end
-function Base.fieldnames(::Type{Ptr{UA_VariableNode}})
-    (:head, :dataType, :valueRank, :arrayDimensionsSize,
-        :arrayDimensions, :valueBackend, :valueSource, :value,
-        :accessLevel, :minimumSamplingInterval, :historizing, :isDynamic)
 end
 
 function Base.getproperty(x::Ptr{UA_VariableNode}, f::Symbol)
@@ -16029,12 +16467,19 @@ function Base.setproperty!(x::Ptr{UA_VariableNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_VariableNode, private::Bool = false)
+    (:head, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions,
+        :valueBackend, :valueSource, :value, :accessLevel, :minimumSamplingInterval,
+        :historizing, :isDynamic, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 struct __JL_Ctag_50
     data::NTuple{96, UInt8}
 end
-
-Base.fieldnames(::Type{__JL_Ctag_50}) = (:data, :dataSource)
-Base.fieldnames(::Type{Ptr{__JL_Ctag_50}}) = (:data, :dataSource)
 
 function Base.getproperty(x::Ptr{__JL_Ctag_50}, f::Symbol)
     f === :data && return Ptr{__JL_Ctag_51}(x + 0)
@@ -16051,6 +16496,14 @@ end
 
 function Base.setproperty!(x::Ptr{__JL_Ctag_50}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_50, private::Bool = false)
+    (:data, :dataSource, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -16078,19 +16531,11 @@ Fields:
 - `isAbstract`
 
 - `lifecycle`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_VariableTypeNode
     data::NTuple{400, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_VariableTypeNode})
-    (:head, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :valueBackend, :valueSource, :value, :isAbstract, :lifecycle)
-end
-function Base.fieldnames(::Type{Ptr{UA_VariableTypeNode}})
-    (:head, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions,
-        :valueBackend, :valueSource, :value, :isAbstract, :lifecycle)
 end
 
 function Base.getproperty(x::Ptr{UA_VariableTypeNode}, f::Symbol)
@@ -16118,6 +16563,15 @@ function Base.setproperty!(x::Ptr{UA_VariableTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_VariableTypeNode, private::Bool = false)
+    (:head, :dataType, :valueRank, :arrayDimensionsSize, :arrayDimensions, :valueBackend,
+        :valueSource, :value, :isAbstract, :lifecycle, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16131,14 +16585,12 @@ Fields:
 - `method`
 
 - `async`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_MethodNode
     data::NTuple{144, UInt8}
 end
-
-Base.fieldnames(::Type{UA_MethodNode}) = (:head, :executable, :method, :async)
-Base.fieldnames(::Type{Ptr{UA_MethodNode}}) = (:head, :executable, :method, :async)
 
 function Base.getproperty(x::Ptr{UA_MethodNode}, f::Symbol)
     f === :head && return Ptr{UA_NodeHead}(x + 0)
@@ -16159,6 +16611,14 @@ function Base.setproperty!(x::Ptr{UA_MethodNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_MethodNode, private::Bool = false)
+    (:head, :executable, :method, :async, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16168,14 +16628,12 @@ Fields:
 - `head`
 
 - `eventNotifier`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ObjectNode
     data::NTuple{128, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ObjectNode}) = (:head, :eventNotifier)
-Base.fieldnames(::Type{Ptr{UA_ObjectNode}}) = (:head, :eventNotifier)
 
 function Base.getproperty(x::Ptr{UA_ObjectNode}, f::Symbol)
     f === :head && return Ptr{UA_NodeHead}(x + 0)
@@ -16194,6 +16652,14 @@ function Base.setproperty!(x::Ptr{UA_ObjectNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ObjectNode, private::Bool = false)
+    (:head, :eventNotifier, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16205,14 +16671,12 @@ Fields:
 - `isAbstract`
 
 - `lifecycle`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ObjectTypeNode
     data::NTuple{144, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ObjectTypeNode}) = (:head, :isAbstract, :lifecycle)
-Base.fieldnames(::Type{Ptr{UA_ObjectTypeNode}}) = (:head, :isAbstract, :lifecycle)
 
 function Base.getproperty(x::Ptr{UA_ObjectTypeNode}, f::Symbol)
     f === :head && return Ptr{UA_NodeHead}(x + 0)
@@ -16232,6 +16696,14 @@ function Base.setproperty!(x::Ptr{UA_ObjectTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ObjectTypeNode, private::Bool = false)
+    (:head, :isAbstract, :lifecycle, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16249,17 +16721,11 @@ Fields:
 - `referenceTypeIndex`
 
 - `subTypes`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ReferenceTypeNode
     data::NTuple{184, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_ReferenceTypeNode})
-    (:head, :isAbstract, :symmetric, :inverseName, :referenceTypeIndex, :subTypes)
-end
-function Base.fieldnames(::Type{Ptr{UA_ReferenceTypeNode}})
-    (:head, :isAbstract, :symmetric, :inverseName, :referenceTypeIndex, :subTypes)
 end
 
 function Base.getproperty(x::Ptr{UA_ReferenceTypeNode}, f::Symbol)
@@ -16283,6 +16749,15 @@ function Base.setproperty!(x::Ptr{UA_ReferenceTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_ReferenceTypeNode, private::Bool = false)
+    (:head, :isAbstract, :symmetric, :inverseName,
+        :referenceTypeIndex, :subTypes, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16292,14 +16767,12 @@ Fields:
 - `head`
 
 - `isAbstract`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_DataTypeNode
     data::NTuple{128, UInt8}
 end
-
-Base.fieldnames(::Type{UA_DataTypeNode}) = (:head, :isAbstract)
-Base.fieldnames(::Type{Ptr{UA_DataTypeNode}}) = (:head, :isAbstract)
 
 function Base.getproperty(x::Ptr{UA_DataTypeNode}, f::Symbol)
     f === :head && return Ptr{UA_NodeHead}(x + 0)
@@ -16318,6 +16791,14 @@ function Base.setproperty!(x::Ptr{UA_DataTypeNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::UA_DataTypeNode, private::Bool = false)
+    (:head, :isAbstract, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
 """
 
 $(TYPEDEF)
@@ -16329,14 +16810,12 @@ Fields:
 - `eventNotifier`
 
 - `containsNoLoops`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_ViewNode
     data::NTuple{128, UInt8}
 end
-
-Base.fieldnames(::Type{UA_ViewNode}) = (:head, :eventNotifier, :containsNoLoops)
-Base.fieldnames(::Type{Ptr{UA_ViewNode}}) = (:head, :eventNotifier, :containsNoLoops)
 
 function Base.getproperty(x::Ptr{UA_ViewNode}, f::Symbol)
     f === :head && return Ptr{UA_NodeHead}(x + 0)
@@ -16354,6 +16833,14 @@ end
 
 function Base.setproperty!(x::Ptr{UA_ViewNode}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_ViewNode, private::Bool = false)
+    (:head, :eventNotifier, :containsNoLoops, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 """
@@ -16379,19 +16866,11 @@ Fields:
 - `dataTypeNode`
 
 - `viewNode`
+
 Note that this type is defined as a union type in C; therefore, setting fields of a Ptr of this type requires special care.
 """
 struct UA_Node
     data::NTuple{400, UInt8}
-end
-
-function Base.fieldnames(::Type{UA_Node})
-    (:head, :variableNode, :variableTypeNode, :methodNode, :objectNode,
-        :objectTypeNode, :referenceTypeNode, :dataTypeNode, :viewNode)
-end
-function Base.fieldnames(::Type{Ptr{UA_Node}})
-    (:head, :variableNode, :variableTypeNode, :methodNode, :objectNode,
-        :objectTypeNode, :referenceTypeNode, :dataTypeNode, :viewNode)
 end
 
 function Base.getproperty(x::Ptr{UA_Node}, f::Symbol)
@@ -16416,6 +16895,15 @@ end
 
 function Base.setproperty!(x::Ptr{UA_Node}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::UA_Node, private::Bool = false)
+    (:head, :variableNode, :variableTypeNode, :methodNode, :objectNode, :objectTypeNode,
+        :referenceTypeNode, :dataTypeNode, :viewNode, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
 end
 
 # typedef void ( * UA_NodestoreVisitor ) ( void * visitorCtx , const UA_Node * node )
@@ -16832,258 +17320,6 @@ const UA_FLOAT_IEEE754 = 1
 const UA_FLOAT_LITTLE_ENDIAN = 1
 const UA_BINARY_OVERLAYABLE_FLOAT = 1
 
-const UA_STATUSCODE_INFOTYPE_DATAVALUE = 0x00000400
-const UA_STATUSCODE_INFOBITS_OVERFLOW = 0x00000080
-const UA_STATUSCODE_GOOD = 0x00000000
-const UA_STATUSCODE_UNCERTAIN = 0x40000000
-const UA_STATUSCODE_BAD = 0x80000000
-const UA_STATUSCODE_BADUNEXPECTEDERROR = 0x80010000
-const UA_STATUSCODE_BADINTERNALERROR = 0x80020000
-const UA_STATUSCODE_BADOUTOFMEMORY = 0x80030000
-const UA_STATUSCODE_BADRESOURCEUNAVAILABLE = 0x80040000
-const UA_STATUSCODE_BADCOMMUNICATIONERROR = 0x80050000
-const UA_STATUSCODE_BADENCODINGERROR = 0x80060000
-const UA_STATUSCODE_BADDECODINGERROR = 0x80070000
-const UA_STATUSCODE_BADENCODINGLIMITSEXCEEDED = 0x80080000
-const UA_STATUSCODE_BADREQUESTTOOLARGE = 0x80b80000
-const UA_STATUSCODE_BADRESPONSETOOLARGE = 0x80b90000
-const UA_STATUSCODE_BADUNKNOWNRESPONSE = 0x80090000
-const UA_STATUSCODE_BADTIMEOUT = 0x800a0000
-const UA_STATUSCODE_BADSERVICEUNSUPPORTED = 0x800b0000
-const UA_STATUSCODE_BADSHUTDOWN = 0x800c0000
-const UA_STATUSCODE_BADSERVERNOTCONNECTED = 0x800d0000
-const UA_STATUSCODE_BADSERVERHALTED = 0x800e0000
-const UA_STATUSCODE_BADNOTHINGTODO = 0x800f0000
-const UA_STATUSCODE_BADTOOMANYOPERATIONS = 0x80100000
-const UA_STATUSCODE_BADTOOMANYMONITOREDITEMS = 0x80db0000
-const UA_STATUSCODE_BADDATATYPEIDUNKNOWN = 0x80110000
-const UA_STATUSCODE_BADCERTIFICATEINVALID = 0x80120000
-const UA_STATUSCODE_BADSECURITYCHECKSFAILED = 0x80130000
-const UA_STATUSCODE_BADCERTIFICATEPOLICYCHECKFAILED = 0x81140000
-const UA_STATUSCODE_BADCERTIFICATETIMEINVALID = 0x80140000
-const UA_STATUSCODE_BADCERTIFICATEISSUERTIMEINVALID = 0x80150000
-const UA_STATUSCODE_BADCERTIFICATEHOSTNAMEINVALID = 0x80160000
-const UA_STATUSCODE_BADCERTIFICATEURIINVALID = 0x80170000
-const UA_STATUSCODE_BADCERTIFICATEUSENOTALLOWED = 0x80180000
-const UA_STATUSCODE_BADCERTIFICATEISSUERUSENOTALLOWED = 0x80190000
-const UA_STATUSCODE_BADCERTIFICATEUNTRUSTED = 0x801a0000
-const UA_STATUSCODE_BADCERTIFICATEREVOCATIONUNKNOWN = 0x801b0000
-const UA_STATUSCODE_BADCERTIFICATEISSUERREVOCATIONUNKNOWN = 0x801c0000
-const UA_STATUSCODE_BADCERTIFICATEREVOKED = 0x801d0000
-const UA_STATUSCODE_BADCERTIFICATEISSUERREVOKED = 0x801e0000
-const UA_STATUSCODE_BADCERTIFICATECHAININCOMPLETE = 0x810d0000
-const UA_STATUSCODE_BADUSERACCESSDENIED = 0x801f0000
-const UA_STATUSCODE_BADIDENTITYTOKENINVALID = 0x80200000
-const UA_STATUSCODE_BADIDENTITYTOKENREJECTED = 0x80210000
-const UA_STATUSCODE_BADSECURECHANNELIDINVALID = 0x80220000
-const UA_STATUSCODE_BADINVALIDTIMESTAMP = 0x80230000
-const UA_STATUSCODE_BADNONCEINVALID = 0x80240000
-const UA_STATUSCODE_BADSESSIONIDINVALID = 0x80250000
-const UA_STATUSCODE_BADSESSIONCLOSED = 0x80260000
-const UA_STATUSCODE_BADSESSIONNOTACTIVATED = 0x80270000
-const UA_STATUSCODE_BADSUBSCRIPTIONIDINVALID = 0x80280000
-const UA_STATUSCODE_BADREQUESTHEADERINVALID = 0x802a0000
-const UA_STATUSCODE_BADTIMESTAMPSTORETURNINVALID = 0x802b0000
-const UA_STATUSCODE_BADREQUESTCANCELLEDBYCLIENT = 0x802c0000
-const UA_STATUSCODE_BADTOOMANYARGUMENTS = 0x80e50000
-const UA_STATUSCODE_BADLICENSEEXPIRED = 0x810e0000
-const UA_STATUSCODE_BADLICENSELIMITSEXCEEDED = 0x810f0000
-const UA_STATUSCODE_BADLICENSENOTAVAILABLE = 0x81100000
-const UA_STATUSCODE_GOODSUBSCRIPTIONTRANSFERRED = 0x002d0000
-const UA_STATUSCODE_GOODCOMPLETESASYNCHRONOUSLY = 0x002e0000
-const UA_STATUSCODE_GOODOVERLOAD = 0x002f0000
-const UA_STATUSCODE_GOODCLAMPED = 0x00300000
-const UA_STATUSCODE_BADNOCOMMUNICATION = 0x80310000
-const UA_STATUSCODE_BADWAITINGFORINITIALDATA = 0x80320000
-const UA_STATUSCODE_BADNODEIDINVALID = 0x80330000
-const UA_STATUSCODE_BADNODEIDUNKNOWN = 0x80340000
-const UA_STATUSCODE_BADATTRIBUTEIDINVALID = 0x80350000
-const UA_STATUSCODE_BADINDEXRANGEINVALID = 0x80360000
-const UA_STATUSCODE_BADINDEXRANGENODATA = 0x80370000
-const UA_STATUSCODE_BADDATAENCODINGINVALID = 0x80380000
-const UA_STATUSCODE_BADDATAENCODINGUNSUPPORTED = 0x80390000
-const UA_STATUSCODE_BADNOTREADABLE = 0x803a0000
-const UA_STATUSCODE_BADNOTWRITABLE = 0x803b0000
-const UA_STATUSCODE_BADOUTOFRANGE = 0x803c0000
-const UA_STATUSCODE_BADNOTSUPPORTED = 0x803d0000
-const UA_STATUSCODE_BADNOTFOUND = 0x803e0000
-const UA_STATUSCODE_BADOBJECTDELETED = 0x803f0000
-const UA_STATUSCODE_BADNOTIMPLEMENTED = 0x80400000
-const UA_STATUSCODE_BADMONITORINGMODEINVALID = 0x80410000
-const UA_STATUSCODE_BADMONITOREDITEMIDINVALID = 0x80420000
-const UA_STATUSCODE_BADMONITOREDITEMFILTERINVALID = 0x80430000
-const UA_STATUSCODE_BADMONITOREDITEMFILTERUNSUPPORTED = 0x80440000
-const UA_STATUSCODE_BADFILTERNOTALLOWED = 0x80450000
-const UA_STATUSCODE_BADSTRUCTUREMISSING = 0x80460000
-const UA_STATUSCODE_BADEVENTFILTERINVALID = 0x80470000
-const UA_STATUSCODE_BADCONTENTFILTERINVALID = 0x80480000
-const UA_STATUSCODE_BADFILTEROPERATORINVALID = 0x80c10000
-const UA_STATUSCODE_BADFILTEROPERATORUNSUPPORTED = 0x80c20000
-const UA_STATUSCODE_BADFILTEROPERANDCOUNTMISMATCH = 0x80c30000
-const UA_STATUSCODE_BADFILTEROPERANDINVALID = 0x80490000
-const UA_STATUSCODE_BADFILTERELEMENTINVALID = 0x80c40000
-const UA_STATUSCODE_BADFILTERLITERALINVALID = 0x80c50000
-const UA_STATUSCODE_BADCONTINUATIONPOINTINVALID = 0x804a0000
-const UA_STATUSCODE_BADNOCONTINUATIONPOINTS = 0x804b0000
-const UA_STATUSCODE_BADREFERENCETYPEIDINVALID = 0x804c0000
-const UA_STATUSCODE_BADBROWSEDIRECTIONINVALID = 0x804d0000
-const UA_STATUSCODE_BADNODENOTINVIEW = 0x804e0000
-const UA_STATUSCODE_BADNUMERICOVERFLOW = 0x81120000
-const UA_STATUSCODE_BADSERVERURIINVALID = 0x804f0000
-const UA_STATUSCODE_BADSERVERNAMEMISSING = 0x80500000
-const UA_STATUSCODE_BADDISCOVERYURLMISSING = 0x80510000
-const UA_STATUSCODE_BADSEMPAHOREFILEMISSING = 0x80520000
-const UA_STATUSCODE_BADREQUESTTYPEINVALID = 0x80530000
-const UA_STATUSCODE_BADSECURITYMODEREJECTED = 0x80540000
-const UA_STATUSCODE_BADSECURITYPOLICYREJECTED = 0x80550000
-const UA_STATUSCODE_BADTOOMANYSESSIONS = 0x80560000
-const UA_STATUSCODE_BADUSERSIGNATUREINVALID = 0x80570000
-const UA_STATUSCODE_BADAPPLICATIONSIGNATUREINVALID = 0x80580000
-const UA_STATUSCODE_BADNOVALIDCERTIFICATES = 0x80590000
-const UA_STATUSCODE_BADIDENTITYCHANGENOTSUPPORTED = 0x80c60000
-const UA_STATUSCODE_BADREQUESTCANCELLEDBYREQUEST = 0x805a0000
-const UA_STATUSCODE_BADPARENTNODEIDINVALID = 0x805b0000
-const UA_STATUSCODE_BADREFERENCENOTALLOWED = 0x805c0000
-const UA_STATUSCODE_BADNODEIDREJECTED = 0x805d0000
-const UA_STATUSCODE_BADNODEIDEXISTS = 0x805e0000
-const UA_STATUSCODE_BADNODECLASSINVALID = 0x805f0000
-const UA_STATUSCODE_BADBROWSENAMEINVALID = 0x80600000
-const UA_STATUSCODE_BADBROWSENAMEDUPLICATED = 0x80610000
-const UA_STATUSCODE_BADNODEATTRIBUTESINVALID = 0x80620000
-const UA_STATUSCODE_BADTYPEDEFINITIONINVALID = 0x80630000
-const UA_STATUSCODE_BADSOURCENODEIDINVALID = 0x80640000
-const UA_STATUSCODE_BADTARGETNODEIDINVALID = 0x80650000
-const UA_STATUSCODE_BADDUPLICATEREFERENCENOTALLOWED = 0x80660000
-const UA_STATUSCODE_BADINVALIDSELFREFERENCE = 0x80670000
-const UA_STATUSCODE_BADREFERENCELOCALONLY = 0x80680000
-const UA_STATUSCODE_BADNODELETERIGHTS = 0x80690000
-const UA_STATUSCODE_UNCERTAINREFERENCENOTDELETED = 0x40bc0000
-const UA_STATUSCODE_BADSERVERINDEXINVALID = 0x806a0000
-const UA_STATUSCODE_BADVIEWIDUNKNOWN = 0x806b0000
-const UA_STATUSCODE_BADVIEWTIMESTAMPINVALID = 0x80c90000
-const UA_STATUSCODE_BADVIEWPARAMETERMISMATCH = 0x80ca0000
-const UA_STATUSCODE_BADVIEWVERSIONINVALID = 0x80cb0000
-const UA_STATUSCODE_UNCERTAINNOTALLNODESAVAILABLE = 0x40c00000
-const UA_STATUSCODE_GOODRESULTSMAYBEINCOMPLETE = 0x00ba0000
-const UA_STATUSCODE_BADNOTTYPEDEFINITION = 0x80c80000
-const UA_STATUSCODE_UNCERTAINREFERENCEOUTOFSERVER = 0x406c0000
-const UA_STATUSCODE_BADTOOMANYMATCHES = 0x806d0000
-const UA_STATUSCODE_BADQUERYTOOCOMPLEX = 0x806e0000
-const UA_STATUSCODE_BADNOMATCH = 0x806f0000
-const UA_STATUSCODE_BADMAXAGEINVALID = 0x80700000
-const UA_STATUSCODE_BADSECURITYMODEINSUFFICIENT = 0x80e60000
-const UA_STATUSCODE_BADHISTORYOPERATIONINVALID = 0x80710000
-const UA_STATUSCODE_BADHISTORYOPERATIONUNSUPPORTED = 0x80720000
-const UA_STATUSCODE_BADINVALIDTIMESTAMPARGUMENT = 0x80bd0000
-const UA_STATUSCODE_BADWRITENOTSUPPORTED = 0x80730000
-const UA_STATUSCODE_BADTYPEMISMATCH = 0x80740000
-const UA_STATUSCODE_BADMETHODINVALID = 0x80750000
-const UA_STATUSCODE_BADARGUMENTSMISSING = 0x80760000
-const UA_STATUSCODE_BADNOTEXECUTABLE = 0x81110000
-const UA_STATUSCODE_BADTOOMANYSUBSCRIPTIONS = 0x80770000
-const UA_STATUSCODE_BADTOOMANYPUBLISHREQUESTS = 0x80780000
-const UA_STATUSCODE_BADNOSUBSCRIPTION = 0x80790000
-const UA_STATUSCODE_BADSEQUENCENUMBERUNKNOWN = 0x807a0000
-const UA_STATUSCODE_GOODRETRANSMISSIONQUEUENOTSUPPORTED = 0x00df0000
-const UA_STATUSCODE_BADMESSAGENOTAVAILABLE = 0x807b0000
-const UA_STATUSCODE_BADINSUFFICIENTCLIENTPROFILE = 0x807c0000
-const UA_STATUSCODE_BADSTATENOTACTIVE = 0x80bf0000
-const UA_STATUSCODE_BADALREADYEXISTS = 0x81150000
-const UA_STATUSCODE_BADTCPSERVERTOOBUSY = 0x807d0000
-const UA_STATUSCODE_BADTCPMESSAGETYPEINVALID = 0x807e0000
-const UA_STATUSCODE_BADTCPSECURECHANNELUNKNOWN = 0x807f0000
-const UA_STATUSCODE_BADTCPMESSAGETOOLARGE = 0x80800000
-const UA_STATUSCODE_BADTCPNOTENOUGHRESOURCES = 0x80810000
-const UA_STATUSCODE_BADTCPINTERNALERROR = 0x80820000
-const UA_STATUSCODE_BADTCPENDPOINTURLINVALID = 0x80830000
-const UA_STATUSCODE_BADREQUESTINTERRUPTED = 0x80840000
-const UA_STATUSCODE_BADREQUESTTIMEOUT = 0x80850000
-const UA_STATUSCODE_BADSECURECHANNELCLOSED = 0x80860000
-const UA_STATUSCODE_BADSECURECHANNELTOKENUNKNOWN = 0x80870000
-const UA_STATUSCODE_BADSEQUENCENUMBERINVALID = 0x80880000
-const UA_STATUSCODE_BADPROTOCOLVERSIONUNSUPPORTED = 0x80be0000
-const UA_STATUSCODE_BADCONFIGURATIONERROR = 0x80890000
-const UA_STATUSCODE_BADNOTCONNECTED = 0x808a0000
-const UA_STATUSCODE_BADDEVICEFAILURE = 0x808b0000
-const UA_STATUSCODE_BADSENSORFAILURE = 0x808c0000
-const UA_STATUSCODE_BADOUTOFSERVICE = 0x808d0000
-const UA_STATUSCODE_BADDEADBANDFILTERINVALID = 0x808e0000
-const UA_STATUSCODE_UNCERTAINNOCOMMUNICATIONLASTUSABLEVALUE = 0x408f0000
-const UA_STATUSCODE_UNCERTAINLASTUSABLEVALUE = 0x40900000
-const UA_STATUSCODE_UNCERTAINSUBSTITUTEVALUE = 0x40910000
-const UA_STATUSCODE_UNCERTAININITIALVALUE = 0x40920000
-const UA_STATUSCODE_UNCERTAINSENSORNOTACCURATE = 0x40930000
-const UA_STATUSCODE_UNCERTAINENGINEERINGUNITSEXCEEDED = 0x40940000
-const UA_STATUSCODE_UNCERTAINSUBNORMAL = 0x40950000
-const UA_STATUSCODE_GOODLOCALOVERRIDE = 0x00960000
-const UA_STATUSCODE_BADREFRESHINPROGRESS = 0x80970000
-const UA_STATUSCODE_BADCONDITIONALREADYDISABLED = 0x80980000
-const UA_STATUSCODE_BADCONDITIONALREADYENABLED = 0x80cc0000
-const UA_STATUSCODE_BADCONDITIONDISABLED = 0x80990000
-const UA_STATUSCODE_BADEVENTIDUNKNOWN = 0x809a0000
-const UA_STATUSCODE_BADEVENTNOTACKNOWLEDGEABLE = 0x80bb0000
-const UA_STATUSCODE_BADDIALOGNOTACTIVE = 0x80cd0000
-const UA_STATUSCODE_BADDIALOGRESPONSEINVALID = 0x80ce0000
-const UA_STATUSCODE_BADCONDITIONBRANCHALREADYACKED = 0x80cf0000
-const UA_STATUSCODE_BADCONDITIONBRANCHALREADYCONFIRMED = 0x80d00000
-const UA_STATUSCODE_BADCONDITIONALREADYSHELVED = 0x80d10000
-const UA_STATUSCODE_BADCONDITIONNOTSHELVED = 0x80d20000
-const UA_STATUSCODE_BADSHELVINGTIMEOUTOFRANGE = 0x80d30000
-const UA_STATUSCODE_BADNODATA = 0x809b0000
-const UA_STATUSCODE_BADBOUNDNOTFOUND = 0x80d70000
-const UA_STATUSCODE_BADBOUNDNOTSUPPORTED = 0x80d80000
-const UA_STATUSCODE_BADDATALOST = 0x809d0000
-const UA_STATUSCODE_BADDATAUNAVAILABLE = 0x809e0000
-const UA_STATUSCODE_BADENTRYEXISTS = 0x809f0000
-const UA_STATUSCODE_BADNOENTRYEXISTS = 0x80a00000
-const UA_STATUSCODE_BADTIMESTAMPNOTSUPPORTED = 0x80a10000
-const UA_STATUSCODE_GOODENTRYINSERTED = 0x00a20000
-const UA_STATUSCODE_GOODENTRYREPLACED = 0x00a30000
-const UA_STATUSCODE_UNCERTAINDATASUBNORMAL = 0x40a40000
-const UA_STATUSCODE_GOODNODATA = 0x00a50000
-const UA_STATUSCODE_GOODMOREDATA = 0x00a60000
-const UA_STATUSCODE_BADAGGREGATELISTMISMATCH = 0x80d40000
-const UA_STATUSCODE_BADAGGREGATENOTSUPPORTED = 0x80d50000
-const UA_STATUSCODE_BADAGGREGATEINVALIDINPUTS = 0x80d60000
-const UA_STATUSCODE_BADAGGREGATECONFIGURATIONREJECTED = 0x80da0000
-const UA_STATUSCODE_GOODDATAIGNORED = 0x00d90000
-const UA_STATUSCODE_BADREQUESTNOTALLOWED = 0x80e40000
-const UA_STATUSCODE_BADREQUESTNOTCOMPLETE = 0x81130000
-const UA_STATUSCODE_BADTICKETREQUIRED = 0x811f0000
-const UA_STATUSCODE_BADTICKETINVALID = 0x81200000
-const UA_STATUSCODE_GOODEDITED = 0x00dc0000
-const UA_STATUSCODE_GOODPOSTACTIONFAILED = 0x00dd0000
-const UA_STATUSCODE_UNCERTAINDOMINANTVALUECHANGED = 0x40de0000
-const UA_STATUSCODE_GOODDEPENDENTVALUECHANGED = 0x00e00000
-const UA_STATUSCODE_BADDOMINANTVALUECHANGED = 0x80e10000
-const UA_STATUSCODE_UNCERTAINDEPENDENTVALUECHANGED = 0x40e20000
-const UA_STATUSCODE_BADDEPENDENTVALUECHANGED = 0x80e30000
-const UA_STATUSCODE_GOODEDITED_DEPENDENTVALUECHANGED = 0x01160000
-const UA_STATUSCODE_GOODEDITED_DOMINANTVALUECHANGED = 0x01170000
-const UA_STATUSCODE_GOODEDITED_DOMINANTVALUECHANGED_DEPENDENTVALUECHANGED = 0x01180000
-const UA_STATUSCODE_BADEDITED_OUTOFRANGE = 0x81190000
-const UA_STATUSCODE_BADINITIALVALUE_OUTOFRANGE = 0x811a0000
-const UA_STATUSCODE_BADOUTOFRANGE_DOMINANTVALUECHANGED = 0x811b0000
-const UA_STATUSCODE_BADEDITED_OUTOFRANGE_DOMINANTVALUECHANGED = 0x811c0000
-const UA_STATUSCODE_BADOUTOFRANGE_DOMINANTVALUECHANGED_DEPENDENTVALUECHANGED = 0x811d0000
-const UA_STATUSCODE_BADEDITED_OUTOFRANGE_DOMINANTVALUECHANGED_DEPENDENTVALUECHANGED = 0x811e0000
-const UA_STATUSCODE_GOODCOMMUNICATIONEVENT = 0x00a70000
-const UA_STATUSCODE_GOODSHUTDOWNEVENT = 0x00a80000
-const UA_STATUSCODE_GOODCALLAGAIN = 0x00a90000
-const UA_STATUSCODE_GOODNONCRITICALTIMEOUT = 0x00aa0000
-const UA_STATUSCODE_BADINVALIDARGUMENT = 0x80ab0000
-const UA_STATUSCODE_BADCONNECTIONREJECTED = 0x80ac0000
-const UA_STATUSCODE_BADDISCONNECT = 0x80ad0000
-const UA_STATUSCODE_BADCONNECTIONCLOSED = 0x80ae0000
-const UA_STATUSCODE_BADINVALIDSTATE = 0x80af0000
-const UA_STATUSCODE_BADENDOFSTREAM = 0x80b00000
-const UA_STATUSCODE_BADNODATAAVAILABLE = 0x80b10000
-const UA_STATUSCODE_BADWAITINGFORRESPONSE = 0x80b20000
-const UA_STATUSCODE_BADOPERATIONABANDONED = 0x80b30000
-const UA_STATUSCODE_BADEXPECTEDSTREAMTOBLOCK = 0x80b40000
-const UA_STATUSCODE_BADWOULDBLOCK = 0x80b50000
-const UA_STATUSCODE_BADSYNTAXERROR = 0x80b60000
-const UA_STATUSCODE_BADMAXCONNECTIONSREACHED = 0x80b70000
 const UA_SBYTE_MIN = -128
 const UA_SBYTE_MAX = 127
 const UA_BYTE_MIN = 0
@@ -17100,70 +17336,10 @@ const UA_DATETIME_UNIX_EPOCH = Clonglong(11644473600) * UA_DATETIME_SEC
 
 # Skipping MacroDefinition: UA_EMPTY_ARRAY_SENTINEL ( ( void * ) 0x01 )
 const UA_DATATYPEKINDS = 31
-const UA_TYPES_COUNT = 388
-const UA_TYPES_BOOLEAN = 0
-const UA_TYPES_SBYTE = 1
-const UA_TYPES_BYTE = 2
-const UA_TYPES_INT16 = 3
-const UA_TYPES_UINT16 = 4
-const UA_TYPES_INT32 = 5
-const UA_TYPES_UINT32 = 6
-const UA_TYPES_INT64 = 7
-const UA_TYPES_UINT64 = 8
-const UA_TYPES_FLOAT = 9
-const UA_TYPES_DOUBLE = 10
-const UA_TYPES_STRING = 11
-const UA_TYPES_DATETIME = 12
-const UA_TYPES_GUID = 13
-const UA_TYPES_BYTESTRING = 14
-const UA_TYPES_XMLELEMENT = 15
-const UA_TYPES_NODEID = 16
-const UA_TYPES_EXPANDEDNODEID = 17
-const UA_TYPES_STATUSCODE = 18
-const UA_TYPES_QUALIFIEDNAME = 19
-const UA_TYPES_LOCALIZEDTEXT = 20
-const UA_TYPES_EXTENSIONOBJECT = 21
-const UA_TYPES_DATAVALUE = 22
-const UA_TYPES_VARIANT = 23
-const UA_TYPES_DIAGNOSTICINFO = 24
-const UA_TYPES_NAMINGRULETYPE = 25
-const UA_TYPES_ENUMERATION = 26
-const UA_TYPES_IMAGEBMP = 27
-const UA_TYPES_IMAGEGIF = 28
-const UA_TYPES_IMAGEJPG = 29
-const UA_TYPES_IMAGEPNG = 30
-const UA_TYPES_AUDIODATATYPE = 31
-const UA_TYPES_URISTRING = 32
-const UA_TYPES_BITFIELDMASKDATATYPE = 33
-const UA_TYPES_SEMANTICVERSIONSTRING = 34
-const UA_TYPES_KEYVALUEPAIR = 35
-const UA_TYPES_ADDITIONALPARAMETERSTYPE = 36
-const UA_TYPES_EPHEMERALKEYTYPE = 37
-const UA_TYPES_RATIONALNUMBER = 38
-const UA_TYPES_THREEDVECTOR = 39
-const UA_TYPES_THREEDCARTESIANCOORDINATES = 40
-const UA_TYPES_THREEDORIENTATION = 41
-const UA_TYPES_THREEDFRAME = 42
-const UA_TYPES_OPENFILEMODE = 43
-const UA_TYPES_IDENTITYCRITERIATYPE = 44
-const UA_TYPES_IDENTITYMAPPINGRULETYPE = 45
-const UA_TYPES_CURRENCYUNITTYPE = 46
-const UA_TYPES_TRUSTLISTMASKS = 47
-const UA_TYPES_TRUSTLISTDATATYPE = 48
-const UA_TYPES_DECIMALDATATYPE = 49
-const UA_TYPES_DATATYPEDESCRIPTION = 50
-const UA_TYPES_SIMPLETYPEDESCRIPTION = 51
-const UA_TYPES_PORTABLEQUALIFIEDNAME = 52
-const UA_TYPES_PORTABLENODEID = 53
-const UA_TYPES_UNSIGNEDRATIONALNUMBER = 54
-const UA_TYPES_PUBSUBSTATE = 55
+
 const UA_DATASETFIELDFLAGS_NONE = 0
 const UA_DATASETFIELDFLAGS_PROMOTEDFIELD = 1
-const UA_TYPES_DATASETFIELDFLAGS = 56
-const UA_TYPES_CONFIGURATIONVERSIONDATATYPE = 57
-const UA_TYPES_PUBLISHEDVARIABLEDATATYPE = 58
-const UA_TYPES_PUBLISHEDDATAITEMSDATATYPE = 59
-const UA_TYPES_PUBLISHEDDATASETCUSTOMSOURCEDATATYPE = 60
+
 const UA_DATASETFIELDCONTENTMASK_NONE = 0
 const UA_DATASETFIELDCONTENTMASK_STATUSCODE = 1
 const UA_DATASETFIELDCONTENTMASK_SOURCETIMESTAMP = 2
@@ -17171,13 +17347,7 @@ const UA_DATASETFIELDCONTENTMASK_SERVERTIMESTAMP = 4
 const UA_DATASETFIELDCONTENTMASK_SOURCEPICOSECONDS = 8
 const UA_DATASETFIELDCONTENTMASK_SERVERPICOSECONDS = 16
 const UA_DATASETFIELDCONTENTMASK_RAWDATA = 32
-const UA_TYPES_DATASETFIELDCONTENTMASK = 61
-const UA_TYPES_DATASETWRITERDATATYPE = 62
-const UA_TYPES_NETWORKADDRESSDATATYPE = 63
-const UA_TYPES_NETWORKADDRESSURLDATATYPE = 64
-const UA_TYPES_OVERRIDEVALUEHANDLING = 65
-const UA_TYPES_STANDALONESUBSCRIBEDDATASETREFDATATYPE = 66
-const UA_TYPES_DATASETORDERINGTYPE = 67
+
 const UA_UADPNETWORKMESSAGECONTENTMASK_NONE = 0
 const UA_UADPNETWORKMESSAGECONTENTMASK_PUBLISHERID = 1
 const UA_UADPNETWORKMESSAGECONTENTMASK_GROUPHEADER = 2
@@ -17190,8 +17360,7 @@ const UA_UADPNETWORKMESSAGECONTENTMASK_TIMESTAMP = 128
 const UA_UADPNETWORKMESSAGECONTENTMASK_PICOSECONDS = 256
 const UA_UADPNETWORKMESSAGECONTENTMASK_DATASETCLASSID = 512
 const UA_UADPNETWORKMESSAGECONTENTMASK_PROMOTEDFIELDS = 1024
-const UA_TYPES_UADPNETWORKMESSAGECONTENTMASK = 68
-const UA_TYPES_UADPWRITERGROUPMESSAGEDATATYPE = 69
+
 const UA_UADPDATASETMESSAGECONTENTMASK_NONE = 0
 const UA_UADPDATASETMESSAGECONTENTMASK_TIMESTAMP = 1
 const UA_UADPDATASETMESSAGECONTENTMASK_PICOSECONDS = 2
@@ -17199,9 +17368,7 @@ const UA_UADPDATASETMESSAGECONTENTMASK_STATUS = 4
 const UA_UADPDATASETMESSAGECONTENTMASK_MAJORVERSION = 8
 const UA_UADPDATASETMESSAGECONTENTMASK_MINORVERSION = 16
 const UA_UADPDATASETMESSAGECONTENTMASK_SEQUENCENUMBER = 32
-const UA_TYPES_UADPDATASETMESSAGECONTENTMASK = 70
-const UA_TYPES_UADPDATASETWRITERMESSAGEDATATYPE = 71
-const UA_TYPES_UADPDATASETREADERMESSAGEDATATYPE = 72
+
 const UA_JSONNETWORKMESSAGECONTENTMASK_NONE = 0
 const UA_JSONNETWORKMESSAGECONTENTMASK_NETWORKMESSAGEHEADER = 1
 const UA_JSONNETWORKMESSAGECONTENTMASK_DATASETMESSAGEHEADER = 2
@@ -17209,8 +17376,7 @@ const UA_JSONNETWORKMESSAGECONTENTMASK_SINGLEDATASETMESSAGE = 4
 const UA_JSONNETWORKMESSAGECONTENTMASK_PUBLISHERID = 8
 const UA_JSONNETWORKMESSAGECONTENTMASK_DATASETCLASSID = 16
 const UA_JSONNETWORKMESSAGECONTENTMASK_REPLYTO = 32
-const UA_TYPES_JSONNETWORKMESSAGECONTENTMASK = 73
-const UA_TYPES_JSONWRITERGROUPMESSAGEDATATYPE = 74
+
 const UA_JSONDATASETMESSAGECONTENTMASK_NONE = 0
 const UA_JSONDATASETMESSAGECONTENTMASK_DATASETWRITERID = 1
 const UA_JSONDATASETMESSAGECONTENTMASK_METADATAVERSION = 2
@@ -17220,21 +17386,7 @@ const UA_JSONDATASETMESSAGECONTENTMASK_STATUS = 16
 const UA_JSONDATASETMESSAGECONTENTMASK_MESSAGETYPE = 32
 const UA_JSONDATASETMESSAGECONTENTMASK_DATASETWRITERNAME = 64
 const UA_JSONDATASETMESSAGECONTENTMASK_REVERSIBLEFIELDENCODING = 128
-const UA_TYPES_JSONDATASETMESSAGECONTENTMASK = 75
-const UA_TYPES_JSONDATASETWRITERMESSAGEDATATYPE = 76
-const UA_TYPES_JSONDATASETREADERMESSAGEDATATYPE = 77
-const UA_TYPES_TRANSMITQOSPRIORITYDATATYPE = 78
-const UA_TYPES_RECEIVEQOSPRIORITYDATATYPE = 79
-const UA_TYPES_DATAGRAMCONNECTIONTRANSPORTDATATYPE = 80
-const UA_TYPES_DATAGRAMCONNECTIONTRANSPORT2DATATYPE = 81
-const UA_TYPES_DATAGRAMWRITERGROUPTRANSPORTDATATYPE = 82
-const UA_TYPES_DATAGRAMWRITERGROUPTRANSPORT2DATATYPE = 83
-const UA_TYPES_DATAGRAMDATASETREADERTRANSPORTDATATYPE = 84
-const UA_TYPES_BROKERCONNECTIONTRANSPORTDATATYPE = 85
-const UA_TYPES_BROKERTRANSPORTQUALITYOFSERVICE = 86
-const UA_TYPES_BROKERWRITERGROUPTRANSPORTDATATYPE = 87
-const UA_TYPES_BROKERDATASETWRITERTRANSPORTDATATYPE = 88
-const UA_TYPES_BROKERDATASETREADERTRANSPORTDATATYPE = 89
+
 const UA_PUBSUBCONFIGURATIONREFMASK_NONE = 0
 const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTADD = 1
 const UA_PUBSUBCONFIGURATIONREFMASK_ELEMENTMATCH = 2
@@ -17249,12 +17401,7 @@ const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEPUBDATASET = 512
 const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCESUBDATASET = 1024
 const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCESECURITYGROUP = 2048
 const UA_PUBSUBCONFIGURATIONREFMASK_REFERENCEPUSHTARGET = 4096
-const UA_TYPES_PUBSUBCONFIGURATIONREFMASK = 90
-const UA_TYPES_PUBSUBCONFIGURATIONREFDATATYPE = 91
-const UA_TYPES_PUBSUBCONFIGURATIONVALUEDATATYPE = 92
-const UA_TYPES_DIAGNOSTICSLEVEL = 93
-const UA_TYPES_PUBSUBDIAGNOSTICSCOUNTERCLASSIFICATION = 94
-const UA_TYPES_ALIASNAMEDATATYPE = 95
+
 const UA_PASSWORDOPTIONSMASK_NONE = 0
 const UA_PASSWORDOPTIONSMASK_SUPPORTINITIALPASSWORDCHANGE = 1
 const UA_PASSWORDOPTIONSMASK_SUPPORTDISABLEUSER = 2
@@ -17265,25 +17412,13 @@ const UA_PASSWORDOPTIONSMASK_REQUIRESUPPERCASECHARACTERS = 32
 const UA_PASSWORDOPTIONSMASK_REQUIRESLOWERCASECHARACTERS = 64
 const UA_PASSWORDOPTIONSMASK_REQUIRESDIGITCHARACTERS = 128
 const UA_PASSWORDOPTIONSMASK_REQUIRESSPECIALCHARACTERS = 256
-const UA_TYPES_PASSWORDOPTIONSMASK = 96
+
 const UA_USERCONFIGURATIONMASK_NONE = 0
 const UA_USERCONFIGURATIONMASK_NODELETE = 1
 const UA_USERCONFIGURATIONMASK_DISABLED = 2
 const UA_USERCONFIGURATIONMASK_NOCHANGEBYUSER = 4
 const UA_USERCONFIGURATIONMASK_MUSTCHANGEPASSWORD = 8
-const UA_TYPES_USERCONFIGURATIONMASK = 97
-const UA_TYPES_USERMANAGEMENTDATATYPE = 98
-const UA_TYPES_DUPLEX = 99
-const UA_TYPES_INTERFACEADMINSTATUS = 100
-const UA_TYPES_INTERFACEOPERSTATUS = 101
-const UA_TYPES_NEGOTIATIONSTATUS = 102
-const UA_TYPES_TSNFAILURECODE = 103
-const UA_TYPES_TSNSTREAMSTATE = 104
-const UA_TYPES_TSNTALKERSTATUS = 105
-const UA_TYPES_TSNLISTENERSTATUS = 106
-const UA_TYPES_PRIORITYMAPPINGENTRYTYPE = 107
-const UA_TYPES_IDTYPE = 108
-const UA_TYPES_NODECLASS = 109
+
 const UA_PERMISSIONTYPE_NONE = 0
 const UA_PERMISSIONTYPE_BROWSE = 1
 const UA_PERMISSIONTYPE_READROLEPERMISSIONS = 2
@@ -17302,7 +17437,7 @@ const UA_PERMISSIONTYPE_ADDREFERENCE = 8192
 const UA_PERMISSIONTYPE_REMOVEREFERENCE = 16384
 const UA_PERMISSIONTYPE_DELETENODE = 32768
 const UA_PERMISSIONTYPE_ADDNODE = 65536
-const UA_TYPES_PERMISSIONTYPE = 110
+
 const UA_ACCESSLEVELTYPE_NONE = 0
 const UA_ACCESSLEVELTYPE_CURRENTREAD = 1
 const UA_ACCESSLEVELTYPE_CURRENTWRITE = 2
@@ -17311,7 +17446,7 @@ const UA_ACCESSLEVELTYPE_HISTORYWRITE = 8
 const UA_ACCESSLEVELTYPE_SEMANTICCHANGE = 16
 const UA_ACCESSLEVELTYPE_STATUSWRITE = 32
 const UA_ACCESSLEVELTYPE_TIMESTAMPWRITE = 64
-const UA_TYPES_ACCESSLEVELTYPE = 111
+
 const UA_ACCESSLEVELEXTYPE_NONE = 0
 const UA_ACCESSLEVELEXTYPE_CURRENTREAD = 1
 const UA_ACCESSLEVELEXTYPE_CURRENTWRITE = 2
@@ -17326,113 +17461,18 @@ const UA_ACCESSLEVELEXTYPE_WRITEFULLARRAYONLY = 1024
 const UA_ACCESSLEVELEXTYPE_NOSUBDATATYPES = 2048
 const UA_ACCESSLEVELEXTYPE_NONVOLATILE = 4096
 const UA_ACCESSLEVELEXTYPE_CONSTANT = 8192
-const UA_TYPES_ACCESSLEVELEXTYPE = 112
+
 const UA_EVENTNOTIFIERTYPE_NONE = 0
 const UA_EVENTNOTIFIERTYPE_SUBSCRIBETOEVENTS = 1
 const UA_EVENTNOTIFIERTYPE_HISTORYREAD = 4
 const UA_EVENTNOTIFIERTYPE_HISTORYWRITE = 8
-const UA_TYPES_EVENTNOTIFIERTYPE = 113
+
 const UA_ACCESSRESTRICTIONTYPE_NONE = 0
 const UA_ACCESSRESTRICTIONTYPE_SIGNINGREQUIRED = 1
 const UA_ACCESSRESTRICTIONTYPE_ENCRYPTIONREQUIRED = 2
 const UA_ACCESSRESTRICTIONTYPE_SESSIONREQUIRED = 4
 const UA_ACCESSRESTRICTIONTYPE_APPLYRESTRICTIONSTOBROWSE = 8
-const UA_TYPES_ACCESSRESTRICTIONTYPE = 114
-const UA_TYPES_ROLEPERMISSIONTYPE = 115
-const UA_TYPES_STRUCTURETYPE = 116
-const UA_TYPES_STRUCTUREFIELD = 117
-const UA_TYPES_STRUCTUREDEFINITION = 118
-const UA_TYPES_REFERENCENODE = 119
-const UA_TYPES_ARGUMENT = 120
-const UA_TYPES_ENUMVALUETYPE = 121
-const UA_TYPES_ENUMFIELD = 122
-const UA_TYPES_OPTIONSET = 123
-const UA_TYPES_NORMALIZEDSTRING = 124
-const UA_TYPES_DECIMALSTRING = 125
-const UA_TYPES_DURATIONSTRING = 126
-const UA_TYPES_TIMESTRING = 127
-const UA_TYPES_DATESTRING = 128
-const UA_TYPES_DURATION = 129
-const UA_TYPES_UTCTIME = 130
-const UA_TYPES_LOCALEID = 131
-const UA_TYPES_TIMEZONEDATATYPE = 132
-const UA_TYPES_INDEX = 133
-const UA_TYPES_INTEGERID = 134
-const UA_TYPES_APPLICATIONTYPE = 135
-const UA_TYPES_APPLICATIONDESCRIPTION = 136
-const UA_TYPES_REQUESTHEADER = 137
-const UA_TYPES_RESPONSEHEADER = 138
-const UA_TYPES_VERSIONTIME = 139
-const UA_TYPES_SERVICEFAULT = 140
-const UA_TYPES_SESSIONLESSINVOKEREQUESTTYPE = 141
-const UA_TYPES_SESSIONLESSINVOKERESPONSETYPE = 142
-const UA_TYPES_FINDSERVERSREQUEST = 143
-const UA_TYPES_FINDSERVERSRESPONSE = 144
-const UA_TYPES_SERVERONNETWORK = 145
-const UA_TYPES_FINDSERVERSONNETWORKREQUEST = 146
-const UA_TYPES_FINDSERVERSONNETWORKRESPONSE = 147
-const UA_TYPES_APPLICATIONINSTANCECERTIFICATE = 148
-const UA_TYPES_MESSAGESECURITYMODE = 149
-const UA_TYPES_USERTOKENTYPE = 150
-const UA_TYPES_USERTOKENPOLICY = 151
-const UA_TYPES_ENDPOINTDESCRIPTION = 152
-const UA_TYPES_GETENDPOINTSREQUEST = 153
-const UA_TYPES_GETENDPOINTSRESPONSE = 154
-const UA_TYPES_REGISTEREDSERVER = 155
-const UA_TYPES_REGISTERSERVERREQUEST = 156
-const UA_TYPES_REGISTERSERVERRESPONSE = 157
-const UA_TYPES_MDNSDISCOVERYCONFIGURATION = 158
-const UA_TYPES_REGISTERSERVER2REQUEST = 159
-const UA_TYPES_REGISTERSERVER2RESPONSE = 160
-const UA_TYPES_SECURITYTOKENREQUESTTYPE = 161
-const UA_TYPES_CHANNELSECURITYTOKEN = 162
-const UA_TYPES_OPENSECURECHANNELREQUEST = 163
-const UA_TYPES_OPENSECURECHANNELRESPONSE = 164
-const UA_TYPES_CLOSESECURECHANNELREQUEST = 165
-const UA_TYPES_CLOSESECURECHANNELRESPONSE = 166
-const UA_TYPES_SIGNEDSOFTWARECERTIFICATE = 167
-const UA_TYPES_SESSIONAUTHENTICATIONTOKEN = 168
-const UA_TYPES_SIGNATUREDATA = 169
-const UA_TYPES_CREATESESSIONREQUEST = 170
-const UA_TYPES_CREATESESSIONRESPONSE = 171
-const UA_TYPES_USERIDENTITYTOKEN = 172
-const UA_TYPES_ANONYMOUSIDENTITYTOKEN = 173
-const UA_TYPES_USERNAMEIDENTITYTOKEN = 174
-const UA_TYPES_X509IDENTITYTOKEN = 175
-const UA_TYPES_ISSUEDIDENTITYTOKEN = 176
-const UA_TYPES_RSAENCRYPTEDSECRET = 177
-const UA_TYPES_ECCENCRYPTEDSECRET = 178
-const UA_TYPES_ACTIVATESESSIONREQUEST = 179
-const UA_TYPES_ACTIVATESESSIONRESPONSE = 180
-const UA_TYPES_CLOSESESSIONREQUEST = 181
-const UA_TYPES_CLOSESESSIONRESPONSE = 182
-const UA_TYPES_CANCELREQUEST = 183
-const UA_TYPES_CANCELRESPONSE = 184
-const UA_TYPES_NODEATTRIBUTESMASK = 185
-const UA_TYPES_NODEATTRIBUTES = 186
-const UA_TYPES_OBJECTATTRIBUTES = 187
-const UA_TYPES_VARIABLEATTRIBUTES = 188
-const UA_TYPES_METHODATTRIBUTES = 189
-const UA_TYPES_OBJECTTYPEATTRIBUTES = 190
-const UA_TYPES_VARIABLETYPEATTRIBUTES = 191
-const UA_TYPES_REFERENCETYPEATTRIBUTES = 192
-const UA_TYPES_DATATYPEATTRIBUTES = 193
-const UA_TYPES_VIEWATTRIBUTES = 194
-const UA_TYPES_GENERICATTRIBUTEVALUE = 195
-const UA_TYPES_GENERICATTRIBUTES = 196
-const UA_TYPES_ADDNODESITEM = 197
-const UA_TYPES_ADDNODESRESULT = 198
-const UA_TYPES_ADDNODESREQUEST = 199
-const UA_TYPES_ADDNODESRESPONSE = 200
-const UA_TYPES_ADDREFERENCESITEM = 201
-const UA_TYPES_ADDREFERENCESREQUEST = 202
-const UA_TYPES_ADDREFERENCESRESPONSE = 203
-const UA_TYPES_DELETENODESITEM = 204
-const UA_TYPES_DELETENODESREQUEST = 205
-const UA_TYPES_DELETENODESRESPONSE = 206
-const UA_TYPES_DELETEREFERENCESITEM = 207
-const UA_TYPES_DELETEREFERENCESREQUEST = 208
-const UA_TYPES_DELETEREFERENCESRESPONSE = 209
+
 const UA_ATTRIBUTEWRITEMASK_NONE = 0
 const UA_ATTRIBUTEWRITEMASK_ACCESSLEVEL = 1
 const UA_ATTRIBUTEWRITEMASK_ARRAYDIMENSIONS = 2
@@ -17460,184 +17500,7 @@ const UA_ATTRIBUTEWRITEMASK_DATATYPEDEFINITION = 4194304
 const UA_ATTRIBUTEWRITEMASK_ROLEPERMISSIONS = 8388608
 const UA_ATTRIBUTEWRITEMASK_ACCESSRESTRICTIONS = 16777216
 const UA_ATTRIBUTEWRITEMASK_ACCESSLEVELEX = 33554432
-const UA_TYPES_ATTRIBUTEWRITEMASK = 210
-const UA_TYPES_BROWSEDIRECTION = 211
-const UA_TYPES_VIEWDESCRIPTION = 212
-const UA_TYPES_BROWSEDESCRIPTION = 213
-const UA_TYPES_BROWSERESULTMASK = 214
-const UA_TYPES_REFERENCEDESCRIPTION = 215
-const UA_TYPES_CONTINUATIONPOINT = 216
-const UA_TYPES_BROWSERESULT = 217
-const UA_TYPES_BROWSEREQUEST = 218
-const UA_TYPES_BROWSERESPONSE = 219
-const UA_TYPES_BROWSENEXTREQUEST = 220
-const UA_TYPES_BROWSENEXTRESPONSE = 221
-const UA_TYPES_RELATIVEPATHELEMENT = 222
-const UA_TYPES_RELATIVEPATH = 223
-const UA_TYPES_BROWSEPATH = 224
-const UA_TYPES_BROWSEPATHTARGET = 225
-const UA_TYPES_BROWSEPATHRESULT = 226
-const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST = 227
-const UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE = 228
-const UA_TYPES_REGISTERNODESREQUEST = 229
-const UA_TYPES_REGISTERNODESRESPONSE = 230
-const UA_TYPES_UNREGISTERNODESREQUEST = 231
-const UA_TYPES_UNREGISTERNODESRESPONSE = 232
-const UA_TYPES_COUNTER = 233
-const UA_TYPES_OPAQUENUMERICRANGE = 234
-const UA_TYPES_ENDPOINTCONFIGURATION = 235
-const UA_TYPES_QUERYDATADESCRIPTION = 236
-const UA_TYPES_NODETYPEDESCRIPTION = 237
-const UA_TYPES_FILTEROPERATOR = 238
-const UA_TYPES_QUERYDATASET = 239
-const UA_TYPES_NODEREFERENCE = 240
-const UA_TYPES_CONTENTFILTERELEMENT = 241
-const UA_TYPES_CONTENTFILTER = 242
-const UA_TYPES_ELEMENTOPERAND = 243
-const UA_TYPES_LITERALOPERAND = 244
-const UA_TYPES_ATTRIBUTEOPERAND = 245
-const UA_TYPES_SIMPLEATTRIBUTEOPERAND = 246
-const UA_TYPES_CONTENTFILTERELEMENTRESULT = 247
-const UA_TYPES_CONTENTFILTERRESULT = 248
-const UA_TYPES_PARSINGRESULT = 249
-const UA_TYPES_QUERYFIRSTREQUEST = 250
-const UA_TYPES_QUERYFIRSTRESPONSE = 251
-const UA_TYPES_QUERYNEXTREQUEST = 252
-const UA_TYPES_QUERYNEXTRESPONSE = 253
-const UA_TYPES_TIMESTAMPSTORETURN = 254
-const UA_TYPES_READVALUEID = 255
-const UA_TYPES_READREQUEST = 256
-const UA_TYPES_READRESPONSE = 257
-const UA_TYPES_HISTORYREADVALUEID = 258
-const UA_TYPES_HISTORYREADRESULT = 259
-const UA_TYPES_READRAWMODIFIEDDETAILS = 260
-const UA_TYPES_READATTIMEDETAILS = 261
-const UA_TYPES_READANNOTATIONDATADETAILS = 262
-const UA_TYPES_HISTORYDATA = 263
-const UA_TYPES_HISTORYREADREQUEST = 264
-const UA_TYPES_HISTORYREADRESPONSE = 265
-const UA_TYPES_WRITEVALUE = 266
-const UA_TYPES_WRITEREQUEST = 267
-const UA_TYPES_WRITERESPONSE = 268
-const UA_TYPES_HISTORYUPDATEDETAILS = 269
-const UA_TYPES_HISTORYUPDATETYPE = 270
-const UA_TYPES_PERFORMUPDATETYPE = 271
-const UA_TYPES_UPDATEDATADETAILS = 272
-const UA_TYPES_UPDATESTRUCTUREDATADETAILS = 273
-const UA_TYPES_DELETERAWMODIFIEDDETAILS = 274
-const UA_TYPES_DELETEATTIMEDETAILS = 275
-const UA_TYPES_DELETEEVENTDETAILS = 276
-const UA_TYPES_HISTORYUPDATERESULT = 277
-const UA_TYPES_HISTORYUPDATEREQUEST = 278
-const UA_TYPES_HISTORYUPDATERESPONSE = 279
-const UA_TYPES_CALLMETHODREQUEST = 280
-const UA_TYPES_CALLMETHODRESULT = 281
-const UA_TYPES_CALLREQUEST = 282
-const UA_TYPES_CALLRESPONSE = 283
-const UA_TYPES_MONITORINGMODE = 284
-const UA_TYPES_DATACHANGETRIGGER = 285
-const UA_TYPES_DEADBANDTYPE = 286
-const UA_TYPES_DATACHANGEFILTER = 287
-const UA_TYPES_EVENTFILTER = 288
-const UA_TYPES_AGGREGATECONFIGURATION = 289
-const UA_TYPES_AGGREGATEFILTER = 290
-const UA_TYPES_EVENTFILTERRESULT = 291
-const UA_TYPES_AGGREGATEFILTERRESULT = 292
-const UA_TYPES_MONITORINGPARAMETERS = 293
-const UA_TYPES_MONITOREDITEMCREATEREQUEST = 294
-const UA_TYPES_MONITOREDITEMCREATERESULT = 295
-const UA_TYPES_CREATEMONITOREDITEMSREQUEST = 296
-const UA_TYPES_CREATEMONITOREDITEMSRESPONSE = 297
-const UA_TYPES_MONITOREDITEMMODIFYREQUEST = 298
-const UA_TYPES_MONITOREDITEMMODIFYRESULT = 299
-const UA_TYPES_MODIFYMONITOREDITEMSREQUEST = 300
-const UA_TYPES_MODIFYMONITOREDITEMSRESPONSE = 301
-const UA_TYPES_SETMONITORINGMODEREQUEST = 302
-const UA_TYPES_SETMONITORINGMODERESPONSE = 303
-const UA_TYPES_SETTRIGGERINGREQUEST = 304
-const UA_TYPES_SETTRIGGERINGRESPONSE = 305
-const UA_TYPES_DELETEMONITOREDITEMSREQUEST = 306
-const UA_TYPES_DELETEMONITOREDITEMSRESPONSE = 307
-const UA_TYPES_CREATESUBSCRIPTIONREQUEST = 308
-const UA_TYPES_CREATESUBSCRIPTIONRESPONSE = 309
-const UA_TYPES_MODIFYSUBSCRIPTIONREQUEST = 310
-const UA_TYPES_MODIFYSUBSCRIPTIONRESPONSE = 311
-const UA_TYPES_SETPUBLISHINGMODEREQUEST = 312
-const UA_TYPES_SETPUBLISHINGMODERESPONSE = 313
-const UA_TYPES_NOTIFICATIONMESSAGE = 314
-const UA_TYPES_MONITOREDITEMNOTIFICATION = 315
-const UA_TYPES_EVENTFIELDLIST = 316
-const UA_TYPES_HISTORYEVENTFIELDLIST = 317
-const UA_TYPES_STATUSCHANGENOTIFICATION = 318
-const UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT = 319
-const UA_TYPES_PUBLISHREQUEST = 320
-const UA_TYPES_PUBLISHRESPONSE = 321
-const UA_TYPES_REPUBLISHREQUEST = 322
-const UA_TYPES_REPUBLISHRESPONSE = 323
-const UA_TYPES_TRANSFERRESULT = 324
-const UA_TYPES_TRANSFERSUBSCRIPTIONSREQUEST = 325
-const UA_TYPES_TRANSFERSUBSCRIPTIONSRESPONSE = 326
-const UA_TYPES_DELETESUBSCRIPTIONSREQUEST = 327
-const UA_TYPES_DELETESUBSCRIPTIONSRESPONSE = 328
-const UA_TYPES_BUILDINFO = 329
-const UA_TYPES_REDUNDANCYSUPPORT = 330
-const UA_TYPES_SERVERSTATE = 331
-const UA_TYPES_REDUNDANTSERVERDATATYPE = 332
-const UA_TYPES_ENDPOINTURLLISTDATATYPE = 333
-const UA_TYPES_NETWORKGROUPDATATYPE = 334
-const UA_TYPES_SAMPLINGINTERVALDIAGNOSTICSDATATYPE = 335
-const UA_TYPES_SERVERDIAGNOSTICSSUMMARYDATATYPE = 336
-const UA_TYPES_SERVERSTATUSDATATYPE = 337
-const UA_TYPES_SESSIONSECURITYDIAGNOSTICSDATATYPE = 338
-const UA_TYPES_SERVICECOUNTERDATATYPE = 339
-const UA_TYPES_STATUSRESULT = 340
-const UA_TYPES_SUBSCRIPTIONDIAGNOSTICSDATATYPE = 341
-const UA_TYPES_MODELCHANGESTRUCTUREVERBMASK = 342
-const UA_TYPES_MODELCHANGESTRUCTUREDATATYPE = 343
-const UA_TYPES_SEMANTICCHANGESTRUCTUREDATATYPE = 344
-const UA_TYPES_RANGE = 345
-const UA_TYPES_EUINFORMATION = 346
-const UA_TYPES_AXISSCALEENUMERATION = 347
-const UA_TYPES_COMPLEXNUMBERTYPE = 348
-const UA_TYPES_DOUBLECOMPLEXNUMBERTYPE = 349
-const UA_TYPES_AXISINFORMATION = 350
-const UA_TYPES_XVTYPE = 351
-const UA_TYPES_PROGRAMDIAGNOSTICDATATYPE = 352
-const UA_TYPES_PROGRAMDIAGNOSTIC2DATATYPE = 353
-const UA_TYPES_ANNOTATION = 354
-const UA_TYPES_EXCEPTIONDEVIATIONFORMAT = 355
-const UA_TYPES_ENDPOINTTYPE = 356
-const UA_TYPES_STRUCTUREDESCRIPTION = 357
-const UA_TYPES_FIELDMETADATA = 358
-const UA_TYPES_PUBLISHEDEVENTSDATATYPE = 359
-const UA_TYPES_PUBSUBGROUPDATATYPE = 360
-const UA_TYPES_WRITERGROUPDATATYPE = 361
-const UA_TYPES_FIELDTARGETDATATYPE = 362
-const UA_TYPES_SUBSCRIBEDDATASETMIRRORDATATYPE = 363
-const UA_TYPES_SECURITYGROUPDATATYPE = 364
-const UA_TYPES_PUBSUBKEYPUSHTARGETDATATYPE = 365
-const UA_TYPES_ENUMDEFINITION = 366
-const UA_TYPES_READEVENTDETAILS = 367
-const UA_TYPES_READPROCESSEDDETAILS = 368
-const UA_TYPES_MODIFICATIONINFO = 369
-const UA_TYPES_HISTORYMODIFIEDDATA = 370
-const UA_TYPES_HISTORYEVENT = 371
-const UA_TYPES_UPDATEEVENTDETAILS = 372
-const UA_TYPES_DATACHANGENOTIFICATION = 373
-const UA_TYPES_EVENTNOTIFICATIONLIST = 374
-const UA_TYPES_SESSIONDIAGNOSTICSDATATYPE = 375
-const UA_TYPES_ENUMDESCRIPTION = 376
-const UA_TYPES_UABINARYFILEDATATYPE = 377
-const UA_TYPES_DATASETMETADATATYPE = 378
-const UA_TYPES_PUBLISHEDDATASETDATATYPE = 379
-const UA_TYPES_DATASETREADERDATATYPE = 380
-const UA_TYPES_TARGETVARIABLESDATATYPE = 381
-const UA_TYPES_STANDALONESUBSCRIBEDDATASETDATATYPE = 382
-const UA_TYPES_DATATYPESCHEMAHEADER = 383
-const UA_TYPES_READERGROUPDATATYPE = 384
-const UA_TYPES_PUBSUBCONNECTIONDATATYPE = 385
-const UA_TYPES_PUBSUBCONFIGURATIONDATATYPE = 386
-const UA_TYPES_PUBSUBCONFIGURATION2DATATYPE = 387
+
 const UA_PRINTF_STRING_FORMAT = "\"%.*s\""
 const UA_LOGCATEGORIES = 10
 const UA_REFERENCETYPEINDEX_REFERENCES = 0
@@ -17673,7 +17536,6 @@ const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(Tuple(zeros(UA_Byte, 48)))
 const UA_NUMBER_TYPES = Union{Bool, Int8, Int16, Int32, Int64, UInt8, UInt16,
     UInt32, UInt64, Float32, Float64}
 
-include("const_NS0ID.jl")
 include("generated_defs.jl")
 include("helper_functions.jl")
 include("types.jl")

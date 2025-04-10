@@ -8,7 +8,6 @@ const UA_EXPANDEDNODEID_NULL = UA_ExpandedNodeId(Tuple(zeros(UA_Byte, 48)))
 const UA_NUMBER_TYPES = Union{Bool, Int8, Int16, Int32, Int64, UInt8, UInt16,
     UInt32, UInt64, Float32, Float64}
 
-include("const_NS0ID.jl")
 include("generated_defs.jl")
 include("helper_functions.jl")
 include("types.jl")

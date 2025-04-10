@@ -70,8 +70,11 @@ end
 #PubSub tests run into networking issues on Github runners running Mac OS X. Only include
 #these tests when running locally or on Github runners that are non Mac OS X.
 if get(ENV, "GITHUB_ACTIONS", "false") == "false" || !Sys.isapple()
-    @safetestset "Server Pubsub tests" begin
-        include("server_pubsub.jl")
+    @safetestset "Server Pubsub Publish" begin
+        include("server_pubsub_publish.jl")
+    end
+    @safetestset "Server Pubsub Subscribe" begin
+        include("server_pubsub_subscribe.jl")
     end
 end
 

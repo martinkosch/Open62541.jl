@@ -159,11 +159,31 @@ for i in eachindex(inlined_funcs)
     global data = replace(data, r => "")
 end
 
-#Move UA_NS0ID constants from main Open62541.jl file to a separate file that will be included when epilogue gets added;
+#Move UA_NS0ID_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
 #Ensures more manageable main file size.
 r = Regex("const UA_NS0ID_[\\s\\S]*?\n")
 m = join(collect(String[m.match for m in eachmatch(r, data)]))
 fn = joinpath(@__DIR__, "../src/const_NS0ID.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
+
+#Move UA_TYPES_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
+#Ensures more manageable main file size.
+r = Regex("const UA_TYPES_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_types.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
+
+#Move UA_TYPES_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
+#Ensures more manageable main file size.
+r = Regex("const UA_STATUSCODE_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_statuscodes.jl")
 f = open(fn, "w")
 write(f, m)
 close(f)
@@ -174,35 +194,15 @@ r = Regex("struct static_assertion_failed_[0-9]+\n.*\nend\n\n")
 r2 = Regex("function Base\\.getproperty\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol\\)\n[\\s\\S]*?\n(end)\n\n")
 r3 = Regex("function Base\\.getproperty\\(x::static_assertion_failed_[0-9]+, f::Symbol\\)\n[\\s\\S]*?(end\n\n)")
 r4 = Regex("function Base\\.setproperty!\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol, v\\)\n[\\s\\S]*?(end\n\n)")
+r5 = Regex("function Base\\.propertynames\\(x::static_assertion_failed_[0-9]+, private::Bool = false\\)\n[\\s\\S]*?(end\n\n)")
+
 data = replace(data, r => "")
 data = replace(data, r2 => "")
 data = replace(data, r3 => "")
 data = replace(data, r4 => "")
+data = replace(data, r5 => "")
 
-#add fieldnames functions for types 
-r = Regex("struct ([a-zA-Z_0-9]*)\n[\\s\\S]{0,50}?data::NTuple\\{[0-9]{1,3}, UInt8\\}\nend")
-structnames = collect(String[m.captures[1] for m in eachmatch(r, data)])
-for i in eachindex(structnames)
-    n = structnames[i]
-    r2 = Regex("function Base\\.getproperty\\(x::Ptr\\{$n\\}, f::Symbol\\)\n([\\s]*f === :[A-Za-z]*[\\s\\S]*?)\nend")
-    functionbody = String(match(r2, data).captures[1])
-    r3 = Regex("f === :([a-zA-Z0-9]*)")
-    fields = Tuple(Symbol.(String[m.captures[1] for m in eachmatch(r3, functionbody)]))
-    r4 = Regex("struct $n\n[\\s\\S]*?end")
-    m = match(r4, data).match
-    fieldnames1 = "Base.fieldnames(::Type{$n}) = $fields"
-    fieldnames2 = "Base.fieldnames(::Type{Ptr{$n}}) = $fields"
-    data = replace(data, m => "$m\n\n$fieldnames1\n$fieldnames2")
-end
-
-#alternative1: removes docstrings of just the inlined functions
-# for i in eachindex(inlined_funcs) 
-#     @show i
-#     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
-#     data = replace(data, r => "")
-# end 
-
-#alternative2: automatically generated docstrings aren't really informative; removes them ALL.
+#automatically generated docstrings aren't really informative; removes them ALL.
 r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
 data = replace(data, r => "")
 
@@ -217,9 +217,7 @@ f = open(fn, "r")
 data = read(f, String)
 close(f)
 
-orig = "function UA_Guid_random()
-    @ccall libopen62541.UA_Guid_random()::UA_Guid
-end"
+orig = Regex("function UA_Guid_random\\(\\)\n[\\s]*?@ccall libopen62541\\.UA_Guid_random\\(\\)::UA_Guid\nend")
 new = "function UA_Guid_random()
 guid_dst = UA_Guid_new()
 guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
