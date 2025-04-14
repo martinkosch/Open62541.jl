@@ -660,6 +660,15 @@ struct UA_KeyValuePair
     key::UA_QualifiedName
     value::UA_Variant
 end
+function Base.getproperty(x::Ptr{UA_KeyValuePair}, f::Symbol)
+    f === :key && return Ptr{UA_QualifiedName}(x + 0)
+    f === :value && return Ptr{UA_Variant}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_KeyValuePair}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -669,6 +678,15 @@ $(TYPEDFIELDS)
 struct UA_KeyValueMap
     mapSize::Csize_t
     map::Ptr{UA_KeyValuePair}
+end
+function Base.getproperty(x::Ptr{UA_KeyValueMap}, f::Symbol)
+    f === :mapSize && return Ptr{Csize_t}(x + 0)
+    f === :map && return Ptr{Ptr{UA_KeyValuePair}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_KeyValueMap}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_EventLoopState::UInt32 begin
@@ -1453,6 +1471,18 @@ struct UA_ServerOnNetwork
     discoveryUrl::UA_String
     serverCapabilitiesSize::Csize_t
     serverCapabilities::Ptr{UA_String}
+end
+function Base.getproperty(x::Ptr{UA_ServerOnNetwork}, f::Symbol)
+    f === :recordId && return Ptr{UA_UInt32}(x + 0)
+    f === :serverName && return Ptr{UA_String}(x + 8)
+    f === :discoveryUrl && return Ptr{UA_String}(x + 24)
+    f === :serverCapabilitiesSize && return Ptr{Csize_t}(x + 40)
+    f === :serverCapabilities && return Ptr{Ptr{UA_String}}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ServerOnNetwork}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_Client_findServersOnNetwork(
@@ -5975,6 +6005,15 @@ struct UA_ConfigurationVersionDataType
     majorVersion::UA_UInt32
     minorVersion::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_ConfigurationVersionDataType}, f::Symbol)
+    f === :majorVersion && return Ptr{UA_UInt32}(x + 0)
+    f === :minorVersion && return Ptr{UA_UInt32}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ConfigurationVersionDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7675,6 +7714,15 @@ struct UA_AdditionalParametersType
     parametersSize::Csize_t
     parameters::Ptr{UA_KeyValuePair}
 end
+function Base.getproperty(x::Ptr{UA_AdditionalParametersType}, f::Symbol)
+    f === :parametersSize && return Ptr{Csize_t}(x + 0)
+    f === :parameters && return Ptr{Ptr{UA_KeyValuePair}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AdditionalParametersType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7685,6 +7733,15 @@ struct UA_EphemeralKeyType
     publicKey::UA_ByteString
     signature::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_EphemeralKeyType}, f::Symbol)
+    f === :publicKey && return Ptr{UA_ByteString}(x + 0)
+    f === :signature && return Ptr{UA_ByteString}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EphemeralKeyType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7694,6 +7751,15 @@ $(TYPEDFIELDS)
 struct UA_RationalNumber
     numerator::UA_Int32
     denominator::UA_UInt32
+end
+function Base.getproperty(x::Ptr{UA_RationalNumber}, f::Symbol)
+    f === :numerator && return Ptr{UA_Int32}(x + 0)
+    f === :denominator && return Ptr{UA_UInt32}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RationalNumber}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -7706,6 +7772,16 @@ struct UA_ThreeDVector
     y::UA_Double
     z::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_ThreeDVector}, f::Symbol)
+    f === :x && return Ptr{UA_Double}(x + 0)
+    f === :y && return Ptr{UA_Double}(x + 8)
+    f === :z && return Ptr{UA_Double}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ThreeDVector}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7716,6 +7792,16 @@ struct UA_ThreeDCartesianCoordinates
     x::UA_Double
     y::UA_Double
     z::UA_Double
+end
+function Base.getproperty(x::Ptr{UA_ThreeDCartesianCoordinates}, f::Symbol)
+    f === :x && return Ptr{UA_Double}(x + 0)
+    f === :y && return Ptr{UA_Double}(x + 8)
+    f === :z && return Ptr{UA_Double}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ThreeDCartesianCoordinates}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -7728,6 +7814,16 @@ struct UA_ThreeDOrientation
     b::UA_Double
     c::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_ThreeDOrientation}, f::Symbol)
+    f === :a && return Ptr{UA_Double}(x + 0)
+    f === :b && return Ptr{UA_Double}(x + 8)
+    f === :c && return Ptr{UA_Double}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ThreeDOrientation}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7737,6 +7833,15 @@ $(TYPEDFIELDS)
 struct UA_ThreeDFrame
     cartesianCoordinates::UA_ThreeDCartesianCoordinates
     orientation::UA_ThreeDOrientation
+end
+function Base.getproperty(x::Ptr{UA_ThreeDFrame}, f::Symbol)
+    f === :cartesianCoordinates && return Ptr{UA_ThreeDCartesianCoordinates}(x + 0)
+    f === :orientation && return Ptr{UA_ThreeDOrientation}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ThreeDFrame}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_OpenFileMode::UInt32 begin
@@ -7768,6 +7873,15 @@ struct UA_IdentityMappingRuleType
     criteriaType::UA_IdentityCriteriaType
     criteria::UA_String
 end
+function Base.getproperty(x::Ptr{UA_IdentityMappingRuleType}, f::Symbol)
+    f === :criteriaType && return Ptr{UA_IdentityCriteriaType}(x + 0)
+    f === :criteria && return Ptr{UA_String}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_IdentityMappingRuleType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7779,6 +7893,17 @@ struct UA_CurrencyUnitType
     exponent::UA_SByte
     alphabeticCode::UA_String
     currency::UA_LocalizedText
+end
+function Base.getproperty(x::Ptr{UA_CurrencyUnitType}, f::Symbol)
+    f === :numericCode && return Ptr{UA_Int16}(x + 0)
+    f === :exponent && return Ptr{UA_SByte}(x + 2)
+    f === :alphabeticCode && return Ptr{UA_String}(x + 8)
+    f === :currency && return Ptr{UA_LocalizedText}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_CurrencyUnitType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_TrustListMasks::UInt32 begin
@@ -7807,6 +7932,22 @@ struct UA_TrustListDataType
     issuerCrlsSize::Csize_t
     issuerCrls::Ptr{UA_ByteString}
 end
+function Base.getproperty(x::Ptr{UA_TrustListDataType}, f::Symbol)
+    f === :specifiedLists && return Ptr{UA_UInt32}(x + 0)
+    f === :trustedCertificatesSize && return Ptr{Csize_t}(x + 8)
+    f === :trustedCertificates && return Ptr{Ptr{UA_ByteString}}(x + 16)
+    f === :trustedCrlsSize && return Ptr{Csize_t}(x + 24)
+    f === :trustedCrls && return Ptr{Ptr{UA_ByteString}}(x + 32)
+    f === :issuerCertificatesSize && return Ptr{Csize_t}(x + 40)
+    f === :issuerCertificates && return Ptr{Ptr{UA_ByteString}}(x + 48)
+    f === :issuerCrlsSize && return Ptr{Csize_t}(x + 56)
+    f === :issuerCrls && return Ptr{Ptr{UA_ByteString}}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TrustListDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7816,6 +7957,15 @@ $(TYPEDFIELDS)
 struct UA_DecimalDataType
     scale::UA_Int16
     value::UA_ByteString
+end
+function Base.getproperty(x::Ptr{UA_DecimalDataType}, f::Symbol)
+    f === :scale && return Ptr{UA_Int16}(x + 0)
+    f === :value && return Ptr{UA_ByteString}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DecimalDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -7868,6 +8018,15 @@ struct UA_PortableQualifiedName
     namespaceUri::UA_String
     name::UA_String
 end
+function Base.getproperty(x::Ptr{UA_PortableQualifiedName}, f::Symbol)
+    f === :namespaceUri && return Ptr{UA_String}(x + 0)
+    f === :name && return Ptr{UA_String}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PortableQualifiedName}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -7919,6 +8078,15 @@ struct UA_UnsignedRationalNumber
     numerator::UA_UInt32
     denominator::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_UnsignedRationalNumber}, f::Symbol)
+    f === :numerator && return Ptr{UA_UInt32}(x + 0)
+    f === :denominator && return Ptr{UA_UInt32}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UnsignedRationalNumber}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7929,6 +8097,15 @@ struct UA_PublishedDataItemsDataType
     publishedDataSize::Csize_t
     publishedData::Ptr{UA_PublishedVariableDataType}
 end
+function Base.getproperty(x::Ptr{UA_PublishedDataItemsDataType}, f::Symbol)
+    f === :publishedDataSize && return Ptr{Csize_t}(x + 0)
+    f === :publishedData && return Ptr{Ptr{UA_PublishedVariableDataType}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishedDataItemsDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -7937,6 +8114,14 @@ $(TYPEDFIELDS)
 """
 struct UA_PublishedDataSetCustomSourceDataType
     cyclicDataSet::UA_Boolean
+end
+function Base.getproperty(x::Ptr{UA_PublishedDataSetCustomSourceDataType}, f::Symbol)
+    f === :cyclicDataSet && return Ptr{UA_Boolean}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PublishedDataSetCustomSourceDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -8014,6 +8199,14 @@ $(TYPEDFIELDS)
 struct UA_NetworkAddressDataType
     networkInterface::UA_String
 end
+function Base.getproperty(x::Ptr{UA_NetworkAddressDataType}, f::Symbol)
+    f === :networkInterface && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_NetworkAddressDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8041,6 +8234,14 @@ $(TYPEDFIELDS)
 """
 struct UA_StandaloneSubscribedDataSetRefDataType
     dataSetName::UA_String
+end
+function Base.getproperty(x::Ptr{UA_StandaloneSubscribedDataSetRefDataType}, f::Symbol)
+    f === :dataSetName && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_StandaloneSubscribedDataSetRefDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_DataSetOrderingType::UInt32 begin
@@ -8091,6 +8292,17 @@ struct UA_UadpDataSetWriterMessageDataType
     networkMessageNumber::UA_UInt16
     dataSetOffset::UA_UInt16
 end
+function Base.getproperty(x::Ptr{UA_UadpDataSetWriterMessageDataType}, f::Symbol)
+    f === :dataSetMessageContentMask && return Ptr{UA_UadpDataSetMessageContentMask}(x + 0)
+    f === :configuredSize && return Ptr{UA_UInt16}(x + 4)
+    f === :networkMessageNumber && return Ptr{UA_UInt16}(x + 6)
+    f === :dataSetOffset && return Ptr{UA_UInt16}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UadpDataSetWriterMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8108,6 +8320,23 @@ struct UA_UadpDataSetReaderMessageDataType
     receiveOffset::UA_Double
     processingOffset::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_UadpDataSetReaderMessageDataType}, f::Symbol)
+    f === :groupVersion && return Ptr{UA_UInt32}(x + 0)
+    f === :networkMessageNumber && return Ptr{UA_UInt16}(x + 4)
+    f === :dataSetOffset && return Ptr{UA_UInt16}(x + 6)
+    f === :dataSetClassId && return Ptr{UA_Guid}(x + 8)
+    f === :networkMessageContentMask && return Ptr{UA_UadpNetworkMessageContentMask}(x + 24)
+    f === :dataSetMessageContentMask && return Ptr{UA_UadpDataSetMessageContentMask}(x + 28)
+    f === :publishingInterval && return Ptr{UA_Double}(x + 32)
+    f === :receiveOffset && return Ptr{UA_Double}(x + 40)
+    f === :processingOffset && return Ptr{UA_Double}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UadpDataSetReaderMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 const UA_JsonNetworkMessageContentMask = UA_UInt32
 
 """
@@ -8118,6 +8347,15 @@ $(TYPEDFIELDS)
 struct UA_JsonWriterGroupMessageDataType
     networkMessageContentMask::UA_JsonNetworkMessageContentMask
 end
+function Base.getproperty(x::Ptr{UA_JsonWriterGroupMessageDataType}, f::Symbol)
+    f === :networkMessageContentMask && return Ptr{UA_JsonNetworkMessageContentMask}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_JsonWriterGroupMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 const UA_JsonDataSetMessageContentMask = UA_UInt32
 
 """
@@ -8127,6 +8365,14 @@ $(TYPEDFIELDS)
 """
 struct UA_JsonDataSetWriterMessageDataType
     dataSetMessageContentMask::UA_JsonDataSetMessageContentMask
+end
+function Base.getproperty(x::Ptr{UA_JsonDataSetWriterMessageDataType}, f::Symbol)
+    f === :dataSetMessageContentMask && return Ptr{UA_JsonDataSetMessageContentMask}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_JsonDataSetWriterMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -8138,6 +8384,15 @@ struct UA_JsonDataSetReaderMessageDataType
     networkMessageContentMask::UA_JsonNetworkMessageContentMask
     dataSetMessageContentMask::UA_JsonDataSetMessageContentMask
 end
+function Base.getproperty(x::Ptr{UA_JsonDataSetReaderMessageDataType}, f::Symbol)
+    f === :networkMessageContentMask && return Ptr{UA_JsonNetworkMessageContentMask}(x + 0)
+    f === :dataSetMessageContentMask && return Ptr{UA_JsonDataSetMessageContentMask}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_JsonDataSetReaderMessageDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8147,6 +8402,14 @@ $(TYPEDFIELDS)
 struct UA_TransmitQosPriorityDataType
     priorityLabel::UA_String
 end
+function Base.getproperty(x::Ptr{UA_TransmitQosPriorityDataType}, f::Symbol)
+    f === :priorityLabel && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TransmitQosPriorityDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8155,6 +8418,14 @@ $(TYPEDFIELDS)
 """
 struct UA_ReceiveQosPriorityDataType
     priorityLabel::UA_String
+end
+function Base.getproperty(x::Ptr{UA_ReceiveQosPriorityDataType}, f::Symbol)
+    f === :priorityLabel && return Ptr{UA_String}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReceiveQosPriorityDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -8259,6 +8530,15 @@ $(TYPEDFIELDS)
 struct UA_DatagramWriterGroupTransportDataType
     messageRepeatCount::UA_Byte
     messageRepeatDelay::UA_Double
+end
+function Base.getproperty(x::Ptr{UA_DatagramWriterGroupTransportDataType}, f::Symbol)
+    f === :messageRepeatCount && return Ptr{UA_Byte}(x + 0)
+    f === :messageRepeatDelay && return Ptr{UA_Double}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DatagramWriterGroupTransportDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -8383,6 +8663,15 @@ struct UA_BrokerConnectionTransportDataType
     resourceUri::UA_String
     authenticationProfileUri::UA_String
 end
+function Base.getproperty(x::Ptr{UA_BrokerConnectionTransportDataType}, f::Symbol)
+    f === :resourceUri && return Ptr{UA_String}(x + 0)
+    f === :authenticationProfileUri && return Ptr{UA_String}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrokerConnectionTransportDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 @cenum UA_BrokerTransportQualityOfService::UInt32 begin
     UA_BROKERTRANSPORTQUALITYOFSERVICE_NOTSPECIFIED = 0
@@ -8404,6 +8693,18 @@ struct UA_BrokerWriterGroupTransportDataType
     authenticationProfileUri::UA_String
     requestedDeliveryGuarantee::UA_BrokerTransportQualityOfService
 end
+function Base.getproperty(x::Ptr{UA_BrokerWriterGroupTransportDataType}, f::Symbol)
+    f === :queueName && return Ptr{UA_String}(x + 0)
+    f === :resourceUri && return Ptr{UA_String}(x + 16)
+    f === :authenticationProfileUri && return Ptr{UA_String}(x + 32)
+    f === :requestedDeliveryGuarantee &&
+        return Ptr{UA_BrokerTransportQualityOfService}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrokerWriterGroupTransportDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8418,6 +8719,20 @@ struct UA_BrokerDataSetWriterTransportDataType
     metaDataQueueName::UA_String
     metaDataUpdateTime::UA_Double
 end
+function Base.getproperty(x::Ptr{UA_BrokerDataSetWriterTransportDataType}, f::Symbol)
+    f === :queueName && return Ptr{UA_String}(x + 0)
+    f === :resourceUri && return Ptr{UA_String}(x + 16)
+    f === :authenticationProfileUri && return Ptr{UA_String}(x + 32)
+    f === :requestedDeliveryGuarantee &&
+        return Ptr{UA_BrokerTransportQualityOfService}(x + 48)
+    f === :metaDataQueueName && return Ptr{UA_String}(x + 56)
+    f === :metaDataUpdateTime && return Ptr{UA_Double}(x + 72)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrokerDataSetWriterTransportDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8431,6 +8746,20 @@ struct UA_BrokerDataSetReaderTransportDataType
     requestedDeliveryGuarantee::UA_BrokerTransportQualityOfService
     metaDataQueueName::UA_String
 end
+function Base.getproperty(x::Ptr{UA_BrokerDataSetReaderTransportDataType}, f::Symbol)
+    f === :queueName && return Ptr{UA_String}(x + 0)
+    f === :resourceUri && return Ptr{UA_String}(x + 16)
+    f === :authenticationProfileUri && return Ptr{UA_String}(x + 32)
+    f === :requestedDeliveryGuarantee &&
+        return Ptr{UA_BrokerTransportQualityOfService}(x + 48)
+    f === :metaDataQueueName && return Ptr{UA_String}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_BrokerDataSetReaderTransportDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 const UA_PubSubConfigurationRefMask = UA_UInt32
 
 """
@@ -8444,6 +8773,17 @@ struct UA_PubSubConfigurationRefDataType
     connectionIndex::UA_UInt16
     groupIndex::UA_UInt16
 end
+function Base.getproperty(x::Ptr{UA_PubSubConfigurationRefDataType}, f::Symbol)
+    f === :configurationMask && return Ptr{UA_PubSubConfigurationRefMask}(x + 0)
+    f === :elementIndex && return Ptr{UA_UInt16}(x + 4)
+    f === :connectionIndex && return Ptr{UA_UInt16}(x + 6)
+    f === :groupIndex && return Ptr{UA_UInt16}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubConfigurationRefDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8454,6 +8794,16 @@ struct UA_PubSubConfigurationValueDataType
     configurationElement::UA_PubSubConfigurationRefDataType
     name::UA_String
     identifier::UA_Variant
+end
+function Base.getproperty(x::Ptr{UA_PubSubConfigurationValueDataType}, f::Symbol)
+    f === :configurationElement && return Ptr{UA_PubSubConfigurationRefDataType}(x + 0)
+    f === :name && return Ptr{UA_String}(x + 16)
+    f === :identifier && return Ptr{UA_Variant}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubConfigurationValueDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_DiagnosticsLevel::UInt32 begin
@@ -8481,6 +8831,17 @@ struct UA_AliasNameDataType
     referencedNodesSize::Csize_t
     referencedNodes::Ptr{UA_ExpandedNodeId}
 end
+function Base.getproperty(x::Ptr{UA_AliasNameDataType}, f::Symbol)
+    f === :aliasName && return Ptr{UA_QualifiedName}(x + 0)
+    f === :referencedNodesSize && return Ptr{Csize_t}(x + 24)
+    f === :referencedNodes && return Ptr{Ptr{UA_ExpandedNodeId}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AliasNameDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
 const UA_PasswordOptionsMask = UA_UInt32
 const UA_UserConfigurationMask = UA_UInt32
 
@@ -8493,6 +8854,16 @@ struct UA_UserManagementDataType
     userName::UA_String
     userConfiguration::UA_UserConfigurationMask
     description::UA_String
+end
+function Base.getproperty(x::Ptr{UA_UserManagementDataType}, f::Symbol)
+    f === :userName && return Ptr{UA_String}(x + 0)
+    f === :userConfiguration && return Ptr{UA_UserConfigurationMask}(x + 16)
+    f === :description && return Ptr{UA_String}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UserManagementDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_Duplex::UInt32 begin
@@ -8593,6 +8964,17 @@ struct UA_PriorityMappingEntryType
     priorityLabel::UA_String
     priorityValue_PCP::UA_Byte
     priorityValue_DSCP::UA_UInt32
+end
+function Base.getproperty(x::Ptr{UA_PriorityMappingEntryType}, f::Symbol)
+    f === :mappingUri && return Ptr{UA_String}(x + 0)
+    f === :priorityLabel && return Ptr{UA_String}(x + 16)
+    f === :priorityValue_PCP && return Ptr{UA_Byte}(x + 32)
+    f === :priorityValue_DSCP && return Ptr{UA_UInt32}(x + 36)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PriorityMappingEntryType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 @cenum UA_IdType::UInt32 begin
@@ -8723,6 +9105,15 @@ struct UA_OptionSet
     value::UA_ByteString
     validBits::UA_ByteString
 end
+function Base.getproperty(x::Ptr{UA_OptionSet}, f::Symbol)
+    f === :value && return Ptr{UA_ByteString}(x + 0)
+    f === :validBits && return Ptr{UA_ByteString}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_OptionSet}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 const UA_NormalizedString = UA_String
 
@@ -8743,6 +9134,15 @@ $(TYPEDFIELDS)
 struct UA_TimeZoneDataType
     offset::UA_Int16
     daylightSavingInOffset::UA_Boolean
+end
+function Base.getproperty(x::Ptr{UA_TimeZoneDataType}, f::Symbol)
+    f === :offset && return Ptr{UA_Int16}(x + 0)
+    f === :daylightSavingInOffset && return Ptr{UA_Boolean}(x + 2)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TimeZoneDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 const UA_Index = UA_ByteString
@@ -8803,6 +9203,21 @@ struct UA_SessionlessInvokeRequestType
     localeIds::Ptr{UA_String}
     serviceId::UA_UInt32
 end
+function Base.getproperty(x::Ptr{UA_SessionlessInvokeRequestType}, f::Symbol)
+    f === :urisVersion && return Ptr{UA_UInt32}(x + 0)
+    f === :namespaceUrisSize && return Ptr{Csize_t}(x + 8)
+    f === :namespaceUris && return Ptr{Ptr{UA_String}}(x + 16)
+    f === :serverUrisSize && return Ptr{Csize_t}(x + 24)
+    f === :serverUris && return Ptr{Ptr{UA_String}}(x + 32)
+    f === :localeIdsSize && return Ptr{Csize_t}(x + 40)
+    f === :localeIds && return Ptr{Ptr{UA_String}}(x + 48)
+    f === :serviceId && return Ptr{UA_UInt32}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SessionlessInvokeRequestType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -8815,6 +9230,18 @@ struct UA_SessionlessInvokeResponseType
     serverUrisSize::Csize_t
     serverUris::Ptr{UA_String}
     serviceId::UA_UInt32
+end
+function Base.getproperty(x::Ptr{UA_SessionlessInvokeResponseType}, f::Symbol)
+    f === :namespaceUrisSize && return Ptr{Csize_t}(x + 0)
+    f === :namespaceUris && return Ptr{Ptr{UA_String}}(x + 8)
+    f === :serverUrisSize && return Ptr{Csize_t}(x + 16)
+    f === :serverUris && return Ptr{Ptr{UA_String}}(x + 24)
+    f === :serviceId && return Ptr{UA_UInt32}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SessionlessInvokeResponseType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -9131,6 +9558,23 @@ struct UA_RegisteredServer
     semaphoreFilePath::UA_String
     isOnline::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_RegisteredServer}, f::Symbol)
+    f === :serverUri && return Ptr{UA_String}(x + 0)
+    f === :productUri && return Ptr{UA_String}(x + 16)
+    f === :serverNamesSize && return Ptr{Csize_t}(x + 32)
+    f === :serverNames && return Ptr{Ptr{UA_LocalizedText}}(x + 40)
+    f === :serverType && return Ptr{UA_ApplicationType}(x + 48)
+    f === :gatewayServerUri && return Ptr{UA_String}(x + 56)
+    f === :discoveryUrlsSize && return Ptr{Csize_t}(x + 72)
+    f === :discoveryUrls && return Ptr{Ptr{UA_String}}(x + 80)
+    f === :semaphoreFilePath && return Ptr{UA_String}(x + 88)
+    f === :isOnline && return Ptr{UA_Boolean}(x + 104)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RegisteredServer}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -9220,6 +9664,16 @@ struct UA_MdnsDiscoveryConfiguration
     mdnsServerName::UA_String
     serverCapabilitiesSize::Csize_t
     serverCapabilities::Ptr{UA_String}
+end
+function Base.getproperty(x::Ptr{UA_MdnsDiscoveryConfiguration}, f::Symbol)
+    f === :mdnsServerName && return Ptr{UA_String}(x + 0)
+    f === :serverCapabilitiesSize && return Ptr{Csize_t}(x + 16)
+    f === :serverCapabilities && return Ptr{Ptr{UA_String}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_MdnsDiscoveryConfiguration}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -10344,6 +10798,15 @@ struct UA_GenericAttributeValue
     attributeId::UA_UInt32
     value::UA_Variant
 end
+function Base.getproperty(x::Ptr{UA_GenericAttributeValue}, f::Symbol)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 0)
+    f === :value && return Ptr{UA_Variant}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_GenericAttributeValue}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -10358,6 +10821,20 @@ struct UA_GenericAttributes
     userWriteMask::UA_UInt32
     attributeValuesSize::Csize_t
     attributeValues::Ptr{UA_GenericAttributeValue}
+end
+function Base.getproperty(x::Ptr{UA_GenericAttributes}, f::Symbol)
+    f === :specifiedAttributes && return Ptr{UA_UInt32}(x + 0)
+    f === :displayName && return Ptr{UA_LocalizedText}(x + 8)
+    f === :description && return Ptr{UA_LocalizedText}(x + 40)
+    f === :writeMask && return Ptr{UA_UInt32}(x + 72)
+    f === :userWriteMask && return Ptr{UA_UInt32}(x + 76)
+    f === :attributeValuesSize && return Ptr{Csize_t}(x + 80)
+    f === :attributeValues && return Ptr{Ptr{UA_GenericAttributeValue}}(x + 88)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_GenericAttributes}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -11537,6 +12014,22 @@ struct UA_EndpointConfiguration
     channelLifetime::UA_Int32
     securityTokenLifetime::UA_Int32
 end
+function Base.getproperty(x::Ptr{UA_EndpointConfiguration}, f::Symbol)
+    f === :operationTimeout && return Ptr{UA_Int32}(x + 0)
+    f === :useBinaryEncoding && return Ptr{UA_Boolean}(x + 4)
+    f === :maxStringLength && return Ptr{UA_Int32}(x + 8)
+    f === :maxByteStringLength && return Ptr{UA_Int32}(x + 12)
+    f === :maxArrayLength && return Ptr{UA_Int32}(x + 16)
+    f === :maxMessageSize && return Ptr{UA_Int32}(x + 20)
+    f === :maxBufferSize && return Ptr{UA_Int32}(x + 24)
+    f === :channelLifetime && return Ptr{UA_Int32}(x + 28)
+    f === :securityTokenLifetime && return Ptr{UA_Int32}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EndpointConfiguration}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -11547,6 +12040,16 @@ struct UA_QueryDataDescription
     relativePath::UA_RelativePath
     attributeId::UA_UInt32
     indexRange::UA_String
+end
+function Base.getproperty(x::Ptr{UA_QueryDataDescription}, f::Symbol)
+    f === :relativePath && return Ptr{UA_RelativePath}(x + 0)
+    f === :attributeId && return Ptr{UA_UInt32}(x + 16)
+    f === :indexRange && return Ptr{UA_String}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_QueryDataDescription}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -11839,6 +12342,18 @@ struct UA_ParsingResult
     dataStatusCodes::Ptr{UA_StatusCode}
     dataDiagnosticInfosSize::Csize_t
     dataDiagnosticInfos::Ptr{UA_DiagnosticInfo}
+end
+function Base.getproperty(x::Ptr{UA_ParsingResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :dataStatusCodesSize && return Ptr{Csize_t}(x + 8)
+    f === :dataStatusCodes && return Ptr{Ptr{UA_StatusCode}}(x + 16)
+    f === :dataDiagnosticInfosSize && return Ptr{Csize_t}(x + 24)
+    f === :dataDiagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ParsingResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -12261,6 +12776,18 @@ struct UA_ReadRawModifiedDetails
     numValuesPerNode::UA_UInt32
     returnBounds::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_ReadRawModifiedDetails}, f::Symbol)
+    f === :isReadModified && return Ptr{UA_Boolean}(x + 0)
+    f === :startTime && return Ptr{UA_DateTime}(x + 8)
+    f === :endTime && return Ptr{UA_DateTime}(x + 16)
+    f === :numValuesPerNode && return Ptr{UA_UInt32}(x + 24)
+    f === :returnBounds && return Ptr{UA_Boolean}(x + 28)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadRawModifiedDetails}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -12272,6 +12799,16 @@ struct UA_ReadAtTimeDetails
     reqTimes::Ptr{UA_DateTime}
     useSimpleBounds::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_ReadAtTimeDetails}, f::Symbol)
+    f === :reqTimesSize && return Ptr{Csize_t}(x + 0)
+    f === :reqTimes && return Ptr{Ptr{UA_DateTime}}(x + 8)
+    f === :useSimpleBounds && return Ptr{UA_Boolean}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadAtTimeDetails}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -12282,6 +12819,15 @@ struct UA_ReadAnnotationDataDetails
     reqTimesSize::Csize_t
     reqTimes::Ptr{UA_DateTime}
 end
+function Base.getproperty(x::Ptr{UA_ReadAnnotationDataDetails}, f::Symbol)
+    f === :reqTimesSize && return Ptr{Csize_t}(x + 0)
+    f === :reqTimes && return Ptr{Ptr{UA_DateTime}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadAnnotationDataDetails}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -12291,6 +12837,15 @@ $(TYPEDFIELDS)
 struct UA_HistoryData
     dataValuesSize::Csize_t
     dataValues::Ptr{UA_DataValue}
+end
+function Base.getproperty(x::Ptr{UA_HistoryData}, f::Symbol)
+    f === :dataValuesSize && return Ptr{Csize_t}(x + 0)
+    f === :dataValues && return Ptr{Ptr{UA_DataValue}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_HistoryData}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -12791,6 +13346,18 @@ struct UA_HistoryUpdateResult
     diagnosticInfosSize::Csize_t
     diagnosticInfos::Ptr{UA_DiagnosticInfo}
 end
+function Base.getproperty(x::Ptr{UA_HistoryUpdateResult}, f::Symbol)
+    f === :statusCode && return Ptr{UA_StatusCode}(x + 0)
+    f === :operationResultsSize && return Ptr{Csize_t}(x + 8)
+    f === :operationResults && return Ptr{Ptr{UA_StatusCode}}(x + 16)
+    f === :diagnosticInfosSize && return Ptr{Csize_t}(x + 24)
+    f === :diagnosticInfos && return Ptr{Ptr{UA_DiagnosticInfo}}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_HistoryUpdateResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -13125,6 +13692,16 @@ struct UA_AggregateFilterResult
     revisedStartTime::UA_DateTime
     revisedProcessingInterval::UA_Double
     revisedAggregateConfiguration::UA_AggregateConfiguration
+end
+function Base.getproperty(x::Ptr{UA_AggregateFilterResult}, f::Symbol)
+    f === :revisedStartTime && return Ptr{UA_DateTime}(x + 0)
+    f === :revisedProcessingInterval && return Ptr{UA_Double}(x + 8)
+    f === :revisedAggregateConfiguration && return Ptr{UA_AggregateConfiguration}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_AggregateFilterResult}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -13544,6 +14121,15 @@ struct UA_HistoryEventFieldList
     eventFieldsSize::Csize_t
     eventFields::Ptr{UA_Variant}
 end
+function Base.getproperty(x::Ptr{UA_HistoryEventFieldList}, f::Symbol)
+    f === :eventFieldsSize && return Ptr{Csize_t}(x + 0)
+    f === :eventFields && return Ptr{Ptr{UA_Variant}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_HistoryEventFieldList}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -13956,6 +14542,16 @@ struct UA_RedundantServerDataType
     serviceLevel::UA_Byte
     serverState::UA_ServerState
 end
+function Base.getproperty(x::Ptr{UA_RedundantServerDataType}, f::Symbol)
+    f === :serverId && return Ptr{UA_String}(x + 0)
+    f === :serviceLevel && return Ptr{UA_Byte}(x + 16)
+    f === :serverState && return Ptr{UA_ServerState}(x + 20)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_RedundantServerDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -13965,6 +14561,15 @@ $(TYPEDFIELDS)
 struct UA_EndpointUrlListDataType
     endpointUrlListSize::Csize_t
     endpointUrlList::Ptr{UA_String}
+end
+function Base.getproperty(x::Ptr{UA_EndpointUrlListDataType}, f::Symbol)
+    f === :endpointUrlListSize && return Ptr{Csize_t}(x + 0)
+    f === :endpointUrlList && return Ptr{Ptr{UA_String}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EndpointUrlListDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -13977,6 +14582,16 @@ struct UA_NetworkGroupDataType
     networkPathsSize::Csize_t
     networkPaths::Ptr{UA_EndpointUrlListDataType}
 end
+function Base.getproperty(x::Ptr{UA_NetworkGroupDataType}, f::Symbol)
+    f === :serverUri && return Ptr{UA_String}(x + 0)
+    f === :networkPathsSize && return Ptr{Csize_t}(x + 16)
+    f === :networkPaths && return Ptr{Ptr{UA_EndpointUrlListDataType}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_NetworkGroupDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -13988,6 +14603,17 @@ struct UA_SamplingIntervalDiagnosticsDataType
     monitoredItemCount::UA_UInt32
     maxMonitoredItemCount::UA_UInt32
     disabledMonitoredItemCount::UA_UInt32
+end
+function Base.getproperty(x::Ptr{UA_SamplingIntervalDiagnosticsDataType}, f::Symbol)
+    f === :samplingInterval && return Ptr{UA_Double}(x + 0)
+    f === :monitoredItemCount && return Ptr{UA_UInt32}(x + 8)
+    f === :maxMonitoredItemCount && return Ptr{UA_UInt32}(x + 12)
+    f === :disabledMonitoredItemCount && return Ptr{UA_UInt32}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SamplingIntervalDiagnosticsDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14131,6 +14757,15 @@ $(TYPEDFIELDS)
 struct UA_ServiceCounterDataType
     totalCount::UA_UInt32
     errorCount::UA_UInt32
+end
+function Base.getproperty(x::Ptr{UA_ServiceCounterDataType}, f::Symbol)
+    f === :totalCount && return Ptr{UA_UInt32}(x + 0)
+    f === :errorCount && return Ptr{UA_UInt32}(x + 4)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ServiceCounterDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14711,6 +15346,16 @@ struct UA_Annotation
     userName::UA_String
     annotationTime::UA_DateTime
 end
+function Base.getproperty(x::Ptr{UA_Annotation}, f::Symbol)
+    f === :message && return Ptr{UA_String}(x + 0)
+    f === :userName && return Ptr{UA_String}(x + 16)
+    f === :annotationTime && return Ptr{UA_DateTime}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_Annotation}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 @cenum UA_ExceptionDeviationFormat::UInt32 begin
     UA_EXCEPTIONDEVIATIONFORMAT_ABSOLUTEVALUE = 0
@@ -14731,6 +15376,17 @@ struct UA_EndpointType
     securityMode::UA_MessageSecurityMode
     securityPolicyUri::UA_String
     transportProfileUri::UA_String
+end
+function Base.getproperty(x::Ptr{UA_EndpointType}, f::Symbol)
+    f === :endpointUrl && return Ptr{UA_String}(x + 0)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 16)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 24)
+    f === :transportProfileUri && return Ptr{UA_String}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_EndpointType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14796,6 +15452,22 @@ struct UA_PubSubGroupDataType
     maxNetworkMessageSize::UA_UInt32
     groupPropertiesSize::Csize_t
     groupProperties::Ptr{UA_KeyValuePair}
+end
+function Base.getproperty(x::Ptr{UA_PubSubGroupDataType}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :enabled && return Ptr{UA_Boolean}(x + 16)
+    f === :securityMode && return Ptr{UA_MessageSecurityMode}(x + 20)
+    f === :securityGroupId && return Ptr{UA_String}(x + 24)
+    f === :securityKeyServicesSize && return Ptr{Csize_t}(x + 40)
+    f === :securityKeyServices && return Ptr{Ptr{UA_EndpointDescription}}(x + 48)
+    f === :maxNetworkMessageSize && return Ptr{UA_UInt32}(x + 56)
+    f === :groupPropertiesSize && return Ptr{Csize_t}(x + 64)
+    f === :groupProperties && return Ptr{Ptr{UA_KeyValuePair}}(x + 72)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubGroupDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14907,6 +15579,16 @@ struct UA_SubscribedDataSetMirrorDataType
     rolePermissionsSize::Csize_t
     rolePermissions::Ptr{UA_RolePermissionType}
 end
+function Base.getproperty(x::Ptr{UA_SubscribedDataSetMirrorDataType}, f::Symbol)
+    f === :parentNodeName && return Ptr{UA_String}(x + 0)
+    f === :rolePermissionsSize && return Ptr{Csize_t}(x + 16)
+    f === :rolePermissions && return Ptr{Ptr{UA_RolePermissionType}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SubscribedDataSetMirrorDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -14926,6 +15608,25 @@ struct UA_SecurityGroupDataType
     rolePermissions::Ptr{UA_RolePermissionType}
     groupPropertiesSize::Csize_t
     groupProperties::Ptr{UA_KeyValuePair}
+end
+function Base.getproperty(x::Ptr{UA_SecurityGroupDataType}, f::Symbol)
+    f === :name && return Ptr{UA_String}(x + 0)
+    f === :securityGroupFolderSize && return Ptr{Csize_t}(x + 16)
+    f === :securityGroupFolder && return Ptr{Ptr{UA_String}}(x + 24)
+    f === :keyLifetime && return Ptr{UA_Double}(x + 32)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 40)
+    f === :maxFutureKeyCount && return Ptr{UA_UInt32}(x + 56)
+    f === :maxPastKeyCount && return Ptr{UA_UInt32}(x + 60)
+    f === :securityGroupId && return Ptr{UA_String}(x + 64)
+    f === :rolePermissionsSize && return Ptr{Csize_t}(x + 80)
+    f === :rolePermissions && return Ptr{Ptr{UA_RolePermissionType}}(x + 88)
+    f === :groupPropertiesSize && return Ptr{Csize_t}(x + 96)
+    f === :groupProperties && return Ptr{Ptr{UA_KeyValuePair}}(x + 104)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_SecurityGroupDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14947,6 +15648,25 @@ struct UA_PubSubKeyPushTargetDataType
     securityGroupsSize::Csize_t
     securityGroups::Ptr{UA_String}
 end
+function Base.getproperty(x::Ptr{UA_PubSubKeyPushTargetDataType}, f::Symbol)
+    f === :applicationUri && return Ptr{UA_String}(x + 0)
+    f === :pushTargetFolderSize && return Ptr{Csize_t}(x + 16)
+    f === :pushTargetFolder && return Ptr{Ptr{UA_String}}(x + 24)
+    f === :endpointUrl && return Ptr{UA_String}(x + 32)
+    f === :securityPolicyUri && return Ptr{UA_String}(x + 48)
+    f === :userTokenType && return Ptr{UA_UserTokenPolicy}(x + 64)
+    f === :requestedKeyCount && return Ptr{UA_UInt16}(x + 136)
+    f === :retryInterval && return Ptr{UA_Double}(x + 144)
+    f === :pushTargetPropertiesSize && return Ptr{Csize_t}(x + 152)
+    f === :pushTargetProperties && return Ptr{Ptr{UA_KeyValuePair}}(x + 160)
+    f === :securityGroupsSize && return Ptr{Csize_t}(x + 168)
+    f === :securityGroups && return Ptr{Ptr{UA_String}}(x + 176)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubKeyPushTargetDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -14958,6 +15678,17 @@ struct UA_ReadEventDetails
     startTime::UA_DateTime
     endTime::UA_DateTime
     filter::UA_EventFilter
+end
+function Base.getproperty(x::Ptr{UA_ReadEventDetails}, f::Symbol)
+    f === :numValuesPerNode && return Ptr{UA_UInt32}(x + 0)
+    f === :startTime && return Ptr{UA_DateTime}(x + 8)
+    f === :endTime && return Ptr{UA_DateTime}(x + 16)
+    f === :filter && return Ptr{UA_EventFilter}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadEventDetails}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14973,6 +15704,19 @@ struct UA_ReadProcessedDetails
     aggregateType::Ptr{UA_NodeId}
     aggregateConfiguration::UA_AggregateConfiguration
 end
+function Base.getproperty(x::Ptr{UA_ReadProcessedDetails}, f::Symbol)
+    f === :startTime && return Ptr{UA_DateTime}(x + 0)
+    f === :endTime && return Ptr{UA_DateTime}(x + 8)
+    f === :processingInterval && return Ptr{UA_Double}(x + 16)
+    f === :aggregateTypeSize && return Ptr{Csize_t}(x + 24)
+    f === :aggregateType && return Ptr{Ptr{UA_NodeId}}(x + 32)
+    f === :aggregateConfiguration && return Ptr{UA_AggregateConfiguration}(x + 40)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ReadProcessedDetails}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -14983,6 +15727,16 @@ struct UA_ModificationInfo
     modificationTime::UA_DateTime
     updateType::UA_HistoryUpdateType
     userName::UA_String
+end
+function Base.getproperty(x::Ptr{UA_ModificationInfo}, f::Symbol)
+    f === :modificationTime && return Ptr{UA_DateTime}(x + 0)
+    f === :updateType && return Ptr{UA_HistoryUpdateType}(x + 8)
+    f === :userName && return Ptr{UA_String}(x + 16)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_ModificationInfo}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -14996,6 +15750,17 @@ struct UA_HistoryModifiedData
     modificationInfosSize::Csize_t
     modificationInfos::Ptr{UA_ModificationInfo}
 end
+function Base.getproperty(x::Ptr{UA_HistoryModifiedData}, f::Symbol)
+    f === :dataValuesSize && return Ptr{Csize_t}(x + 0)
+    f === :dataValues && return Ptr{Ptr{UA_DataValue}}(x + 8)
+    f === :modificationInfosSize && return Ptr{Csize_t}(x + 16)
+    f === :modificationInfos && return Ptr{Ptr{UA_ModificationInfo}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_HistoryModifiedData}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -15005,6 +15770,15 @@ $(TYPEDFIELDS)
 struct UA_HistoryEvent
     eventsSize::Csize_t
     events::Ptr{UA_HistoryEventFieldList}
+end
+function Base.getproperty(x::Ptr{UA_HistoryEvent}, f::Symbol)
+    f === :eventsSize && return Ptr{Csize_t}(x + 0)
+    f === :events && return Ptr{Ptr{UA_HistoryEventFieldList}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_HistoryEvent}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -15300,6 +16074,25 @@ struct UA_UABinaryFileDataType
     fileHeader::Ptr{UA_KeyValuePair}
     body::UA_Variant
 end
+function Base.getproperty(x::Ptr{UA_UABinaryFileDataType}, f::Symbol)
+    f === :namespacesSize && return Ptr{Csize_t}(x + 0)
+    f === :namespaces && return Ptr{Ptr{UA_String}}(x + 8)
+    f === :structureDataTypesSize && return Ptr{Csize_t}(x + 16)
+    f === :structureDataTypes && return Ptr{Ptr{UA_StructureDescription}}(x + 24)
+    f === :enumDataTypesSize && return Ptr{Csize_t}(x + 32)
+    f === :enumDataTypes && return Ptr{Ptr{UA_EnumDescription}}(x + 40)
+    f === :simpleDataTypesSize && return Ptr{Csize_t}(x + 48)
+    f === :simpleDataTypes && return Ptr{Ptr{UA_SimpleTypeDescription}}(x + 56)
+    f === :schemaLocation && return Ptr{UA_String}(x + 64)
+    f === :fileHeaderSize && return Ptr{Csize_t}(x + 80)
+    f === :fileHeader && return Ptr{Ptr{UA_KeyValuePair}}(x + 88)
+    f === :body && return Ptr{UA_Variant}(x + 96)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_UABinaryFileDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -15463,6 +16256,15 @@ struct UA_TargetVariablesDataType
     targetVariablesSize::Csize_t
     targetVariables::Ptr{UA_FieldTargetDataType}
 end
+function Base.getproperty(x::Ptr{UA_TargetVariablesDataType}, f::Symbol)
+    f === :targetVariablesSize && return Ptr{Csize_t}(x + 0)
+    f === :targetVariables && return Ptr{Ptr{UA_FieldTargetDataType}}(x + 8)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_TargetVariablesDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 
@@ -15530,6 +16332,21 @@ struct UA_DataTypeSchemaHeader
     enumDataTypes::Ptr{UA_EnumDescription}
     simpleDataTypesSize::Csize_t
     simpleDataTypes::Ptr{UA_SimpleTypeDescription}
+end
+function Base.getproperty(x::Ptr{UA_DataTypeSchemaHeader}, f::Symbol)
+    f === :namespacesSize && return Ptr{Csize_t}(x + 0)
+    f === :namespaces && return Ptr{Ptr{UA_String}}(x + 8)
+    f === :structureDataTypesSize && return Ptr{Csize_t}(x + 16)
+    f === :structureDataTypes && return Ptr{Ptr{UA_StructureDescription}}(x + 24)
+    f === :enumDataTypesSize && return Ptr{Csize_t}(x + 32)
+    f === :enumDataTypes && return Ptr{Ptr{UA_EnumDescription}}(x + 40)
+    f === :simpleDataTypesSize && return Ptr{Csize_t}(x + 48)
+    f === :simpleDataTypes && return Ptr{Ptr{UA_SimpleTypeDescription}}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_DataTypeSchemaHeader}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 """
@@ -15695,6 +16512,18 @@ struct UA_PubSubConfigurationDataType
     connections::Ptr{UA_PubSubConnectionDataType}
     enabled::UA_Boolean
 end
+function Base.getproperty(x::Ptr{UA_PubSubConfigurationDataType}, f::Symbol)
+    f === :publishedDataSetsSize && return Ptr{Csize_t}(x + 0)
+    f === :publishedDataSets && return Ptr{Ptr{UA_PublishedDataSetDataType}}(x + 8)
+    f === :connectionsSize && return Ptr{Csize_t}(x + 16)
+    f === :connections && return Ptr{Ptr{UA_PubSubConnectionDataType}}(x + 24)
+    f === :enabled && return Ptr{UA_Boolean}(x + 32)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubConfigurationDataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
 
 """
 $(TYPEDEF)
@@ -15720,6 +16549,32 @@ struct UA_PubSubConfiguration2DataType
     configurationVersion::UA_UInt32
     configurationPropertiesSize::Csize_t
     configurationProperties::Ptr{UA_KeyValuePair}
+end
+function Base.getproperty(x::Ptr{UA_PubSubConfiguration2DataType}, f::Symbol)
+    f === :publishedDataSetsSize && return Ptr{Csize_t}(x + 0)
+    f === :publishedDataSets && return Ptr{Ptr{UA_PublishedDataSetDataType}}(x + 8)
+    f === :connectionsSize && return Ptr{Csize_t}(x + 16)
+    f === :connections && return Ptr{Ptr{UA_PubSubConnectionDataType}}(x + 24)
+    f === :enabled && return Ptr{UA_Boolean}(x + 32)
+    f === :subscribedDataSetsSize && return Ptr{Csize_t}(x + 40)
+    f === :subscribedDataSets &&
+        return Ptr{Ptr{UA_StandaloneSubscribedDataSetDataType}}(x + 48)
+    f === :dataSetClassesSize && return Ptr{Csize_t}(x + 56)
+    f === :dataSetClasses && return Ptr{Ptr{UA_DataSetMetaDataType}}(x + 64)
+    f === :defaultSecurityKeyServicesSize && return Ptr{Csize_t}(x + 72)
+    f === :defaultSecurityKeyServices && return Ptr{Ptr{UA_EndpointDescription}}(x + 80)
+    f === :securityGroupsSize && return Ptr{Csize_t}(x + 88)
+    f === :securityGroups && return Ptr{Ptr{UA_SecurityGroupDataType}}(x + 96)
+    f === :pubSubKeyPushTargetsSize && return Ptr{Csize_t}(x + 104)
+    f === :pubSubKeyPushTargets && return Ptr{Ptr{UA_PubSubKeyPushTargetDataType}}(x + 112)
+    f === :configurationVersion && return Ptr{UA_UInt32}(x + 120)
+    f === :configurationPropertiesSize && return Ptr{Csize_t}(x + 128)
+    f === :configurationProperties && return Ptr{Ptr{UA_KeyValuePair}}(x + 136)
+    return getfield(x, f)
+end
+
+function Base.setproperty!(x::Ptr{UA_PubSubConfiguration2DataType}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
 end
 
 function UA_random_seed(seed)
