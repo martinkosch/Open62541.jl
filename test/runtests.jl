@@ -23,6 +23,10 @@ end
     include("basic_types_and_functions.jl")
 end
 
+@safetestset "Struct access" begin
+    include("struct_access.jl")
+end
+
 @safetestset "High level types" begin
     include("highlevel_types.jl")
 end
