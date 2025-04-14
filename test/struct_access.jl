@@ -35,10 +35,11 @@ for (unionstructname, Nbit) in zip(unionstructnames, Nbits)
     for p in privateonly
         @test getproperty(x, p) isa Any
     end
+    @test_throws ErrorException getproperty(x, gensym())
 end
 
 #check fields access (and creation and delete methods) of other structs
-#TODO: some types are missed here, because there isn't a UA_XXX_new and UA_XXX_delete method 
+#TODO: some structs are missed here, because there isn't a UA_XXX_new and UA_XXX_delete method 
 # making creating an instance harder.
 
 #let's track which structs have a _new and _delete method defined in Open62541, but no field
@@ -56,6 +57,7 @@ for nonunionstructname in nonunionstructnames
             for p in props
                 @test getproperty(x, p) isa Any
             end 
+            @test_throws ErrorException getproperty(x, gensym())
             getfield(Open62541, _delete)(x) #clean up memory
         else
             push!(missing_field_access, nonunionstructname)
