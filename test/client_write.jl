@@ -131,13 +131,16 @@ for node in nodes
     out1 = UA_NodeClass_new()
     UA_Client_readNodeClassAttribute(client, node, out1)
     nodeclass = unsafe_load(out1)
+    varattr = UA_VariableAttributes(Tuple(zeros(UInt8, 200)))
+    vartypeattr = UA_VariableTypeAttributes(Tuple(zeros(UInt8, 184)))
+    nodehead =  UA_NodeHead(Tuple(zeros(UInt8, 120)))
     if nodeclass == UA_NODECLASS_VARIABLE
-        attributeset = UA_VariableAttributes
+        attributeset = varattr
         #can't write certain attributes after node creation, see here: 
         #https://github.com/open62541/open62541/issues/3545
         nonvalidattr = (:NodeId, :NodeClass, :BrowseName, :UserWriteMask, :UserAccessLevel)
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
-        attributeset = UA_VariableTypeAttributes
+        attributeset = vartypeattr
         nonvalidattr = (:NodeId, :NodeClass, :BrowseName, :UserWriteMask) #as above
     end
     for att in Open62541.attributes_UA_Client_write
@@ -146,8 +149,8 @@ for node in nodes
         attr_name = Symbol(att[2])
         generator = Symbol(att[3] * "_new")
         cleaner = Symbol(att[3] * "_delete")
-        if (in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-            in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))) &&
+        if (in(Symbol(lowercasefirst(att[2])), propertynames(attributeset)) ||
+            in(Symbol(lowercasefirst(att[2])), propertynames(nodehead))) &&
            att[3] != "UA_DataType" &&
            att[1] != "UA_Client_writeValueAttributeEx"
             out2 = eval(generator)()

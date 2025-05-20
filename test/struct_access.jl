@@ -40,7 +40,7 @@ end
 
 #check fields access (and creation and delete methods) of other structs
 #TODO: some structs are missed here, because there isn't a UA_XXX_new and UA_XXX_delete method 
-# making creating an instance harder.
+#for them.
 
 #let's track which structs have a _new and _delete method defined in Open62541, but no field
 #access method emitted for them. If array is not empty, it should be considered to add the 
@@ -64,7 +64,7 @@ for nonunionstructname in nonunionstructnames
             println("field access method for Ptr{$nonunionstructname} does not exist.")
         end            
     else
-        println("creation/deletion not found for $nonunionstructname.")
+        println("creation/deletion method not found for $nonunionstructname.")
     end
 end
 
