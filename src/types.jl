@@ -30,7 +30,7 @@ struct UA_Array{T <: Ptr} <: AbstractArray{T, 1}
     length::Int64
 end
 
-#todo: is this used anywhere?=
+#TODO: is this used anywhere?
 function UA_Array(s::T, field::Symbol) where {T}
     size_fieldname = Symbol(field, :Size)
     ptr = getfield(s, field)

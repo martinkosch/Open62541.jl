@@ -14,7 +14,7 @@ cd(@__DIR__)
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 # Extract all inlined functions and move them to codegen ignorelist; leads to out of memory
-# error on low memory machines. Implemented Post-Clang.jl removal using Regexp (see below), which is lower
+# error on low memory machines. Implemented post Clang.jl removal using Regexp (see below), which is lower
 # memory requirement
 # append!(options["general"]["output_ignorelist"], extract_inlined_funcs(headers))
 
@@ -36,7 +36,7 @@ for (root, dirs, files) in walkdir("headers")
 end
 headers = filter(x -> endswith(x, ".h"), headers) #just in case there are non .h files around...
 
-#comment out two lines in util.h; 
+#comment out two lines in common.h; 
 #these caused errors since open62541_jll is compiled without amalgamation (reason not clear to me)
 fn = joinpath(@__DIR__, "./headers/open62541/common.h")
 f = open(fn, "r")
@@ -62,7 +62,6 @@ function write_generated_defs(generated_defs_dir::String,
         TYPE_NAMES,
         JULIA_TYPES)
     JULIA_TYPES = replace("$JULIA_TYPES", Regex("Main\\.Open62541\\.") => "")
-    types_ambiguous_ignorelist = TYPE_NAMES[1:end .∉ [UNIQUE_JULIA_TYPES_IND]]
     type_string = """
     # Vector of all UA types
     const TYPE_NAMES = $TYPE_NAMES
@@ -156,19 +155,54 @@ close(f)
 #remove inlined functions
 inlined_funcs = extract_inlined_funcs(headers)
 for i in eachindex(inlined_funcs)
-    @show i
     r = Regex("function $(inlined_funcs[i])\\(.*\\)\n(.*)\nend\n\n")
     global data = replace(data, r => "")
 end
 
-#alternative1: removes docstrings of just the inlined functions
-# for i in eachindex(inlined_funcs) 
-#     @show i
-#     r = Regex("\"\"\"([\\s\\S]){2,20}$(inlined_funcs[i])([\\s\\S]*?)\"\"\"")
-#     data = replace(data, r => "")
-# end 
+#Move UA_NS0ID_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
+#Ensures more manageable main file size.
+r = Regex("const UA_NS0ID_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_NS0ID.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
 
-#alternative2: automatically generated docstrings aren't really informative; removes them ALL.
+#Move UA_TYPES_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
+#Ensures more manageable main file size.
+r = Regex("const UA_TYPES_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_types.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
+
+#Move UA_TYPES_XXX constants from main Open62541.jl file to a separate file that are included with the prologue;
+#Ensures more manageable main file size.
+r = Regex("const UA_STATUSCODE_[\\s\\S]*?\n")
+m = join(collect(String[m.match for m in eachmatch(r, data)]))
+fn = joinpath(@__DIR__, "../src/const_statuscodes.jl")
+f = open(fn, "w")
+write(f, m)
+close(f)
+data = replace(data, r => "")
+
+#remove static_assertion_failed_X structs and access functions
+r = Regex("struct static_assertion_failed_[0-9]+\n.*\nend\n\n")
+r2 = Regex("function Base\\.getproperty\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol\\)\n[\\s\\S]*?\n(end)\n\n")
+r3 = Regex("function Base\\.getproperty\\(x::static_assertion_failed_[0-9]+, f::Symbol\\)\n[\\s\\S]*?(end\n\n)")
+r4 = Regex("function Base\\.setproperty!\\(x::Ptr\\{static_assertion_failed_[0-9]+\\}, f::Symbol, v\\)\n[\\s\\S]*?(end\n\n)")
+r5 = Regex("function Base\\.propertynames\\(x::static_assertion_failed_[0-9]+, private::Bool = false\\)\n[\\s\\S]*?(end\n\n)")
+
+data = replace(data, r => "")
+data = replace(data, r2 => "")
+data = replace(data, r3 => "")
+data = replace(data, r4 => "")
+data = replace(data, r5 => "")
+
+#automatically generated docstrings aren't really informative; removes them ALL.
 r = Regex("\"\"\"([\\s\\S])*?\"\"\"")
 data = replace(data, r => "")
 
@@ -177,18 +211,13 @@ f = open(fn, "w")
 write(f, data)
 close(f)
 
-#Bring back simple docstrings for structs
-include("docstrings_types.jl")
-
 #replace a specific function to make data handling more transparent
 fn = joinpath(@__DIR__, "../src/Open62541.jl")
 f = open(fn, "r")
 data = read(f, String)
 close(f)
 
-orig = "function UA_Guid_random()
-    @ccall libopen62541.UA_Guid_random()::UA_Guid
-end"
+orig = Regex("function UA_Guid_random\\(\\)\n[\\s]*?@ccall libopen62541\\.UA_Guid_random\\(\\)::UA_Guid\nend")
 new = "function UA_Guid_random()
 guid_dst = UA_Guid_new()
 guid_src = @ccall libopen62541.UA_Guid_random()::UA_Guid
@@ -197,7 +226,7 @@ return guid_dst
 end"
 data = replace(data, orig => new)
 
-#need to remove some buggy lines
+#need to remove some buggy lines (included in prologue instead)
 replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
 
 const UA_INT32_MAX = Clong(2147483647)
@@ -206,32 +235,13 @@ const UA_UINT32_MIN = 0
 
 const UA_UINT32_MAX = Culong(4294967295)
 
-const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
+const UA_FLOAT_MIN = FLT_MIN
 
-const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
+const UA_FLOAT_MAX = FLT_MAX
 
-const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
+const UA_DOUBLE_MIN = DBL_MIN
 
-const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
-
-data = replace(data, replacestring => "")
-
-#need to remove some buggy lines
-replacestring = "const UA_INT32_MIN = int32_t - Clonglong(2147483648)
-
-const UA_INT32_MAX = Clong(2147483647)
-
-const UA_UINT32_MIN = 0
-
-const UA_UINT32_MAX = Culong(4294967295)
-
-const UA_FLOAT_MIN = \$(Expr(:toplevel, :FLT_MIN))
-
-const UA_FLOAT_MAX = \$(Expr(:toplevel, :FLT_MAX))
-
-const UA_DOUBLE_MIN = \$(Expr(:toplevel, :DBL_MIN))
-
-const UA_DOUBLE_MAX = \$(Expr(:toplevel, :DBL_MAX))"
+const UA_DOUBLE_MAX = DBL_MAX"
 
 data = replace(data, replacestring => "")
 
@@ -252,7 +262,7 @@ write(f, data)
 close(f)
 
 @warn "If errors occur at this stage, check start section of Open62541.jl for system-dependent symbols; may have to resolve manually."
-@show "loading module"
+println("loading module")
 include("../src/Open62541.jl")
 
 # Get UA type names
@@ -284,6 +294,9 @@ write_generated_defs(joinpath(@__DIR__, "../src/generated_defs.jl"),
     headers,
     TYPE_NAMES,
     JULIA_TYPES)
+
+#Bring back simple docstrings for structs
+include("docstrings_types.jl")
 
 # Now let's get the epilogue into the Open62541.jl filter
 # 1. Read original file content
@@ -318,7 +331,8 @@ close(f)
 #The wrapper has now some flexibility in terms of accepting different patch versions.
 #open62541_jll versions that are compatible with the same wrapper include: 
 #1.3.9, 1.3.10, 1.3.11 (and presumably future patch versions on 1.3 branch)
-#1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch)
+#1.4.0, 1.4.1 (and presumably future patch versions on 1.4 branch); the below commented code
+#is therefore not necessary anymore.
 
 # #set compat bound in Project.toml automatically to version that the generator ran on.
 # fn = joinpath(@__DIR__, "../Project.toml")

@@ -57,13 +57,16 @@ retval = UA_Server_addVariableTypeNode(server, requestednewnodeid,
 #TODO: add more node types 
 nodes = (varnodeid, variabletypenodeid)
 for node in nodes
-    out1 = UA_NodeClass_new()
+    out1 = UA_NodeClass_new()    
     UA_Server_readNodeClass(server, node, out1)
     nodeclass = unsafe_load(out1)
+    varattr = UA_VariableAttributes(Tuple(zeros(UInt8, 200)))
+    vartypeattr = UA_VariableTypeAttributes(Tuple(zeros(UInt8, 184)))
+    nodehead =  UA_NodeHead(Tuple(zeros(UInt8, 120)))
     if nodeclass == UA_NODECLASS_VARIABLE
-        attributeset = UA_VariableAttributes
+        attributeset = varattr
     elseif nodeclass == UA_NODECLASS_VARIABLETYPE
-        attributeset = UA_VariableTypeAttributes
+        attributeset = vartypeattr
     end
     for att in Open62541.attributes_UA_Server_write
         fun_write = Symbol(att[1])
@@ -72,8 +75,8 @@ for node in nodes
         generator = Symbol(att[3] * "_new")
         cleaner = Symbol(att[3] * "_delete")
         out2 = eval(generator)()
-        if in(Symbol(lowercasefirst(att[2])), fieldnames(attributeset)) ||
-           in(Symbol(lowercasefirst(att[2])), fieldnames(UA_NodeHead))
+        if in(Symbol(lowercasefirst(att[2])), propertynames(attributeset)) ||
+           in(Symbol(lowercasefirst(att[2])), propertynames(nodehead))
             statuscode1 = eval(fun_read)(server, node, out2) #read
             @test statuscode1 == UA_STATUSCODE_GOOD
             if attr_name != :BrowseName #can't write browsename, see here: https://github.com/open62541/open62541/issues/3545

@@ -43,3 +43,8 @@ const UA_OPEN62541_VER_PATCH = open62541_version.patch
 const UA_OPEN62541_VER_LABEL = ""
 const UA_OPEN62541_VER_COMMIT = __versionnumbertostring(open62541_version)
 const UA_OPEN62541_VERSION = __versionnumbertostring(open62541_version)
+
+#include various constants
+include("const_NS0ID.jl")
+include("const_statuscodes.jl")
+include("const_types.jl")
