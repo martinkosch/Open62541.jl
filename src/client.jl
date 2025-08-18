@@ -45,26 +45,43 @@ function UA_Client_connect(client, endpointurl)
     return __UA_Client_connect(client, false)
 end
 
-# /* Connect async (non-blocking) to the server. After initiating the connection,
-#  * call UA_Client_run_iterate repeatedly until the connection is fully
-#  * established. You can set a callback to client->config.stateCallback to be
-#  * notified when the connection status changes. Or use UA_Client_getState to get
-#  * the state manually. */
-##TODO: ADD DOCSTRING
-function UA_Client_connectAsync(client::Ptr{UA_Client}, endpointUrl::AbstractString)
+"""
+```
+UA_Client_connectAsync(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String})::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking). This 
+is an anonymous connection, i.e., no username or password are used (some servers do not 
+allow this).
+
+After initiating the connection,
+call UA_Client_run_iterate repeatedly until the connection is fully established. You can set 
+a callback to client->config.stateCallback to be notified when the connection status 
+changes. Or use UA_Client_getState to get the state manually.
+
+Note that `endpointurl` is copied; pointer must be cleared up separately.
+
+"""
+function UA_Client_connectAsync(client, endpointUrl)
     cc = UA_Client_getConfig(client)
     cc.noSession = false
     UA_String_clear(cc.endpointUrl)
-    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    UA_String_copy(endpointurl, cc.endpointUrl) 
     return __UA_Client_connect(client, true)
 end
 
-# /* Connect to the server without creating a session
-#  *
-#  * @param client to use
-#  * @param endpointURL to connect (for example "opc.tcp://localhost:4840")
-#  * @return Indicates whether the operation succeeded or returns an error code */
-##TODO: ADD DOCSTRING
+"""
+```
+UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String})::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` without creating a session. This is an 
+anonymous connection, i.e., no username or password are used (some servers do not allow 
+this).
+
+Note that `endpointurl` is copied; pointer must be cleared up separately.
+
+"""
 function UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointUrl::AbstractString)
     cc = UA_Client_getConfig(client)
     cc.noSession = true
@@ -73,13 +90,28 @@ function UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointUrl::Abs
     return __UA_Client_connect(client, false)
 end
 
-# /* Connect async (non-blocking) only the SecureChannel */
+"""
+```
+UA_Client_connectSecureChannelAsync(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String})::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking) 
+without creating a session. This is an anonymous connection, i.e., no username or password 
+are used (some servers do not allow this).
+
+After initiating the connection, call UA_Client_run_iterate repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use UA_Client_getState to get the state manually.
+
+Note that `endpointurl` is copied; pointer must be cleared up separately.
+
+"""
 function UA_Client_connectSecureChannelAsync(
-        client::Ptr{UA_Client}, endpointUrl::AbstractString)
+        client, endpointUrl)
     cc = UA_Client_getConfig(client)
     cc.noSession = true
     UA_String_clear(cc.endpointUrl)
-    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    UA_String_copy(endpointurl, cc.endpointUrl) 
     return __UA_Client_connect(client, true)
 end
 
