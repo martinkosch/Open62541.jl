@@ -24,6 +24,7 @@ mutable struct JUA_ClientConfig <: AbstractOpen62541Wrapper
 end
 
 const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
+
 """
 ```
 JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
@@ -34,7 +35,11 @@ no username or password are used (some servers do not allow this).
 
 """
 function JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)
-    UA_Client_connect(client, endpointurl)
+    #simple wrapper to directly allow endpointurl with a Julia AbstractString
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connect(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
 end
 
 """
@@ -49,10 +54,44 @@ connects the `client` to the server with endpoint URL `endpointurl` and supplies
 """
 function JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractString, 
         username::AbstractString, password::AbstractString)
-    UA_Client_connectUsername(client, endpointurl, username, password)
+    username_ptr = UA_STRING_ALLOC(username)
+    password_ptr = UA_STRING_ALLOC(password)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connectUsername(client, endpointurl_ptr, username_ptr, password_ptr)
+    UA_String_delete(username_ptr)
+    UA_String_delete(password_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
 end
 
 const JUA_Client_disconnect = UA_Client_disconnect
+
+"""
+```
+channelState::UInt32, sessionState::UInt32, connectStatus::UA_StatusCode = JUA_Client_getState(client::JUA_Client)::UA_StatusCode
+```
+
+returns the state of the `client`, particularly:
+- `channelState`: the status of the secure channel between client and server.
+- `sessionState`: the status of the session between client and server.
+- `connectStatus`: the status of the connection between client and server. 
+
+The returned values are `UInt32`, whose meaning is documented in 
+
+"""
+function JUA_Client_getState(client::JUA_Client)
+    channelState_ptr = UA_UInt32_new()
+    sessionState_ptr = UA_UInt32_new()
+    connectStatus_ptr = UA_UInt32_new()
+    UA_Client_getState(client, channelState_ptr, sessionState_ptr, connectStatus_ptr)
+    channelState = unsafe_load(channelState_ptr)
+    sessionState = unsafe_load(sessionState_ptr)
+    connectStatus = unsafe_load(connectStatus_ptr)
+    UA_UInt32_delete(channelState_ptr)
+    UA_UInt32_delete(sessionState_ptr)
+    UA_UInt32_delete(connectStatus_ptr)
+    return channelState, sessionState, connectStatus
+end
 
 #Add node functions
 """
@@ -199,6 +238,12 @@ if you know that you have stored a Matrix{Float64} in `nodeId`, then you should
 specify this. If the wrong type is specified, the function will throw a TypeError.
 """
 function JUA_Client_readValueAttribute(client, nodeId, type::T = Any) where {T}
+    #automated reconnect.
+    channelState, sessionState, connectStatus = JUA_Client_getState(client)
+    if channelState != UA_SECURECHANNELSTATE_OPEN || sessionState != UA_SESSIONSTATE_ACTIVATED
+        cc = UA_Client_getConfig(client)
+        UA_Client_connect(client, cc.endpointUrl)
+    end
     v = UA_Variant_new()
     UA_Client_readValueAttribute(client, nodeId, v)
     r = __get_juliavalues_from_variant(v, type)
@@ -225,6 +270,12 @@ function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
 end
 
 function JUA_Client_writeValueAttribute(client, nodeId, newvalue::JUA_Variant)
+    #automated reconnect.
+    channelState, sessionState, connectStatus = JUA_Client_getState(client)
+    if channelState != UA_SECURECHANNELSTATE_OPEN || sessionState != UA_SESSIONSTATE_ACTIVATED
+        cc = UA_Client_getConfig(client)
+        UA_Client_connect(client, cc.endpointUrl)
+    end
     statuscode = UA_Client_writeValueAttribute(client, nodeId, newvalue)
     return statuscode
 end

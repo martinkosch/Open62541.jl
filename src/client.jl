@@ -1,37 +1,47 @@
-# /* Configure Username/Password for the Session authentication. Also see
-#  * UA_ClientConfig_setAuthenticationCert for x509-based authentication, which is
-#  * implemented as a plugin (as it can be based on different crypto
-#  * libraries). */
-##TODO: ADD DOCSTRING
-function UA_ClientConfig_setAuthenticationUsername(config, username, password)
+"""
+```
+UA_ClientConfig_setAuthenticationUsername(config::Ptr{UA_ClientConfig}, username::Ptr{UA_String}, 
+    password::Ptr{UA_String})::UA_StatusCode
+```
+
+Configure Username/Password for the Session authentication. Also see 
+`UA_ClientConfig_setAuthenticationCert` for x509-based authentication.
+
+Note that `username` and `password` are copied; pointers must be cleared up separately.
+
+"""
+function UA_ClientConfig_setAuthenticationUsername(config::Ptr{UA_ClientConfig}, username::Ptr{UA_String}, 
+        password::Ptr{UA_String})
     identityToken = UA_UserNameIdentityToken_new()
     if identityToken == C_NULL
         return UA_STATUSCODE_BADOUTOFMEMORY
     else
-        identityToken.userName = UA_STRING_ALLOC(username)
-        identityToken.password = UA_STRING_ALLOC(password)
-
+        UA_String_copy(username, identityToken.userName)
+        UA_String_copy(password, identityToken.password)
         UA_ExtensionObject_clear(config.userIdentityToken)
-        UA_ExtensionObject_setValue(config.userIdentityToken, identityToken,
+        UA_ExtensionObject_setValueCopy(config.userIdentityToken, identityToken,
             UA_TYPES_PTRS[UA_TYPES_USERNAMEIDENTITYTOKEN])
+        UA_UserNameIdentityToken_delete(identityToken)
         return UA_STATUSCODE_GOOD
     end
 end
 
 """
 ```
-UA_Client_connect(client::Ptr{UA_Client}, endpointurl::AbstractString)::UA_StatusCode
+UA_Client_connect(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String})::UA_StatusCode
 ```
 
 connect the `client` to the server with `endpointurl`. This is an anonymous connection, i.e.,
 no username or password are used (some servers do not allow this).
 
+Note that `endpointurl` is copied; pointer must be cleared up separately.
+
 """
-function UA_Client_connect(client, endpointUrl)
+function UA_Client_connect(client, endpointurl)
     cc = UA_Client_getConfig(client)
     cc.noSession = false
     UA_String_clear(cc.endpointUrl)
-    cc.endpointUrl = UA_STRING_ALLOC(endpointUrl)
+    UA_String_copy(endpointurl, cc.endpointUrl) 
     return __UA_Client_connect(client, false)
 end
 
@@ -84,12 +94,15 @@ UA_Client_getContext(client::Ptr{UA_Client}) = UA_Client_getConfig(client).clien
 
 """
 ```
-UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::AbstractString, 
-    username::AbstractString, password::AbstractString)::UA_StatusCode
+UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::Ptr[UA_String}, 
+    username::Ptr[UA_String}, password::Ptr[UA_String})::UA_StatusCode
 ```
 
 connects the `client` to the server with endpoint URL `endpointurl` and supplies
 `username` and `password` as login credentials.
+
+Note that `endpointurl`, `username`, and `password` are copied, pointers must be freed up 
+seperately.
 """
 function UA_Client_connectUsername(client, endpointurl, username, password)
     cc = UA_Client_getConfig(client)
