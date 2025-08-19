@@ -87,6 +87,10 @@ end
     include("client_simple.jl")
 end
 
+@testset "Client connections" begin
+    include("client_connectiontests.jl")
+end
+
 @testset "Client subscriptions" begin
     include("client_subscriptions.jl")
 end

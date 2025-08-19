@@ -10,8 +10,7 @@ Configure Username/Password for the Session authentication. Also see
 Note that `username` and `password` are copied; pointers must be cleared up separately.
 
 """
-function UA_ClientConfig_setAuthenticationUsername(config::Ptr{UA_ClientConfig}, username::Ptr{UA_String}, 
-        password::Ptr{UA_String})
+function UA_ClientConfig_setAuthenticationUsername(config, username, password)
     identityToken = UA_UserNameIdentityToken_new()
     if identityToken == C_NULL
         return UA_STATUSCODE_BADOUTOFMEMORY
@@ -126,8 +125,8 @@ UA_Client_getContext(client::Ptr{UA_Client}) = UA_Client_getConfig(client).clien
 
 """
 ```
-UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::Ptr[UA_String}, 
-    username::Ptr[UA_String}, password::Ptr[UA_String})::UA_StatusCode
+UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String}, 
+    username::Ptr[UA_String}, password::Ptr{UA_String})::UA_StatusCode
 ```
 
 connects the `client` to the server with endpoint URL `endpointurl` and supplies

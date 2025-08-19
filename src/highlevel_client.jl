@@ -27,6 +27,25 @@ const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
 
 """
 ```
+JUA_ClientConfig_setAuthenticationUsername(config::JUA_ClientConfig, username::AbstractString, 
+    password::AbstractString)::UA_StatusCode
+```
+
+Configure Username/Password for the Session authentication. Also see 
+`JUA_ClientConfig_setAuthenticationCert` for x509-based authentication.
+
+
+"""
+function JUA_ClientConfig_setAuthenticationUsername(config::JUA_ClientConfig, username::AbstractString, 
+        password::AbstractString)
+    username_ptr = UA_STRING_ALLOC(username)
+    password_ptr = UA_STRING_ALLOC(password) 
+    sc = UA_ClientConfig_setAuthenticationUsername(config, username_ptr, password_ptr)
+    return sc
+end
+
+"""
+```
 JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
 ```
 
@@ -76,7 +95,8 @@ returns the state of the `client`, particularly:
 - `sessionState`: the status of the session between client and server.
 - `connectStatus`: the status of the connection between client and server. 
 
-The returned values are `UInt32`, whose meaning is documented in 
+The returned values are `UInt32`, whose meaning is documented in `UA_SecureChannelState`, 
+`UA_SessionState` and `UA_ConnectionState`.
 
 """
 function JUA_Client_getState(client::JUA_Client)
