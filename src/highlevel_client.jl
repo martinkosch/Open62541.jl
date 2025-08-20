@@ -83,6 +83,27 @@ function JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractStr
     return sc
 end
 
+"""
+```
+JUA_Client_connectAsync(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking). This 
+is an anonymous connection, i.e., no username or password are used (some servers do not 
+allow this).
+
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `JUA_Client_getState` to get the state manually.
+
+"""
+function JUA_Client_connectAsync(client, endpointurl)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl) 
+    sc = UA_Client_connectAsync(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
 const JUA_Client_disconnect = UA_Client_disconnect
 
 """
@@ -245,7 +266,8 @@ value = JUA_Client_readValueAttribute(client::JUA_Client, nodeId::JUA_NodeId, ty
 ```
 
 uses the client API to read the value of `nodeId` from the server that the `client`
-is connected to.
+is connected to. In case the client has no live connection to a server, automatic 
+reconnection is attempted.
 
 The output `value` is automatically converted to a Julia type (such as Float64, String, Vector{String},
 etc.) if possible. Otherwise, open62541 composite types are returned.
@@ -273,11 +295,12 @@ end
 
 """
 ```
-JUA_Client_writeValueAttribute(server::JUA_Client, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
+JUA_Client_writeValueAttribute(client::JUA_Client, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
 ```
 
 uses the client API to write the value `newvalue` to `nodeId` to the server that
-the `client` is connected to.
+the `client` is connected to. In case the client has no live connection to a server, 
+automatic reconnection is attempted.
 
 `new_value` must either be a `JUA_Variant` or a Julia value/array compatible with
 any of its constructors.

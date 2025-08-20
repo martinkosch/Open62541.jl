@@ -53,15 +53,14 @@ connect the `client` to the server with `endpointurl` *asynchronously* (non-bloc
 is an anonymous connection, i.e., no username or password are used (some servers do not 
 allow this).
 
-After initiating the connection,
-call UA_Client_run_iterate repeatedly until the connection is fully established. You can set 
-a callback to client->config.stateCallback to be notified when the connection status 
-changes. Or use UA_Client_getState to get the state manually.
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `UA_Client_getState` to get the state manually.
 
 Note that `endpointurl` is copied; pointer must be cleared up separately.
 
 """
-function UA_Client_connectAsync(client, endpointUrl)
+function UA_Client_connectAsync(client, endpointurl)
     cc = UA_Client_getConfig(client)
     cc.noSession = false
     UA_String_clear(cc.endpointUrl)
