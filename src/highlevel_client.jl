@@ -104,6 +104,21 @@ function JUA_Client_connectAsync(client, endpointurl)
     return sc
 end
 
+"""
+```
+JUA_Client_connectSecureChannel(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` without creating a session.
+
+"""
+function JUA_Client_connectSecureChannel(client::JUA_Client, endpointurl::AbstractString)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connect(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
 const JUA_Client_disconnect = UA_Client_disconnect
 
 """

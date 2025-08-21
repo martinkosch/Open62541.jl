@@ -73,9 +73,7 @@ end
 UA_Client_connectSecureChannel(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String})::UA_StatusCode
 ```
 
-connect the `client` to the server with `endpointurl` without creating a session. This is an 
-anonymous connection, i.e., no username or password are used (some servers do not allow 
-this).
+connect the `client` to the server with `endpointurl` without creating a session. 
 
 Note that `endpointurl` is copied; pointer must be cleared up separately.
 
@@ -94,12 +92,11 @@ UA_Client_connectSecureChannelAsync(client::Ptr{UA_Client}, endpointurl::Ptr{UA_
 ```
 
 connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking) 
-without creating a session. This is an anonymous connection, i.e., no username or password 
-are used (some servers do not allow this).
+without creating a session.
 
-After initiating the connection, call UA_Client_run_iterate repeatedly until the connection 
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
 is fully established. You can set a callback to client->config.stateCallback to be notified 
-when the connection status changes. Or use UA_Client_getState to get the state manually.
+when the connection status changes. Or use `UA_Client_getState` to get the state manually.
 
 Note that `endpointurl` is copied; pointer must be cleared up separately.
 

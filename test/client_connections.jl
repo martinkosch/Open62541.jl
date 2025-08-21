@@ -64,8 +64,30 @@ sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
-        retval1 = JUA_Client_connectUsername(client, "opc.tcp://localhost:4840", "user",
-                "password")        
+        retval1 = JUA_Client_connectUsername(client, "opc.tcp://localhost:4840", 
+            "PeterParker", "IamSpiderman")        
+        if retval == UA_STATUSCODE_GOOD
+            println("Connection established.")
+            break
+        end
+        sleep(sleep_time)
+        trial = trial + 1
+    end
+    @test trial < max_duration / sleep_time # Check if maximum number of trials has been exceeded
+end
+retval = JUA_Client_disconnect(client)
+@test retval == UA_STATUSCODE_GOOD
+
+# Set password and username with connect command
+client = JUA_Client()
+config = JUA_ClientConfig(client)
+JUA_ClientConfig_setDefault(config)
+max_duration = 90.0 # Maximum waiting time for server startup 
+sleep_time = 2.0 # Sleep time in seconds between each connection trial
+let trial
+    trial = 0
+    while trial < max_duration / sleep_time
+        retval1 = JUA_Client_connectSecureChannel(client, "opc.tcp://localhost:4840")        
         if retval == UA_STATUSCODE_GOOD
             println("Connection established.")
             break
