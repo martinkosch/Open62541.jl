@@ -112,17 +112,8 @@ end
 
 """
 ```
-UA_Client_getContext(client::Ptr{UA_Client})::Ptr{Ptr{Cvoid}}
-```
-
-Get the client context.
-"""
-UA_Client_getContext(client::Ptr{UA_Client}) = UA_Client_getConfig(client).clientContext
-
-"""
-```
 UA_Client_connectUsername(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String}, 
-    username::Ptr[UA_String}, password::Ptr{UA_String})::UA_StatusCode
+    username::Ptr{UA_String}, password::Ptr{UA_String})::UA_StatusCode
 ```
 
 connects the `client` to the server with endpoint URL `endpointurl` and supplies
@@ -140,6 +131,37 @@ function UA_Client_connectUsername(client, endpointurl, username, password)
         return UA_Client_connect(client, endpointurl)
     end
 end
+
+"""
+```
+UA_Client_connectUsernameAsync(client::Ptr{UA_Client}, endpointurl::Ptr{UA_String}, 
+    username::Ptr{UA_String}, password::Ptr{UA_String})::UA_StatusCode
+```
+
+connects the `client` to the server with endpoint URL `endpointurl` and supplies
+`username` and `password` as login credentials.
+
+Note that `endpointurl`, `username`, and `password` are copied, pointers must be freed up 
+seperately.
+"""
+function UA_Client_connectUsernameAsync(client, endpointurl, username, password)
+    cc = UA_Client_getConfig(client)
+    res = UA_ClientConfig_setAuthenticationUsername(cc, username, password)
+    if res != UA_STATUSCODE_GOOD
+        return res
+    else
+        return UA_Client_connectAsync(client, endpointurl)
+    end
+end
+
+"""
+```
+UA_Client_getContext(client::Ptr{UA_Client})::Ptr{Ptr{Cvoid}}
+```
+
+Get the client context.
+"""
+UA_Client_getContext(client) = UA_Client_getConfig(client).clientContext
 
 ## UA_Client_Service functions
 for att in attributes_UA_Client_Service

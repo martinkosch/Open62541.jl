@@ -5,6 +5,7 @@ using Distributed
 Distributed.addprocs(1) # Add a single worker process to run the server
 
 Distributed.@everywhere begin
+    using Pkg.BinaryPlatforms
     using Open62541
     using Test
 end
@@ -98,7 +99,6 @@ retval = JUA_Client_disconnect(client)
 #Async connect test 
 client = JUA_Client()
 config = JUA_ClientConfig(client)
-
 JUA_ClientConfig_setDefault(config)
 
 m = UInt32(typemax(UInt32))
@@ -110,8 +110,12 @@ function stateCallback(client, channelstate, sessionstate, connectstatus)
     return nothing
 end
 
-cb = UA_ClientConfig_stateCallback_generate(stateCallback)
-
+@static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
+    cb = UA_ClientConfig_stateCallback_generate(stateCallback)
+else #we are on Apple Silicon and can't use a closure in @cfunction, so do it manually
+    cb = @cfunction(stateCallback, nothing,
+        (Ptr{UA_Client}, UInt32, UInt32, UInt32))
+end
 config.stateCallback = cb
 
 max_duration = 90.0 # Maximum waiting time for server startup 
@@ -136,6 +140,8 @@ let trial
 end
 retval = JUA_Client_disconnect(client)
 @test retval == UA_STATUSCODE_GOOD
+
+#TODO: introduce tests for connectusernameasync, connectsecurechannelasync
 
 println("Ungracefully kill server process...")
 Distributed.interrupt(Distributed.workers()[end])
