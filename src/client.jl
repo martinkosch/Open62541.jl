@@ -101,8 +101,7 @@ when the connection status changes. Or use `UA_Client_getState` to get the state
 Note that `endpointurl` is copied; pointer must be cleared up separately.
 
 """
-function UA_Client_connectSecureChannelAsync(
-        client, endpointUrl)
+function UA_Client_connectSecureChannelAsync(client, endpointurl)
     cc = UA_Client_getConfig(client)
     cc.noSession = true
     UA_String_clear(cc.endpointUrl)

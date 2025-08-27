@@ -150,19 +150,31 @@ See also:
 """
 function JUA_Client_connectSecureChannelAsync(client, endpointurl)
     endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
-    sc = UA_Client_secureChannelAsync(client, endpointurl)
+    sc = UA_Client_connectSecureChannelAsync(client, endpointurl_ptr)
     UA_String_delete(endpointurl_ptr)
     return sc
 end
 
 """
 ```
-JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractString, 
+JUA_Client_connectUsernameAsync(client::JUA_Client, endpointurl::AbstractString, 
     username::AbstractString, password::AbstractString)::UA_StatusCode
 ```
 
-connects the `client` to the server with endpoint URL `endpointurl` and supplies
-`username` and `password` as login credentials.
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking) 
+and supplies `username` and `password` as login credentials.
+
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `JUA_Client_getState` to get the state manually.
+
+See also:
+
+[`JUA_Client_getState`](@ref)
+
+[`UA_ClientConfig_stateCallback_generate`](@ref)
+
+[`UA_Client_run_iterate`](@ref)
 
 """
 function JUA_Client_connectUsernameAsync(client::JUA_Client, endpointurl::AbstractString, 
