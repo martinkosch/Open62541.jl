@@ -113,7 +113,7 @@ end
 @static if !Sys.isapple() || platform_key_abi().tags["arch"] != "aarch64"
     cb = UA_ClientConfig_stateCallback_generate(stateCallback)
 else #we are on Apple Silicon and can't use a closure in @cfunction, so do it manually
-    cb = @cfunction(stateCallback, nothing,
+    cb = @cfunction(stateCallback, Nothing,
         (Ptr{UA_Client}, UInt32, UInt32, UInt32))
 end
 config.stateCallback = cb
