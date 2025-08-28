@@ -24,6 +24,26 @@ mutable struct JUA_ClientConfig <: AbstractOpen62541Wrapper
 end
 
 const JUA_ClientConfig_setDefault = UA_ClientConfig_setDefault
+
+"""
+```
+JUA_ClientConfig_setAuthenticationUsername(config::JUA_ClientConfig, username::AbstractString, 
+    password::AbstractString)::UA_StatusCode
+```
+
+Configure Username/Password for the Session authentication. Also see 
+`JUA_ClientConfig_setAuthenticationCert` for x509-based authentication.
+
+
+"""
+function JUA_ClientConfig_setAuthenticationUsername(config::JUA_ClientConfig, username::AbstractString, 
+        password::AbstractString)
+    username_ptr = UA_STRING_ALLOC(username)
+    password_ptr = UA_STRING_ALLOC(password) 
+    sc = UA_ClientConfig_setAuthenticationUsername(config, username_ptr, password_ptr)
+    return sc
+end
+
 """
 ```
 JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
@@ -34,7 +54,11 @@ no username or password are used (some servers do not allow this).
 
 """
 function JUA_Client_connect(client::JUA_Client, endpointurl::AbstractString)
-    UA_Client_connect(client, endpointurl)
+    #simple wrapper to directly allow endpointurl with a Julia AbstractString
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connect(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
 end
 
 """
@@ -49,10 +73,151 @@ connects the `client` to the server with endpoint URL `endpointurl` and supplies
 """
 function JUA_Client_connectUsername(client::JUA_Client, endpointurl::AbstractString, 
         username::AbstractString, password::AbstractString)
-    UA_Client_connectUsername(client, endpointurl, username, password)
+    username_ptr = UA_STRING_ALLOC(username)
+    password_ptr = UA_STRING_ALLOC(password)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connectUsername(client, endpointurl_ptr, username_ptr, password_ptr)
+    UA_String_delete(username_ptr)
+    UA_String_delete(password_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
+"""
+```
+JUA_Client_connectAsync(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking). This 
+is an anonymous connection, i.e., no username or password are used (some servers do not 
+allow this).
+
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `JUA_Client_getState` to get the state manually.
+
+See also:
+
+[`JUA_Client_getState`](@ref)
+
+[`UA_ClientConfig_stateCallback_generate`](@ref)
+
+[`UA_Client_run_iterate`](@ref)
+
+"""
+function JUA_Client_connectAsync(client, endpointurl)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl) 
+    sc = UA_Client_connectAsync(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
+"""
+```
+JUA_Client_connectSecureChannel(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` without creating a session.
+
+"""
+function JUA_Client_connectSecureChannel(client::JUA_Client, endpointurl::AbstractString)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connect(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
+"""
+```
+JUA_Client_connectSecureChannelAsync(client::JUA_Client, endpointurl::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking) 
+without creating a session.
+
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `JUA_Client_getState` to get the state manually.
+
+See also:
+
+[`JUA_Client_getState`](@ref)
+
+[`UA_ClientConfig_stateCallback_generate`](@ref)
+
+[`UA_Client_run_iterate`](@ref)
+
+"""
+function JUA_Client_connectSecureChannelAsync(client, endpointurl)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connectSecureChannelAsync(client, endpointurl_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
+end
+
+"""
+```
+JUA_Client_connectUsernameAsync(client::JUA_Client, endpointurl::AbstractString, 
+    username::AbstractString, password::AbstractString)::UA_StatusCode
+```
+
+connect the `client` to the server with `endpointurl` *asynchronously* (non-blocking) 
+and supplies `username` and `password` as login credentials.
+
+After initiating the connection, call `UA_Client_run_iterate` repeatedly until the connection 
+is fully established. You can set a callback to client->config.stateCallback to be notified 
+when the connection status changes. Or use `JUA_Client_getState` to get the state manually.
+
+See also:
+
+[`JUA_Client_getState`](@ref)
+
+[`UA_ClientConfig_stateCallback_generate`](@ref)
+
+[`UA_Client_run_iterate`](@ref)
+
+"""
+function JUA_Client_connectUsernameAsync(client::JUA_Client, endpointurl::AbstractString, 
+        username::AbstractString, password::AbstractString)
+    username_ptr = UA_STRING_ALLOC(username)
+    password_ptr = UA_STRING_ALLOC(password)
+    endpointurl_ptr = UA_STRING_ALLOC(endpointurl)
+    sc = UA_Client_connectUsernameAsync(client, endpointurl_ptr, username_ptr, password_ptr)
+    UA_String_delete(username_ptr)
+    UA_String_delete(password_ptr)
+    UA_String_delete(endpointurl_ptr)
+    return sc
 end
 
 const JUA_Client_disconnect = UA_Client_disconnect
+
+"""
+```
+channelState::UInt32, sessionState::UInt32, connectStatus::UA_StatusCode = JUA_Client_getState(client::JUA_Client)::UA_StatusCode
+```
+
+returns the state of the `client`, particularly:
+- `channelState`: the status of the secure channel between client and server.
+- `sessionState`: the status of the session between client and server.
+- `connectStatus`: the status of the connection between client and server. 
+
+The returned values are `UInt32`, whose meaning is documented in `UA_SecureChannelState`, 
+`UA_SessionState` and `UA_ConnectionState`.
+
+"""
+function JUA_Client_getState(client::JUA_Client)
+    channelState_ptr = UA_UInt32_new()
+    sessionState_ptr = UA_UInt32_new()
+    connectStatus_ptr = UA_UInt32_new()
+    UA_Client_getState(client, channelState_ptr, sessionState_ptr, connectStatus_ptr)
+    channelState = unsafe_load(channelState_ptr)
+    sessionState = unsafe_load(sessionState_ptr)
+    connectStatus = unsafe_load(connectStatus_ptr)
+    UA_UInt32_delete(channelState_ptr)
+    UA_UInt32_delete(sessionState_ptr)
+    UA_UInt32_delete(connectStatus_ptr)
+    return channelState, sessionState, connectStatus
+end
 
 #Add node functions
 """
@@ -186,7 +351,8 @@ value = JUA_Client_readValueAttribute(client::JUA_Client, nodeId::JUA_NodeId, ty
 ```
 
 uses the client API to read the value of `nodeId` from the server that the `client`
-is connected to.
+is connected to. In case the client has no live connection to a server, automatic 
+reconnection is attempted.
 
 The output `value` is automatically converted to a Julia type (such as Float64, String, Vector{String},
 etc.) if possible. Otherwise, open62541 composite types are returned.
@@ -199,6 +365,12 @@ if you know that you have stored a Matrix{Float64} in `nodeId`, then you should
 specify this. If the wrong type is specified, the function will throw a TypeError.
 """
 function JUA_Client_readValueAttribute(client, nodeId, type::T = Any) where {T}
+    #automated reconnect.
+    channelState, sessionState, connectStatus = JUA_Client_getState(client)
+    if channelState != UA_SECURECHANNELSTATE_OPEN || sessionState != UA_SESSIONSTATE_ACTIVATED
+        cc = UA_Client_getConfig(client)
+        UA_Client_connect(client, cc.endpointUrl)
+    end
     v = UA_Variant_new()
     UA_Client_readValueAttribute(client, nodeId, v)
     r = __get_juliavalues_from_variant(v, type)
@@ -208,11 +380,12 @@ end
 
 """
 ```
-JUA_Client_writeValueAttribute(server::JUA_Client, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
+JUA_Client_writeValueAttribute(client::JUA_Client, nodeId::JUA_NodeId, newvalue)::UA_StatusCode
 ```
 
 uses the client API to write the value `newvalue` to `nodeId` to the server that
-the `client` is connected to.
+the `client` is connected to. In case the client has no live connection to a server, 
+automatic reconnection is attempted.
 
 `new_value` must either be a `JUA_Variant` or a Julia value/array compatible with
 any of its constructors.
@@ -225,6 +398,12 @@ function JUA_Client_writeValueAttribute(client, nodeId, newvalue)
 end
 
 function JUA_Client_writeValueAttribute(client, nodeId, newvalue::JUA_Variant)
+    #automated reconnect.
+    channelState, sessionState, connectStatus = JUA_Client_getState(client)
+    if channelState != UA_SECURECHANNELSTATE_OPEN || sessionState != UA_SESSIONSTATE_ACTIVATED
+        cc = UA_Client_getConfig(client)
+        UA_Client_connect(client, cc.endpointUrl)
+    end
     statuscode = UA_Client_writeValueAttribute(client, nodeId, newvalue)
     return statuscode
 end
