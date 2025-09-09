@@ -98,7 +98,7 @@ function UA_MethodCallback_generate(f::Function)
     returntype = UA_StatusCode
     ret = Base.return_types(f, argtuple)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
-       ret[1] == returntype
+            ret[1] == returntype
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid},
                 Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId}, Ptr{Cvoid},
@@ -189,7 +189,7 @@ function UA_ValueCallback_onRead_generate(f::Function)
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
                 Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -222,7 +222,7 @@ function UA_ValueCallback_onWrite_generate(f::Function)
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
                 Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -255,7 +255,7 @@ function UA_DataSourceCallback_write_generate(f::Function)
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
                 Ptr{Cvoid}, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -288,7 +288,7 @@ function UA_DataSourceCallback_read_generate(f::Function)
         callback = @cfunction($f, UA_StatusCode,
             (Ptr{UA_Server}, Ptr{UA_NodeId}, Ptr{Cvoid}, Ptr{UA_NodeId},
                 Ptr{Cvoid}, UA_Boolean, Ptr{UA_NumericRange}, Ptr{UA_DataValue}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -312,7 +312,7 @@ function UA_ServerCallback_generate(f::Function)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
         callback = @cfunction($f, Nothing, (Ptr{UA_Server}, Ptr{Cvoid}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -336,7 +336,7 @@ function UA_ClientCallback_generate(f::Function)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
         callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -360,7 +360,7 @@ function UA_ClientAsyncServiceCallback_generate(f::Function)
     if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
        ret[1] == returntype
         callback = @cfunction($f, Nothing, (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{Cvoid}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -385,7 +385,7 @@ function UA_ClientAsyncReadCallback_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_ReadResponse}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -410,7 +410,7 @@ function UA_ClientAsyncWriteCallback_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_WriteResponse}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -435,7 +435,7 @@ function UA_ClientAsyncBrowseCallback_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_BrowseResponse}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -460,7 +460,7 @@ function UA_ClientAsyncAddNodesCallback_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_AddNodesResponse}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -485,7 +485,83 @@ function UA_ClientAsyncCallCallback_generate(f::Function)
        ret[1] == returntype
         callback = @cfunction($f, Nothing,
             (Ptr{UA_Client}, Ptr{Cvoid}, UInt32, Ptr{UA_CallResponse}))
-        return callback
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientConfig_stateCallback_generate(f::Function)
+```
+
+creates a function pointer for the `stateCallback` field of a `UA_ClientConfig` object. 
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, channelstate::UInt32, sessionstate::UInt32, connecstatus::UInt32))::Nothing`
+"""
+function UA_ClientConfig_stateCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, UInt32, UInt32, UInt32)
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client}, UInt32, UInt32, UInt32))
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientConfig_inactivityCallback_generate(f::Function)
+```
+
+creates a function pointer for the `inactivityCallback` field of a `UA_ClientConfig` object. 
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}))::Nothing`
+"""
+function UA_ClientConfig_inactivityCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client},)
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+            (Ptr{UA_Client},))
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
+    else
+        err = CallbackGeneratorArgumentError(f, argtuple, returntype)
+        throw(err)
+    end
+end
+
+"""
+```
+UA_ClientConfig_subscriptionInactivityCallback_generate(f::Function)
+```
+
+creates a function pointer for the `subscriptionInactivityCallback` field of a 
+`UA_ClientConfig` object. 
+
+`f` must be a Julia function with the following signature:
+`f(client::Ptr{UA_Client}, subscritionid::UInt32, subcontext::Ptr{CVoid}))::Nothing`
+"""
+function UA_ClientConfig_subscriptionInactivityCallback_generate(f::Function)
+    argtuple = (Ptr{UA_Client}, UInt32, Ptr{Cvoid})
+    returntype = Nothing
+    ret = Base.return_types(f, argtuple)
+    if length(methods(f)) == 1 && hasmethod(f, argtuple) && !isempty(ret) &&
+       ret[1] == returntype
+        callback = @cfunction($f, Nothing,
+           (Ptr{UA_Client}, UInt32, Ptr{Cvoid}))
+        return Base.unsafe_convert(Ptr{Cvoid}, callback)
     else
         err = CallbackGeneratorArgumentError(f, argtuple, returntype)
         throw(err)
@@ -1371,127 +1447,6 @@ end
 #     /* Add more function pointer here.
 #      * For example for read_event, read_annotation, update_details */
 # };
-
-# typedef struct {
-#     void *clientContext; /* User-defined pointer attached to the client */
-#     UA_Logger logger;    /* Logger used by the client */
-#     UA_UInt32 timeout;   /* Response timeout in ms */
-
-#     /* The description must be internally consistent.
-#      * - The ApplicationUri set in the ApplicationDescription must match the
-#      *   URI set in the certificate */
-#     UA_ApplicationDescription clientDescription;
-
-#     /**
-#      * Connection configuration
-#      * ~~~~~~~~~~~~~~~~~~~~~~~~
-#      *
-#      * The following configuration elements reduce the "degrees of freedom" the
-#      * client has when connecting to a server. If no connection can be made
-#      * under these restrictions, then the connection will abort with an error
-#      * message. */
-#     UA_ExtensionObject userIdentityToken; /* Configured User-Identity Token */
-#     UA_MessageSecurityMode securityMode;  /* None, Sign, SignAndEncrypt. The
-#                                            * default is invalid. This indicates
-#                                            * the client to select any matching
-#                                            * endpoint. */
-#     UA_String securityPolicyUri; /* SecurityPolicy for the SecureChannel. An
-#                                   * empty string indicates the client to select
-#                                   * any matching SecurityPolicy. */
-
-#     /**
-#      * If either endpoint or userTokenPolicy has been set (at least one non-zero
-#      * byte in either structure), then the selected Endpoint and UserTokenPolicy
-#      * overwrite the settings in the basic connection configuration. The
-#      * userTokenPolicy array in the EndpointDescription is ignored. The selected
-#      * userTokenPolicy is set in the dedicated configuration field.
-#      *
-#      * If the advanced configuration is not set, the client will write to it the
-#      * selected Endpoint and UserTokenPolicy during GetEndpoints.
-#      *
-#      * The information in the advanced configuration is used during reconnect
-#      * when the SecureChannel was broken. */
-#     UA_EndpointDescription endpoint;
-#     UA_UserTokenPolicy userTokenPolicy;
-
-#     /**
-#      * If the EndpointDescription has not been defined, the ApplicationURI
-#      * constrains the servers considered in the FindServers service and the
-#      * Endpoints considered in the GetEndpoints service.
-#      *
-#      * If empty the applicationURI is not used to filter.
-#      */
-#     UA_String applicationUri;
-
-#     /**
-#      * Custom Data Types
-#      * ~~~~~~~~~~~~~~~~~
-#      * The following is a linked list of arrays with custom data types. All data
-#      * types that are accessible from here are automatically considered for the
-#      * decoding of received messages. Custom data types are not cleaned up
-#      * together with the configuration. So it is possible to allocate them on
-#      * ROM.
-#      *
-#      * See the section on :ref:`generic-types`. Examples for working with custom
-#      * data types are provided in ``/examples/custom_datatype/``. */
-#     const UA_DataTypeArray *customDataTypes;
-
-#     /**
-#      * Advanced Client Configuration
-#      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#     UA_UInt32 secureChannelLifeTime; /* Lifetime in ms (then the channel needs
-#                                         to be renewed) */
-#     UA_UInt32 requestedSessionTimeout; /* Session timeout in ms */
-#     UA_ConnectionConfig localConnectionConfig;
-#     UA_UInt32 connectivityCheckInterval;     /* Connectivity check interval in ms.
-#                                               * 0 = background task disabled */
-#     /* Available SecurityPolicies */
-#     size_t securityPoliciesSize;
-#     UA_SecurityPolicy *securityPolicies;
-
-#     /* Certificate Verification Plugin */
-#     UA_CertificateVerification certificateVerification;
-
-#     /* Callbacks for async connection handshakes */
-#     UA_ConnectClientConnection initConnectionFunc;
-#     UA_StatusCode (*pollConnectionFunc)(UA_Connection *connection,
-#                                         UA_UInt32 timeout,
-#                                         const UA_Logger *logger);
-
-#     /* Callback for state changes. The client state is differentated into the
-#      * SecureChannel state and the Session state. The connectStatus is set if
-#      * the client connection (including reconnects) has failed and the client
-#      * has to "give up". If the connectStatus is not set, the client still has
-#      * hope to connect or recover. */
-#     void (*stateCallback)(UA_Client *client,
-#                           UA_SecureChannelState channelState,
-#                           UA_SessionState sessionState,
-#                           UA_StatusCode connectStatus);
-
-#     /* When connectivityCheckInterval is greater than 0, every
-#      * connectivityCheckInterval (in ms), an async read request is performed on
-#      * the server. inactivityCallback is called when the client receive no
-#      * response for this read request The connection can be closed, this in an
-#      * attempt to recreate a healthy connection. */
-#     void (*inactivityCallback)(UA_Client *client);
-
-# #ifdef UA_ENABLE_SUBSCRIPTIONS
-#     /* Number of PublishResponse queued up in the server */
-#     UA_UInt16 outStandingPublishRequests;
-
-#     /* If the client does not receive a PublishResponse after the defined delay
-#      * of ``(sub->publishingInterval * sub->maxKeepAliveCount) +
-#      * client->config.timeout)``, then subscriptionInactivityCallback is called
-#      * for the subscription.. */
-#     void (*subscriptionInactivityCallback)(UA_Client *client,
-#                                            UA_UInt32 subscriptionId,
-#                                            void *subContext);
-# #endif
-
-#     UA_LocaleId *sessionLocaleIds;
-#     size_t sessionLocaleIdsSize;
-# } UA_ClientConfig;
 
 # typedef UA_Boolean
 # (*UA_HistoricalIteratorCallback)(UA_Client *client,

@@ -156,8 +156,8 @@ The `method` supplied can either be a Julia function that fulfills the requireme
 
 See also:
 - [`JUA_MethodAttributes`](@ref) for how to define valid attributes.
-- [`JUA_MethodCallback_generate`](@ref) for requirements on `method`.
-- [`JUA_MethodCallback_wrap`](@ref) for requirements on `method`.
+- [`UA_MethodCallback_generate`](@ref) for requirements on `method`.
+- [`UA_MethodCallback_wrap`](@ref) for requirements on `method`.
 """
 function JUA_Server_addNode(server, requestedNewNodeId,
         parentNodeId, referenceTypeId, browseName,
