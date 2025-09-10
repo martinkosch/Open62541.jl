@@ -110,7 +110,9 @@ sleep_time = 2.0 # Sleep time in seconds between each connection trial
 let trial
     trial = 0
     while trial < max_duration / sleep_time
-        retval = UA_Client_connect(client, "opc.tcp://localhost:4842")
+        url_ptr = UA_STRING_ALLOC("opc.tcp://localhost:4842")
+        retval = UA_Client_connect(client, url_ptr)
+        UA_String_delete(url_ptr)
         if retval == UA_STATUSCODE_GOOD
             println("Connection established.")
             break

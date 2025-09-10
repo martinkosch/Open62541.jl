@@ -13,12 +13,14 @@ Filter = t -> startswith(string(t), "UA_")
 ## Memory allocation and management for open62541 types
 
 These are low level functions allowing to allocate and free (etc.) memory for
-open62541 types ("UA_...") on the C-side.
+open62541 types ("UA_...") on the C-side, as well as comparison between objects of the same 
+type.
 
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
-Filter = t -> startswith(string(t), "UA_") && any(endswith.(string(t), ["_new", "_init", "_delete", "_clear", "_copy", "_deleteMembers"]))
+Filter = t -> startswith(string(t), "UA_") && any(endswith.(string(t), ["_new", "_init", 
+    "_delete", "_clear", "_copy", "_equal", "_deleteMembers"]))
 ```
 
 ## Convenience functions for generating strings/bytestrings & associated functions
@@ -28,10 +30,6 @@ UA_BYTESTRING
 UA_BYTESTRING_ALLOC
 UA_STRING
 UA_STRING_ALLOC
-```
-
-```@docs
-UA_ByteString_equal
 ```
 
 ## Generation of (Expanded)NodeIds & associated functions
@@ -46,10 +44,6 @@ Filter = t -> startswith(string(t), "UA_NODEID")
 Modules = [Open62541]
 Order = [:function]
 Filter = t -> startswith(string(t), "UA_EXPANDEDNODEID") 
-```
-
-```@docs
-UA_NodeId_equal
 ```
 
 ## Attribute generation
@@ -92,7 +86,12 @@ Filter = t -> startswith(string(t), "UA_Server_") || startswith(string(t), "UA_S
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
-Filter = t -> startswith(string(t), "UA_Client_")
+Filter = t -> startswith(string(t), "UA_Client_") && !contains(string(t), "Async") &&
+    !contains(string(t), "async")
+```
+
+```@docs
+UA_ClientConfig_setAuthenticationUsername
 ```
 
 ## Asynchronous Client API
@@ -100,7 +99,8 @@ Filter = t -> startswith(string(t), "UA_Client_")
 ```@autodocs
 Modules = [Open62541]
 Order = [:function]
-Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
+Filter = t -> startswith(string(t), "UA_Client_") && (contains(string(t), "Async") || 
+    contains(string(t), "async"))
 ```
 
 ## Callback generation

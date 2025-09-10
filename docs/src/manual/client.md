@@ -74,5 +74,5 @@ UA_Client_writeWriteMaskAttribute
 ```@autodocs; canonical = false
 Modules = [Open62541]
 Order = [:function]
-Filter = t -> startswith(string(t), "UA_ClientAsync") && !endswith(string(t), "_generate")
+Filter = t -> startswith(string(t), "UA_Client") && contains(string(t), "Async")
 ```
